@@ -2,36 +2,36 @@ package com.felixalacampagne.account.model;
 
 public class AccountItem
 {
-	long acc_id;
-	String acc_desc;
+	long id;
+	String name;
 
 	public AccountItem() 
 	{
 	}
 	
-	public AccountItem(long id, String desc)
+	public AccountItem(long id, String name)
 	{
-		this.acc_id = id;
-		this.acc_desc = desc;
+		this.id = id;
+		this.name = name;
 	}
 
-	public long getAcc_id()
+	public long getId()
 	{
-		return acc_id;
+		return id;
 	}
 
-	public void setAcc_id(long acc_id)
+	public void setId(long id)
 	{
-		this.acc_id = acc_id;
+		this.id = id;
 	}
 
-	public String getAcc_desc()
+	public String getName()
 	{
-		return acc_desc;
+		return name;
 	}
 
-	public void setAcc_desc(String acc_desc)
+	public void setNamec(String name)
 	{
-		this.acc_desc = acc_desc;
+		this.name = name;
 	}
 }

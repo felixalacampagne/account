@@ -8,11 +8,11 @@ import com.felixalacampagne.account.service.AccountService;
 
 @RestController
 @RequestMapping
-public class WebController {
+public class AccountController {
 
    private final AccountService accountService;
 
-   public WebController(AccountService accountService) {
+   public AccountController(AccountService accountService) {
       this.accountService = accountService;
    }
 

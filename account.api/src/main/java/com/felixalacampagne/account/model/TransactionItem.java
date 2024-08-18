@@ -2,16 +2,18 @@ package com.felixalacampagne.account.model;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class TransactionItem
 {
    private final long id;
-   private final Timestamp date;
-   private final BigDecimal amount;
-   private final BigDecimal balance;
+   private final String date;
+   private final String amount;
+   private final String balance;
    private final String comment;
 
-   public TransactionItem(long sequence, Timestamp date, BigDecimal amount, BigDecimal balance, String comment)
+   public TransactionItem(long sequence, String date, String amount, String balance, String comment)
    {
       this.id = sequence;
       this.date = date;
@@ -25,17 +27,17 @@ public class TransactionItem
       return id;
    }
 
-   public Timestamp getDate()
+   public String getDate()
    {
       return date;
    }
 
-   public BigDecimal getAmount()
+   public String getAmount()
    {
       return amount;
    }
 
-   public BigDecimal getBalance()
+   public String getBalance()
    {
       return balance;
    }

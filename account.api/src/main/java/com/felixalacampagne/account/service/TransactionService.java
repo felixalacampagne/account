@@ -1,6 +1,9 @@
 package com.felixalacampagne.account.service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.sql.Timestamp;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,7 +27,8 @@ public class TransactionService
    private final Logger log = LoggerFactory.getLogger(this.getClass());
    private final ObjectMapper objmap = new ObjectMapper();
    private final TransactionJpaRepository transactionJpaRepository;
-
+   private final DateTimeFormatter DATEFORMAT_YYYYMMDD = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+   
    @Autowired
    public TransactionService(TransactionJpaRepository transactionJpaRepository) {
       this.transactionJpaRepository = transactionJpaRepository;
@@ -70,6 +74,33 @@ public class TransactionService
       {
          amount = t.getCredit().negate();
       }
-      return new TransactionItem(t.getSequence(), t.getDate(), amount, t.getBalance(), t.getComment());
+      
+      // jackson doesn't handle Java dates and bigdecimal has too many decimal places so it's
+      // simpler just to send the data as Strings with the desired formating.
+      return new TransactionItem(t.getSequence(), 
+            formatTimestamp(t.getDate()), 
+            formatAmount(amount), 
+            formatAmount(t.getBalance()), 
+            t.getComment());
+   }
+   
+   private String formatAmount(BigDecimal bigdec)
+   {
+   String amt = "";
+      if(bigdec != null) 
+      {
+         amt = bigdec.setScale(2, RoundingMode.HALF_UP).toString();
+      }
+      return amt;
+   }
+   
+   private String formatTimestamp(Timestamp ts)
+   {
+      String date = "";
+      if(ts != null)
+      {
+         date = ts.toLocalDateTime().toLocalDate().format(DATEFORMAT_YYYYMMDD);
+      }
+      return date;
    }
 }
