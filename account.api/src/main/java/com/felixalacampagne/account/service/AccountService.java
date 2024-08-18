@@ -28,13 +28,19 @@ public class AccountService
       this.accountJpaRepository = accountJpaRepository;
    }
 
-   public String getAccounts() {
-      String result = "";
+   public List<AccountItem> getAccountList() 
+   {
       List<Account> accs = accountJpaRepository.findAccountsExcludeAccOrderSorted(Collections.singletonList(255L));
       List<AccountItem> accitems = accs.stream()
             // .sorted(Comparator.comparing(Account::getAccDesc))
             .map(a -> { return new AccountItem(a.getAccId(), a.getAccDesc()); })
             .collect(Collectors.toList());
+      return accitems;
+   }
+   
+   public String getAccounts() {
+      String result = "";
+      List<AccountItem> accitems = getAccountList();
       try
       {
          result = objmap.writeValueAsString(accitems);
