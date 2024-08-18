@@ -1,4 +1,4 @@
-package com.felixalacampagne.account;
+package com.felixalacampagne.account.application;
 
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -8,12 +8,9 @@ import com.felixalacampagne.account.persistence.repository.RepositoryConfig;
 import com.felixalacampagne.account.service.ServiceConfig;
 
 @Configuration
-
-// Don't think this is required since ServiceConfig is explicitly reference
-//@ComponentScan(basePackages = {"com.felixalacampagne.account.service"})
 @Import({RepositoryConfig.class, ServiceConfig.class})
 
-public class SpringbootInTomcatApplicationConfig
+public class AccountApplicationConfig
 {
 
 }

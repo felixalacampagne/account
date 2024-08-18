@@ -1,0 +1,2 @@
+spring.datasource.url=jdbc:ucanaccess://<full path to test db with forward slashed>
+# eg. spring.datasource.url=jdbc:ucanaccess://E:/Development/workspace/accountrest/acc2003_TEST.mdb
