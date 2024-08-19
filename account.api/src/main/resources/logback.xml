@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration>
+
+<configuration scan="true" scanPeriod="180 seconds">
+  <import class="ch.qos.logback.classic.encoder.PatternLayoutEncoder"/>
+  <import class="ch.qos.logback.core.ConsoleAppender"/>
+
+  <appender name="STDOUT" class="ConsoleAppender">
+    <encoder class="PatternLayoutEncoder">
+      <pattern>%d %-5level:%logger{40}: %msg%n</pattern>
+    </encoder>
+  </appender>
+  
+  <logger name="com.felixalacampagne" level="debug"/>
+  
+  
+  <root level="info">
+    <appender-ref ref="STDOUT"/>
+  </root>
+</configuration>

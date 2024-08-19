@@ -32,3 +32,18 @@ hours an hours trying to fix.... didn't take quite that long... the culprit was 
 application.properties which eclipse does not search in by default.
 
 So next thing to do is see if works with from the war file with my tomcat server.
+
+19 Aug 2024 Added a redirect in httpd.conf for jaccountapi and updated pom to produce jaccountapi.war.
+Copy the war to tomcat and it was expanded. First attempt failed with the white label error page saying 404
+because I forgot I changed the default path to 'greeting'. 'greeting' failed with 500 and a log message. The
+path to the DB was wrong. Rebuilt the war with a fixed path (must figure out a way to read the db location
+from a local installation file) and redeployed it - all sorts of weird errors about something to do with forms
+and a missing xalan transformerimpl - basically WTF? Stop the servers, removed the war and expanded directory,
+restarted the servers and deployed the war to the webapps directory. It appears to start but with a worrying sounding
+message in localhost.log
+
+ApplicationContext.log 2 Spring WebApplicationInitializers detected on classpath
+
+I only have one Spring application and have no idea where 2 of these things can be comeing from.
+
+However, the greeting URL gives me my message, and... tada... the API URLs list the DB content! Yay!

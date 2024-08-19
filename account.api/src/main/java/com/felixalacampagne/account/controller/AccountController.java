@@ -28,7 +28,7 @@ public class AccountController {
     @GetMapping("/greeting")
     public String getMessage()
     {
-        return "Spring Boot Application running on Tomcat server\nand reading from Access database;\n" + accountService.getAccounts();
+        return "Welcome to the Account Spring Boot Application running on Tomcat server\nand reading from Access database;\n";
     }
     
     
