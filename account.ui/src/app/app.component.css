@@ -1,0 +1,44 @@
+.modal-open { position: fixed; }
+
+/*
+  Originally the idea was to display the scanner over the txn form. I couldn't get that to
+  work but realised on the way that the scanner needed to display higher up the window, ie. over
+  the transaction list itself, so that the camera display was on view without scrolling. While
+  trying to get that to work I somehow succeeded in getting the overlay so do what I wanted,
+  more or less. No real idea why it works now but didn't hours and hours ago when I started
+  doing it. The missing thing now is the height of the scanner 'permission' panel - it should
+  be higher but setting a height for qrreadercontainer causes the transaction list to be 
+  permanently obscured.
+*/
+#txncontainer {
+  position: relative;
+  left: 0px;
+  top: 0px;
+}
+
+#qrreadercontainer,
+#txnform {
+  width: 100%;
+  position: absolute;
+}
+
+#txnform {
+  margin-top: 0px; 
+  top: 0px
+}
+
+/*
+  Setting -ve margin-top with z-index,opacity and background displays the scanner over the transaciton list
+  which is what I want. Insanely when the scanner is displayed a block of empty space appears between it and
+  the transaction form, ie. the transaction form moves down by the height of the scanner box, even though the
+  scanner box is displayed way above it. It does not appear to be possible to prevent this. It shouldn't matter,
+  providing it moves back up again when the scan is finished.
+  SOLVED: 'position: absolute' in the sub-div style appears to fix position of the transaction form after the transaciton list
+  AND allow the scanner window to appear over the transaction list!
+ */
+#qrreadercontainer {
+  z-index: 1000000000;
+  opacity: 1;
+  margin-top: -350px; 
+  background: white;
+}

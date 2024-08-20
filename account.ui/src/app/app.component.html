@@ -1,0 +1,94 @@
+
+<!-- Requires 'bootstrap'. From https://getbootstrap.com/docs/4.0/components/dropdowns/  -->
+
+<!-- NB  "flex-nowrap flex-row" can be used to prevent the 'vertical' navbar from appearing on phone display, but I
+     I don't think it looks any better
+ -->
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+    <ul class="navbar-nav">
+      <li ngbDropdown class="nav-item d-inline-block">
+          <button class="btn btn-sm btn-dark" id="btnAccounts" ngbDropdownToggle>Accounts</button>
+          <div ngbDropdownMenu aria-labelledby="btnAccounts">
+            <button *ngFor="let a of accounts" (click)="getTransactions(a)" class="dropdown-item">{{a.name}}</button>
+          </div>
+      </li>
+    </ul>
+
+    <div class="ms-auto order-last">
+        <a class="navbar-brand" href="#">CPAccount{{envName}}</a>
+    </div>
+</nav>
+
+
+<div class="page">
+  <div class="transactions" *ngIf="isTransactions()">
+    <table class="table table-striped table-sm">
+      <thead class="thead-inverse">
+      <tr><th colspan="3">Transactions for {{activeaccount.name}}</th></tr>
+      <tr><th>Date</th><th>Memo</th><th>Amount</th></tr>
+      </thead>
+      <tbody class="">
+      <tr *ngFor="let txn of transactions"><td>{{txn.date}}</td><td>{{txn.comment}}</td><td>{{txn.amount}}</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="txncontainer" *ngIf="isTransactions()">
+    <div id="qrreadercontainer">
+      <div id="reader" class="reader" width="300px"></div>  
+    </div>
+    <!-- QR reader panel. Should overlay the transaciton input form -->
+    <div id="txnform" class="txnform">
+
+      <!-- pt/pb are padding top/bottom -->
+      <div class="container border border-warning rounded pt-3 pb-3">
+
+          <form #newtxnform="ngForm">
+            <div class="input-group input-group-sm mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="lbdate">Date</span>
+              </div>
+              <!-- ng add @angular/localize was required to enable navigation backwards and forwards   -->
+              <input ngbDatepicker #dt="ngbDatepicker" [(ngModel)]="txDate" 
+                     name="txDate" id="txDate" type="text" 
+                     class="form-control-date form-control form-control-sm" placeholder="DD/MM/YYYY">
+              <div class="input-group-append">
+                <button class="btn btn-outline-secondary" (click)="dt.toggle()" type="button">
+                  <img src="assets/images/calendar-icon.svg" style="width: 1.2rem; height: 1rem; cursor: pointer;"/>
+                </button>
+              </div> 
+
+            </div>
+            <div class="input-group input-group-sm mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="lbType">Type</span>
+                </div>
+                <select class="form-control form-control-sm" [(ngModel)]="txType" name="txType" id="txType">
+                    <option *ngFor="let txnType of txnTypes" [ngValue]="txnType">{{txnType}}</option>
+                </select>
+            </div>
+
+            <div class="input-group input-group-sm mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="lbcomment">Comment</span>
+              </div>
+              <input [(ngModel)]="txComment" name="txComment" id="txComment" type="text" class="form-control form-control-sm" placeholder="" aria-label=""  aria-describedby="lbcomment">
+            </div>
+
+            <div class="input-group input-group-sm mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="lbamount">Amount Debited</span>
+              </div>
+              <input [(ngModel)]="txAmount" name="txAmount" id="txAmount" type="number" class="form-control form-control-sm" placeholder="-ve number for Credit" aria-label="-ve number for Credit"  aria-describedby="lbamount">
+            </div>          
+          </form>
+          <button type="button" class="btn btn-default btn-primary" (click)="addtransaction();">Add new transaction</button>&nbsp;
+          <button type="button" class="btn btn-default btn-primary" (click)="doScan();">Scan QR code</button>    
+        </div>        
+      
+      <!-- div>
+        <textarea [(ngModel)]="txPastearea" (paste)="onPaste($event)" placeholder="Paste QR EPC data here..."></textarea>    
+      </div -->
+    </div>
+  </div>
+</div>

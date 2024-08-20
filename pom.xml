@@ -8,5 +8,6 @@
   <description>Parent project for the account sub-projects</description>
   <modules>
      <module>account.api</module>
+     <module>account.ui</module>
   </modules>
 </project>
