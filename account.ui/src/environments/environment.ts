@@ -5,6 +5,7 @@
 
 export const environment = {
   production: false,
-  accountapi_host: "http://minnie",
+  accountapi_host: "http://localhost:8080",
+  accountapi_app: "/",
   envName: ' (home)'
 };

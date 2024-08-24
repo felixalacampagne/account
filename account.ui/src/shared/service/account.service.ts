@@ -10,20 +10,23 @@ import { TransactionItem } from '../model/transaction.model';
 export class AccountService 
 {
     private serverhost : string; // = "http://minnie"; //""; //"http://minnie"; //"http://localhost:8080";
-    private accountapiapp : string = "/jaccountapi";
-    private listaccsvc : string = this.accountapiapp + "/listaccount";
-    private listtxnsvc : string = this.accountapiapp + "listtransaction/";
-    private addtxnsvc : string = this.accountapiapp + "addtransaction";
+    private accountapiapp : string = "/account/";
+    private apiurl : string;
+    private listaccsvc : string = "listaccount";
+    private listtxnsvc : string = "listtransaction/";
+    private addtxnsvc : string = "addtransaction";
     constructor(private http : HttpClient)
     {
         this.serverhost = environment.accountapi_host;
-        console.log("Account API server host: " + this.serverhost);
+        this.accountapiapp = environment.accountapi_app;
+        this.apiurl = this.serverhost + this.accountapiapp
+        console.log("Account API server host: " + this.apiurl);
     }    
 
     getAccounts() : Observable<AccountItem[]>
     {
         let url : string;
-        url = this.serverhost + this.listaccsvc;
+        url = this.apiurl + this.listaccsvc;
         // The account items are returned wrapped in an array named accounts
         console.log("getAccount API URL: " + url);
         return this.http.get(url).pipe( map((res:any) => res.accounts) );    
@@ -32,7 +35,7 @@ export class AccountService
     getTransactions(a : AccountItem) : Observable<TransactionItem[]>
     {
         let url : string;
-        url = this.serverhost + this.listtxnsvc + a.id;
+        url = this.apiurl + this.listtxnsvc + a.id;
         // The items are returned wrapped in an array named transactions
         return this.http.get(url).pipe( map((res:any) => res.transactions));
 
@@ -44,7 +47,7 @@ export class AccountService
         let url : string;
         let res;
         json = JSON.stringify(txn);
-        url = this.serverhost + this.addtxnsvc;
+        url = this.apiurl + this.addtxnsvc;
         console.log("addTransaction: POSTing to " + url + ": " + json);
 
         // To prevent response being parsed as JSON must use responseType: 'text'. 

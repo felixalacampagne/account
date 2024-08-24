@@ -1,5 +1,6 @@
 package com.felixalacampagne.account.controller;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,7 @@ import com.felixalacampagne.account.service.TransactionService;
 
 @RestController
 @RequestMapping
+@CrossOrigin(origins = "http://localhost:4200") // required because ng serve is on 4200 and standalone spring server is on 8080
 public class AccountController {
 
    private final AccountService accountService;
