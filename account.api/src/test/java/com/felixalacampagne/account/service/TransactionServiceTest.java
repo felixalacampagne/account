@@ -25,7 +25,7 @@ class TransactionServiceTest
    @Test
    void testGetTransactions()
    {
-      String txnjson = transactionService.getTransactions(1L);
+      String txnjson = transactionService.getTransactionsJson(1L);
       log.info("testGetTransactions: transaction list\n{}", txnjson);
    }
 

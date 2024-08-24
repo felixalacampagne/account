@@ -1,7 +1,6 @@
 package com.felixalacampagne.account.service;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,9 +11,10 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.felixalacampagne.account.model.AccountItem;
+import com.felixalacampagne.account.model.Accounts;
 import com.felixalacampagne.account.persistence.entities.Account;
 import com.felixalacampagne.account.persistence.repository.AccountJpaRepository;
-import com.felixalacampagne.account.model.AccountItem;
 
 @Service
 public class AccountService
@@ -38,12 +38,18 @@ public class AccountService
       return accitems;
    }
    
-   public String getAccounts() {
-      String result = "";
+   public Accounts getAccounts() {
       List<AccountItem> accitems = getAccountList();
+      Accounts accs = new Accounts(accitems); // For fronted compatibility
+      return accs;
+   }
+   
+   public String getAccountsJson() {
+      String result = "";
+      Accounts accs = getAccounts();
       try
       {
-         result = objmap.writeValueAsString(accitems);
+         result = objmap.writeValueAsString(accs);
       }
       catch (JsonProcessingException e)
       {

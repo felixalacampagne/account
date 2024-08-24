@@ -10,9 +10,10 @@ import { TransactionItem } from '../model/transaction.model';
 export class AccountService 
 {
     private serverhost : string; // = "http://minnie"; //""; //"http://minnie"; //"http://localhost:8080";
-    private listaccsvc : string = "/accountAPI/listaccount.php";
-    private listtxnsvc : string = "/accountAPI/listtransaction.php?accid=";
-    private addtxnsvc : string = "/accountAPI/addtransaction.php";
+    private accountapiapp : string = "/jaccountapi";
+    private listaccsvc : string = this.accountapiapp + "/listaccount";
+    private listtxnsvc : string = this.accountapiapp + "listtransaction/";
+    private addtxnsvc : string = this.accountapiapp + "addtransaction";
     constructor(private http : HttpClient)
     {
         this.serverhost = environment.accountapi_host;

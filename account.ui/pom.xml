@@ -5,7 +5,7 @@
     <artifactId>account.parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>account.ui</artifactId>
+  <artifactId>accountui</artifactId>
   <packaging>war</packaging>
   <name>Account user interface</name>
   <description>User interface for Account</description>

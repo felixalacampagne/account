@@ -1,16 +1,9 @@
 package com.felixalacampagne.account.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
 
 import com.felixalacampagne.account.AccountTest;
 
@@ -35,7 +28,7 @@ class AccountServiceTest
 	@Test
 	void testGetAccounts()
 	{
-		String acclistjson = accountService.getAccounts();
+		String acclistjson = accountService.getAccountsJson();
 		log.info("testGetAccounts: json accoount list: {}", acclistjson);
 	}
 

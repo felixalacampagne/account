@@ -12,7 +12,6 @@ import org.springframework.test.context.TestPropertySource;
 
 import com.felixalacampagne.account.persistence.repository.RepositoryConfig;
 import com.felixalacampagne.account.service.ServiceConfig;
-import org.springframework.context.annotation.Configuration;
 
 @DataJpaTest
 

@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.felixalacampagne.account.persistence.entities.Transaction;
 import com.felixalacampagne.account.persistence.repository.TransactionJpaRepository;
 import com.felixalacampagne.account.model.TransactionItem;
+import com.felixalacampagne.account.model.Transactions;
 
 @Service
 public class TransactionService
@@ -34,15 +35,23 @@ public class TransactionService
       this.transactionJpaRepository = transactionJpaRepository;
    }
 
-   public String getTransactions(long accountId)
+   public Transactions getTransactions(long accountId)
    {
-      String result = "";
       List<TransactionItem> txnitems = getTransactionPage(0, 25, accountId).stream()
             .map(t -> mapToItem(t))
             .collect(Collectors.toList());
+      Transactions trns = new Transactions(txnitems); // For fronted compatibility
+      return trns;
+   }
+   
+   
+   public String getTransactionsJson(long accountId)
+   {
+      String result = "";
+      Transactions trns = getTransactions(accountId);
       try
       {
-         result = objmap.writeValueAsString(txnitems);
+         result = objmap.writeValueAsString(trns);
       }
       catch (JsonProcessingException e)
       {
@@ -61,7 +70,6 @@ public class TransactionService
    }
 
 
-   // TODO change Item to all Strings with required formatting, ie. 'yyyy-mm-dd' for date, two decimal places for amount
    private TransactionItem mapToItem(Transaction t)
    {
       BigDecimal amount;
@@ -77,10 +85,10 @@ public class TransactionService
       
       // jackson doesn't handle Java dates and bigdecimal has too many decimal places so it's
       // simpler just to send the data as Strings with the desired formating.
-      return new TransactionItem(t.getSequence(), 
+      return new TransactionItem(t.getAccountId(), 
             formatTimestamp(t.getDate()), 
             formatAmount(amount), 
-            formatAmount(t.getBalance()), 
+            t.getType(), 
             t.getComment());
    }
    

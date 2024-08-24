@@ -1,13 +1,12 @@
 package com.felixalacampagne.account.controller;
 
-import java.util.List;
-
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.felixalacampagne.account.model.AccountItem;
+import com.felixalacampagne.account.model.Accounts;
+import com.felixalacampagne.account.model.Transactions;
 import com.felixalacampagne.account.service.AccountService;
 import com.felixalacampagne.account.service.TransactionService;
 
@@ -32,16 +31,16 @@ public class AccountController {
     }
     
     
-    // Seems Spring is happy returning objects which get converted to json
+    // Note Spring will automatically convert objects to json string and supply the appropriate header
     @GetMapping("/listaccount")
-    public List<AccountItem> getAccounts() 
+    public Accounts getAccounts() 
     {  
-       return this.accountService.getAccountList();  
+       return this.accountService.getAccounts();  
     }
     
 //    Could use @RequestParam(name="name", required=false, defaultValue="World" to supply as url ? values
     @GetMapping("/listtransaction/{accountid}")
-    public String getTransactions(@PathVariable Long accountid) // This needs to receive an account id
+    public Transactions getTransactions(@PathVariable Long accountid) // This needs to receive an account id
     {
        return this.transactionService.getTransactions(accountid);
     }

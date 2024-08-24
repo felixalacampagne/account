@@ -20,10 +20,10 @@ The behaviour is a bit crude, even after hours and hours of forking around with 
 
 20-Aug-2024
 I finally have a Java based backend which can read the Account Access database. This results in different API URLs and some
-differences in the format of the data returned so I new version of the Account UI is needed. The backend is a Spring web application
+differences in the format of the data returned so a new version of the Account UI is needed. The backend is a Spring web application
 which runs in my tomcat server. It may be possible to package the frontend in the same WAR as the backend code so I'm combining
 the UI project with the API project. Needless to say getting Eclipse, Spring, Angular and Maven to work together is not going to
-be straight foward but ho! hum! isn't always the case the this continusouly improved shirt.
+be straight forward but ho! hum! isn't it always the case with this continuous improvement shirt.
 
 First thing to do is get the UI code into the project. No idea what the required structure is for this - Google was surprisingly
 quiet on the matter. Will need to figure out how a Spring web application that includes a frontend is supposed to work. I have a feeling
