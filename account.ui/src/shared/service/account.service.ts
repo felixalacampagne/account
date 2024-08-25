@@ -10,13 +10,16 @@ import { TransactionItem } from '../model/transaction.model';
 export class AccountService 
 {
     private serverhost : string; // = "http://minnie"; //""; //"http://minnie"; //"http://localhost:8080";
-    private accountapiapp : string = "/account/";
+    private accountapiapp : string = ""; // /account/";
     private apiurl : string;
     private listaccsvc : string = "listaccount";
     private listtxnsvc : string = "listtransaction/";
     private addtxnsvc : string = "addtransaction";
     constructor(private http : HttpClient)
     {
+        // TODO: find a way to automatically use the same host as the 'backend' when
+        // running on production server. Could be the browser will supply the host
+        // if nothing is provided...
         this.serverhost = environment.accountapi_host;
         this.accountapiapp = environment.accountapi_app;
         this.apiurl = this.serverhost + this.accountapiapp
