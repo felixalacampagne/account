@@ -30,8 +30,14 @@ public class AccountItem
 		return name;
 	}
 
-	public void setNamec(String name)
+	public void setName(String name)
 	{
 		this.name = name;
 	}
+
+   @Override
+   public String toString()
+   {
+      return "AccountItem [id=" + id + ", name=" + name + "]";
+   }
 }

@@ -3,6 +3,8 @@ package com.felixalacampagne.account.service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
@@ -13,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.format.datetime.standard.DateTimeFormatterFactory;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -69,6 +72,43 @@ public class TransactionService
       return txns;
    }
 
+   public void addTransaction(TransactionItem transactionItem)
+   {
+      // TODO: it is advised not to use IDs in front-end. Therefore should probably use the account name instead of the id
+      // and map the name to the id here.
+      Transaction txn = mapToEntity(transactionItem);
+      txn = transactionJpaRepository.save(txn);
+      log.info("addTransaction: added transaction for account id {}: id:{}", txn.getAccountId(), txn.getSequence());
+   }
+   
+   private Transaction mapToEntity(TransactionItem transactionItem)
+   {
+      Transaction tosave = new Transaction();
+      tosave.setAccountId((long)transactionItem.getAccid());
+      
+      String isodate = transactionItem.getDate();
+      
+      
+      LocalDate localDate = LocalDate.parse(isodate, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+      Timestamp tstamp = Timestamp.valueOf(localDate.atStartOfDay());
+      
+      tosave.setDate(tstamp); // TODO: change the type to LocalDate
+      tosave.setType(transactionItem.getType());
+      tosave.setComment(transactionItem.getComment());
+      
+      BigDecimal amount = new BigDecimal(transactionItem.getAmount());
+      amount.setScale(2); // Max. two decimal places for a normal currency transaction
+      if(amount.signum() < 0)
+      {
+         amount = amount.abs();
+         tosave.setCredit(amount);
+      }
+      else
+      {
+         tosave.setDebit(amount);
+      }
+      return tosave;
+   }
 
    private TransactionItem mapToItem(Transaction t)
    {

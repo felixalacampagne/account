@@ -8,7 +8,7 @@ public class TransactionItem
    private final String amount;
    private final String type;
 
-   public TransactionItem(long accid, String date, String amount, String type, String comment)
+   public TransactionItem(Long accid, String date, String amount, String type, String comment)
    {
       this.accid = accid;
       this.date = date;
@@ -43,6 +43,13 @@ public class TransactionItem
    public String getComment()
    {
       return comment;
+   }
+
+
+   @Override
+   public String toString()
+   {
+      return "TransactionItem [accid=" + accid + ", comment=" + comment + ", date=" + date + ", amount=" + amount + ", type=" + type + "]";
    }
 
 }

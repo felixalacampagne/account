@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from "@angular/common/http";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {Observable} from "rxjs";
 import {map} from 'rxjs/operators';
 import {environment} from '../../environments/environment';
@@ -57,6 +57,12 @@ export class AccountService
         //
         // Now for the first time the clearing of the transaction entry screen is
         // actually working!!!
-        return this.http.post(url, json, { responseType: 'text' });
+        
+        // Spring gives exception saying text/plain not supported so need to set content type to JSON
+        var headers = new HttpHeaders();
+        headers = headers.set('Content-Type', 'application/json');
+        headers = headers.set("Accept", "text/plain");
+        
+        return this.http.post(url, json, {headers: headers,  responseType: 'text'}); 
     }
 }

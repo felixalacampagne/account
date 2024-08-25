@@ -1,12 +1,22 @@
 package com.felixalacampagne.account.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.felixalacampagne.account.model.Accounts;
+import com.felixalacampagne.account.model.TransactionItem;
 import com.felixalacampagne.account.model.Transactions;
 import com.felixalacampagne.account.service.AccountService;
 import com.felixalacampagne.account.service.TransactionService;
@@ -15,7 +25,7 @@ import com.felixalacampagne.account.service.TransactionService;
 @RequestMapping
 @CrossOrigin(origins = "http://localhost:4200") // required because ng serve is on 4200 and standalone spring server is on 8080
 public class AccountController {
-
+   private final Logger log = LoggerFactory.getLogger(this.getClass());
    private final AccountService accountService;
    private final TransactionService transactionService;
 
@@ -45,5 +55,27 @@ public class AccountController {
     public Transactions getTransactions(@PathVariable Long accountid) // This needs to receive an account id
     {
        return this.transactionService.getTransactions(accountid);
+    }
+
+
+    // Without @RequestBody Spring seems to be expecting something other than the JSON of the
+    // TransactionItem (haven't got a forking clue what it is expecting). The front-end not surprisingly
+    // only provides the TransactionItem json.
+    @PostMapping(value = "/addtransaction")
+    public String addTransaction(@RequestBody TransactionItem transactionItem, Model model)
+    {
+       log.info("addTransaction: transaction item to add: {}", transactionItem);
+       try
+       {
+          this.transactionService.addTransaction(transactionItem);
+          
+       }
+       catch(Exception ex) 
+       {
+          log.info("addTransaction: Failed to add: {}", transactionItem, ex);
+          return "failed: " + ex.getMessage();
+       }
+
+       return "ok";
     }
 }
