@@ -3,6 +3,6 @@
 export const environment = {
   production: true,
   accountapi_host: "http://minnie",
-  accountapi_app: "/jaccountapi",
-  envName: ''  
+  accountapi_app: "/jaccountapi/",
+  envName: ' (minnieTEST)'  
 };
