@@ -277,6 +277,8 @@ doScan() {
 isTransactions() : boolean {
   return this.transactions.length > 0;
 }
-
+clearComment() {
+  txComment = "";
+}
 }
 
