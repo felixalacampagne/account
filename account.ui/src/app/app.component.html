@@ -73,7 +73,7 @@
                 <span class="input-group-text" id="lbcomment">Comment</span>
               </div>
               <input [(ngModel)]="txComment" name="txComment" id="txComment" type="text" class="form-control form-control-sm" placeholder="" aria-label=""  aria-describedby="lbcomment">
-               <span ng-click="clearComment()" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all;" uib-tooltip="clear"></span>
+               <span *ngIf="txComment" ng-click="clearComment()" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all;" uib-tooltip="clear"></span>
             </div>
 
             <div class="input-group input-group-sm mb-3">
