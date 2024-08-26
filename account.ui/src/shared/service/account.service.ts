@@ -27,7 +27,7 @@ export class AccountService
         // window.location
         //    .host     gives server and port (in theory)
         //    .origin   gives the protocol, hostname and port number of a URL
-        if(environment.accountapi_host)
+        if((typeof environment.accountapi_host !== 'undefined') && (environment.accountapi_host))
         {
             this.serverhost = environment.accountapi_host;
         }
