@@ -278,5 +278,9 @@ isTransactions() : boolean {
   return this.transactions.length > 0;
 }
 
+clearComment() {
+  this.txComment = "";
+}
+
 }
 

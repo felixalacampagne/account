@@ -73,6 +73,7 @@
                 <span class="input-group-text" id="lbcomment">Comment</span>
               </div>
               <input [(ngModel)]="txComment" name="txComment" id="txComment" type="text" class="form-control form-control-sm" placeholder="" aria-label=""  aria-describedby="lbcomment">
+               <span ng-click="clearComment()" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all;" uib-tooltip="clear"></span>
             </div>
 
             <div class="input-group input-group-sm mb-3">
@@ -80,6 +81,7 @@
                 <span class="input-group-text" id="lbamount">Amount Debited</span>
               </div>
               <input [(ngModel)]="txAmount" name="txAmount" id="txAmount" type="number" class="form-control form-control-sm" placeholder="-ve number for Credit" aria-label="-ve number for Credit"  aria-describedby="lbamount">
+            
             </div>          
           </form>
           <button type="button" class="btn btn-default btn-primary" (click)="addtransaction();">Add new transaction</button>&nbsp;
