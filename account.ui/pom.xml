@@ -1,12 +1,160 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>com.felixalacampagne.account</groupId>
-    <artifactId>account.parent</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-  </parent>
-  <artifactId>accountui</artifactId>
-  <packaging>war</packaging>
-  <name>Account user interface</name>
-  <description>User interface for Account</description>
+   <modelVersion>4.0.0</modelVersion>
+   <parent>
+      <groupId>com.felixalacampagne.account</groupId>
+      <artifactId>account.parent</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+   </parent>
+   <artifactId>accountui</artifactId>
+   <packaging>war</packaging>
+   <name>Account user interface</name>
+   <description>User interface for Account</description>
+   <properties>
+      <npm.command>npm</npm.command>
+      <skipKarma>true</skipKarma>
+   </properties>
+   <build>
+      <finalName>${project.artifactId}-${project.version}</finalName>
+      <plugins>
+         <!-- clean - add the 'dist' directory -->
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-clean-plugin</artifactId>
+            <version>2.5</version>
+            <configuration>
+               <filesets>
+                  <fileset>
+                     <directory>dist</directory>
+                  </fileset>
+                  <fileset>
+                     <directory>target</directory>
+                  </fileset>
+               </filesets>
+               <failOnError>false</failOnError>
+            </configuration>
+         </plugin>
+         <!-- compile - run npm build for productioncommand      -->
+         <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.5.0</version>
+            <executions>
+               <execution>
+                  <id>exec-npm-run-build</id>
+                  <phase>compile</phase>
+                  <goals>
+                     <goal>exec</goal>
+                  </goals>
+                  <configuration>
+                     <executable>${npm.command}</executable>
+                     <arguments>
+                        <argument>run</argument>
+                        <argument>build</argument>
+                        <argument>--configuration production</argument>
+                        <!-- is this two arguments? -->
+                     </arguments>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+
+         <!-- test nothing to be done here, all testing is manual but this is an example of what might be
+         required if I ever need automated tests
+         -->
+         <!-- plugin>
+         <groupId>com.kelveden</groupId>
+         <artifactId>maven-karma-plugin</artifactId>
+         <version>1.8</version>
+         <executions>
+         <execution>
+         <goals>
+         <goal>start</goal>
+         </goals>
+         </execution>
+         </executions>
+         <configuration>
+         <browsers>Chrome</browsers>
+         </configuration>
+      </plugin -->
+
+      <!-- package: create WAR of the dist directory. Eventually this should be combined with the backend code,
+      I think, but currently I just copy the dist content to the apache server directory - not sure that
+      apache knows about expanding wars. I guess I could do both in tomcat... -->
+      <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-war-plugin</artifactId>
+         <version>2.2</version>
+         <configuration>
+            <nonFilteredFileExtensions>
+               <!-- not sure what this is for... -->
+               <!-- binary extensions that needs to be excluded to avoid filtering -->
+               <!-- default value contains jpg,jpeg,gif,bmp,png -->
+               <!-- font extensions -->
+               <nonFilteredFileExtension>ttf</nonFilteredFileExtension>
+               <nonFilteredFileExtension>woff</nonFilteredFileExtension>
+               <nonFilteredFileExtension>woff2</nonFilteredFileExtension>
+               <nonFilteredFileExtension>eot</nonFilteredFileExtension>
+            </nonFilteredFileExtensions>
+            <webResources>
+               <resource>
+                  <directory>dist</directory>
+                  <filtering>true</filtering>
+                  <includes>
+                     <include>*</include>
+                     <include>assets/*</include>
+                  </includes>
+               </resource>
+               <!-- Might be required for a tomcat WAR but don't appear to be required for apache
+               <resource>
+               <directory>.</directory>
+               <targetPath>WEB-INF</targetPath>
+               <filtering>true</filtering>
+               <include>web.xml</include>
+               </resource>
+               <resource>
+               <directory>.</directory>
+               <targetPath>WEB-INF</targetPath>
+               <filtering>true</filtering>
+               <include>webapperror.html</include>
+               </resource>
+               <resource>
+               <directory>.</directory>
+               <targetPath>WEB-INF</targetPath>
+               <filtering>true</filtering>
+               <include>rewrite.config</include>
+               </resource>
+               -->
+            </webResources>
+            <!-- outputDirectory>${project.basedir}/stage/webapps/</outputDirectory -->
+         </configuration>
+      </plugin>
+
+      <!-- something like this might be required to copy into the backend spring structure -->
+      <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-dependency-plugin</artifactId>
+         <executions>
+            <execution>
+               <id>copy</id>
+               <phase>package</phase>
+               <goals>
+                  <goal>copy</goal>
+               </goals>
+            </execution>
+         </executions>
+         <configuration>
+            <!-- outputDirectory>${project.parent.basedir}/stage/webapps</outputDirectory -->
+            <stripVersion>true</stripVersion>
+            <artifactItems>
+               <artifactItem>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>${project.artifactId}</artifactId>
+                  <version>${project.version}</version>
+                  <type>war</type>
+               </artifactItem>
+            </artifactItems>
+         </configuration>
+      </plugin>
+   </plugins>
+</build>
 </project>
