@@ -5,18 +5,35 @@
       <artifactId>account.parent</artifactId>
       <version>0.0.1-SNAPSHOT</version>
    </parent>
+   
    <artifactId>accountui</artifactId>
+
    <packaging>war</packaging>
    <name>Account user interface</name>
    <description>User interface for Account</description>
+
+   <!-- use
+        mvn clean install -Pprod
+        to build using the production configuration
+    -->
    <properties>
       <npm.command>npm</npm.command>
+      <npm.environment>development</npm.environment>
       <skipKarma>true</skipKarma>
    </properties>
+    <profiles>
+        <profile>
+            <id>prod</id>
+            <properties>
+               <npm.environment>production</npm.environment>
+            </properties>
+        </profile>
+    <profiles>
    <build>
-      <finalName>${project.artifactId}-${project.version}</finalName>
+      <finalName>${project.artifactId}</finalName>
       <plugins>
-         <!-- clean - add the 'dist' directory -->
+
+         <!-- clean - the 'dist' directory -->
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-clean-plugin</artifactId>
@@ -33,6 +50,7 @@
                <failOnError>false</failOnError>
             </configuration>
          </plugin>
+
          <!-- compile - run npm build for productioncommand      -->
          <plugin>
             <groupId>org.codehaus.mojo</groupId>
@@ -50,15 +68,15 @@
                      <arguments>
                         <argument>run</argument>
                         <argument>build</argument>
-                        <argument>--configuration production</argument>
-                        <!-- is this two arguments? -->
+                        <argument>--configuration</argument>
+                        <argument>${npm.environment}</argument>
                      </arguments>
                   </configuration>
                </execution>
             </executions>
          </plugin>
 
-         <!-- test nothing to be done here, all testing is manual but this is an example of what might be
+         <!-- test  nothing to be done here, all testing is manual but this is an example of what might be
          required if I ever need automated tests
          -->
          <!-- plugin>
