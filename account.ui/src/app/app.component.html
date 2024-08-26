@@ -72,8 +72,9 @@
               <div class="input-group-prepend">
                 <span class="input-group-text" id="lbcomment">Comment</span>
               </div>
-              <input [(ngModel)]="txComment" name="txComment" id="txComment" type="text" class="form-control form-control-sm" placeholder="" aria-label=""  aria-describedby="lbcomment">
-               <span *ngIf="txComment" ng-click="clearComment()" class="glyphicon glyphicon-remove form-control-feedback" style="cursor: pointer; pointer-events: all;" uib-tooltip="clear"></span>
+              <input [(ngModel)]="txComment" name="txComment" id="txComment" type="search" class="form-control form-control-sm" placeholder="" aria-label=""  aria-describedby="lbcomment">
+               
+               <!-- button *ngIf="txComment" (click)="clearComment()" class="btn btn-outline-secondary" type="button" id="button-addon2">X</button -->
             </div>
 
             <div class="input-group input-group-sm mb-3">
