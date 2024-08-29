@@ -17,10 +17,21 @@ export class AccountService
     private addtxnsvc : string = "addtransaction";
     constructor(private http : HttpClient)
     {
-        // TODO: find a way to automatically use the same host as the 'backend' when
-        // running on production server. Could be the browser will supply the host
-        // if nothing is provided...
-        this.serverhost = environment.accountapi_host;
+        // If host value is not given by environment then should assume api
+        // is on same server as frontend. Frontend server can be obtained from
+        // window.location.hostname, window.location.pathname
+        // WARNING! need to allow for the port, not sure if it is included in the hostname value.
+        // window.location
+        //    .host     gives server and port (in theory)
+        //    .origin   gives the protocol, hostname and port number of a URL
+        if((typeof environment.accountapi_host !== 'undefined') && (environment.accountapi_host))
+        {
+            this.serverhost = environment.accountapi_host;
+        }
+        else
+        {    
+            this.serverhost = window.location.origin;
+        }
         this.accountapiapp = environment.accountapi_app;
         this.apiurl = this.serverhost + this.accountapiapp
         console.log("Account API server host: " + this.apiurl);
