@@ -1,4 +1,12 @@
 /* You can add global styles to this file, and also import other style files */
 
 /* NB Bootstrap also needs jquery.js, popper.min.js, and bootstrap.js entries in .angular-cli.json */
-@import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
+/* might need to do 
+   npm i bootstrap-icons
+   
+   NB The import has been replaced by an entry in angular.json under 'styles'
+   
+   WARNING Google is full of references to 'glyphicons' however these are apparently
+   no longer part of bootstrap (this has wasted a few hours)
+ */
+/* @import "../node_modules/bootstrap/dist/css/bootstrap.min.css"; */
