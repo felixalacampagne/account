@@ -16,7 +16,7 @@ public class ConnectionResurrector<R extends JpaRepository<?, ?>>
    // NB id should be the class name of R. Using R as the class name gives an unhelpful jpa proxy name,
    // eg. jdk.proxy2.$Proxy119>, which is not helpful for logging. Perhaps I should make the parameter
    // the actual class since it has proven frustrating that the class is not accessible from a template...
-   public ConnectionResurrector(R repository, Class repoClass) 
+   public ConnectionResurrector(R repository, Class<?> repoClass) 
    {
       this.repository = repository;
       this.id = repoClass.getSimpleName();
