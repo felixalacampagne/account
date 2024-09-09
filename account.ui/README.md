@@ -35,7 +35,6 @@ quiet on the matter. Will need to figure out how a Spring web application that i
 that the UI project will need to do it's build thing and then copy the result somewhere into the API file structure so it gets
 included in the WAR and somehow served by the tomcat (unlike the current version which is served by the Apache HTTP server.
 
-
 07-Sep-2024 Decided to make JAccount live, ie. use the live DB on minnie. Only way to set the DB path is currently via the 
 application properties so I needed to do a rebuild and redeploy. You guessed it.. that is obviously that is way to complex to 
 actually work and the forking spring framework shirt now fails to start with some ludricous error about some XML class not being
@@ -76,6 +75,11 @@ TODO: Close and remove the scanner when no scan is to be performed. Only way to 
 
 TODO: Make the scanner into a component which can be displayed floating over the page like a dialog, with the page darkened. This is a real 'nice to have' since I managed to get some sort of control over the position of the scanner in the main page without messing up everything else.
 
+## Links
+HSQLDB: https://hsqldb.org/
+Jackcess: https://jackcess.sourceforge.io/cookbook.html
+Ucanaccess: https://github.com/spannm/ucanaccess?tab=readme-ov-file
+QR Reader: http://github.com/mebjas/html5-qrcode
 
 ## Development server
 

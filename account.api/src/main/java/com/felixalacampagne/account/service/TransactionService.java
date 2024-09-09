@@ -30,12 +30,16 @@ public class TransactionService
 {
    private final Logger log = LoggerFactory.getLogger(this.getClass());
    private final ObjectMapper objmap = new ObjectMapper();
+   
    private final TransactionJpaRepository transactionJpaRepository;
+   private final ConnectionResurrector connectionResurrector;
+   
    private final DateTimeFormatter DATEFORMAT_YYYYMMDD = DateTimeFormatter.ofPattern("yyyy-MM-dd");
    
    @Autowired
-   public TransactionService(TransactionJpaRepository transactionJpaRepository) {
+   public TransactionService(TransactionJpaRepository transactionJpaRepository, ConnectionResurrector connectionResurrector) {
       this.transactionJpaRepository = transactionJpaRepository;
+      this.connectionResurrector = connectionResurrector;
    }
 
    public Transactions getTransactions(long accountId)
@@ -65,6 +69,7 @@ public class TransactionService
 
    public List<Transaction> getTransactionPage(int page, int rows, long accountId)
    {
+      connectionResurrector.ressurectConnection();
       List<Transaction> txns = transactionJpaRepository.
             findByAccountId(accountId,  PageRequest.of(page, rows, Sort.by("sequence").descending())).stream()
             .sorted(Comparator.comparingLong(Transaction::getSequence))
@@ -77,6 +82,8 @@ public class TransactionService
       // TODO: it is advised not to use IDs in front-end. Therefore should probably use the account name instead of the id
       // and map the name to the id here.
       Transaction txn = mapToEntity(transactionItem);
+      
+      connectionResurrector.ressurectConnection();
       txn = transactionJpaRepository.save(txn);
       log.info("addTransaction: added transaction for account id {}: id:{}", txn.getAccountId(), txn.getSequence());
    }

@@ -22,14 +22,17 @@ public class AccountService
    private final Logger log = LoggerFactory.getLogger(this.getClass());
    private final ObjectMapper objmap = new ObjectMapper();
    private final AccountJpaRepository accountJpaRepository;
-
+   private final ConnectionResurrector connectionResurrector;
+   
    @Autowired
-   public AccountService(AccountJpaRepository accountJpaRepository) {
+   public AccountService(AccountJpaRepository accountJpaRepository, ConnectionResurrector connectionResurrector) {
       this.accountJpaRepository = accountJpaRepository;
+      this.connectionResurrector = connectionResurrector;
    }
 
    public List<AccountItem> getAccountList() 
    {
+      connectionResurrector.ressurectConnection();
       List<Account> accs = accountJpaRepository.findAccountsExcludeAccOrderSorted(Collections.singletonList(255L));
       List<AccountItem> accitems = accs.stream()
             // .sorted(Comparator.comparing(Account::getAccDesc))
@@ -39,6 +42,7 @@ public class AccountService
    }
    
    public Accounts getAccounts() {
+      connectionResurrector.ressurectConnection();
       List<AccountItem> accitems = getAccountList();
       Accounts accs = new Accounts(accitems); // For fronted compatibility
       return accs;
