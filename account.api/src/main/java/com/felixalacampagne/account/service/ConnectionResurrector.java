@@ -2,26 +2,24 @@ package com.felixalacampagne.account.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessResourceFailureException;
-import org.springframework.stereotype.Service;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.felixalacampagne.account.persistence.repository.AccountJpaRepository;
 
-@Service
-public class ConnectionResurrector
+public class ConnectionResurrector<R extends JpaRepository<?, ?>>
 {
    private final Logger log = LoggerFactory.getLogger(this.getClass());
-   private final AccountJpaRepository accountJpaRepository;
+   private final R repository;
+   private final String id;
    private final int MAX_ATTEMPTS=10;
    
-   
-   // This should take an argument which is the repository type which the service is using
-   // but not sure how to express the templates....
-   @Autowired
-   public ConnectionResurrector(AccountJpaRepository accountJpaRepository) 
+   // NB id should be the class name of R. Using R as the class name gives an unhelpful jpa proxy name,
+   // eg. jdk.proxy2.$Proxy119>, which is not helpful for logging. Perhaps I should make the parameter
+   // the actual class since it has proven frustrating that the class is not accessible from a template...
+   public ConnectionResurrector(R repository, Class repoClass) 
    {
-      this.accountJpaRepository = accountJpaRepository;
+      this.repository = repository;
+      this.id = repoClass.getSimpleName();
    }
    
    
@@ -43,14 +41,14 @@ public class ConnectionResurrector
       {
          try
          {
-            accountJpaRepository.count();
-            log.info("ressurectConnection: attempt {} successful: {}", attempt);
+            long count = repository.count();
+            log.info("ressurectConnection<{}>: attempt {} successful: count={}", this.id, attempt, count);
             rc = true;
             break;
          }
          catch(DataAccessResourceFailureException ex)
          {
-            log.info("ressurectConnection: attempt {} failed: {}", attempt, ex.toString());
+            log.info("ressurectConnection<{}>: attempt {} failed: {}", this.id, attempt, ex.toString());
          }
       }
       return rc;

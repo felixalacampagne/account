@@ -22,12 +22,12 @@ public class AccountService
    private final Logger log = LoggerFactory.getLogger(this.getClass());
    private final ObjectMapper objmap = new ObjectMapper();
    private final AccountJpaRepository accountJpaRepository;
-   private final ConnectionResurrector connectionResurrector;
+   private final ConnectionResurrector<AccountJpaRepository> connectionResurrector;
    
    @Autowired
-   public AccountService(AccountJpaRepository accountJpaRepository, ConnectionResurrector connectionResurrector) {
+   public AccountService(AccountJpaRepository accountJpaRepository) {
       this.accountJpaRepository = accountJpaRepository;
-      this.connectionResurrector = connectionResurrector;
+      this.connectionResurrector = new ConnectionResurrector<AccountJpaRepository>(accountJpaRepository, AccountJpaRepository.class);
    }
 
    public List<AccountItem> getAccountList() 
@@ -42,7 +42,6 @@ public class AccountService
    }
    
    public Accounts getAccounts() {
-      connectionResurrector.ressurectConnection();
       List<AccountItem> accitems = getAccountList();
       Accounts accs = new Accounts(accitems); // For fronted compatibility
       return accs;

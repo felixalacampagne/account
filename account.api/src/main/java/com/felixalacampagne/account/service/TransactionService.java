@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
@@ -15,15 +14,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.format.datetime.standard.DateTimeFormatterFactory;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.felixalacampagne.account.persistence.entities.Transaction;
-import com.felixalacampagne.account.persistence.repository.TransactionJpaRepository;
 import com.felixalacampagne.account.model.TransactionItem;
 import com.felixalacampagne.account.model.Transactions;
+import com.felixalacampagne.account.persistence.entities.Transaction;
+import com.felixalacampagne.account.persistence.repository.TransactionJpaRepository;
 
 @Service
 public class TransactionService
@@ -32,14 +30,14 @@ public class TransactionService
    private final ObjectMapper objmap = new ObjectMapper();
    
    private final TransactionJpaRepository transactionJpaRepository;
-   private final ConnectionResurrector connectionResurrector;
+   private final ConnectionResurrector<TransactionJpaRepository> connectionResurrector;
    
    private final DateTimeFormatter DATEFORMAT_YYYYMMDD = DateTimeFormatter.ofPattern("yyyy-MM-dd");
    
    @Autowired
-   public TransactionService(TransactionJpaRepository transactionJpaRepository, ConnectionResurrector connectionResurrector) {
+   public TransactionService(TransactionJpaRepository transactionJpaRepository) {
       this.transactionJpaRepository = transactionJpaRepository;
-      this.connectionResurrector = connectionResurrector;
+      this.connectionResurrector = new ConnectionResurrector<TransactionJpaRepository>(transactionJpaRepository, TransactionJpaRepository.class);
    }
 
    public Transactions getTransactions(long accountId)
