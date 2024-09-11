@@ -1,0 +1,107 @@
+         
+<!--
+ Some plugin definitions which might come in handy at some time. Couldn't keep them in the pom.xml
+ file because it is impossible to comment blocks which already contain comments (which Java committee
+ member thought that one up??). Unfortunately the suggested use of a dummy 'processing instruction',
+ ie. '<?ignore evertying including comments ?>' didn't work and for some reason CDATA doesn't work either.
+ 
+ So only choice is to remove the entire block since the comments are vital to understanding what the fork
+ the gibberish is trying to accomplish.
+-->         
+         <!-- test  nothing to be done here, all testing is manual but this is an example of what might be
+         required if I ever need automated tests
+         -->
+         <!-- plugin>
+            <groupId>com.kelveden</groupId>
+            <artifactId>maven-karma-plugin</artifactId>
+            <version>1.8</version>
+            <executions>
+            <execution>
+            <goals>
+            <goal>start</goal>
+            </goals>
+            </execution>
+            </executions>
+            <configuration>
+            <browsers>Chrome</browsers>
+            </configuration>
+         </plugin -->
+
+      <!-- package: create WAR of the dist directory. Eventually this should be combined with the backend code,
+      I think, but currently I just copy the dist content to the apache server directory - not sure that
+      apache knows about expanding wars. I guess I could do both in tomcat... -->   
+      <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-war-plugin</artifactId>
+         <version>2.2</version>
+         <configuration>
+            <nonFilteredFileExtensions>
+               <!-- not sure what this is for... -->
+               <!-- binary extensions that needs to be excluded to avoid filtering -->
+               <!-- default value contains jpg,jpeg,gif,bmp,png -->
+               <!-- font extensions -->
+               <nonFilteredFileExtension>ttf</nonFilteredFileExtension>
+               <nonFilteredFileExtension>woff</nonFilteredFileExtension>
+               <nonFilteredFileExtension>woff2</nonFilteredFileExtension>
+               <nonFilteredFileExtension>eot</nonFilteredFileExtension>
+            </nonFilteredFileExtensions>
+            <webResources>
+               <resource>
+                  <directory>dist</directory>
+                  <filtering>true</filtering>
+                  <includes>
+                     <include>*</include>
+                     <include>assets/*</include>
+                  </includes>
+               </resource>
+               <!-- Might be required for a tomcat WAR but don't appear to be required for apache
+               <resource>
+               <directory>.</directory>
+               <targetPath>WEB-INF</targetPath>
+               <filtering>true</filtering>
+               <include>web.xml</include>
+               </resource>
+               <resource>
+               <directory>.</directory>
+               <targetPath>WEB-INF</targetPath>
+               <filtering>true</filtering>
+               <include>webapperror.html</include>
+               </resource>
+               <resource>
+               <directory>.</directory>
+               <targetPath>WEB-INF</targetPath>
+               <filtering>true</filtering>
+               <include>rewrite.config</include>
+               </resource>
+               -->
+            </webResources>
+            <!-- outputDirectory>${project.basedir}/stage/webapps/</outputDirectory -->
+         </configuration>
+      </plugin>
+
+      <!-- something like this might be required to copy into the backend spring structure -->
+      <plugin>
+         <groupId>org.apache.maven.plugins</groupId>
+         <artifactId>maven-dependency-plugin</artifactId>
+         <executions>
+            <execution>
+               <id>copy</id>
+               <phase>package</phase>
+               <goals>
+                  <goal>copy</goal>
+               </goals>
+            </execution>
+         </executions>
+         <configuration>
+            <!-- outputDirectory>${project.parent.basedir}/stage/webapps</outputDirectory -->
+            <stripVersion>true</stripVersion>
+            <artifactItems>
+               <artifactItem>
+                  <groupId>${project.groupId}</groupId>
+                  <artifactId>${project.artifactId}</artifactId>
+                  <version>${project.version}</version>
+                  <type>war</type>
+               </artifactItem>
+            </artifactItems>
+         </configuration>
+      </plugin>

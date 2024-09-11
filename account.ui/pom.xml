@@ -6,7 +6,82 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>accountui</artifactId>
-  <packaging>war</packaging>
+  <packaging>pom</packaging>
   <name>Account user interface</name>
   <description>User interface for Account</description>
+  
+   <!-- 
+   Normal build is for the 'production' version. No need to build the
+   'development' version since it is usually only used with ng serve
+   To build the 'developmnet' version use
+        mvn clean install -Pdev
+    -->
+   <properties>
+      <npm.command>npm.cmd</npm.command>
+      <npm.environment>production</npm.environment>
+      <skipKarma>true</skipKarma>
+   </properties>
+   <profiles>
+      <profile>
+         <id>dev</id>
+         <properties>
+            <npm.environment>development</npm.environment>
+         </properties>
+      </profile>
+   </profiles>
+   <build>
+      <finalName>${project.artifactId}</finalName>
+
+      <plugins>
+         <!-- clean - the 'dist' directory -->
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-clean-plugin</artifactId>
+            <version>2.5</version>
+            <configuration>
+               <filesets>
+                  <fileset>
+                     <directory>dist</directory>
+                  </fileset>
+                  <fileset>
+                     <directory>target</directory>
+                  </fileset>
+               </filesets>
+               <failOnError>false</failOnError>
+            </configuration>
+         </plugin>
+
+         <!-- compile - run npm build for production command      -->
+         <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.5.0</version>
+            <executions>
+               <execution>
+                  <id>exec-npm-run-build</id>
+                  <phase>compile</phase>
+                  <goals>
+                     <goal>exec</goal>
+                  </goals>
+                  <configuration>
+                     <!-- every time this needs to be done it requires a different syntax.
+                     Now it is:
+                     npm run build dash dash space dash dash configuration production
+                     -->
+                     <executable>${npm.command}</executable>
+                     <arguments>
+                        <argument>run</argument>
+                        <argument>build</argument>
+                        <argument>-- </argument>
+                        <argument>--configuration</argument>
+                        <argument>${npm.environment}</argument>
+                     </arguments>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+      </plugins>
+   </build>
+
+
 </project>
