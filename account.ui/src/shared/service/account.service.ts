@@ -5,6 +5,7 @@ import {map} from 'rxjs/operators';
 import {environment} from '../../environments/environment';
 import { AccountItem } from '../model/accountitem.model';
 import { TransactionItem } from '../model/transaction.model';
+import { Version } from '../model/version.model';
 
 @Injectable()
 export class AccountService 
@@ -15,6 +16,7 @@ export class AccountService
     private listaccsvc : string = "listaccount";
     private listtxnsvc : string = "listtransaction/";
     private addtxnsvc : string = "addtransaction";
+    private versionsvc : string = "version";
     constructor(private http : HttpClient)
     {
         // If host value is not given by environment then should assume api
@@ -79,4 +81,15 @@ export class AccountService
         
         return this.http.post(url, json, {headers: headers,  responseType: 'text'}); 
     }
+    
+
+    getVersion() : Observable<Version>
+    {
+        let url : string;
+        url = this.apiurl + this.versionsvc;
+        // A json object is returned containing the fields of Version - it is not returned as a named object in the response
+        // thus 'res' is the Version object
+        console.log("getVersion: API URL: " + url);
+        return this.http.get(url).pipe( map((res:any) => res) );    
+    }    
 }

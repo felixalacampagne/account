@@ -13,6 +13,7 @@ import {AccountItem} from '../shared/model/accountitem.model';
 import {TransactionItem} from '../shared/model/transaction.model';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { Html5QrcodeResult } from 'html5-qrcode/esm/core';
+import { Version } from 'src/shared/model/version.model';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -23,7 +24,8 @@ export class AppComponent implements OnInit {
 
   modalReference: NgbModalRef | undefined;
 
-  title = 'app';
+  title: string = 'Account';
+  version : Version | undefined;
   accounts: AccountItem[] = [];
   transactions: TransactionItem[] = [];
   activeaccount: AccountItem = new AccountItem();
@@ -86,6 +88,28 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     console.log('AppComponent.ngOnInit: Starting');
+
+    this.accountService.getVersion().subscribe(
+       res => {
+              this.version = res;
+              // debugger;
+              if(!this.version)
+              {
+                console.log('AppComponent.ngOnInit: Version is not initialized');
+              }
+              else
+              {
+               this.title = this.version.name + " (" + this.version.db +")";
+               console.log("AppComponent.ngOnInit: Version: " + this.title + " v" + this.version.version);
+              }
+            },
+       err=>{
+            console.log("AppComponent.ngOnInit: An error occured during getAccounts subscribe" + err);
+            } ,
+        ()=>{console.log("AppComponent.ngOnInit: getAccounts loading completed");}
+    );
+
+
     this.accountService.getAccounts().subscribe(
        res => {
               this.accounts = res;
@@ -104,6 +128,7 @@ export class AppComponent implements OnInit {
             } ,
         ()=>{console.log("AppComponent.ngOnInit: getAccounts loading completed");}
     );
+
 
     console.log("AppComponent.ngOnInit:Finished");
 }
