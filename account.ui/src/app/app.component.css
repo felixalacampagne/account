@@ -28,6 +28,21 @@
 }
 
 /*
+ Tried to get the version to display just below the title in a tiny font. 
+ This appears to be the way to change the meaning of the 'small' when displayed
+ in the 'navbar-brand' class. 
+ Nothing I tried prevented huge expanses of empty space from appearing between the title and the version
+ which causes the top bar to become ridiculously high so in the end I'm forced to putting the version
+ on the same line as the title.
+ Things likeline-height, margin-(top,bottom), padding-(top,bottom) make no difference here
+ or as part of the main '.navbar-brand'.
+ Using py-0, my-0 in the class list also make no difference. Very frustrating!
+ */
+.navbar-brand small {
+  font-size: 10px;
+}
+
+/*
   Setting -ve margin-top with z-index,opacity and background displays the scanner over the transaciton list
   which is what I want. Insanely when the scanner is displayed a block of empty space appears between it and
   the transaction form, ie. the transaction form moves down by the height of the scanner box, even though the

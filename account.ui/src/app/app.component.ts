@@ -25,6 +25,7 @@ export class AppComponent implements OnInit {
   modalReference: NgbModalRef | undefined;
 
   title: string = 'Account';
+  versiontxt: string = '';
   version : Version | undefined;
   accounts: AccountItem[] = [];
   transactions: TransactionItem[] = [];
@@ -100,7 +101,8 @@ export class AppComponent implements OnInit {
               else
               {
                this.title = this.version.name + " (" + this.version.db +")";
-               console.log("AppComponent.ngOnInit: Version: " + this.title + " v" + this.version.version);
+               this.versiontxt = " v" + this.version.version;
+               console.log("AppComponent.ngOnInit: Version: " + this.title + " " + this.versiontxt );
               }
             },
        err=>{
