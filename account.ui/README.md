@@ -2,6 +2,17 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.3.
 
+16-Sep-2024 
+Java version of AccountAPI is now live and working. This offers the possibility of making the app more sophisticated, eventually
+with the aim of replacing the VB6 application. Since AccountVB6 has quite a lot of functionality by now and I have limited
+time to work on it the replacement will be a very gradual process. 
+
+I think the first thing to do is to add the possibility to update an entry. For this I need some way of triggering
+the update on the phone. After a bit of though I realise that the 'swipe-left' function, eg. for unread, reminder, delete,
+is just what I need but how the fork do I do that, not being mush of a UI person. Eventually I discovered that angular (AngularJS, whatever that is)
+used to have this functionality but it is now moved to something called 'HammerJS'. I hope that this works for the 'AngularCLI' which I 
+think I am using!!!! Anyway, the link is: https://hammerjs.github.io
+
 26-Sep-2022
 It was originally started with Angular 5 but it proved impossible to figure out what changes were needed to get
 that version to run the 'ng build' when Angular was updated to 14. The the only solution was to create a new project from scratch and copy the actual code from the Angular 5 version into the new project. The builder at least ran on the new project, all that was left to do was fix all the bugs which suddenly appeared in the previously successful compiling code.
