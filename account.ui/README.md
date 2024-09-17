@@ -21,6 +21,7 @@ Commands:
 ng update @angular/core@15 @angular/cli@15
 ng add @ng-bootstrap/ng-bootstrap
 ng update @angular/core@16 @angular/cli@16
+ng update @angular/core@17 @angular/cli@17
 
 16-Sep-2024 
 Java version of AccountAPI is now live and working. This offers the possibility of making the app more sophisticated, eventually
