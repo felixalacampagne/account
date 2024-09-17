@@ -44,10 +44,34 @@ Angular CLI: 17.3.9
 Node: 20.17.0
 Package Manager: npm 8.19.2
 
-ng update @angular/core@18 @angular/cli@18
+ng update --force @angular/core@18 @angular/cli@18
+
+Now at:
+   Angular CLI: 18.2.4
+   Node: 20.17.0
+   Package Manager: npm 8.19.2
+   OS: win32 x64
+   
+   Angular: 18.2.4
+   ... animations, cli, common, compiler, compiler-cli, core, forms
+   ... localize, platform-browser, platform-browser-dynamic, router
+   
+   Package                         Version
+   ---------------------------------------------------------
+   @angular-devkit/architect       0.1802.4
+   @angular-devkit/build-angular   18.2.4
+   @angular-devkit/core            18.2.4
+   @angular-devkit/schematics      18.2.4
+   @schematics/angular             18.2.4
+   rxjs                            7.5.7
+   typescript                      5.4.5
+   zone.js                         0.14.10
 
 npm uninstall -g @angular/cli
 npm install -g @angular/cli@latest
+ng add @ng-bootstrap/ng-bootstrap
+
+Seems to build ok with 'ng serve' so I guess it is good to go!!
 
 16-Sep-2024 
 Java version of AccountAPI is now live and working. This offers the possibility of making the app more sophisticated, eventually
