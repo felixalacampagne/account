@@ -19,6 +19,7 @@ to 'main'. This suggests that the upgrade will need to be done on every developm
 
 Commands:
 ng update @angular/core@15 @angular/cli@15
+ng add @ng-bootstrap/ng-bootstrap
 ng update @angular/core@16 @angular/cli@16
 
 16-Sep-2024 
