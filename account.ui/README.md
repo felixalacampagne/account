@@ -7,7 +7,19 @@ detect a 'swipe', all the heavy lifting of sliding a line and revealing the opti
 more recent versions of Angular are more helpful for this now very common feature. In which case maybe the
 most important thing to do before embarking on any major changes is to upgrade Angular to a more recent version.
 The current version is 18 which will be replaced by 19 soon, so I guess I will have to bite the bullet and go to v18
-now. v14 is not supported anymore to any upgrades are going to involve a fair amount of pain.
+now. v14 is not supported anymore to any upgrades are going to involve a fair amount of pain...
+
+v14->v15 eclipse caused the pain by pushing the angular18 branch to the remote main branch - WTF? It forking
+forces you to pcik a remote branch to make the branch from and then forks up the remote branch with the stuff
+you explicitly created a branch for to avoid corrupting the main branch - I think the eclipse development forkheads must have vaped one too many noxious substance to actually be able to think anymore...
+
+BTW it appears the upgrade is system widem ie. node/ng report the new versions even when the branch is switched back
+to 'main'. This suggests that the upgrade will need to be done on every development system.
+
+
+Commands:
+ng update @angular/core@15 @angular/cli@15
+ng update @angular/core@16 @angular/cli@16
 
 16-Sep-2024 
 Java version of AccountAPI is now live and working. This offers the possibility of making the app more sophisticated, eventually
