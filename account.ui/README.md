@@ -31,9 +31,20 @@ It seems the only way to 'update your Node.js' is to download the installer from
 I downloaded the latest stable version: v20.17 and elected to install the additional tools. It installs something
 called Chocolatey which might enable Node.js to be updated more easily in future rather than having to uninstall/reinstall.
 Unfortunately the scary Powershell window which opened as part of the installation appears to have hung so I have no
-idea whether the installation has succeeded or not.
+idea whether the installation has succeeded or not. [UPDATE: not hung, just takes ages. It finished with a message 
+'Type ENTER to exit:'. I types 'ENTER' and it exited.
 
-ng update @angular/core@17 @angular/cli@17
+
+Use the '--force' option to ignore the @ng-bootstrap/ng-bootstrap dependencies which appear to be specific to
+one version of angular. Will need to update to suitable value once the final version of angular is installed.
+ng update --force @angular/core@17 @angular/cli@17
+
+Now at:
+Angular CLI: 17.3.9
+Node: 20.17.0
+Package Manager: npm 8.19.2
+
+ng update @angular/core@18 @angular/cli@18
 
 npm uninstall -g @angular/cli
 npm install -g @angular/cli@latest
