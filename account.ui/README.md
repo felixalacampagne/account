@@ -21,7 +21,22 @@ Commands:
 ng update @angular/core@15 @angular/cli@15
 ng add @ng-bootstrap/ng-bootstrap
 ng update @angular/core@16 @angular/cli@16
+
+Update to 17 gives the following:
+Node.js version v16.17.1 detected.
+The Angular CLI requires a minimum Node.js version of v18.19.
+Please update your Node.js
+
+It seems the only way to 'update your Node.js' is to download the installer from https://nodejs.org/
+I downloaded the latest stable version: v20.17 and elected to install the additional tools. It installs something
+called Chocolatey which might enable Node.js to be updated more easily in future rather than having to uninstall/reinstall.
+Unfortunately the scary Powershell window which opened as part of the installation appears to have hung so I have no
+idea whether the installation has succeeded or not.
+
 ng update @angular/core@17 @angular/cli@17
+
+npm uninstall -g @angular/cli
+npm install -g @angular/cli@latest
 
 16-Sep-2024 
 Java version of AccountAPI is now live and working. This offers the possibility of making the app more sophisticated, eventually
