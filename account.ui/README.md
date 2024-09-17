@@ -1,6 +1,13 @@
 # Accountui
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.3.
+17-Sep-2024 Sooo, turns out AngularJS is actually Angular 1.x. I appear to be using Angular 14.2, ie.
+quite a large difference which I imagine will make HammerJS unusable. In any case HammerJS appears to only
+detect a 'swipe', all the heavy lifting of sliding a line and revealing the options is not present. Maybe 
+more recent versions of Angular are more helpful for this now very common feature. In which case maybe the
+most important thing to do before embarking on any major changes is to upgrade Angular to a more recent version.
+The current version is 18 which will be replaced by 19 soon, so I guess I will have to bite the bullet and go to v18
+now. v14 is not supported anymore to any upgrades are going to involve a fair amount of pain.
 
 16-Sep-2024 
 Java version of AccountAPI is now live and working. This offers the possibility of making the app more sophisticated, eventually
