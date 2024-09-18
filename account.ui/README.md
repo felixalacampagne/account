@@ -1,23 +1,38 @@
 # Accountui
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.3.
+
+18-Sep-2024 Thought I'd found the perfect solution to doing the swipe to edit thing at https://www.npmjs.com/package/swipe-angular-list.
+Of course I had forgotten about the grassholes responsible for continuously improving things so they no longer work. After
+hours getting around the failures to build due to some version being different to some other version I nearly got the swipe demo
+to compile until 'ng serve' came up with "error NG6002: 'SwipeAngularListModule' does not appear to be an NgModule class. 'SwipeAngularListModule'
+is not compatible with Angular Ivy". WTF is Angular Ivy!?!?!?!? Guess I'm just going to have to re-think how updating a row is triggered. 
+Thank you continuous improvement grassholes for once again forking things up.
+
+The source to swipe-angular-list is at https://github.com/leifermendez/swipe-angular-list/tree/master
+I suppose it might be possible to use it directly in my project and maybe then it would work - it might be just the
+forking around with versions necessary to get it to compile which have broken something. Do I really want to mess
+around fixing something I know nothing about, though????
+
 17-Sep-2024 Sooo, turns out AngularJS is actually Angular 1.x. I appear to be using Angular 14.2, ie.
 quite a large difference which I imagine will make HammerJS unusable. In any case HammerJS appears to only
 detect a 'swipe', all the heavy lifting of sliding a line and revealing the options is not present. Maybe 
 more recent versions of Angular are more helpful for this now very common feature. In which case maybe the
 most important thing to do before embarking on any major changes is to upgrade Angular to a more recent version.
 The current version is 18 which will be replaced by 19 soon, so I guess I will have to bite the bullet and go to v18
-now. v14 is not supported anymore to any upgrades are going to involve a fair amount of pain...
+now. v14 is not supported anymore so any upgrades are going to involve a fair amount of pain...
 
 v14->v15 eclipse caused the pain by pushing the angular18 branch to the remote main branch - WTF? It forking
-forces you to pcik a remote branch to make the branch from and then forks up the remote branch with the stuff
-you explicitly created a branch for to avoid corrupting the main branch - I think the eclipse development forkheads must have vaped one too many noxious substance to actually be able to think anymore...
+forces you to pick a remote branch to branch from and then forks up the remote with the stuff
+you explicitly created a branch off to avoid corrupting it - I think the eclipse development forkheads must have vaped one 
+too many noxious substance to actually be able to think anymore...
 
 BTW it appears the upgrade is system widem ie. node/ng report the new versions even when the branch is switched back
-to 'main'. This suggests that the upgrade will need to be done on every development system.
+to 'main'. This suggests that the upgrade will need to be done on every development system and that there is no going back!
 
 
 Commands:
+
 ng update @angular/core@15 @angular/cli@15
 ng add @ng-bootstrap/ng-bootstrap
 ng update @angular/core@16 @angular/cli@16
