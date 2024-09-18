@@ -1,0 +1,38 @@
+<div>
+	<h3 style="text-align: center">TASK LIST</h3>
+	<div>
+		<sw-item-list *ngFor="let item of list" [inside]="item" [item-class]="'list-custom'" [show-mark]="false"
+			[disable-mark]="item?.disable" (swClick)="clickOnItem(item)" (swipeCb)="swipeCallback($event)"
+			[editTemplate]="editTemplate" [trashTemplate]="trashTemplate" [markTemplate]="defaultMark"
+			[customTemplate]="customTemplateSrc" [notMarkTemplate]="defaultNotMark" (callback)="action($event)">
+		</sw-item-list>
+
+	</div>
+</div>
+<ng-template #editTemplate>
+	<i class="fas fa-edit"></i>
+</ng-template>
+<ng-template #trashTemplate>
+	<i class="far fa-trash-alt"></i>
+</ng-template>
+<ng-template #defaultMark>
+	<i class="far fa-check-circle"></i>
+</ng-template>
+<ng-template #defaultNotMark>
+	<i class="far fa-circle"></i>
+</ng-template>
+
+
+<ng-template #customTemplateSrc let-item='item' let-id='id'>
+	<div style="display: flex;">
+		<div style="padding-right: 10px;">
+			<img style="width:60px;height:60px;border-radius:60px;"
+       [src]="'https://picsum.photos/200/300'" alt="">
+    </div>
+		<div>
+			{{item.title}}
+		</div>
+		<div>
+			{{item.subTitle}}
+		</div>
+</ng-template>
