@@ -14,6 +14,31 @@ I suppose it might be possible to use it directly in my project and maybe then i
 forking around with versions necessary to get it to compile which have broken something. Do I really want to mess
 around fixing something I know nothing about, though????
 
+Well I did download the source and merged it with the swipe-demo code and eventually got it to run 
+but not without wasting hours trying to figure out bizarre compile failure messages like:
+
+"Error: Cannot read properties of undefined (reading 'setAttribute')"
+"Error: link.parentNode.insertBefore is not a function"
+
+Needless so say the cause of the messages was very very far from being obvious. Thanks to a lucky guess and a random 
+unrelated google page the cause of the problem was identified as being the 'index.hml' file. Fork only knows why it 
+was a problem but replacing the demo version with the one from accoutui made the bizarre messages go away.
+
+Unfortunately the lunacy does not end with getting the demo to run. Attempts to modify the data displayed to 
+more closely resemble my needs results in an empty screen and yet another obfuscated error message referring 
+to obfuscated code so no way to figure out what is going on. 
+It appears that the component only works if the first item in the list line is an image, 
+using normal text causes the bizzare message. I certainly don't need images in my list. 
+It also appears that the list line height is fixed at some absurdly large value which is also something I don't need. 
+Pity, since the swipe thing is more or less what I was thinking of and it sort of worked in a normal, 
+non-touch, browser.
+
+I think that to get something I can use in the shortest time, I'll initially just go with a teeny tiny edit icon,
+eventually maybe a 'long-press'/right-click to trigger the edit and who knows by the time I try that there might be
+an 'out-of-the-box' implementation of swipe to edit in angular. It did notice something in 'Angular material' that
+might work - the 'Drawer' - but don't know if it can be adapted to a list.
+
+
 17-Sep-2024 Sooo, turns out AngularJS is actually Angular 1.x. I appear to be using Angular 14.2, ie.
 quite a large difference which I imagine will make HammerJS unusable. In any case HammerJS appears to only
 detect a 'swipe', all the heavy lifting of sliding a line and revealing the options is not present. Maybe 
