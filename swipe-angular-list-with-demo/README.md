@@ -38,10 +38,19 @@ fixes an error seen in the console which must have been related - no way to know
 the obfuscated code.
 
 Haven't found a way to make the lines a more sensible height. I think it is controlled from the item-list.component.css
-file. Overrides added in the app .CSS do not affect anything.
-Really thinking this is not worth the effort...
+file. Overrides added in the app .CSS do not affect anything. 
+I tried taking all of the height related stuff out of the list .CSS but still the rows are ridiculously high. On the way I
+discovered how to use 'ng serve' in a mode which leaves the code unobfuscated so it can be debugged in the browser. From this
+I see that the swipe list code makes massive assumptions about how many nested items there are in the 'customTemplate' which is
+not very helpful.
+It seems the use of 'flex' in the .CSS is what is causing the row height to be so massively large. Without
+the 'flex' everything ends of on the same line and nothing slides. Moving the 'flex' from the 'customTemplate' parent div
+to '.list-custom' CSS somewhat reduces the line height but puts each column on a new line, ie. a new row, which is not what
+I want. 
 
-I found another slide library which is based on Angular Material: https://github.com/ShankyTiwari/mat-list-touch
+No clue how to force the layout into something sensible so... time to give up.
+
+I did find another slide library which is based on Angular Material: https://github.com/ShankyTiwari/mat-list-touch
 Not sure it actually does the sliding of the items because the dmeo doesn't work. It's written for Angular 10
 so would probably suffer from the same version issues I had for swipe-angular-list. Given it would probably require
 me to convert everythign to Material, which is something I've been thinking of trying, then maybe then would be
