@@ -206,7 +206,7 @@ export class ItemListComponent implements AfterViewInit {
             e.children[0].childNodes.forEach(b => {
               if (b) {
                 b.id = this.selfElement.id;
-                if (b.children.length) {
+                if (b.children && b.children.length) {
                   b.children[0].id = this.selfElement.id;
                 }
               }
