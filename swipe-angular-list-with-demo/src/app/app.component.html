@@ -6,9 +6,9 @@
 			[editTemplate]="editTemplate" [trashTemplate]="trashTemplate" [markTemplate]="defaultMark"
 			[customTemplate]="customTemplateSrc" [notMarkTemplate]="defaultNotMark" (callback)="action($event)">
 		</sw-item-list>
-
 	</div>
 </div>
+
 <ng-template #editTemplate>
 	<i class="fas fa-edit"></i>
 </ng-template>
@@ -25,14 +25,11 @@
 
 <ng-template #customTemplateSrc let-item='item' let-id='id'>
 	<div style="display: flex;">
-		<div style="padding-right: 10px;">
-			<img style="width:60px;height:60px;border-radius:60px;"
-       [src]="'https://picsum.photos/200/300'" alt="">
-    </div>
 		<div>
-			{{item.title}}
+			<span>{{item.title}}</span>
 		</div>
 		<div>
 			{{item.subTitle}}
+		</div>
 		</div>
 </ng-template>
