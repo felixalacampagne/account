@@ -1,6 +1,15 @@
 # Accountui
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.3.
+
+19-Sep-2024 After some experimentation with trying to use a library for 'swipe' I've given up on that idea
+for the time being. The library I tried is unconfigurablefor my purposes and I wasted hours just trying to
+get it to compile with the new Angular. An alternative it to use Angular Material but that will require
+too much effort with no gain. Therefore the next thing to do is to figure out how to display a popup
+containing a transaction to be updated when an edit icon is clicked.
+
+See this for an example of modal in use: https://stackblitz.com/angular/odaogjmkqod?file=app%2Fmodal-basic.ts
+
 17-Sep-2024 Sooo, turns out AngularJS is actually Angular 1.x. I appear to be using Angular 14.2, ie.
 quite a large difference which I imagine will make HammerJS unusable. In any case HammerJS appears to only
 detect a 'swipe', all the heavy lifting of sliding a line and revealing the options is not present. Maybe 
@@ -16,7 +25,7 @@ time to work on it the replacement will be a very gradual process.
 
 I think the first thing to do is to add the possibility to update an entry. For this I need some way of triggering
 the update on the phone. After a bit of though I realise that the 'swipe-left' function, eg. for unread, reminder, delete,
-is just what I need but how the fork do I do that, not being mush of a UI person. Eventually I discovered that angular (AngularJS, whatever that is)
+is just what I need but how the fork do I do that, not being much of a UI person. Eventually I discovered that angular (AngularJS, whatever that is)
 used to have this functionality but it is now moved to something called 'HammerJS'. I hope that this works for the 'AngularCLI' which I 
 think I am using!!!! Anyway, the link is: https://hammerjs.github.io
 
