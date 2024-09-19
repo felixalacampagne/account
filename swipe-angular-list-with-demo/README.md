@@ -20,6 +20,34 @@ https://www.npmjs.com/package/swipe-angular-list
 npm i swipe-angular-list --legacy-peer-dep
 npm install @angular/platform-browser --save
 
+On a different system after installing Node.js v20 it was not possible to use npm install do to
+many bad dependencies.
+
+Since the dependencies are all things added for angular I figured creating a new project from scratch
+should provide configs with appropriate versions. Of course, this angular being the result of
+constant continuous improvement not even the standard 'npm new' command worked. These are some
+of the things I tried in an attempt to get it to work:
+
+npm install -g @angular/cli@18
+npx @angular/cli@18 new angular18-empty
+
+That worked!
+
+I found a workaround for the disappearing text when no icon is used - for some reason a 'span' around the text
+fixes an error seen in the console which must have been related - no way to know from the browser with 
+the obfuscated code.
+
+Haven't found a way to make the lines a more sensible height. I think it is controlled from the item-list.component.css
+file. Overrides added in the app .CSS do not affect anything.
+Really thinking this is not worth the effort...
+
+I found another slide library which is based on Angular Material: https://github.com/ShankyTiwari/mat-list-touch
+Not sure it actually does the sliding of the items because the dmeo doesn't work. It's written for Angular 10
+so would probably suffer from the same version issues I had for swipe-angular-list. Given it would probably require
+me to convert everythign to Material, which is something I've been thinking of trying, then maybe then would be
+the time for trying to implement the swiping. Since that is for the far future, better now to concentrate on
+getting the functionality in and usable and then I can faff around with the UI. 
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.4.
 
 ## Development server
