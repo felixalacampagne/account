@@ -30,8 +30,9 @@ export class AppComponent  {
     },
         {
       id: 4,
-      title: 'Buscar el auto en el taller',
-      subTitle: '9:00pm'
+      title: 'Disabled item',
+      subTitle: '9:00pm',
+      disable:true
     },
         {
       id: 4,
