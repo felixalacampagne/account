@@ -6,21 +6,14 @@ import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
 import { AppComponent } from './app.component';
 import {AccountService} from '../shared/service/account.service';
-import { HttpClientModule } from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { QrscannerComponent } from './qrscanner/qrscanner.component';
 
-@NgModule({
-  declarations: [
-    AppComponent,
-    QrscannerComponent
-  ],
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    FormsModule,
-    NgbModule 
-  ],
-  providers: [AccountService, DatePipe],
-  bootstrap: [AppComponent]
-})
+@NgModule({ declarations: [
+        AppComponent,
+        QrscannerComponent
+    ],
+    bootstrap: [AppComponent], imports: [BrowserModule,
+        FormsModule,
+        NgbModule], providers: [AccountService, DatePipe, provideHttpClient(withInterceptorsFromDi())] })
 export class AppModule { }

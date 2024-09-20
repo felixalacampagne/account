@@ -1,0 +1,19 @@
+p {
+  font-family: Lato;
+}
+.list-swipe {
+  box-shadow: 0px 5px 7px rgba(181, 181, 181, 0.18);
+  border-radius: 0px;
+  padding: 0px;
+  font-weight: 100;
+  font-size: 8pt;
+  line-height: 8pt;
+  z-index: 9;
+  margin: 0px;
+}
+.list-custom {
+   margin: 0px;
+   height:5px;
+   line-height: 5px;
+   padding: 10px;
+}

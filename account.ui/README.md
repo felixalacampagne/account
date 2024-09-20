@@ -10,13 +10,115 @@ containing a transaction to be updated when an edit icon is clicked.
 
 See this for an example of modal in use: https://stackblitz.com/angular/odaogjmkqod?file=app%2Fmodal-basic.ts
 
+18-Sep-2024 Thought I'd found the perfect solution to doing the swipe to edit thing at https://www.npmjs.com/package/swipe-angular-list.
+Of course I had forgotten about the grassholes responsible for continuously improving things so they no longer work. After
+hours getting around the failures to build due to some version being different to some other version I nearly got the swipe demo
+to compile until 'ng serve' came up with "error NG6002: 'SwipeAngularListModule' does not appear to be an NgModule class. 'SwipeAngularListModule'
+is not compatible with Angular Ivy". WTF is Angular Ivy!?!?!?!? Guess I'm just going to have to re-think how updating a row is triggered. 
+Thank you continuous improvement grassholes for once again forking things up.
+
+The source to swipe-angular-list is at https://github.com/leifermendez/swipe-angular-list/tree/master
+I suppose it might be possible to use it directly in my project and maybe then it would work - it might be just the
+forking around with versions necessary to get it to compile which have broken something. Do I really want to mess
+around fixing something I know nothing about, though????
+
+Well I did download the source and merged it with the swipe-demo code and eventually got it to run 
+but not without wasting hours trying to figure out bizarre compile failure messages like:
+
+"Error: Cannot read properties of undefined (reading 'setAttribute')"
+"Error: link.parentNode.insertBefore is not a function"
+
+Needless so say the cause of the messages was very very far from being obvious. Thanks to a lucky guess and a random 
+unrelated google page the cause of the problem was identified as being the 'index.hml' file. Fork only knows why it 
+was a problem but replacing the demo version with the one from accoutui made the bizarre messages go away.
+
+Unfortunately the lunacy does not end with getting the demo to run. Attempts to modify the data displayed to 
+more closely resemble my needs results in an empty screen and yet another obfuscated error message referring 
+to obfuscated code so no way to figure out what is going on. 
+It appears that the component only works if the first item in the list line is an image, 
+using normal text causes the bizzare message. I certainly don't need images in my list. 
+It also appears that the list line height is fixed at some absurdly large value which is also something I don't need. 
+Pity, since the swipe thing is more or less what I was thinking of and it sort of worked in a normal, 
+non-touch, browser.
+
+I think that to get something I can use in the shortest time, I'll initially just go with a teeny tiny edit icon,
+eventually maybe a 'long-press'/right-click to trigger the edit and who knows by the time I try that there might be
+an 'out-of-the-box' implementation of swipe to edit in angular. It did notice something in 'Angular material' that
+might work - the 'Drawer' - but don't know if it can be adapted to a list.
+
 17-Sep-2024 Sooo, turns out AngularJS is actually Angular 1.x. I appear to be using Angular 14.2, ie.
 quite a large difference which I imagine will make HammerJS unusable. In any case HammerJS appears to only
 detect a 'swipe', all the heavy lifting of sliding a line and revealing the options is not present. Maybe 
 more recent versions of Angular are more helpful for this now very common feature. In which case maybe the
 most important thing to do before embarking on any major changes is to upgrade Angular to a more recent version.
 The current version is 18 which will be replaced by 19 soon, so I guess I will have to bite the bullet and go to v18
-now. v14 is not supported anymore to any upgrades are going to involve a fair amount of pain.
+now. v14 is not supported anymore so any upgrades are going to involve a fair amount of pain...
+
+v14->v15 eclipse caused the pain by pushing the angular18 branch to the remote main branch - WTF? It forking
+forces you to pick a remote branch to branch from and then forks up the remote with the stuff
+you explicitly created a branch off to avoid corrupting it - I think the eclipse development forkheads must have vaped one 
+too many noxious substance to actually be able to think anymore...
+
+BTW it appears the upgrade is system widem ie. node/ng report the new versions even when the branch is switched back
+to 'main'. This suggests that the upgrade will need to be done on every development system and that there is no going back!
+
+
+Commands:
+
+ng update @angular/core@15 @angular/cli@15
+ng add @ng-bootstrap/ng-bootstrap
+ng update @angular/core@16 @angular/cli@16
+
+Update to 17 gives the following:
+Node.js version v16.17.1 detected.
+The Angular CLI requires a minimum Node.js version of v18.19.
+Please update your Node.js
+
+It seems the only way to 'update your Node.js' is to download the installer from https://nodejs.org/
+I downloaded the latest stable version: v20.17 and elected to install the additional tools. It installs something
+called Chocolatey which might enable Node.js to be updated more easily in future rather than having to uninstall/reinstall.
+Unfortunately the scary Powershell window which opened as part of the installation appears to have hung so I have no
+idea whether the installation has succeeded or not. [UPDATE: not hung, just takes ages. It finished with a message 
+'Type ENTER to exit:'. I types 'ENTER' and it exited.
+
+
+Use the '--force' option to ignore the @ng-bootstrap/ng-bootstrap dependencies which appear to be specific to
+one version of angular. Will need to update to suitable value once the final version of angular is installed.
+ng update --force @angular/core@17 @angular/cli@17
+
+Now at:
+Angular CLI: 17.3.9
+Node: 20.17.0
+Package Manager: npm 8.19.2
+
+ng update --force @angular/core@18 @angular/cli@18
+
+Now at:
+   Angular CLI: 18.2.4
+   Node: 20.17.0
+   Package Manager: npm 8.19.2
+   OS: win32 x64
+   
+   Angular: 18.2.4
+   ... animations, cli, common, compiler, compiler-cli, core, forms
+   ... localize, platform-browser, platform-browser-dynamic, router
+   
+   Package                         Version
+   ---------------------------------------------------------
+   @angular-devkit/architect       0.1802.4
+   @angular-devkit/build-angular   18.2.4
+   @angular-devkit/core            18.2.4
+   @angular-devkit/schematics      18.2.4
+   @schematics/angular             18.2.4
+   rxjs                            7.5.7
+   typescript                      5.4.5
+   zone.js                         0.14.10
+
+npm uninstall -g @angular/cli
+npm install -g @angular/cli@latest
+ng add @ng-bootstrap/ng-bootstrap
+
+Seems to build ok with 'ng serve' so I guess it is good to go!!
 
 16-Sep-2024 
 Java version of AccountAPI is now live and working. This offers the possibility of making the app more sophisticated, eventually
