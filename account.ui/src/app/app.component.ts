@@ -33,6 +33,7 @@ export class AppComponent implements OnInit {
   public submitted: boolean = false;
   public defaultdate: string = '';
   envName: string = '';
+  uiversion: string ='';
   txDate: NgbDateStruct;
   txType: string;
   txComment: string = '';
@@ -56,7 +57,7 @@ export class AppComponent implements OnInit {
     private modalService: NgbModal) {
     const d: Date = new Date();
     this.envName = environment.envName;
-
+    this.uiversion = environment.uiversion;
     // Default values for the add transaction form
     this.txDate = {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
     // This is only necessary because the ngModel attribute breaks the selected behaviour of the option tag
@@ -101,8 +102,8 @@ export class AppComponent implements OnInit {
               else
               {
                this.title = this.version.name + " (" + this.version.db +")";
-               this.versiontxt = " v" + this.version.version;
-               console.log("AppComponent.ngOnInit: Version: " + this.title + " " + this.versiontxt );
+               this.versiontxt = " v" + this.version.version + this.uiversion;
+               console.log("AppComponent.ngOnInit: Version: " + this.title + " " + this.versiontxt);
               }
             },
        err=>{
