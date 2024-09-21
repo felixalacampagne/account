@@ -3,7 +3,7 @@
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.3.
 
 19-Sep-2024 After some experimentation with trying to use a library for 'swipe' I've given up on that idea
-for the time being. The library I tried is unconfigurablefor my purposes and I wasted hours just trying to
+for the time being. The library I tried is unconfigurable for my purposes and I wasted hours just trying to
 get it to compile with the new Angular. An alternative it to use Angular Material but that will require
 too much effort with no gain. Therefore the next thing to do is to figure out how to display a popup
 containing a transaction to be updated when an edit icon is clicked.
@@ -19,7 +19,7 @@ Thank you continuous improvement grassholes for once again forking things up.
 
 The source to swipe-angular-list is at https://github.com/leifermendez/swipe-angular-list/tree/master
 I suppose it might be possible to use it directly in my project and maybe then it would work - it might be just the
-forking around with versions necessary to get it to compile which have broken something. Do I really want to mess
+forking around with versions necessary to get it to compile which has broken something. Do I really want to mess
 around fixing something I know nothing about, though????
 
 Well I did download the source and merged it with the swipe-demo code and eventually got it to run 
@@ -42,9 +42,14 @@ Pity, since the swipe thing is more or less what I was thinking of and it sort o
 non-touch, browser.
 
 I think that to get something I can use in the shortest time, I'll initially just go with a teeny tiny edit icon,
-eventually maybe a 'long-press'/right-click to trigger the edit and who knows by the time I try that there might be
-an 'out-of-the-box' implementation of swipe to edit in angular. It did notice something in 'Angular material' that
+eventually maybe a 'long-press'/right-click 
+[long press is no good, it is the trigger for selecting text
+double-click/tap is no good as it is the trigger for zooming the page
+] 
+to trigger the edit and who knows by the time I try that there might be
+an 'out-of-the-box' implementation of swipe to edit in angular. I did notice something in 'Angular material' that
 might work - the 'Drawer' - but don't know if it can be adapted to a list.
+
 
 17-Sep-2024 Sooo, turns out AngularJS is actually Angular 1.x. I appear to be using Angular 14.2, ie.
 quite a large difference which I imagine will make HammerJS unusable. In any case HammerJS appears to only
