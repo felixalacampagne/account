@@ -105,28 +105,33 @@
   </div>
 </div>
 
-<ng-template #content let-modal>
-<!-- The close window buton is supposed to appear at the far right of the title bar. Intead it appears
-     right next to the  title text.
+<ng-template #content let-updmodal>
+<!-- The close window button is supposed to appear at the far right of the title bar. Instead it appears
+     right next to the title text.
      There is supposed to be a wrapping 'modal' class div (see https://getbootstrap.com/docs/4.3/components/modal/)
      but when it is added the modal is not visible although the background goes dark.
+     Closing the modal should not require the(click), instead the attribute 'data-dismiss' on the button
+     should trigger the close but it doesn't work.
      This probably means there is a problem with bootstrap but it is impossible to find any full documentation
      about what is required to get the magic to work correctly.
      For now will forget about having the close window X and just use a cancel button next to the update.
      
      Don't know what the data-dismiss thing is supposed to do. The demos do not have a (click). only a data_dismiss,
      but if I omit the (click) the modal does not go away.
+     
+     Finally got the close button in the right place and formatted liek a close button. Turns out the all the docs
+     and examples I was seeing are out of date - see https://getbootstrap.com/docs/5.3/components/modal/
+     This is not helped by some bootstrap sights not even listing a v5 documentation option.
+     
+     The data-dismiss thing still doesn't work even using the new name. I guess this could be something
+     related to using angular with the modal
  -->
-   <div class="modal-dialog">
+   <div id="updmodal" class="modal-dialog">
       <div class="modal-content">
          <div class="modal-header">
 		      <h5 class="modal-title" id="modal-basic-title">Update transaction</h5>
-		      <!-- this is badly position and I do not know why
-		      <button type="button" class="close"  data-dismiss="modal" aria-label="Close" (click)="modal.dismiss('Cross click')">
-		         <span aria-hidden="true">&times;</span>
-		      </button>
-		       -->
-	       </div>
+		      <button type="button" class="btn-close" data-bs-dismiss="modal" data-bs-target="updmodal" aria-label="Close"></button>
+         </div>
 
 		   <div class="modal-body">
 		      <form #newtxnform="ngForm">
@@ -174,8 +179,8 @@
 		      </form>
 		   </div>
          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal" (click)="modal.dismiss('Cancel click')">Cancel</button>
-            <button type="button" class="btn btn-default btn-primary" (click)="modal.close('Update click')">Update</button>
+            <button type="button" class="btn btn-secondary" (click)="updmodal.dismiss('Cancel click')">Cancel</button>
+            <button type="button" class="btn btn-default btn-primary" (click)="updmodal.close('Update click')">Update</button>
          </div>        
       </div> <!-- modal-content -->
    </div> <!-- modal-dialog -->
