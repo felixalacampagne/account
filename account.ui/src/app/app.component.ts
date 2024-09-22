@@ -14,15 +14,15 @@ import {TransactionItem} from '../shared/model/transaction.model';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { Html5QrcodeResult } from 'html5-qrcode/esm/core';
 import { Version } from 'src/shared/model/version.model';
-import { UpdateModalComponent } from './update-modal.component';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
   providers: [{provide: NgbDateParserFormatter, useClass: mmddyyyNgbDateParserFormatter}]
 })
+
 export class AppComponent implements OnInit {
-   @ViewChild('myModal') updateModal: UpdateModalComponent;
   modalReference: NgbModalRef | undefined;
 
   title: string = 'Account';
@@ -52,11 +52,12 @@ export class AppComponent implements OnInit {
     "QRMP",
     "DDBT"
   ];
+  
   constructor(private accountService: AccountService,
     private cd: ChangeDetectorRef,
     private datePipe: DatePipe,
-    private modalService: NgbModal,
-    updateModal: UpdateModalComponent) {
+    private modalService: NgbModal)
+  {
     const d: Date = new Date();
     this.envName = environment.envName;
     this.uiversion = environment.uiversion;
@@ -64,14 +65,9 @@ export class AppComponent implements OnInit {
     this.txDate = {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
     // This is only necessary because the ngModel attribute breaks the selected behaviour of the option tag
     this.txType = 'BC';
-   this.updateModal = updateModal;
   }
 
-
-  doUpdate() {
-   this.updateModal.open();
-  }
-
+  // Call this to display the modal. 'content' is the name of the 'template' containing the elements to be displayed in the modal, I think
   open(content: any) {
     this.modalReference = this.modalService.open(content);
     this.modalReference.result.then((result) => {

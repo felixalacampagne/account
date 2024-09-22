@@ -19,9 +19,6 @@
     </div>
 </nav>
 
-<update-modal #myModal></update-modal>
-<button class="btn btn-lg btn-outline-primary" (click)="doUpdate()">Launch modal</button>
-
 <div class="page">
   <div class="transactions" *ngIf="isTransactions()">
     <table class="table table-striped table-sm">
@@ -94,8 +91,9 @@
         </div>              
       <div>
          <!-- this should go in the app page or be done by the app component, I think-->
-         <button class="btn btn-lg btn-outline-primary" (click)="open(content)">Launch demo modal</button>
-         <pre>{{closeResult}}</pre>      </div -->
+         <button class="btn btn-lg btn-outline-primary" (click)="open(content)">Launch modal</button>
+        
+         <pre>{{closeResult}}</pre>
       </div>
   </div>
 </div>
