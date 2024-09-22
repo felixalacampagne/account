@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { NgForm, NgModel } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import {NgbModal, ModalDismissReasons, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
@@ -14,6 +14,7 @@ import {TransactionItem} from '../shared/model/transaction.model';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { Html5QrcodeResult } from 'html5-qrcode/esm/core';
 import { Version } from 'src/shared/model/version.model';
+import { UpdateModalComponent } from './update-modal.component';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -21,7 +22,7 @@ import { Version } from 'src/shared/model/version.model';
   providers: [{provide: NgbDateParserFormatter, useClass: mmddyyyNgbDateParserFormatter}]
 })
 export class AppComponent implements OnInit {
-
+   @ViewChild('myModal') updateModal: UpdateModalComponent;
   modalReference: NgbModalRef | undefined;
 
   title: string = 'Account';
@@ -54,7 +55,8 @@ export class AppComponent implements OnInit {
   constructor(private accountService: AccountService,
     private cd: ChangeDetectorRef,
     private datePipe: DatePipe,
-    private modalService: NgbModal) {
+    private modalService: NgbModal,
+    updateModal: UpdateModalComponent) {
     const d: Date = new Date();
     this.envName = environment.envName;
     this.uiversion = environment.uiversion;
@@ -62,9 +64,13 @@ export class AppComponent implements OnInit {
     this.txDate = {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
     // This is only necessary because the ngModel attribute breaks the selected behaviour of the option tag
     this.txType = 'BC';
-
+   this.updateModal = updateModal;
   }
 
+
+  doUpdate() {
+   this.updateModal.open();
+  }
 
   open(content: any) {
     this.modalReference = this.modalService.open(content);
