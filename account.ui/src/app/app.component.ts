@@ -23,6 +23,8 @@ import { Version } from 'src/shared/model/version.model';
 })
 
 export class AppComponent implements OnInit {
+   
+@ViewChild('closebutton') closebutton: any;   
   modalReference: NgbModalRef | undefined;
 
   title: string = 'Account';
@@ -42,6 +44,7 @@ export class AppComponent implements OnInit {
   txPastearea: string = '';
   closeResult: string = '';
   html5QrcodeScanner: Html5QrcodeScanner | undefined; // Only defined while a scan is being performed
+  updateTxn: TransactionItem = new TransactionItem(); // Wont compile unless this is set to something
   public txnTypes: string[] = [
     "BC",
     "AWAL",
@@ -50,7 +53,9 @@ export class AppComponent implements OnInit {
     "PPAL",
     "CARD",
     "QRMP",
-    "DDBT"
+    "DDBT",
+    "INT",
+    "TFR"
   ];
   
   constructor(private accountService: AccountService,
@@ -68,7 +73,16 @@ export class AppComponent implements OnInit {
   }
 
   // Call this to display the modal. 'content' is the name of the 'template' containing the elements to be displayed in the modal, I think
-  open(content: any) {
+  open(content: any, txn: TransactionItem) {
+    this.updateTxn = new TransactionItem();
+    this.updateTxn.copy(txn);
+    
+    // Date picker field is somehow tied to content of this.txDate which is some sort of date object
+    // so must the txn date into the date object... Date seems able to handle the date string in TransactionItem 
+    let d : Date = new Date();
+    d = new Date(this.updateTxn.date);
+    this.txDate = {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()}; 
+    
     this.modalReference = this.modalService.open(content);
     this.modalReference.result.then((result) => {
       this.closeResult = `Closed with: ${result}`;

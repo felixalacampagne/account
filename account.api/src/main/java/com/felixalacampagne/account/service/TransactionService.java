@@ -117,13 +117,13 @@ public class TransactionService
 
    private TransactionItem mapToItem(Transaction t)
    {
-      BigDecimal amount;
+      BigDecimal amount = BigDecimal.ZERO;
 
       if(t.getDebit() != null)
       {
          amount = t.getDebit();
       }
-      else
+      else if(t.getCredit() != null) // Shouldn't happen but does in the TEST DB so maybe can in live db
       {
          amount = t.getCredit().negate();
       }
