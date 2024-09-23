@@ -61,7 +61,8 @@ export class AppComponent implements OnInit {
     "QRMP",
     "DDBT",
     "INT",
-    "TFR"
+    "TFR",
+    "ZOOM"
   ];
   
   constructor(private accountService: AccountService,
