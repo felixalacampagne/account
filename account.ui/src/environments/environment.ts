@@ -5,9 +5,9 @@
 
 export const environment = {
   production: false,
-  accountapi_host: "http://localhost:4200",
+  accountapi_host: "http://localhost:8080",
   accountapi_app: "/accountapi/",
   envName: ' (home)',
   uiversion: ' ng18',
-  folder: '/assets'
+  folder: ''
 };
