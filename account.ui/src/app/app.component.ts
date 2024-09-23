@@ -44,7 +44,13 @@ export class AppComponent implements OnInit {
   txPastearea: string = '';
   closeResult: string = '';
   html5QrcodeScanner: Html5QrcodeScanner | undefined; // Only defined while a scan is being performed
-  updateTxn: TransactionItem = new TransactionItem(); // Wont compile unless this is set to something
+
+  // The modal code in .html will not compile if updateTxn is set to undefined since it
+  // references 'this.updateTxn'. Obviously it should only consider the value when it is displayed
+  // however I have no idea how to get it to do this. Thus 'origupdTxn' is the value to check to
+  // determine whether an edit is really in progress.
+  updateTxn: TransactionItem = new TransactionItem(); // Edited valeus of transaction beign updated
+  origupdTxn:TransactionItem | undefined; // Original values of transaction being updated.
   public txnTypes: string[] = [
     "BC",
     "AWAL",
@@ -73,9 +79,10 @@ export class AppComponent implements OnInit {
   }
 
   // Call this to display the modal. 'content' is the name of the 'template' containing the elements to be displayed in the modal, I think
-  open(content: any, txn: TransactionItem) {
-    this.updateTxn = new TransactionItem();
-    this.updateTxn.copy(txn);
+   open(content: any, txn: TransactionItem) {
+      this.origupdTxn = txn;
+      this.updateTxn = new TransactionItem();
+      this.updateTxn.copy(this.origupdTxn);
     
     // Date picker field is somehow tied to content of this.txDate which is some sort of date object
     // so must the txn date into the date object... Date seems able to handle the date string in TransactionItem 
@@ -85,30 +92,48 @@ export class AppComponent implements OnInit {
     
     this.modalReference = this.modalService.open(content);
     this.modalReference.result.then((result) => {
-      this.closeResult = `Closed with: ${result}`;
+      console.log("open:modalReference:result");
+      // One maybe the updated transaction will come from the modal
+      this.updmodalCloseAction(`${result}`, this.updateTxn);
     }, (reason) => {
-      this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
+      console.log("open:modalReference:reason");
+      this.updmodalCloseAction( `${this.getDismissReason(reason)}`, this.updateTxn);
     });
   }
 
   private getDismissReason(reason: any): string {
     if (reason === ModalDismissReasons.ESC) {
-      return 'by pressing ESC';
+      return 'CANCEL';
     } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
-      return 'by clicking on a backdrop';
+      return 'CANCEL';
     } else {
-      return  `with: ${reason}`;
+      return `${reason}`;
     }
   }
 
+   private updmodalCloseAction(reason : string, updtxn : TransactionItem) 
+   {
+      console.log("updmodalCloseAction: reason: " + reason);
+      if(reason == "UPDATE")
+      {
+         // updtxn contains the new values except for the date
+         // since the datepicker sets a value in txDate which needs to be mapped
+         // back into the TransactionItem format
+         let updDate : Date = new Date(this.txDate.year, this.txDate.month-1, this.txDate.day);
+         updtxn.date = this.datePipe.transform(updDate, 'dd/MM/yyyy') ?? '';         
+
+         console.log("updmodalCloseAction: updating transaction:  " + JSON.stringify(updtxn, null, 2));
+         this.updatetransaction(updtxn);
+      }
+   }
 
 
+   ngOnInit() {
+      console.log('AppComponent.ngOnInit: Starting');
 
-  ngOnInit() {
-    console.log('AppComponent.ngOnInit: Starting');
-
-    this.accountService.getVersion().subscribe(
-       res => {
+      // Change syntax sugar to avoid deprecated warning 
+      this.accountService.getVersion().subscribe({
+         next:(res) => {
               this.version = res;
               // debugger;
               if(!this.version)
@@ -122,41 +147,41 @@ export class AppComponent implements OnInit {
                console.log("AppComponent.ngOnInit: Version: " + this.title + " " + this.versiontxt);
               }
             },
-       err=>{
-            console.log("AppComponent.ngOnInit: An error occured during getAccounts subscribe" + err);
+         error: (err)=>{
+            console.log("AppComponent.ngOnInit: An error occured during getVersion subscribe: " + JSON.stringify(err, null, 2));
             } ,
-        ()=>{console.log("AppComponent.ngOnInit: getAccounts loading completed");}
-    );
+         complete: ()=>{console.log("AppComponent.ngOnInit: getVersion loading completed");}
+      });
 
 
-    this.accountService.getAccounts().subscribe(
-       res => {
+      this.accountService.getAccounts().subscribe({
+         next: (res) => {
               this.accounts = res;
               // debugger;
               if(!this.accounts)
               {
-                console.log('AppComponent.ngOnInit: variable is not initialized');
+                console.log('AppComponent.ngOnInit: accounts is not initialized');
               }
               else
               {
                 console.log("AppComponent.ngOnInit: Accounts contains " + this.accounts.length + " items.");
               }
             },
-       err=>{
+         error: (err)=>{
             console.log("AppComponent.ngOnInit: An error occured during getAccounts subscribe" + err);
             } ,
-        ()=>{console.log("AppComponent.ngOnInit: getAccounts loading completed");}
-    );
+         complete: ()=>{console.log("AppComponent.ngOnInit: getAccounts loading completed");}
+      });
 
 
-    console.log("AppComponent.ngOnInit:Finished");
+   console.log("AppComponent.ngOnInit:Finished");
 }
 
 getTransactions(acc : AccountItem)
 {
   console.log("AppComponent.getTransactions: Starting");
-  this.accountService.getTransactions(acc).subscribe(
-      res=>{
+  this.accountService.getTransactions(acc).subscribe({
+      next: (res)=>{
             this.transactions = res;
             //debugger;
             if(!this.transactions)
@@ -173,11 +198,11 @@ getTransactions(acc : AccountItem)
               this.cd.markForCheck();
             }
           },
-      err=>{
+      error: (err)=>{
           console.log("AppComponent.getTransactions: An error occured during getTransactions subscribe" + err);
           } ,
-      ()=>{console.log("AppComponent.getTransactions: getTransactions loading completed");}
-  );
+      complete: ()=>{console.log("AppComponent.getTransactions: getTransactions loading completed");}
+});
 
   console.log("AppComponent.getTransactions:Finished");
   this.activeaccount = acc;
@@ -186,8 +211,8 @@ getTransactions(acc : AccountItem)
 addTransactionToDB(txn : TransactionItem)
 {
   console.log("AppComponent.addTransactionToDB: Starting");
-  this.accountService.addTransaction(txn).subscribe(
-      res=>{
+  this.accountService.addTransaction(txn).subscribe( {
+      next: (res)=>{
           console.log("AppComponent.addTransactionToDB: Response: " + res);
           // Must wait for add to complete before loading new transaction list
           this.getTransactions(this.activeaccount);
@@ -195,15 +220,14 @@ addTransactionToDB(txn : TransactionItem)
           this.txAmount = '';
           this.txPastearea = '';
           },
-      err=>{
+      error: (err)=>{
           console.log("AppComponent.addTransactionToDB: An error occured during getTransactions subscribe:" + JSON.stringify(err));
           } ,
-      ()=>{console.log("AppComponent.addTransactionToDB: getTransactions loading completed");}
-  );
+      complete: ()=>{console.log("AppComponent.addTransactionToDB: getTransactions loading completed");}
+   });
 
   console.log("AppComponent.addTransactionToDB:Finished");
 }
-
 
 addtransaction()
 {
@@ -230,6 +254,70 @@ addtransaction()
   console.log("Comment: " + newent.comment);
   console.log("Amount: " + newent.amount);  
   this.addTransactionToDB(newent); 
+}
+
+updTransactionToDB(txn : TransactionItem)
+{
+  console.log("AppComponent.updTransactionToDB: Starting");
+  this.accountService.updateTransaction(txn).subscribe( {
+      next: (res)=>{
+          console.log("AppComponent.updTransactionToDB: Response: " + res);
+          // Must wait for add to complete before loading new transaction list
+          this.getTransactions(this.activeaccount);
+          // Reset amount to prevent double entry
+          this.txAmount = '';
+          this.txPastearea = '';
+          },
+      error: (err)=>{
+          console.log("AppComponent.updTransactionToDB: An error occured during getTransactions subscribe:" + JSON.stringify(err));
+          } ,
+      complete: ()=>{console.log("AppComponent.updTransactionToDB: getTransactions loading completed");}
+   });
+
+  console.log("AppComponent.updTransactionToDB:Finished");
+}
+
+// Specify the updated transaction in case I ever manage to make the modal into a separate component
+updatetransaction(updtxn : TransactionItem)
+{
+   if(!this.origupdTxn)
+   {
+      console.log("No transaction is being updated");
+      return;
+   }   
+   if(!(updtxn.token === this.origupdTxn.token) )
+   {
+      console.log("Invalid update request: Tokens do not match");
+      return;     
+   }
+
+   // Problem comparing the dates - the old date has a time value of +1hr but the new one
+   // has 0hr. So simpler to compare the strings
+   let oldDate: Date = new Date(this.origupdTxn.date);
+   let oldDatestr: string = this.datePipe.transform(oldDate, 'dd/MM/yyyy') ?? '';
+
+   // Could verify that something was changed - will need to keep track of the original TransactionItem
+   if((updtxn.amount === this.origupdTxn.amount)
+      && (updtxn.comment === this.origupdTxn.comment)
+      && (updtxn.type === this.origupdTxn.type)
+      && (updtxn.date === oldDatestr)
+   )
+   {
+      console.log("No values were changed, nothing to update.");
+      return;
+   }
+
+   // Should probably also verify that 'valid' values are present but this is not done for add...
+
+   console.log("Date:    new:" + updtxn.date + " old:" + oldDatestr);
+   console.log("Type:    new:" + updtxn.type + " old:" + this.origupdTxn.type);
+   console.log("Comment: new:" + updtxn.comment + " old:" + this.origupdTxn.comment);
+   console.log("Amount:  new:" + updtxn.amount) + " old:" + this.origupdTxn.amount;   
+   this.updTransactionToDB(updtxn);
+
+   // NB updTransactionToDB refreshes the transaction list when the response is received.
+   // Horribly ugly code, I guess there must be a better way of doing it but alas I
+   // don't know what it is...
 }
 
 parseEPC(epc : string) : TransactionItem
