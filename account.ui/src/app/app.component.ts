@@ -7,7 +7,7 @@ import { NgbDatepickerConfig, NgbDateParserFormatter, NgbDateStruct } from '@ng-
 
 import {environment} from '../environments/environment';
 
-import { mmddyyyNgbDateParserFormatter } from '../shared/datepickformatter';
+import { isoNgbDateParserFormatter } from '../shared/datepickformatter';
 import {AccountService} from '../shared/service/account.service';
 import {AccountItem} from '../shared/model/accountitem.model';
 import {TransactionItem} from '../shared/model/transaction.model';
@@ -19,7 +19,7 @@ import { Version } from 'src/shared/model/version.model';
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
-  providers: [{provide: NgbDateParserFormatter, useClass: mmddyyyNgbDateParserFormatter}]
+  providers: [{provide: NgbDateParserFormatter, useClass: isoNgbDateParserFormatter}]
 })
 
 export class AppComponent implements OnInit {
