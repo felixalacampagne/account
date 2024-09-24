@@ -9,11 +9,19 @@ import {AccountService} from '../shared/service/account.service';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { QrscannerComponent } from './qrscanner/qrscanner.component';
 
+
 @NgModule({ declarations: [
         AppComponent,
         QrscannerComponent
     ],
-    bootstrap: [AppComponent], imports: [BrowserModule,
-        FormsModule,
-        NgbModule], providers: [AccountService, DatePipe, provideHttpClient(withInterceptorsFromDi())] })
+    bootstrap: [AppComponent], 
+    imports: [
+      BrowserModule,
+      FormsModule,
+      NgbModule], 
+    providers: [
+      AccountService, 
+      DatePipe, 
+      provideHttpClient(withInterceptorsFromDi())]
+})
 export class AppModule { }

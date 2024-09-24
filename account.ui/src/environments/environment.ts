@@ -8,5 +8,6 @@ export const environment = {
   accountapi_host: "http://localhost:8080",
   accountapi_app: "/",
   envName: ' (home)',
-  uiversion: ' ng18'
+  uiversion: ' ng18',
+  folder: ''
 };

@@ -7,14 +7,21 @@ public class TransactionItem
    private final String date;
    private final String amount;
    private final String type;
+   private final long id;
+   private final boolean locked;
+   private final String token;
 
-   public TransactionItem(Long accid, String date, String amount, String type, String comment)
+   public TransactionItem(Long accid, String date, String amount, String type, String comment,
+                          boolean locked, long id, String token)
    {
       this.accid = accid;
       this.date = date;
       this.amount = amount;
       this.type = type;
       this.comment = comment;
+      this.id = id;
+      this.locked = locked;
+      this.token = token; // Maybe create this here?
    }
 
 
@@ -49,7 +56,33 @@ public class TransactionItem
    @Override
    public String toString()
    {
-      return "TransactionItem [accid=" + accid + ", comment=" + comment + ", date=" + date + ", amount=" + amount + ", type=" + type + "]";
+      return "TransactionItem [accid=" + accid
+            + ", comment=" + comment
+            + ", date=" + date
+            + ", amount=" + amount
+            + ", type=" + type
+            + ", id=" + id
+            + ", locked=" + locked
+            + ", token=" + token
+            + "]";
+   }
+
+
+   public long getId()
+   {
+      return id;
+   }
+
+
+   public boolean isLocked()
+   {
+      return locked;
+   }
+
+
+   public String getToken()
+   {
+      return token;
    }
 
 }

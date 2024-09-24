@@ -16,6 +16,7 @@ export class AccountService
     private listaccsvc : string = "listaccount";
     private listtxnsvc : string = "listtransaction/";
     private addtxnsvc : string = "addtransaction";
+    private updtxnsvc : string = "updatetransaction";
     private versionsvc : string = "version";
     constructor(private http : HttpClient)
     {
@@ -34,7 +35,7 @@ export class AccountService
         {    
             this.serverhost = window.location.origin;
         }
-        this.accountapiapp = environment.accountapi_app;
+        this.accountapiapp = environment.folder + environment.accountapi_app;
         this.apiurl = this.serverhost + this.accountapiapp
         console.log("Account API server host: " + this.apiurl);
     }    
@@ -57,7 +58,7 @@ export class AccountService
 
     }
 
-    addTransaction(txn : TransactionItem) // : Observable<Response>
+    addTransaction(txn : TransactionItem): Observable<string>
     {
         let json : string;
         let url : string;
@@ -82,6 +83,21 @@ export class AccountService
         return this.http.post(url, json, {headers: headers,  responseType: 'text'}); 
     }
     
+    updateTransaction(txn : TransactionItem) : Observable<string>
+    {
+        let json : string;
+        let url : string;
+        let res;
+        json = JSON.stringify(txn);
+        url = this.apiurl + this.updtxnsvc;
+        console.log("updateTransaction: PUTing to " + url + ": " + json);
+
+        var headers = new HttpHeaders();
+        headers = headers.set('Content-Type', 'application/json');
+        headers = headers.set("Accept", "text/plain");
+        
+        return this.http.put(url, json, {headers: headers,  responseType: 'text'}); 
+    }
 
     getVersion() : Observable<Version>
     {

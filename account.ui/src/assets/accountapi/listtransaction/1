@@ -1,0 +1,179 @@
+{
+    "transactions": [
+        {
+            "accid": 1,
+            "comment": "Transfer TO KeyTrade Current KEYT201802",
+            "date": "2018-02-15",
+            "amount": "300.00",
+            "type": "TFR"
+        },
+        {
+            "accid": 1,
+            "comment": "Linda-Grocery  week 8 On:18 Feb 18",
+            "date": "2018-02-19",
+            "amount": "150.00",
+            "type": "GROC"
+        },
+        {
+            "accid": 1,
+            "comment": "BCC MC 2018 02 (847233244948) BCC MC (EUR) (BE72 0012 1222 0316)  On:18 Feb 19:21",
+            "date": "2018-02-28",
+            "amount": "970.96",
+            "type": "PTFR"
+        },
+        {
+            "accid": 1,
+            "comment": "Adele resto",
+            "date": "2018-02-13",
+            "amount": "2.42",
+            "type": "BC"
+        },
+        {
+            "accid": 1,
+            "comment": "Adele resto",
+            "date": "2018-02-14",
+            "amount": "2.38",
+            "type": "BC"
+        },
+        {
+            "accid": 1,
+            "comment": "Lindap Cat litter (FVAS 40 20.02.2018) Animal Success,Rue de Huy 73c,4280,Hannut (BE75 3400 8524 4951) ",
+            "date": "2018-02-21",
+            "amount": "312.18",
+            "type": "PNOW"
+        },
+        {
+            "accid": 1,
+            "comment": "Lindap Washing cat beds (17466/1251) Nouveau Lavoir Hannutois,Ch.de Wavre 11,3280,Hannut (BE86 2400 2595 2150) ",
+            "date": "2018-02-21",
+            "amount": "205.70",
+            "type": "PNOW"
+        },
+        {
+            "accid": 1,
+            "comment": "Lindap blood work 14.12.2017 (019390313235) Labo Luc Olivier,Rue Leopold Genicot 16,5380,Fernelmont (BE50 3400 2450 0218) ",
+            "date": "2018-02-21",
+            "amount": "8.70",
+            "type": "PNOW"
+        },
+        {
+            "accid": 1,
+            "comment": "Transfer FROM CBC-Esavings (EUR)",
+            "date": "2018-02-22",
+            "amount": "-1500.00",
+            "type": "TFR"
+        },
+        {
+            "accid": 1,
+            "comment": "TAX 2017 Income 2016 (077/8572/56427) (BE20 6792 0026 2156)",
+            "date": "2018-02-22",
+            "amount": "1132.45",
+            "type": "TAX"
+        },
+        {
+            "accid": 1,
+            "comment": "Transfer FROM CBC-Esavings (EUR)",
+            "date": "2018-02-22",
+            "amount": "-500.00",
+            "type": "TFR"
+        },
+        {
+            "accid": 1,
+            "comment": "Lindap Lambert Negoce bathroom cupboard",
+            "date": "2018-02-26",
+            "amount": "788.92",
+            "type": "TFR"
+        },
+        {
+            "accid": 1,
+            "comment": "Adele resto",
+            "date": "2018-02-20",
+            "amount": "2.72",
+            "type": "BC"
+        },
+        {
+            "accid": 1,
+            "comment": "Linda-Grocery  week 9 On:25 Feb 18",
+            "date": "2018-02-26",
+            "amount": "150.00",
+            "type": "GROC"
+        },
+        {
+            "accid": 1,
+            "comment": "Pay Feb 2018 On:25 Feb 18",
+            "date": "2018-02-28",
+            "amount": "-3553.40",
+            "type": "PAY"
+        },
+        {
+            "accid": 1,
+            "comment": "To Savings Mar 18 On:01 Mar 18",
+            "date": "2018-03-01",
+            "amount": "900.00",
+            "type": "SAVE"
+        },
+        {
+            "accid": 1,
+            "comment": "Pricos CPA Mar 2018 On:01 Mar 18",
+            "date": "2018-03-03",
+            "amount": "78.34",
+            "type": "PRIC"
+        },
+        {
+            "accid": 1,
+            "comment": "Hansard Mar 18 On:01 Mar 18",
+            "date": "2018-03-05",
+            "amount": "185.92",
+            "type": "PENS"
+        },
+        {
+            "accid": 1,
+            "comment": "TO PAY Proximus 2018 03 Ref X BE31 4354 1116 11 On:01 Mar 18",
+            "date": "2018-03-06",
+            "amount": "3.00",
+            "type": "ZOOM"
+        },
+        {
+            "accid": 1,
+            "comment": "TO PAY Scarlet 2018 03 Ref X On:01 Mar 18",
+            "date": "2018-03-07",
+            "amount": "49.95",
+            "type": "FEE"
+        },
+        {
+            "accid": 1,
+            "comment": "Luminus 2018 03 Ref 651164623857 - 335-0554598-95 Zoomit On:01 Mar 18",
+            "date": "2018-03-16",
+            "amount": "45.00",
+            "type": "ZOOM"
+        },
+        {
+            "accid": 1,
+            "comment": "Adele resto",
+            "date": "2018-02-27",
+            "amount": "3.03",
+            "type": "BC"
+        },
+        {
+            "accid": 1,
+            "comment": "Ph.Mouton Knee warmer,lens fluid",
+            "date": "2018-03-02",
+            "amount": "43.36",
+            "type": "BC"
+        },
+        {
+            "accid": 1,
+            "comment": "Lindap Vets Ghys Trim.Check",
+            "date": "2018-03-03",
+            "amount": "72.70",
+            "type": "ITFR"
+        },
+        {
+            "accid": 1,
+            "comment": "Vets Ghys LANCELOT 20-02-2017",
+            "date": "2018-03-03",
+            "amount": "249.99",
+            "type": "INET"
+        }
+    ]
+}

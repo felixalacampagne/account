@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,10 +26,10 @@ public class AccountController {
    private final Logger log = LoggerFactory.getLogger(this.getClass());
    private final AccountService accountService;
    private final TransactionService transactionService;
-   
+
    private final Version version;
-   
-   public AccountController(AccountService accountService, TransactionService transactionService, Version version) 
+
+   public AccountController(AccountService accountService, TransactionService transactionService, Version version)
    {
       this.accountService = accountService;
       this.transactionService = transactionService;
@@ -40,22 +41,22 @@ public class AccountController {
     {
         return "Welcome to the Account Spring Boot Application running on Tomcat server\nand reading from Access database;\n";
     }
-    
+
     @GetMapping("/version")
     public Version getVersion()
     {
        log.debug("getVersion: {}", this.version);
        return this.version;
     }
-    
-    
+
+
     // Note Spring will automatically convert objects to json string and supply the appropriate header
     @GetMapping("/listaccount")
-    public Accounts getAccounts() 
-    {  
-       return this.accountService.getAccounts();  
+    public Accounts getAccounts()
+    {
+       return this.accountService.getAccounts();
     }
-    
+
 //    Could use @RequestParam(name="name", required=false, defaultValue="World" to supply as url ? values
     @GetMapping("/listtransaction/{accountid}")
     public Transactions getTransactions(@PathVariable Long accountid) // This needs to receive an account id
@@ -74,11 +75,28 @@ public class AccountController {
        try
        {
           this.transactionService.addTransaction(transactionItem);
-          
+
        }
-       catch(Exception ex) 
+       catch(Exception ex)
        {
           log.info("addTransaction: Failed to add: {}", transactionItem, ex);
+          return "failed: " + ex.getMessage();
+       }
+
+       return "ok";
+    }
+
+    @PutMapping(value = "/updatetransaction")
+    public String updateTransaction(@RequestBody TransactionItem transactionItem, Model model)
+    {
+       log.info("updateTransaction: transaction item to add: {}", transactionItem);
+       try
+       {
+          this.transactionService.updateTransaction(transactionItem);
+       }
+       catch(Exception ex)
+       {
+          log.info("updateTransaction: Failed to update: {}", transactionItem, ex);
           return "failed: " + ex.getMessage();
        }
 
