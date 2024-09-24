@@ -84,11 +84,11 @@ export class AppComponent implements OnInit {
       this.origupdTxn = txn;
       this.updateTxn = new TransactionItem();
       this.updateTxn.copy(this.origupdTxn);
-    
+      console.log("open: txn:" + JSON.stringify(this.updateTxn, null, 2));
     // Date picker field is somehow tied to content of this.txDate which is some sort of date object
     // so must the txn date into the date object... Date seems able to handle the date string in TransactionItem 
-    let d : Date = new Date();
-    d = new Date(this.updateTxn.date);
+    let d : Date = new Date(this.updateTxn.date); // ISO date format, ie. YYYY-MM-DD
+    console.log("open: txn orig date:" + d);
     this.txDate = {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()}; 
     
     this.modalReference = this.modalService.open(content);
@@ -121,7 +121,7 @@ export class AppComponent implements OnInit {
          // since the datepicker sets a value in txDate which needs to be mapped
          // back into the TransactionItem format
          let updDate : Date = new Date(this.txDate.year, this.txDate.month-1, this.txDate.day);
-         updtxn.date = this.datePipe.transform(updDate, 'dd/MM/yyyy') ?? '';         
+         updtxn.date = this.datePipe.transform(updDate, 'yyyy-MM-dd') ?? '';         
 
          console.log("updmodalCloseAction: updating transaction:  " + JSON.stringify(updtxn, null, 2));
          this.updatetransaction(updtxn);
