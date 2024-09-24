@@ -1,5 +1,5 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { BrowserModule, HammerModule } from '@angular/platform-browser';
+import { importProvidersFrom, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
@@ -18,10 +18,13 @@ import { QrscannerComponent } from './qrscanner/qrscanner.component';
     imports: [
       BrowserModule,
       FormsModule,
-      NgbModule], 
+      NgbModule,
+      HammerModule
+   ], 
     providers: [
       AccountService, 
       DatePipe, 
-      provideHttpClient(withInterceptorsFromDi())]
+      provideHttpClient(withInterceptorsFromDi()),
+   ]
 })
 export class AppModule { }
