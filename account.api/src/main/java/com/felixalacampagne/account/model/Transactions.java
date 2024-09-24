@@ -8,9 +8,9 @@ public class Transactions
 private final List<TransactionItem> transactions;
 
    public List<TransactionItem> getTransactions()
-{
-   return transactions;
-}
+   {
+      return transactions;
+   }
 
 //   public void setTransactions(List<TransactionItem> transactions)
 //   {
