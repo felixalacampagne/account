@@ -1,6 +1,3 @@
-
-<!-- Requires 'bootstrap'. From https://getbootstrap.com/docs/4.0/components/dropdowns/  -->
-
 <!-- NB  "flex-nowrap flex-row" can be used to prevent the 'vertical' navbar from appearing on phone display, but I
      I don't think it looks any better
  -->
@@ -29,9 +26,9 @@
       <tbody class="">
       <tr *ngFor="let txn of transactions">
          <td>{{txn.date}}</td>
-         <td>{{txn.comment}}</td>
+         <td (swipeleft)="onSwipeLeft(content, txn)">{{txn.comment}}</td>
          <td>{{txn.amount}}</td>
-         <td>
+         <td *ngIf="desktopDisplay">
          <button *ngIf="!txn.locked" class="btn" (click)="open(content, txn)"><i class="bi bi-pencil-square" aria-hidden="true"></i></button>
          </td>
          </tr>
