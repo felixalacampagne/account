@@ -32,7 +32,7 @@
          <td>{{txn.comment}}</td>
          <td>{{txn.amount}}</td>
          <td>
-         <button class="btn" (click)="open(content, txn)"><i class="bi bi-pencil-square" aria-hidden="true"></i></button>
+         <button *ngIf="!txn.locked" class="btn" (click)="open(content, txn)"><i class="bi bi-pencil-square" aria-hidden="true"></i></button>
          </td>
          </tr>
       </tbody>
