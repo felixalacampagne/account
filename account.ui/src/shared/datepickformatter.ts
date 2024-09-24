@@ -4,17 +4,13 @@ import { Injectable } from '@angular/core';
 import { isNumber, toInteger, padNumber } from '@ng-bootstrap/ng-bootstrap/util/util';
 
 @Injectable()
-export class mmddyyyNgbDateParserFormatter extends NgbDateParserFormatter {
+export class isoNgbDateParserFormatter extends NgbDateParserFormatter {
 
+// Formats and parses date using the Javascript standard ISO format: yyyy-MM-dd
+// and handles the NgbDateStruct used by the datepicker.
 constructor(private datePipe: DatePipe) 
 {
    super();
-
-
-
-    // Default values for the add transaction form
-    //this.txDate = this.datePipe.transform(d, 'dd/MM/yyyy');
-    // Changed to use the Javascript standard iso date format: yyyy-MM-dd
 }
 
    // Cannot assign null to an object so must return a date. The default return
@@ -23,20 +19,20 @@ constructor(private datePipe: DatePipe)
    {
       let d : Date = new Date();
       
-      console.log("mmddyyyNgbDateParserFormatter.parse: value=" + value);
+      console.log("isoNgbDateParserFormatter.parse: value=" + value);
       if (value) 
       {
          d = new Date(value);
       }
       let n : NgbDateStruct = {day: d.getDate(), month: d.getMonth(), year: d.getFullYear()};
-      console.log("mmddyyyNgbDateParserFormatter.parse: ret=" + n);
+      console.log("isoNgbDateParserFormatter.parse: ret=" + n);
       return n;
    }
 
    format(date: NgbDateStruct): string 
    {
       let d : Date;
-      console.log("mmddyyyNgbDateParserFormatter.format: date=" + date);
+      console.log("isoNgbDateParserFormatter.format: date=" + date);
       if(date == null)
       {
          d = new Date();
@@ -47,7 +43,7 @@ constructor(private datePipe: DatePipe)
       }
       let ret : string;
       ret = this.datePipe.transform(d, 'yyyy-MM-dd') ?? '';
-      console.log("mmddyyyNgbDateParserFormatter.format: ret=" + ret);
+      console.log("isoNgbDateParserFormatter.format: ret=" + ret);
       return ret;
    }
 }
