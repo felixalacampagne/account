@@ -14,6 +14,7 @@ constructor(private datePipe: DatePipe)
 
     // Default values for the add transaction form
     //this.txDate = this.datePipe.transform(d, 'dd/MM/yyyy');
+    // Changed to use the Javascript standard iso date format: yyyy-MM-dd
 }
 
    // Cannot assign null to an object so must return a date. The default return
@@ -45,7 +46,7 @@ constructor(private datePipe: DatePipe)
          d = new Date(date.year, (date.month)-1, date.day);
       }
       let ret : string;
-      ret = this.datePipe.transform(d, 'dd/MM/yyyy') ?? '';
+      ret = this.datePipe.transform(d, 'yyyy-MM-dd') ?? '';
       console.log("mmddyyyNgbDateParserFormatter.format: ret=" + ret);
       return ret;
    }
