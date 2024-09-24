@@ -3,7 +3,7 @@ import { NgForm, NgModel } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import {NgbModal, ModalDismissReasons, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { NgbDatepickerConfig, NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-
+import { DeviceDetectorService } from 'ngx-device-detector';
 
 import {environment} from '../environments/environment';
 
@@ -44,7 +44,7 @@ export class AppComponent implements OnInit {
   txPastearea: string = '';
   closeResult: string = '';
   html5QrcodeScanner: Html5QrcodeScanner | undefined; // Only defined while a scan is being performed
-
+  desktopDisplay: boolean = false;
   // The modal code in .html will not compile if updateTxn is set to undefined since it
   // references 'this.updateTxn'. Obviously it should only consider the value when it is displayed
   // however I have no idea how to get it to do this. Thus 'origupdTxn' is the value to check to
@@ -68,7 +68,8 @@ export class AppComponent implements OnInit {
   constructor(private accountService: AccountService,
     private cd: ChangeDetectorRef,
     private datePipe: DatePipe,
-    private modalService: NgbModal)
+    private modalService: NgbModal,
+    private deviceService: DeviceDetectorService)
   {
     const d: Date = new Date();
     this.envName = environment.envName;
@@ -77,6 +78,7 @@ export class AppComponent implements OnInit {
     this.txDate = {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
     // This is only necessary because the ngModel attribute breaks the selected behaviour of the option tag
     this.txType = 'BC';
+    this.desktopDisplay = this.deviceService.isDesktop();
   }
 
   // Call this to display the modal. 'content' is the name of the 'template' containing the elements to be displayed in the modal, I think
@@ -169,7 +171,7 @@ export class AppComponent implements OnInit {
               }
             },
          error: (err)=>{
-            console.log("AppComponent.ngOnInit: An error occured during getAccounts subscribe" + err);
+            console.log("AppComponent.ngOnInit: An error occured during getAccounts subscribe: " + JSON.stringify(err, null, 2));
             } ,
          complete: ()=>{console.log("AppComponent.ngOnInit: getAccounts loading completed");}
       });
@@ -320,6 +322,19 @@ updatetransaction(updtxn : TransactionItem)
    // Horribly ugly code, I guess there must be a better way of doing it but alas I
    // don't know what it is...
 }
+
+onSwipeLeft(content: any, txn : TransactionItem)
+{
+   console.log("onSwipeLeft: txn: locked=" + txn.locked);
+   if(!txn.locked)
+   {
+      this.open(content, txn);
+   }
+} 
+onSwipe(dir : number)
+{
+   console.log("onSwipe: dir:" + dir);
+} 
 
 parseEPC(epc : string) : TransactionItem
 {
