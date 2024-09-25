@@ -26,6 +26,7 @@
                      "zone.js",
                      "@angular/localize/init"
                   ],
+                  "allowedCommonJsDependencies": [ "hammerjs" ],
                   "tsConfig": "tsconfig.app.json",
                   "assets": [
                      "src/favicon.ico",
