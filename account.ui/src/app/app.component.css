@@ -57,3 +57,22 @@
   margin-top: -350px; 
   background: white;
 }
+
+/*
+   Some real magic!! Somehow this ADDs some color to the bootstrap striped table effect.
+   The bootstrap class is applied to each td in a tr using something like
+   .table-striped > tbody > tr:nth-child(odd) > td {
+      background-color: #f9f9f9;
+   }
+   and the magic below applies the extra color to each td which is in a tr with the txn-locked class
+   regardless of the nth-child thing (no idea where that comes from!).
+   The real magic is that the rows are still striped, ie. locked rows have the color given below but
+   odd rows are a bit darker than even rows!
+
+   Turns out there is a bootstrap way to do what I wanted without needing to 
+   create my own style class. The stripes are actually intended 'semi-transparent',
+   see: https://getbootstrap.com/docs/5.2/content/tables/#striped-rows
+ */
+ table.table.table-striped tr.txn-locked td {
+  background-color:#f3eefd;
+}

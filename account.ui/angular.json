@@ -36,6 +36,11 @@
                      "node_modules/bootstrap/dist/css/bootstrap.min.css",
                      "node_modules/bootstrap-icons/font/bootstrap-icons.css"
                   ],
+                  "stylePreprocessorOptions": {
+                     "includePaths": [
+                     "src/sass"
+                     ]
+                  },
                   "scripts": [
                   ],
                   "browser": "src/main.ts"
