@@ -150,7 +150,8 @@
                 <div class="input-group-prepend">
                   <span class="acc-modal-label" id="lbType">Type</span>
                 </div>
-                <select class="form-control form-control-sm" [(ngModel)]="this.updateTxn.type" name="txType" id="txType">
+                 <select class="form-control form-control-sm" [(ngModel)]="updateTxn.type" name="txType" id="txType">
+                     <option *ngIf="!txnTypes.includes(updateTxn.type)" [ngValue]="updateTxn.type">{{updateTxn.type}}</option>
                     <option *ngFor="let txnType of txnTypes" [ngValue]="txnType">{{txnType}}</option>
                 </select>
             </div>
