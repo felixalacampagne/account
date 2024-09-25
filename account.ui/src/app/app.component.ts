@@ -257,7 +257,7 @@ addtransaction()
   // With new Typescript cannot just assign return value to a string!
   // Using ternary operator is too clumsy for dealing with the return from a function
   // Apparently the '??' means use the result unless it's undefined or null and then use the value after the ??
-  newent.date = this.datePipe.transform(d, 'dd/MM/yyyy') ?? '';
+  newent.date = this.datePipe.transform(d, 'yyyy-MM-dd') ?? '';
   newent.type = this.txType;
 
   console.log("Date: " + newent.date);
