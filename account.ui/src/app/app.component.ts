@@ -37,7 +37,7 @@ export class AppComponent implements OnInit {
   public defaultdate: string = '';
   envName: string = '';
   uiversion: string ='';
-  txDate: NgbDateStruct;
+  txDate: NgbDateStruct = {year: 1970, month: 12, day: 25};
   txType: string;
   txComment: string = '';
   txAmount: string = '';
@@ -71,15 +71,22 @@ export class AppComponent implements OnInit {
     private modalService: NgbModal,
     private deviceService: DeviceDetectorService)
   {
-    const d: Date = new Date();
+    
     this.envName = environment.envName;
     this.uiversion = environment.uiversion;
     // Default values for the add transaction form
-    this.txDate = {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
+    
     // This is only necessary because the ngModel attribute breaks the selected behaviour of the option tag
     this.txType = 'BC';
+    this.resetDatepicker();
     this.desktopDisplay = this.deviceService.isDesktop();
   }
+
+   resetDatepicker()
+   {
+      const d: Date = new Date();  
+      this.txDate = {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()}; 
+   }
 
   // Call this to display the modal. 'content' is the name of the 'template' containing the elements to be displayed in the modal, I think
    open(content: any, txn: TransactionItem) {
@@ -128,6 +135,7 @@ export class AppComponent implements OnInit {
          console.log("updmodalCloseAction: updating transaction:  " + JSON.stringify(updtxn, null, 2));
          this.updatetransaction(updtxn);
       }
+      this.resetDatepicker();
    }
 
 
