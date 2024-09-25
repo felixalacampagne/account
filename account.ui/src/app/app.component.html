@@ -73,11 +73,11 @@
 
             <div class="input-group input-group-sm mb-3">
               <div class="input-group-prepend">
-                <span class="input-group-text" id="lbcomment">Comment</span>
+                <span class="input-group-text" id="lbcomment">Memo</span>
               </div>
               <input title="comment" [(ngModel)]="txComment" name="txComment" id="txComment" type="text" class="form-control form-control-sm" placeholder="" aria-label=""  aria-describedby="lbcomment">
                
-               <button *ngIf="txComment" (click)="clearComment()" class="btn btn-outline-secondary" type="button" id="button-addon2" title="clrcomment">
+               <button *ngIf="txComment" (click)="clearComment()" class="btn ps-1 pe-0" type="button" id="button-addon2" title="clrcomment">
                <i class="bi bi-x-circle" aria-hidden="true"></i>
                </button>
             </div>
@@ -116,25 +116,25 @@
      Don't know what the data-dismiss thing is supposed to do. The demos do not have a (click). only a data_dismiss,
      but if I omit the (click) the modal does not go away.
      
-     Finally got the close button in the right place and formatted liek a close button. Turns out the all the docs
+     Finally got the close button in the right place and formatted like a close button. Turns out all the docs
      and examples I was seeing are out of date - see https://getbootstrap.com/docs/5.3/components/modal/
-     This is not helped by some bootstrap sights not even listing a v5 documentation option.
+     This is not helped by some bootstrap sites not even listing a v5 documentation option.
      
      The data-dismiss thing still doesn't work even using the new name. I guess this could be something
      related to using angular with the modal
  -->
    <div id="updmodal" class="modal-dialog">
-      <div class="modal-content">
+      <div class="modal-content m-0 p-0">
          <div class="modal-header">
 		      <h5 class="modal-title" id="modal-basic-title">Update transaction</h5>
-		      <button type="button" class="btn-close" data-bs-dismiss="modal" data-bs-target="updmodal" aria-label="Close"></button>
+		      <!-- button type="button" class="btn-close" data-bs-dismiss="modal" data-bs-target="updmodal" aria-label="Close"></button -->
          </div>
 
-		   <div class="modal-body">
+		   <div class="modal-body m-0 p-1">
 		      <form #newtxnform="ngForm">
 		         <div class="input-group input-group-sm mb-3">
 		            <div class="input-group-prepend">
-		            <span class="input-group-text" id="lbdate">Date</span>
+		            <span class="input-group-text ps-1 pe-2" id="lbdate">Date</span>
 		         </div>
 		         <!-- ng add @angular/localize was required to enable navigation backwards and forwards   -->
 		         <input ngbDatepicker #dt="ngbDatepicker" [(ngModel)]="txDate" 
@@ -149,7 +149,7 @@
 		         </div>
 		          <div class="input-group input-group-sm mb-3">
 		              <div class="input-group-prepend">
-		                <span class="input-group-text" id="lbType">Type</span>
+		                <span class="input-group-text ps-1 pe-2" id="lbType">Type</span>
 		              </div>
 		              <select class="form-control form-control-sm" [(ngModel)]="this.updateTxn.type" name="txType" id="txType">
 		                  <option *ngFor="let txnType of txnTypes" [ngValue]="txnType">{{txnType}}</option>
@@ -158,18 +158,18 @@
 		
 		          <div class="input-group input-group-sm mb-3">
 		            <div class="input-group-prepend">
-		              <span class="input-group-text" id="lbcomment">Comment</span>
+		              <span class="input-group-text ps-1 pe-2" id="lbcomment">Memo</span>
 		            </div>
 		            <input [(ngModel)]="this.updateTxn.comment" name="txComment" id="txComment" type="text" class="form-control form-control-sm" placeholder="" aria-label=""  aria-describedby="lbcomment">
 		             
-		            <button *ngIf="this.updateTxn.comment" (click)="this.updateTxn.comment='';" class="btn btn-outline-secondary" type="button" id="button-addon2">
+		            <button *ngIf="this.updateTxn.comment" (click)="this.updateTxn.comment='';" class="btn ps-1 pe-0" type="button" id="button-addon2">
 		               <i class="bi bi-x-circle" aria-hidden="true"></i>
 		            </button>
 		         </div>
 		
 		         <div class="input-group input-group-sm mb-3">
 		            <div class="input-group-prepend">
-		               <span class="input-group-text" id="lbamount">Amount Debited</span>
+		               <span class="input-group-text ps-1 pe-2" id="lbamount">Amount Debited</span>
 		            </div>
 		            <input [(ngModel)]="this.updateTxn.amount" name="txAmount" id="txAmount" type="number" class="form-control form-control-sm" placeholder="-ve number for Credit" aria-label="-ve number for Credit"  aria-describedby="lbamount">
 		         </div>          
