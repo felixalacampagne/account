@@ -18,7 +18,7 @@ import { Version } from 'src/shared/model/version.model';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.c, '../sass/account-styles.scss'ss'],
+  styleUrls: ['./app.component.css', '../sass/account-styles.scss'],
   providers: [{provide: NgbDateParserFormatter, useClass: isoNgbDateParserFormatter}]
 })
 

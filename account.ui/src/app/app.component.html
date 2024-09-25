@@ -24,7 +24,7 @@
     <tr><th>Date</th><th>Memo</th><th>Amount</th></tr>
     </thead>
     <tbody class="">
-    <tr *ngFor="let txn of transactions" [ngClass]="{'table-secondary': txn.locked}">
+    <tr *ngFor="let txn of transactions" [ngClass]="{'table-success': txn.locked}">
        <td>{{txn.date}}</td>
        <td (swipeleft)="onSwipeLeft(content, txn)">{{txn.comment}}</td>
        <td>{{txn.amount}}</td>
