@@ -1,5 +1,5 @@
 import { BrowserModule, HammerModule, HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-browser';
-import { importProvidersFrom, NgModule } from '@angular/core';
+import { importProvidersFrom, Injectable, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
@@ -13,6 +13,7 @@ import { QrscannerComponent } from './qrscanner/qrscanner.component';
 // Magic required to get normal scrolling to work when swipe left is used.
 // WTF! Who in their right mind stops scrolling just to get swipe left!!!!!
 // Why don't any of the docs/examples mention this is required
+@Injectable()
 export class HammerConfigForNormalScroll extends HammerGestureConfig {
 
    // Also requires entry in @NgModule 'providers' below
