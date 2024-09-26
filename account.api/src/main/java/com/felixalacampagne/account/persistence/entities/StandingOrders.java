@@ -126,4 +126,13 @@ public class StandingOrders implements Serializable {
 		this.SOTfrType = SOTfrType;
 	}
 
+
+   @Override
+   public String toString()
+   {
+      return "StandingOrders [SOid=" + SOid + ", SODesc=" + SODesc + ", SOEntryDate=" + SOEntryDate + ", SOAmount=" + SOAmount + ", SONextPayDate=" + SONextPayDate + ", SOTfrType=" + SOTfrType + ", SOPeriod=" + SOPeriod + ", SOCount="
+            + SOCount + ", SOAccId=" + SOAccId + "]";
+   }
+
+
 }
