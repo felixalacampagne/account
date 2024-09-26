@@ -3,7 +3,7 @@ import { NgForm, NgModel } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import {NgbModal, ModalDismissReasons, NgbModalRef} from '@ng-bootstrap/ng-bootstrap';
 import { NgbDatepickerConfig, NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-
+import { DeviceDetectorService } from 'ngx-device-detector';
 
 import {environment} from '../environments/environment';
 
@@ -18,7 +18,7 @@ import { Version } from 'src/shared/model/version.model';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  styleUrls: ['./app.component.css', '../sass/account-styles.scss'],
   providers: [{provide: NgbDateParserFormatter, useClass: isoNgbDateParserFormatter}]
 })
 
@@ -37,14 +37,14 @@ export class AppComponent implements OnInit {
   public defaultdate: string = '';
   envName: string = '';
   uiversion: string ='';
-  txDate: NgbDateStruct;
+  txDate: NgbDateStruct = {year: 1970, month: 12, day: 25};
   txType: string;
   txComment: string = '';
   txAmount: string = '';
   txPastearea: string = '';
   closeResult: string = '';
   html5QrcodeScanner: Html5QrcodeScanner | undefined; // Only defined while a scan is being performed
-
+  desktopDisplay: boolean = false;
   // The modal code in .html will not compile if updateTxn is set to undefined since it
   // references 'this.updateTxn'. Obviously it should only consider the value when it is displayed
   // however I have no idea how to get it to do this. Thus 'origupdTxn' is the value to check to
@@ -68,16 +68,25 @@ export class AppComponent implements OnInit {
   constructor(private accountService: AccountService,
     private cd: ChangeDetectorRef,
     private datePipe: DatePipe,
-    private modalService: NgbModal)
+    private modalService: NgbModal,
+    private deviceService: DeviceDetectorService)
   {
-    const d: Date = new Date();
+    
     this.envName = environment.envName;
     this.uiversion = environment.uiversion;
     // Default values for the add transaction form
-    this.txDate = {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
+    
     // This is only necessary because the ngModel attribute breaks the selected behaviour of the option tag
     this.txType = 'BC';
+    this.resetDatepicker();
+    this.desktopDisplay = this.deviceService.isDesktop();
   }
+
+   resetDatepicker()
+   {
+      const d: Date = new Date();  
+      this.txDate = {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()}; 
+   }
 
   // Call this to display the modal. 'content' is the name of the 'template' containing the elements to be displayed in the modal, I think
    open(content: any, txn: TransactionItem) {
@@ -126,6 +135,7 @@ export class AppComponent implements OnInit {
          console.log("updmodalCloseAction: updating transaction:  " + JSON.stringify(updtxn, null, 2));
          this.updatetransaction(updtxn);
       }
+      this.resetDatepicker();
    }
 
 
@@ -169,7 +179,7 @@ export class AppComponent implements OnInit {
               }
             },
          error: (err)=>{
-            console.log("AppComponent.ngOnInit: An error occured during getAccounts subscribe" + err);
+            console.log("AppComponent.ngOnInit: An error occured during getAccounts subscribe: " + JSON.stringify(err, null, 2));
             } ,
          complete: ()=>{console.log("AppComponent.ngOnInit: getAccounts loading completed");}
       });
@@ -247,7 +257,7 @@ addtransaction()
   // With new Typescript cannot just assign return value to a string!
   // Using ternary operator is too clumsy for dealing with the return from a function
   // Apparently the '??' means use the result unless it's undefined or null and then use the value after the ??
-  newent.date = this.datePipe.transform(d, 'dd/MM/yyyy') ?? '';
+  newent.date = this.datePipe.transform(d, 'yyyy-MM-dd') ?? '';
   newent.type = this.txType;
 
   console.log("Date: " + newent.date);

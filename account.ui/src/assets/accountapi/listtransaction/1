@@ -5,21 +5,24 @@
             "comment": "Transfer TO KeyTrade Current KEYT201802",
             "date": "2018-02-15",
             "amount": "300.00",
-            "type": "TFR"
+            "type": "TFR",
+            "locked": true
         },
         {
             "accid": 1,
             "comment": "Linda-Grocery  week 8 On:18 Feb 18",
             "date": "2018-02-19",
             "amount": "150.00",
-            "type": "GROC"
+            "type": "GROC",
+            "locked": true            
         },
         {
             "accid": 1,
             "comment": "BCC MC 2018 02 (847233244948) BCC MC (EUR) (BE72 0012 1222 0316)  On:18 Feb 19:21",
             "date": "2018-02-28",
             "amount": "970.96",
-            "type": "PTFR"
+            "type": "PTFR",
+            "locked": true
         },
         {
             "accid": 1,
@@ -47,7 +50,8 @@
             "comment": "Lindap Washing cat beds (17466/1251) Nouveau Lavoir Hannutois,Ch.de Wavre 11,3280,Hannut (BE86 2400 2595 2150) ",
             "date": "2018-02-21",
             "amount": "205.70",
-            "type": "PNOW"
+            "type": "PNOW",
+            "locked": true
         },
         {
             "accid": 1,

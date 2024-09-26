@@ -1,0 +1,15 @@
+@use "bootstrap";
+
+.acc-modal-label
+{
+   @extend .input-group-text; 
+   @extend .ps-1; 
+   @extend .pe-2;
+}
+
+.acc-modal-row
+{
+   @extend .input-group ;
+   @extend .input-group-sm;
+   @extend .mb-2;
+}
