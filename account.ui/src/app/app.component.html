@@ -26,7 +26,7 @@
     <tbody class="">
     <tr *ngFor="let txn of transactions" [ngClass]="{'table-success': txn.locked}">
        <td>{{txn.date}}</td>
-       <td (swipeleft)="onSwipeLeft(content, txn)">{{txn.comment}}</td>
+       <td (swipeleft)="!txn.locked && open(content, txn)">{{txn.comment}}</td>
        <td>{{txn.amount}}</td>
        <td *ngIf="desktopDisplay">
        <button *ngIf="!txn.locked" class="btn" (click)="open(content, txn)"><i class="bi bi-pencil-square" aria-hidden="true"></i></button>
