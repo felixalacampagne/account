@@ -12,7 +12,9 @@ import { QrscannerComponent } from './qrscanner/qrscanner.component';
 
 // Magic required to get normal scrolling to work when swipe left is used.
 // WTF! Who in their right mind stops scrolling just to get swipe left!!!!!
-// Why don't any of the docs/examples mention this is required
+// Why don't any of the docs/examples mention this is required.
+// Even worse! Select for copy is disabled! Fingers crossed it can be
+// re-enabled with similar magic, eg. 'press' and 'tap'
 @Injectable()
 export class HammerConfigForNormalScroll extends HammerGestureConfig {
 
@@ -20,15 +22,23 @@ export class HammerConfigForNormalScroll extends HammerGestureConfig {
    override overrides = <any> {
        'pinch': { enable: false },
        'rotate': { enable: false }
-   }
+      //  ,'press': { enable: false },
+      //  'tap' : { enable: false },
+      //  'pan' : { enable: false }
+   };
+   // override options = { 'touchAction' : 'auto' }
 
+   // This appears to restore the selection behviour for the swipe column   
+   override options = {cssProps:{userSelect:'auto'}}  
    // Suggested in some places but seems to block the swipe
    // override buildHammer(element: HTMLElement) {
-   //    let mc = new Hammer(element, {
-   //      touchAction: "auto",
-   //    });
-   //    return mc;
+      // Hammer.defaults.cssProps.userSelect = '';
+      // let mc = new Hammer(element, {
+      //   touchAction: "pan-y",
+      // });
+      // return mc;
    //  }   
+  
 }
 
 @NgModule({ declarations: [
