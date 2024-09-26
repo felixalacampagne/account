@@ -1,6 +1,17 @@
 # Accountui
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.3.
+26-Sep-2024 Have managed to get the update modal working and have even managed to implement a crude 'swipe' to 
+trigger it. Simply doing a swipe left triggers the update modal, on rows what can be updated. The 'locked' rows
+are colourized to indicate that update is not available. On a desktop display there is an edit icon since swipe is
+not available. 
+
+I still didn't figure out how to do the modal as a different class so currently there is a 
+big chunk of html which is more or less duplicated but changing this is low priority for now. The ability to update rows
+has highlighted the next thing to be implemented: the standing order execution. Since I use the VB app less and less
+there is a risk that the automatic payments will get entered in a timely way and won't serve their purpose of reminding
+me to look out for the payments demands. Given that the web server is always running it seems the perfect place to
+do the automatic payments. In theory having both the VB app and the Java code doing the automatic payments should not
+cause a problem unless they happen to run both at the same time, which will be highly unlikely.
 
 19-Sep-2024 After some experimentation with trying to use a library for 'swipe' I've given up on that idea
 for the time being. The library I tried is unconfigurable for my purposes and I wasted hours just trying to
