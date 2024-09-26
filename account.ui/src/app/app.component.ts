@@ -331,19 +331,6 @@ updatetransaction(updtxn : TransactionItem)
    // don't know what it is...
 }
 
-onSwipeLeft(content: any, txn : TransactionItem)
-{
-   console.log("onSwipeLeft: txn: locked=" + txn.locked);
-   if(!txn.locked)
-   {
-      this.open(content, txn);
-   }
-} 
-onSwipe(dir : number)
-{
-   console.log("onSwipe: dir:" + dir);
-} 
-
 parseEPC(epc : string) : TransactionItem
 {
   console.log('parseEPC: entry');
