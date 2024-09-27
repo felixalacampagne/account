@@ -32,7 +32,7 @@ public class StandingOrderExecutor
    // "0 10 08 * * ?"  08:10 every day??
    // "*/10 * * * * *" every 10 seconds
    //@Scheduled(cron = "0 10 08 * * ?")
-   @Scheduled(cron = "*/30 * * * * *")
+   @Scheduled(cron = "*/60 * * * * *")
    public void standingOrderDailyTask()
    {
       log.info("standingOrderDailyTask: processing standing orders: start");

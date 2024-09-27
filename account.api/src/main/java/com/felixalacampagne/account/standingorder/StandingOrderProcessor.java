@@ -23,7 +23,7 @@ import com.felixalacampagne.account.service.TransactionService;
 public class StandingOrderProcessor
 {
    Logger log = LoggerFactory.getLogger(this.getClass());
-
+   private final DateTimeFormatter memoon = DateTimeFormatter.ofPattern("dd MMM yy");
    private final StandingOrderService standingOrderService;
    private final TransactionService transactionService;
    private final StandingOrderProcessingService standingOrderProcessingService;
@@ -69,15 +69,20 @@ public class StandingOrderProcessor
    public void processStandingOrder(StandingOrders so)
    {
       BigDecimal balance = BigDecimal.ZERO;
-      LocalDate now = LocalDate.now();
+
       // Following processing must be in a single transaction
       log.info("processStandingOrder: processing {}", so);
 
       // Generate comment
-      String memo = expandSOmemo(so.getSODesc(), now);
+      LocalDate txndate = this.convertToLocalDate(so.getSONextPayDate());
+      String memo = expandSOmemo(so.getSODesc(), txndate);
+      memo = String.join(" ", memo, "On:" + memoon.format(LocalDate.now()));
+      
       BigDecimal soamt = so.getSOAmount();
+      Long accId = so.getAccount().getAccId();
+      
       // Get last transaction
-      Optional<Transaction> lasttxn = this.transactionService.getLatestTransaction(so.getAccount().getAccId());
+      Optional<Transaction> lasttxn = this.transactionService.getLatestTransaction(accId);
 
       // Calculate next balance
       if(lasttxn.isPresent() && (lasttxn.get().getBalance() != null))
@@ -85,19 +90,21 @@ public class StandingOrderProcessor
          balance = lasttxn.get().getBalance();
       }
       balance = balance.subtract(soamt);
+      
+      
       // create new transaction
       Transaction sotxn = new Transaction();
-
-      sotxn.setDate(new Timestamp(new java.util.Date().getTime()));
+      sotxn.setAccountId(accId);
+      sotxn.setDate(new Timestamp(so.getSONextPayDate().getTime()));
       sotxn.setType(so.getSOTfrType());
       sotxn.setComment(memo);
       if (soamt.signum() < 0)
       {
-         sotxn.setDebit(soamt);
+         sotxn.setCredit(soamt.abs());
       }
       else
       {
-         sotxn.setCredit(soamt);
+         sotxn.setDebit(soamt);
       }
       sotxn.setBalance(balance);
 

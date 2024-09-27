@@ -31,7 +31,7 @@ public class StandingOrderProcessingService
    void updateTxnAndSo(StandingOrders so, Transaction txn)
    {
       // needs to be in same transaction
-      this.transactionJpaRepository.save(txn);
-      this.standingOrdersJpaRepository.save(so);
+      this.transactionJpaRepository.saveAndFlush(txn);
+      this.standingOrdersJpaRepository.saveAndFlush(so);
    }
 }
