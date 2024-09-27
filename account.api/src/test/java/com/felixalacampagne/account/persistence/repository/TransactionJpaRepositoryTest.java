@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterEach;
@@ -18,9 +19,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import com.felixalacampagne.account.persistence.entities.Transaction;
-
 import com.felixalacampagne.account.AccountTest;
+import com.felixalacampagne.account.persistence.entities.Transaction;
 
 @AccountTest
 class TransactionJpaRepositoryTest
@@ -52,6 +52,15 @@ class TransactionJpaRepositoryTest
    }
 
    @Test
+   void testFindLatest()
+   {
+      Optional<Transaction> latesttxn = transactionJpaRepository.findFirstByAccountIdOrderBySequenceDesc(1L);
+      log.info("testFindLatest: found {} for account 1", latesttxn.get());
+   }
+
+
+
+   @Test
    void testGetLast()
    {
       int cnt = (int) transactionJpaRepository.countByAccountId(1L);
@@ -64,7 +73,7 @@ class TransactionJpaRepositoryTest
             .map(t -> "" + t.getSequence() + " " + t.getDate() + " " + t.getComment())
             .collect(Collectors.joining("\n"))
             );
-      
+
       txnsforacc = transactionJpaRepository.findByAccountId(1L, PageRequest.of(2, 25, Sort.by("sequence").descending()));
       log.info("testGetLast: of Page 3 records;\n{}",
             txnsforacc.stream()
@@ -72,7 +81,7 @@ class TransactionJpaRepositoryTest
             .collect(Collectors.joining("\n"))
             );
    }
-   
+
    @Test
    void testAddTransaction()
    {
