@@ -1,8 +1,10 @@
 package com.felixalacampagne.account.service;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,11 +25,25 @@ public class StandingOrderService
 
    public List<StandingOrders> getPendingStandingOrders()
    {
-      LocalDate date = LocalDate.now();
 
-      // Get any SOs due today
-      Timestamp ts = Timestamp.valueOf(date.atTime(23,59,59));
-      List<StandingOrders> sopending = standingOrdersJpaRepository.findBySOEntryDateLessThanOrderBySOEntryDateAsc(ts);
+      List<StandingOrders> sopending = standingOrdersJpaRepository.findBySOEntryDateLessThanOrderBySOEntryDateAsc(getCurrentEntryDate());
       return sopending;
+   }
+
+   public Optional<StandingOrders> getNextPendingStandingOrder()
+   {
+      return standingOrdersJpaRepository.findFirstBySOEntryDateLessThanOrderBySONextPayDateAsc(getCurrentEntryDate());
+   }
+
+   public Date getCurrentEntryDate()
+   {
+      LocalDate date = LocalDate.now();
+      Timestamp ts = Timestamp.valueOf(date.atTime(23,59,59));
+      return  Date.valueOf(date);
+   }
+
+   public StandingOrders update(StandingOrders updso)
+   {
+      return standingOrdersJpaRepository.save(updso);
    }
 }
