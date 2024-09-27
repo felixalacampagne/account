@@ -1,10 +1,12 @@
 package com.felixalacampagne.account.persistence.repository;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.sql.Timestamp;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,9 +37,18 @@ StandingOrdersJpaRepository standingOrdersJpaRepository;
       log.info("testFindAll: these are the StandingOrders:\n{}", soall);
 
       LocalDate date = LocalDate.of(2018,03,01);
-      Timestamp ts = Timestamp.valueOf(date.atTime(23,59,59));
-      List<StandingOrders> sopending = standingOrdersJpaRepository.findBySOEntryDateLessThanOrderBySOEntryDateAsc(ts);
+      Date ts = Date.valueOf(date);
+      List<StandingOrders> soallpending = standingOrdersJpaRepository.findBySOEntryDateLessThanOrderBySOEntryDateAsc(ts);
+      log.info("testFindAll: these are the pending StandingOrders:\n{}", soallpending);
+
+
+      Optional<StandingOrders> optsopending = standingOrdersJpaRepository.findFirstBySOEntryDateLessThanOrderBySONextPayDateAsc(ts);
+      assertTrue(optsopending.isPresent());
+
+      StandingOrders sopending = optsopending.get();
       log.info("testFindAll: these are the pending StandingOrders:\n{}", sopending);
+      log.info("testFindAll: pending StandingOrders is for Account:\n{}", sopending.getAccount());
+
    }
 
    @Test
