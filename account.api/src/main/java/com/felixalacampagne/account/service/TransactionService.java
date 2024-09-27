@@ -96,6 +96,11 @@ public class TransactionService
       return transactionJpaRepository.findById(id);
    }
 
+   public Optional<Transaction> getLatestTransaction(long accountId)
+   {
+      return transactionJpaRepository.findFirstByAccountIdOrderBySequenceDesc(accountId);
+   }
+
    public void updateTransaction(TransactionItem transactionItem)
    {
       log.info("updateTransaction: transactionItem:{}", transactionItem);
@@ -139,6 +144,11 @@ public class TransactionService
       txn.setCredit(updtxn.getCredit());
       txn.setDebit(updtxn.getDebit());
       transactionJpaRepository.save(txn);
+   }
+
+   public Transaction add(Transaction txn)
+   {
+      return transactionJpaRepository.save(txn);
    }
 
    private boolean areEqual(BigDecimal one, BigDecimal two)
