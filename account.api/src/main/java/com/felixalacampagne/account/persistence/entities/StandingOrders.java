@@ -2,13 +2,15 @@ package com.felixalacampagne.account.persistence.entities;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.sql.Timestamp;
+import java.sql.Date;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 
@@ -22,12 +24,14 @@ import jakarta.persistence.Table;
 public class StandingOrders implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private Long SOid;
-	private Long SOAccId;
+
+//	private Long SOAccId;
+	private Account account;
 	private BigDecimal SOAmount;
 	private short SOCount;
 	private String SODesc;
-	private Timestamp SOEntryDate;
-	private Timestamp SONextPayDate;
+	private Date SOEntryDate;
+	private Date SONextPayDate;
 	private String SOPeriod;
 	private String SOTfrType;
 
@@ -47,14 +51,14 @@ public class StandingOrders implements Serializable {
 	}
 
 
-	@Column(name="SOAccId")
-	public Long getSOAccId() {
-		return this.SOAccId;
-	}
-
-	public void setSOAccId(Long SOAccId) {
-		this.SOAccId = SOAccId;
-	}
+//	@Column(name="SOAccId")
+//	public Long getSOAccId() {
+//		return this.SOAccId;
+//	}
+//
+//	public void setSOAccId(Long SOAccId) {
+//		this.SOAccId = SOAccId;
+//	}
 
 
 	@Column(name="SOAmount", precision=100, scale=4)
@@ -88,21 +92,21 @@ public class StandingOrders implements Serializable {
 
 
 	@Column(name="SOEntryDate")
-	public Timestamp getSOEntryDate() {
+	public Date getSOEntryDate() {
 		return this.SOEntryDate;
 	}
 
-	public void setSOEntryDate(Timestamp SOEntryDate) {
+	public void setSOEntryDate(Date SOEntryDate) {
 		this.SOEntryDate = SOEntryDate;
 	}
 
 
 	@Column(name="SONextPayDate")
-	public Timestamp getSONextPayDate() {
+	public Date getSONextPayDate() {
 		return this.SONextPayDate;
 	}
 
-	public void setSONextPayDate(Timestamp SONextPayDate) {
+	public void setSONextPayDate(Date SONextPayDate) {
 		this.SONextPayDate = SONextPayDate;
 	}
 
@@ -126,12 +130,22 @@ public class StandingOrders implements Serializable {
 		this.SOTfrType = SOTfrType;
 	}
 
+   //uni-directional many-to-one association to AccountX
+   @ManyToOne
+   @JoinColumn(name = "SOAccId", nullable = false)
+   public Account getAccount() {
+      return this.account;
+   }
+
+   public void setAccount(Account account) {
+      this.account = account;
+   }
 
    @Override
    public String toString()
    {
       return "StandingOrders [SOid=" + SOid + ", SODesc=" + SODesc + ", SOEntryDate=" + SOEntryDate + ", SOAmount=" + SOAmount + ", SONextPayDate=" + SONextPayDate + ", SOTfrType=" + SOTfrType + ", SOPeriod=" + SOPeriod + ", SOCount="
-            + SOCount + ", SOAccId=" + SOAccId + "]";
+            + SOCount + ", SOAccId=" + getAccount().getAccId() + "]";
    }
 
 
