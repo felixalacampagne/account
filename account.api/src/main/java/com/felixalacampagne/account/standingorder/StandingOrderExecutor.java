@@ -1,27 +1,22 @@
 package com.felixalacampagne.account.standingorder;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.felixalacampagne.account.persistence.entities.StandingOrders;
-import com.felixalacampagne.account.service.StandingOrderService;
-
 @Component
 public class StandingOrderExecutor
 {
    Logger log = LoggerFactory.getLogger(this.getClass());
 
-   final StandingOrderService standingOrderService;
+   private final StandingOrderProcessor standingOrderProcessor;
 
    @Autowired
-   public StandingOrderExecutor (StandingOrderService standingOrderService)
+   public StandingOrderExecutor (StandingOrderProcessor standingOrderProcessor)
    {
-      this.standingOrderService = standingOrderService;
+      this.standingOrderProcessor = standingOrderProcessor;
    }
 
 
@@ -37,12 +32,12 @@ public class StandingOrderExecutor
    // "0 10 08 * * ?"  08:10 every day??
    // "*/10 * * * * *" every 10 seconds
    //@Scheduled(cron = "0 10 08 * * ?")
-   @Scheduled(cron = "*/10 * * * * *")
+   @Scheduled(cron = "*/30 * * * * *")
    public void standingOrderDailyTask()
    {
-      log.info("standingOrderDailyTask: processing standing orders");
-      List<StandingOrders> sopend = standingOrderService.getPendingStandingOrders();
-      log.info("standingOrderDailyTask: Sorder count: {}", sopend.size());
+      log.info("standingOrderDailyTask: processing standing orders: start");
+      standingOrderProcessor.processStandingOrders();
+      log.info("standingOrderDailyTask: processing standing orders: finished");
    }
 
 }
