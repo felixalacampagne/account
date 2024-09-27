@@ -12,6 +12,7 @@ import org.springframework.test.context.TestPropertySource;
 
 import com.felixalacampagne.account.persistence.repository.RepositoryConfig;
 import com.felixalacampagne.account.service.ServiceConfig;
+import com.felixalacampagne.account.standingorder.StandingOrderConfig;
 
 @DataJpaTest
 
@@ -28,7 +29,7 @@ import com.felixalacampagne.account.service.ServiceConfig;
 @TestPropertySource(locations = "classpath:application-test.properties")
 //@ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import({RepositoryConfig.class, ServiceConfig.class})
+@Import({RepositoryConfig.class, ServiceConfig.class, StandingOrderConfig.class})
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AccountTest
