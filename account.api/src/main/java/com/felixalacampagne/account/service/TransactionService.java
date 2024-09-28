@@ -84,7 +84,7 @@ public class TransactionService
       Transaction txn = mapToEntity(transactionItem);
 
       connectionResurrector.ressurectConnection();
-      txn = transactionJpaRepository.save(txn);
+      txn = transactionJpaRepository.saveAndFlush(txn);
       log.info("addTransaction: added transaction for account id {}: id:{}", txn.getAccountId(), txn.getSequence());
    }
 
@@ -143,12 +143,12 @@ public class TransactionService
       }
       txn.setCredit(updtxn.getCredit());
       txn.setDebit(updtxn.getDebit());
-      transactionJpaRepository.save(txn);
+      transactionJpaRepository.saveAndFlush(txn);
    }
 
    public Transaction add(Transaction txn)
    {
-      return transactionJpaRepository.save(txn);
+      return transactionJpaRepository.saveAndFlush(txn);
    }
 
    private boolean areEqual(BigDecimal one, BigDecimal two)
