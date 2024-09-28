@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -89,7 +90,7 @@ class TransactionJpaRepositoryTest
 
       Transaction tosave = new Transaction();
       tosave.setAccountId(1L);
-      tosave.setDate(Timestamp.valueOf(LocalDateTime.now()));
+      tosave.setDate(LocalDate.now());
       tosave.setType("TEST");
       tosave.setComment("This is a test");
       tosave.setDebit(BigDecimal.valueOf(2.34));

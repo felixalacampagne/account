@@ -97,7 +97,7 @@ public class StandingOrderProcessor
       Transaction sotxn = new Transaction();
       sotxn.setAccountId(accId);
 
-      sotxn.setDate(new Timestamp(so.getSONextPayDate().toEpochSecond(LocalTime.MIDNIGHT, ZoneOffset.UTC)));
+      sotxn.setDate(so.getSONextPayDate());
       sotxn.setType(so.getSOTfrType());
       sotxn.setComment(memo);
       if (soamt.signum() < 0)
