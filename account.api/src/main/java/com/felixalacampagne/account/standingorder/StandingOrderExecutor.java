@@ -19,7 +19,6 @@ public class StandingOrderExecutor
       this.standingOrderProcessor = standingOrderProcessor;
    }
 
-
    // see https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/scheduling/support/CronExpression.html#parse(java.lang.String)
    //   The fields read from left to right are interpreted as follows.
    //
@@ -29,10 +28,9 @@ public class StandingOrderExecutor
    //   day of month
    //   month
    //   day of week
-   // "0 10 08 * * ?"  08:10 every day??
+   // "0 10 08 * * ?"  08:10 every day
    // "*/10 * * * * *" every 10 seconds
-   //@Scheduled(cron = "0 10 08 * * ?")
-   @Scheduled(cron = "*/60 * * * * *")
+   @Scheduled(cron = "${falc.account.standingorder.cron}")
    public void standingOrderDailyTask()
    {
       log.info("standingOrderDailyTask: processing standing orders: start");
