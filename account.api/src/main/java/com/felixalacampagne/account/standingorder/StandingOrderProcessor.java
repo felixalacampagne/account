@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
@@ -72,8 +74,8 @@ public class StandingOrderProcessor
       log.info("processStandingOrder: processing {}", so);
 
       // Generate comment
-      LocalDate txndate = this.convertToLocalDate(so.getSONextPayDate());
-      LocalDate entdate = this.convertToLocalDate(so.getSOEntryDate());
+      LocalDate txndate = so.getSONextPayDate();
+      LocalDate entdate = so.getSOEntryDate();
       String memo = expandSOmemo(so.getSODesc(), txndate, entdate);
       memo = String.join(" ", memo, "On:" + memoon.format(LocalDate.now()));
       
@@ -94,7 +96,8 @@ public class StandingOrderProcessor
       // create new transaction
       Transaction sotxn = new Transaction();
       sotxn.setAccountId(accId);
-      sotxn.setDate(new Timestamp(so.getSONextPayDate().getTime()));
+
+      sotxn.setDate(new Timestamp(so.getSONextPayDate().toEpochSecond(LocalTime.MIDNIGHT, ZoneOffset.UTC)));
       sotxn.setType(so.getSOTfrType());
       sotxn.setComment(memo);
       if (soamt.signum() < 0)
@@ -194,18 +197,10 @@ public class StandingOrderProcessor
       so.setSONextPayDate(adjustDate(so.getSONextPayDate(), periodUnit, so.getSOCount()));
    }
 
-   private Date adjustDate(Date origdate, TemporalUnit periodUnit, long numperiods)
+   private LocalDate adjustDate(LocalDate origdate, TemporalUnit periodUnit, long numperiods)
    {
-      LocalDate adjustdate = convertToLocalDate(origdate);
+      LocalDate adjustdate = origdate;
       adjustdate = adjustdate.plus(numperiods, periodUnit);
-      return Date.valueOf(adjustdate);
-   }
-
-   private LocalDate convertToLocalDate(Date date)
-   {
-      log.trace("convertToLocalDate: date:{}", date);
-      LocalDate utcld =  date.toLocalDate();
-      log.trace("convertToLocalDate: localdate:{}", utcld);
-      return utcld;
+      return adjustdate; //Date.valueOf(adjustdate);
    }
 }

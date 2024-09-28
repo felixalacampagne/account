@@ -3,6 +3,7 @@ package com.felixalacampagne.account.persistence.entities;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,8 +31,8 @@ public class StandingOrders implements Serializable {
 	private BigDecimal SOAmount;
 	private short SOCount;
 	private String SODesc;
-	private Date SOEntryDate;
-	private Date SONextPayDate;
+	private LocalDate SOEntryDate;
+	private LocalDate SONextPayDate;
 	private String SOPeriod;
 	private String SOTfrType;
 
@@ -49,17 +50,6 @@ public class StandingOrders implements Serializable {
 	public void setSOid(Long SOid) {
 		this.SOid = SOid;
 	}
-
-
-//	@Column(name="SOAccId")
-//	public Long getSOAccId() {
-//		return this.SOAccId;
-//	}
-//
-//	public void setSOAccId(Long SOAccId) {
-//		this.SOAccId = SOAccId;
-//	}
-
 
 	@Column(name="SOAmount", precision=100, scale=4)
 	public BigDecimal getSOAmount() {
@@ -92,21 +82,21 @@ public class StandingOrders implements Serializable {
 
 
 	@Column(name="SOEntryDate")
-	public Date getSOEntryDate() {
+	public LocalDate getSOEntryDate() {
 		return this.SOEntryDate;
 	}
 
-	public void setSOEntryDate(Date SOEntryDate) {
+	public void setSOEntryDate(LocalDate SOEntryDate) {
 		this.SOEntryDate = SOEntryDate;
 	}
 
 
 	@Column(name="SONextPayDate")
-	public Date getSONextPayDate() {
+	public LocalDate getSONextPayDate() {
 		return this.SONextPayDate;
 	}
 
-	public void setSONextPayDate(Date SONextPayDate) {
+	public void setSONextPayDate(LocalDate SONextPayDate) {
 		this.SONextPayDate = SONextPayDate;
 	}
 

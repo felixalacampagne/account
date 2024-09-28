@@ -35,11 +35,11 @@ public class StandingOrderService
       return standingOrdersJpaRepository.findFirstBySOEntryDateLessThanOrderBySONextPayDateAsc(getCurrentEntryDate());
    }
 
-   public Date getCurrentEntryDate()
+   public LocalDate getCurrentEntryDate()
    {
       LocalDate date = LocalDate.now();
       Timestamp ts = Timestamp.valueOf(date.atTime(23,59,59));
-      return  Date.valueOf(date);
+      return  date; //Date.valueOf(date);
    }
 
    public StandingOrders update(StandingOrders updso)
