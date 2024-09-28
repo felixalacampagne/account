@@ -47,7 +47,7 @@ public class StandingOrderProcessor
       // Then the next SO will be retrieved, which may or may not be the same SO,
       // and processed for one date transition, and so on until there are no
       // pending SOs.
-      // This should mean that for a catch up the where each SO might need to be
+      // This should mean that for a catch up where each SO might need to be
       // executed multiple times the order of execution in the DB should be correct
       // so there shouldnt be any spurious -ve balances calculated which could
       // occur otherwise.
@@ -69,13 +69,12 @@ public class StandingOrderProcessor
    public void processStandingOrder(StandingOrders so)
    {
       BigDecimal balance = BigDecimal.ZERO;
-
-      // Following processing must be in a single transaction
       log.info("processStandingOrder: processing {}", so);
 
       // Generate comment
       LocalDate txndate = this.convertToLocalDate(so.getSONextPayDate());
-      String memo = expandSOmemo(so.getSODesc(), txndate);
+      LocalDate entdate = this.convertToLocalDate(so.getSOEntryDate());
+      String memo = expandSOmemo(so.getSODesc(), txndate, entdate);
       memo = String.join(" ", memo, "On:" + memoon.format(LocalDate.now()));
       
       BigDecimal soamt = so.getSOAmount();
@@ -116,7 +115,7 @@ public class StandingOrderProcessor
       standingOrderProcessingService.updateTxnAndSo(so, sotxn);
    }
 
-   public String expandSOmemo(String memo, LocalDate now)
+   public String expandSOmemo(String memo, LocalDate txndate, LocalDate entdate)
    {
       int i;
       int e;
@@ -124,7 +123,8 @@ public class StandingOrderProcessor
       String sl;
       String sr;
       String pat;
-
+      LocalDate fmtdate;
+      
       do
       {
          i = srtn.indexOf('#');
@@ -148,12 +148,22 @@ public class StandingOrderProcessor
             sr = srtn.substring(e+1, srtn.length());
 
          pat = srtn.substring(i+1, e);
+         
+         fmtdate = txndate;
+         if(pat.startsWith("E"))
+         {
+         	pat = pat.substring(1, pat.length());
+         	if(entdate != null)
+         	{
+         		fmtdate = entdate;
+         	}
+         }
          // pat should now be a VB date format - unfortunately this is not the same as a Java date format
          // There are only a few formats actually used and the main difference is for month, ie. m vs. M for java
          pat = pat.replace('m', 'M');
          DateTimeFormatter df = DateTimeFormatter.ofPattern(pat);
 
-         srtn = sl + df.format(now) + sr;
+         srtn = sl + df.format(fmtdate) + sr;
       }while(true);
 
       return srtn;

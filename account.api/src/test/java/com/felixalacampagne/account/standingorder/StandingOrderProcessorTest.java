@@ -47,19 +47,24 @@ public class StandingOrderProcessorTest
    void expandSOmemoTest()
    {
       LocalDate now = LocalDate.of(2027, 06, 10);
+      LocalDate before = now.minusDays(5);
       String memotmpl;
       String memo;
 
       memotmpl = "test #mm yyyy#";
-      memo = standingOrderProcessor.expandSOmemo(memotmpl, now);
+      memo = standingOrderProcessor.expandSOmemo(memotmpl, now, before);
       assertEquals("test 06 2027", memo);
 
       memotmpl = "test #dd mm# test";
-      memo = standingOrderProcessor.expandSOmemo(memotmpl, now);
+      memo = standingOrderProcessor.expandSOmemo(memotmpl, now, before);
       assertEquals("test 10 06 test", memo);
 
       memotmpl = "#yy mm dd# test";
-      memo = standingOrderProcessor.expandSOmemo(memotmpl, now);
+      memo = standingOrderProcessor.expandSOmemo(memotmpl, now, before);
       assertEquals("27 06 10 test", memo);
+
+      memotmpl = "#Eyy mm dd# test";
+      memo = standingOrderProcessor.expandSOmemo(memotmpl, now, before);
+      assertEquals("27 06 05 test", memo);   
    }
 }
