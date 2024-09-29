@@ -124,6 +124,13 @@ have been no problems while using the application. The logging from the resurrec
 any closed connections. So maybe the tweaked settings have worked around the problem or the new driver contained a fix.
 So maybe the resurrector can be disabled - for now I'll keep it.
 
+29-Sep-2024 Added standing order execution using Spring scheduler. Since the only machine capable of building the old
+VB app died yesterday - it caused the master circuit breakers of the power to the whole house to trip in the middle of the
+night even though it was powered down and the power supply switch in the off position - replacing it has become
+somewhat more urgent. Luckily I'd already decided that SO execution was the next thing to do as it doesn't require
+any of the time wasting UI stuff. I guess now the creation/update of SOs has become the next priority or perhaps 
+the balance calculation/display...
+
 ## Links
 HSQLDB: https://hsqldb.org/
 Jackcess: https://jackcess.sourceforge.io/cookbook.html
