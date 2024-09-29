@@ -82,6 +82,8 @@ public class TransactionService
       Transaction txn = mapToEntity(transactionItem);
 
       connectionResurrector.ressurectConnection();
+
+      // TODO: calculate the balance field
       txn = transactionJpaRepository.saveAndFlush(txn);
       log.info("addTransaction: added transaction for account id {}: id:{}", txn.getAccountId(), txn.getSequence());
    }
@@ -137,6 +139,7 @@ public class TransactionService
       txn.setComment(updtxn.getComment());
       if(!(areEqual(txn.getCredit(), updtxn.getCredit()) && areEqual(txn.getDebit(), updtxn.getDebit())))
       {
+         // TODO: re-calculate the balance fields for this a subsequent txns. Will need a DB transaction.
          txn.setBalance(null);
       }
       txn.setCredit(updtxn.getCredit());
@@ -220,7 +223,7 @@ public class TransactionService
             formatAmount(amount),
             t.getType(),
             t.getComment(),
-            t.getChecked(), t.getSequence(), token);
+            t.getChecked(), t.getSequence(), token, formatAmount(t.getBalance()));
    }
 
    private String formatAmount(BigDecimal bigdec)

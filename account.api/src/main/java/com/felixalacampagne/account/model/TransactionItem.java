@@ -9,10 +9,11 @@ public class TransactionItem
    private final String type;
    private final long id;
    private final boolean locked;
+   private final String balance;
    private final String token;
 
    public TransactionItem(Long accid, String date, String amount, String type, String comment,
-                          boolean locked, long id, String token)
+                          boolean locked, long id, String token, String balance)
    {
       this.accid = accid;
       this.date = date;
@@ -21,6 +22,7 @@ public class TransactionItem
       this.comment = comment;
       this.id = id;
       this.locked = locked;
+		this.balance = balance;
       this.token = token; // Maybe create this here?
    }
 
@@ -33,6 +35,11 @@ public class TransactionItem
    public String getAmount()
    {
       return amount;
+   }
+
+   public String getBalance()
+   {
+      return balance;
    }
 
    public long getAccid()
@@ -63,6 +70,7 @@ public class TransactionItem
             + ", type=" + type
             + ", id=" + id
             + ", locked=" + locked
+            + ", balance=" + balance
             + ", token=" + token
             + "]";
    }
