@@ -84,7 +84,7 @@ public class TransactionService
       connectionResurrector.ressurectConnection();
 
       // TODO: calculate the balance field
-      txn = transactionJpaRepository.saveAndFlush(txn);
+      txn = add(txn);
       log.info("addTransaction: added transaction for account id {}: id:{}", txn.getAccountId(), txn.getSequence());
    }
 
@@ -147,8 +147,61 @@ public class TransactionService
       transactionJpaRepository.saveAndFlush(txn);
    }
 
+   public BigDecimal getZeroOrValue(BigDecimal value)
+   {
+   	return value==null ? BigDecimal.ZERO : value;
+   }
+   
+   public BigDecimal getAmount(Transaction txn)
+   {
+   	return getZeroOrValue(txn.getCredit()).subtract(getZeroOrValue(txn.getDebit()));
+   }
+   
+   @Tranasactional
+   public Transaction update(Transaction txn)
+   {
+   	BigDecimal balance = BigDecimal.ZERO;
+   	BigDecimal amt = getAmount(txn);
+   	
+      // Get last transaction
+      Optional<Transaction> prevtxn = getPreviousTransaction(txn);
+      if(prevtxn.isPresent() && (prevtxn.get().getBalance() != null))
+      {
+         balance = getZeroOrValue(prevtxn.get().getBalance());
+      }
+      balance = balance.subtract(amt);
+      txn.setBalance(balance);
+      transactionJpaRepository.saveAndFlush(txn);
+      
+      // Now need to update the balanace for any transactions which occurred AFTER the updated transaction
+      List<Transaction> txns = getFollowingTransaction(txn);
+      
+      for(Transaction nxttxn : txns)
+      {
+      	amt = getAmount(nxttxn);
+      	balance = balance.subtract(amt);
+      	nxttxn.setBalance(balance);
+      	transactionJpaRepository.saveAndFlush(nxttxn);
+      }
+   }
+   
    public Transaction add(Transaction txn)
    {
+   	BigDecimal balance = BigDecimal.ZERO;
+   	BigDecimal amt = getAmount(txn);
+   	
+      // Get last transaction
+      Optional<Transaction> lasttxn = getLatestTransaction(txn.getAccountId());
+
+      // Calculate next balance
+      if(lasttxn.isPresent() && (lasttxn.get().getBalance() != null))
+      {
+         balance = getZeroOrValue(lasttxn.get().getBalance());
+      }
+      balance = balance.subtract(amt);
+      
+      txn.setBalance(balance);
+   	// Need to calculate the new balance
       return transactionJpaRepository.saveAndFlush(txn);
    }
 
