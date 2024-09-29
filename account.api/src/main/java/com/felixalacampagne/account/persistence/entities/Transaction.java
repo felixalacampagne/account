@@ -3,6 +3,7 @@ package com.felixalacampagne.account.persistence.entities;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -58,7 +59,7 @@ public class Transaction implements Serializable
    private BigDecimal credit;
 
    @Column(name="Date")
-   private Timestamp date;
+   private LocalDate date;
 
    @Column(name="Debit")
    private BigDecimal debit;
@@ -150,11 +151,11 @@ public class Transaction implements Serializable
       this.credit = credit;
    }
 
-   public Timestamp getDate() {
+   public LocalDate getDate() {
       return this.date;
    }
 
-   public void setDate(Timestamp date) {
+   public void setDate(LocalDate date) {
       this.date = date;
    }
 

@@ -79,12 +79,10 @@ public class TransactionService
 
    public void addTransaction(TransactionItem transactionItem)
    {
-      // TODO: it is advised not to use IDs in front-end. Therefore should probably use the account name instead of the id
-      // and map the name to the id here.
       Transaction txn = mapToEntity(transactionItem);
 
       connectionResurrector.ressurectConnection();
-      txn = transactionJpaRepository.save(txn);
+      txn = transactionJpaRepository.saveAndFlush(txn);
       log.info("addTransaction: added transaction for account id {}: id:{}", txn.getAccountId(), txn.getSequence());
    }
 
@@ -94,6 +92,11 @@ public class TransactionService
 
       // Fingers crossed the magic works and this uses transaction.sequence
       return transactionJpaRepository.findById(id);
+   }
+
+   public Optional<Transaction> getLatestTransaction(long accountId)
+   {
+      return transactionJpaRepository.findFirstByAccountIdOrderBySequenceDesc(accountId);
    }
 
    public void updateTransaction(TransactionItem transactionItem)
@@ -138,7 +141,12 @@ public class TransactionService
       }
       txn.setCredit(updtxn.getCredit());
       txn.setDebit(updtxn.getDebit());
-      transactionJpaRepository.save(txn);
+      transactionJpaRepository.saveAndFlush(txn);
+   }
+
+   public Transaction add(Transaction txn)
+   {
+      return transactionJpaRepository.saveAndFlush(txn);
    }
 
    private boolean areEqual(BigDecimal one, BigDecimal two)
@@ -155,7 +163,7 @@ public class TransactionService
    {
       // Crude value intended to confirm the record being updated is the correct one,
       // eg. to avoid a wrong/spoofed ID from being sent from the client
-      return formatTimestamp(transaction.getDate())
+      return formatDate(transaction.getDate())
          + ":" + formatAmount(transaction.getDebit())
          + ":" + formatAmount(transaction.getDebit())
          + ":" + transaction.getType()
@@ -170,11 +178,8 @@ public class TransactionService
 
       String isodate = transactionItem.getDate();
 
-
       LocalDate localDate = LocalDate.parse(isodate, DATEFORMAT_YYYYMMDD);
-      Timestamp tstamp = Timestamp.valueOf(localDate.atStartOfDay());
-
-      tosave.setDate(tstamp); // TODO: change the type to LocalDate
+      tosave.setDate(localDate); // TODO: change the type to LocalDate
       tosave.setType(transactionItem.getType());
       tosave.setComment(transactionItem.getComment());
 
@@ -211,7 +216,7 @@ public class TransactionService
       // simpler just to send the data as Strings with the desired formating.
       String token = getToken(t);
       return new TransactionItem(t.getAccountId(),
-            formatTimestamp(t.getDate()),
+      		formatDate(t.getDate()),
             formatAmount(amount),
             t.getType(),
             t.getComment(),
@@ -228,12 +233,12 @@ public class TransactionService
       return amt;
    }
 
-   private String formatTimestamp(Timestamp ts)
+   private String formatDate(LocalDate ts)
    {
       String date = "";
       if(ts != null)
       {
-         date = ts.toLocalDateTime().toLocalDate().format(DATEFORMAT_YYYYMMDD);
+         date = ts.format(DATEFORMAT_YYYYMMDD);
       }
       return date;
    }
