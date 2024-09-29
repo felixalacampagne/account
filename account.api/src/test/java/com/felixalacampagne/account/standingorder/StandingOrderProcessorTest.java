@@ -3,11 +3,13 @@ package com.felixalacampagne.account.standingorder;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.support.CronExpression;
 
 import com.felixalacampagne.account.AccountTest;
 import com.felixalacampagne.account.persistence.entities.StandingOrders;
@@ -66,5 +68,17 @@ public class StandingOrderProcessorTest
       memotmpl = "#Eyy mm dd# test";
       memo = standingOrderProcessor.expandSOmemo(memotmpl, now, before);
       assertEquals("27 06 05 test", memo);   
+   }
+   
+   @Test
+   void testCron()
+   {
+   	CronExpression cron = CronExpression.parse("* 5 * * * *");
+   	
+   	 LocalDateTime nextexec = cron.next(LocalDateTime.now());
+   	 log.info("testCron: next execution time: {}", nextexec);
+   	 
+   	 nextexec = cron.next(nextexec.plusMinutes(2));
+   	 log.info("testCron: next execution time after: {}", nextexec);
    }
 }
