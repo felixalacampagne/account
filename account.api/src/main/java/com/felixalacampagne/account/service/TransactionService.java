@@ -2,7 +2,6 @@ package com.felixalacampagne.account.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
@@ -16,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -77,17 +77,6 @@ public class TransactionService
       return txns;
    }
 
-   public void addTransaction(TransactionItem transactionItem)
-   {
-      Transaction txn = mapToEntity(transactionItem);
-
-      connectionResurrector.ressurectConnection();
-
-      // TODO: calculate the balance field
-      txn = add(txn);
-      log.info("addTransaction: added transaction for account id {}: id:{}", txn.getAccountId(), txn.getSequence());
-   }
-
    public Optional<Transaction> getTransaction(long id)
    {
       connectionResurrector.ressurectConnection();
@@ -101,11 +90,34 @@ public class TransactionService
       return transactionJpaRepository.findFirstByAccountIdOrderBySequenceDesc(accountId);
    }
 
-   public void updateTransaction(TransactionItem transactionItem)
+   public Optional<Transaction> getPreviousTransaction(Transaction txn)
+   {
+      return transactionJpaRepository.findFirstByAccountIdAndSequenceLessThanOrderBySequenceDesc(txn.getAccountId(), txn.getSequence());
+   }
+
+   public List<Transaction> getFollowingTransactions(Transaction txn)
+   {
+      return transactionJpaRepository.findByAccountIdAndSequenceGreaterThanOrderBySequenceAsc(txn.getAccountId(), txn.getSequence());
+   }
+
+   public void addTransaction(TransactionItem transactionItem)
+   {
+      Transaction txn = mapToEntity(transactionItem);
+
+      connectionResurrector.ressurectConnection();
+
+      txn = add(txn);
+      log.info("addTransaction: added transaction for account id {}: id:{}", txn.getAccountId(), txn.getSequence());
+   }
+
+   // This must be @Transactional because it calls 'update()' which is @Transactional and in the same class which
+   // means the Spring @Transactional proxies would be bypassed - I think
+   @Transactional
+   public Transaction updateTransaction(TransactionItem transactionItem)
    {
       log.info("updateTransaction: transactionItem:{}", transactionItem);
       if(transactionItem == null)
-         return;
+         return null;
       Transaction txn = getTransaction(transactionItem.getId())
             .orElseThrow(()->new AccountException("Transaction id " + transactionItem.getId() + " not found"));
 
@@ -137,59 +149,49 @@ public class TransactionService
       txn.setDate(updtxn.getDate());
       txn.setType(updtxn.getType());
       txn.setComment(updtxn.getComment());
-      if(!(areEqual(txn.getCredit(), updtxn.getCredit()) && areEqual(txn.getDebit(), updtxn.getDebit())))
-      {
-         // TODO: re-calculate the balance fields for this a subsequent txns. Will need a DB transaction.
-         txn.setBalance(null);
-      }
       txn.setCredit(updtxn.getCredit());
       txn.setDebit(updtxn.getDebit());
-      transactionJpaRepository.saveAndFlush(txn);
+
+      return update(txn);
    }
 
-   public BigDecimal getZeroOrValue(BigDecimal value)
-   {
-   	return value==null ? BigDecimal.ZERO : value;
-   }
-   
-   public BigDecimal getAmount(Transaction txn)
-   {
-   	return getZeroOrValue(txn.getCredit()).subtract(getZeroOrValue(txn.getDebit()));
-   }
-   
-   @Tranasactional
+   // This must be @Transactional because it recalculates the balances of all following transactions
+   // and any failure during this calculation should revert all changes
+   @Transactional
    public Transaction update(Transaction txn)
    {
    	BigDecimal balance = BigDecimal.ZERO;
    	BigDecimal amt = getAmount(txn);
-   	
+
       // Get last transaction
       Optional<Transaction> prevtxn = getPreviousTransaction(txn);
       if(prevtxn.isPresent() && (prevtxn.get().getBalance() != null))
       {
          balance = getZeroOrValue(prevtxn.get().getBalance());
       }
-      balance = balance.subtract(amt);
+      balance = balance.add(amt);
       txn.setBalance(balance);
       transactionJpaRepository.saveAndFlush(txn);
-      
-      // Now need to update the balanace for any transactions which occurred AFTER the updated transaction
-      List<Transaction> txns = getFollowingTransaction(txn);
-      
+
+      // Now need to update the balance for any transactions which occurred AFTER the updated transaction
+      List<Transaction> txns = getFollowingTransactions(txn);
+
       for(Transaction nxttxn : txns)
       {
       	amt = getAmount(nxttxn);
-      	balance = balance.subtract(amt);
+      	balance = balance.add(amt);
       	nxttxn.setBalance(balance);
       	transactionJpaRepository.saveAndFlush(nxttxn);
       }
+      return txn;
    }
-   
+
+   // Before inserting into the DB the new balance is calculated based on the value most recent previous transaction
    public Transaction add(Transaction txn)
    {
    	BigDecimal balance = BigDecimal.ZERO;
    	BigDecimal amt = getAmount(txn);
-   	
+
       // Get last transaction
       Optional<Transaction> lasttxn = getLatestTransaction(txn.getAccountId());
 
@@ -198,8 +200,8 @@ public class TransactionService
       {
          balance = getZeroOrValue(lasttxn.get().getBalance());
       }
-      balance = balance.subtract(amt);
-      
+      balance = balance.add(amt);
+
       txn.setBalance(balance);
    	// Need to calculate the new balance
       return transactionJpaRepository.saveAndFlush(txn);
@@ -241,14 +243,20 @@ public class TransactionService
 
       BigDecimal amount = new BigDecimal(transactionItem.getAmount());
       amount.setScale(2); // Max. two decimal places for a normal currency transaction
+
+      // With VB app both credit and debit could be set. This is not
+      // supported for the web UI, ie. either credit or debit can be set, not both
       if(amount.signum() < 0)
       {
+         // Transactions in web UI are +ve for DEBIT since debits are what is usually entered
          amount = amount.abs();
          tosave.setCredit(amount);
+         tosave.setDebit(null);
       }
       else
       {
          tosave.setDebit(amount);
+         tosave.setCredit(null);
       }
       return tosave;
    }
@@ -298,4 +306,16 @@ public class TransactionService
       }
       return date;
    }
+
+   public BigDecimal getZeroOrValue(BigDecimal value)
+   {
+      return value==null ? BigDecimal.ZERO : value;
+   }
+
+   // Combines credit and debit into a single amount, +ve for credit, -ve for debit
+   public BigDecimal getAmount(Transaction txn)
+   {
+      return getZeroOrValue(txn.getCredit()).subtract(getZeroOrValue(txn.getDebit()));
+   }
+
 }
