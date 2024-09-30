@@ -1,0 +1,9 @@
+falc.account.name=DevJAccount
+falc.account.db=TEST
+falc.account.version=0.4.2adev
+falc.account.standingorder.cron=* 0 */2 * * ?
+spring.datasource.url=jdbc:ucanaccess://E:/Development/workspace/accountREST/acc2003_TEST.mdb
+# C:/Development/accountDB/acc2003TEST.mdb
+
+# this causes an exception when debugging so set it to a high value
+spring.datasource.hikari.leakDetectionThreshold=1000000
