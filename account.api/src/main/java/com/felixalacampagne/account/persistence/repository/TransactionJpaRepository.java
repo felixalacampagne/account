@@ -44,5 +44,9 @@ public interface TransactionJpaRepository extends JpaRepository<Transaction, Lon
    List<Transaction> findByAccountId(long accountId, Pageable pageable);
    long countByAccountId(long accountId);
 
-   Optional<Transaction> findFirstByAccountIdOrderBySequenceDesc(long accountId);
+   Optional<Transaction> findFirstByAccountIdOrderBySequenceDesc(long accountId); // latest
+
+   Optional<Transaction> findFirstByAccountIdAndSequenceLessThanOrderBySequenceDesc(long accountId, long sequence); // previous
+
+   List<Transaction> findByAccountIdAndSequenceGreaterThanOrderBySequenceAsc(long accountId, long sequence); // following
 }
