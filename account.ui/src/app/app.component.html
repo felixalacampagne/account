@@ -25,7 +25,7 @@
     </thead>
     <tbody >
     <tr *ngFor="let txn of transactions" [ngClass]="{'table-success': txn.locked}">
-       <td>{{txn.date}}</td>
+       <td class="nowrap">{{txn.date.substring(2)}}</td>
        <td (swipeleft)="!txn.locked && open(content, txn)">{{txn.comment}}</td>
        <td class="account-amount">{{txn.amount}}</td>
        <td class="account-amount" [ngClass]="{'account-negbalance': txn.balance.startsWith('-')}" *ngIf="desktopDisplay">{{txn.balance}}</td>

@@ -87,6 +87,7 @@
 td.account-amount, th.account-amount
 {
 	text-align: right;
+	border-bottom-width: 0;
 }
 
 /*
@@ -111,14 +112,17 @@ td.account-amount, th.account-amount
    to add a custom file to bootstrap directory - which seems like a terrible idea.
    So this will have to do for now as it appears to do what I want, ie. put the rows closer together.
  */
-td {
+td, tr {
   padding-top: 0 !important;
   margin-top: 0 !important;
   padding-bottom: 0 !important;
   margin-bottom: 0 !important;
-  font-size: 12pt !important;
-  line-height: 16px;
+  font-size: 10pt !important;
+
+  border-bottom-width: 0 !important;
 }
 
-
+td.nowrap  {
+	white-space: nowrap;
+}
 
