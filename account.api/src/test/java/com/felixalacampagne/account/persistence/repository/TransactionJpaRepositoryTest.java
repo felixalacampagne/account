@@ -3,9 +3,7 @@ package com.felixalacampagne.account.persistence.repository;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -57,6 +55,30 @@ class TransactionJpaRepositoryTest
    {
       Optional<Transaction> latesttxn = transactionJpaRepository.findFirstByAccountIdOrderBySequenceDesc(1L);
       log.info("testFindLatest: found {} for account 1", latesttxn.get());
+   }
+
+   @Test
+   void testFindPrevious()
+   {
+      List<Transaction> txnsforacc = transactionJpaRepository.findByAccountId(1L, PageRequest.of(0, 25, Sort.by("sequence").descending()));
+
+      Transaction txn = txnsforacc.get(5);
+
+      Optional<Transaction> prevtxn = transactionJpaRepository.findFirstByAccountIdAndSequenceLessThanOrderBySequenceDesc(txn.getAccountId(), txn.getSequence());
+      log.info("testFindLatest: found {} for account 1", prevtxn.get());
+      assertEquals(txnsforacc.get(6), prevtxn.get());
+   }
+
+   @Test
+   void testFindFollowing()
+   {
+      List<Transaction> txnsforacc = transactionJpaRepository.findByAccountId(1L, PageRequest.of(0, 25, Sort.by("sequence").descending()));
+
+      Transaction txn = txnsforacc.get(6); // the seventh from last
+
+      List<Transaction> txns = transactionJpaRepository.findByAccountIdAndSequenceGreaterThanOrderBySequenceAsc(txn.getAccountId(), txn.getSequence());
+      log.info("testFindLatest: found {} following txns", txns.size());
+      assertEquals(6, txns.size());
    }
 
 
