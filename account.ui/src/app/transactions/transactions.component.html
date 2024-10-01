@@ -1,1 +1,168 @@
-<p>transactions works!</p>
+<!-- account.ui/src/app/transactions/transactions.component.html -->
+<div class="transactions" *ngIf="isTransactions()">
+  <table class="table table-striped table-sm">
+    <thead class="thead-inverse">
+    <tr><th colspan="3">Transactions for {{activeaccount.name}}</th></tr>
+    <tr><th>Date</th><th>Memo</th><th class="account-amount">Amount</th><th class="account-amount" *ngIf="desktopDisplay">Balance</th><th *ngIf="desktopDisplay"></th></tr>
+    </thead>
+    <tbody >
+    <tr *ngFor="let txn of transactions" [ngClass]="{'table-success': txn.locked}">
+       <td class="nowrap">{{txn.date.substring(2)}}</td>
+       <td (swipeleft)="!txn.locked && open(content, txn)">{{txn.comment}}</td>
+       <td class="account-amount">{{txn.amount}}</td>
+       <td class="account-amount" [ngClass]="{'account-negbalance': txn.balance.startsWith('-')}" *ngIf="desktopDisplay">{{txn.balance}}</td>
+       <td *ngIf="desktopDisplay">
+       <button *ngIf="!txn.locked" class="acc-table-btn" (click)="open(content, txn)"><i class="bi bi-pencil-square" aria-hidden="true"></i></button>
+       </td>
+       </tr>
+    </tbody>
+  </table>
+</div>
+
+<div id="txncontainer" *ngIf="isTransactions()">
+  <div id="qrreadercontainer">
+    <div id="reader" class="reader" width="300px"></div>  
+  </div>
+  <!-- QR reader panel. Should overlay the transaciton input form -->
+  <div id="txnform" class="txnform">
+
+    <!-- pt/pb are padding top/bottom -->
+    <div class="container border border-warning rounded pt-3 pb-3">
+
+        <form #newtxnform="ngForm">
+          <div class="acc-modal-row">
+            <div class="input-group-prepend">
+              <span class="acc-modal-label" id="lbdate">Date</span>
+            </div>
+            <!-- ng add @angular/localize was required to enable navigation backwards and forwards   -->
+            <input ngbDatepicker #dt="ngbDatepicker" [(ngModel)]="txDate" 
+                   name="txDate" id="txDate" type="text" 
+                   class="form-control-date form-control form-control-sm" placeholder="DD/MM/YYYY">
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary" (click)="dt.toggle()" type="button" title="date">
+                <img src="../assets/images/calendar-icon.svg" style="width: 1.2rem; height: 1rem; cursor: pointer;" title="date"/>
+              </button>
+            </div> 
+
+          </div>
+          <div class="acc-modal-row">
+              <div class="input-group-prepend">
+                <span class="acc-modal-label" id="lbType">Type</span>
+              </div>
+              <select class="form-control form-control-sm" [(ngModel)]="txType" name="txType" id="txType" title="type">
+                  <option *ngFor="let txnType of txnTypes" [ngValue]="txnType">{{txnType}}</option>
+              </select>
+          </div>
+
+          <div class="acc-modal-row">
+            <div class="input-group-prepend">
+              <span class="acc-modal-label" id="lbcomment">Memo</span>
+            </div>
+            <input title="comment" [(ngModel)]="txComment" name="txComment" id="txComment" type="text" class="form-control form-control-sm" placeholder="" aria-label=""  aria-describedby="lbcomment">
+             
+             <button *ngIf="txComment" (click)="clearComment()" class="btn ps-1 pe-0" type="button" id="button-addon2" title="clrcomment">
+             <i class="bi bi-x-circle" aria-hidden="true"></i>
+             </button>
+          </div>
+
+          <div class="acc-modal-row">
+            <div class="input-group-prepend">
+              <span class="acc-modal-label" id="lbamount">Amount Debited</span>
+            </div>
+            <input [(ngModel)]="txAmount" name="txAmount" id="txAmount" type="number" class="form-control form-control-sm" placeholder="-ve number for Credit" aria-label="-ve number for Credit"  aria-describedby="lbamount">
+          
+          </div>          
+        </form>
+        <button type="button" class="btn btn-default btn-primary" (click)="addtransaction();">Add new transaction</button>&nbsp;
+        <button type="button" class="btn btn-default btn-primary" (click)="doScan();">Scan QR code</button>    
+      </div>              
+    <div>
+       <!-- this should go in the app page or be done by the app component, I think-->
+       
+      
+       <pre>{{closeResult}}</pre>
+    </div>
+</div>
+</div>
+
+<ng-template #content let-updmodal>
+<!-- The close window button is supposed to appear at the far right of the title bar. Instead it appears
+   right next to the title text.
+   There is supposed to be a wrapping 'modal' class div (see https://getbootstrap.com/docs/4.3/components/modal/)
+   but when it is added the modal is not visible although the background goes dark.
+   Closing the modal should not require the(click), instead the attribute 'data-dismiss' on the button
+   should trigger the close but it doesn't work.
+   This probably means there is a problem with bootstrap but it is impossible to find any full documentation
+   about what is required to get the magic to work correctly.
+   For now will forget about having the close window X and just use a cancel button next to the update.
+   
+   Don't know what the data-dismiss thing is supposed to do. The demos do not have a (click). only a data_dismiss,
+   but if I omit the (click) the modal does not go away.
+   
+   Finally got the close button in the right place and formatted like a close button. Turns out all the docs
+   and examples I was seeing are out of date - see https://getbootstrap.com/docs/5.3/components/modal/
+   This is not helped by some bootstrap sites not even listing a v5 documentation option.
+   
+   The data-dismiss thing still doesn't work even using the new name. I guess this could be something
+   related to using angular with the modal
+-->
+ <div id="updmodal" class="modal-dialog m-0 p-1">
+    <div class="modal-content m-0 p-0">
+       <div class="modal-header">
+        <h5 class="modal-title" id="modal-basic-title">Update transaction</h5>
+        <!-- button type="button" class="btn-close" data-bs-dismiss="modal" data-bs-target="updmodal" aria-label="Close"></button -->
+       </div>
+
+     <div class="modal-body m-0 p-1">
+        <form #newtxnform="ngForm">
+           <div class="acc-modal-row">
+              <div class="input-group-prepend">
+                 <span class="acc-modal-label" id="lbdate">Date</span>
+              </div>
+                <!-- ng add @angular/localize was required to enable navigation backwards and forwards   -->
+                <input ngbDatepicker #dt="ngbDatepicker" [(ngModel)]="txDate" 
+                         name="txUDate" id="txUDate" type="text" 
+                         class="form-control-date form-control form-control-sm" placeholder="DD/MM/YYYY">
+                <div class="input-group-append">
+                   <button class="btn btn-outline-secondary" (click)="dt.toggle()" type="button">
+                      <img src="assets/images/calendar-icon.svg" style="width: 1.2rem; height: 1rem; cursor: pointer;"/>
+                   </button>
+                </div> 
+           </div>
+            <div class="acc-modal-row">
+                <div class="input-group-prepend">
+                  <span class="acc-modal-label" id="lbType">Type</span>
+                </div>
+                 <select class="form-control form-control-sm" [(ngModel)]="updateTxn.type" name="txType" id="txType">
+                     <option *ngIf="!txnTypes.includes(updateTxn.type)" [ngValue]="updateTxn.type">{{updateTxn.type}}</option>
+                    <option *ngFor="let txnType of txnTypes" [ngValue]="txnType">{{txnType}}</option>
+                </select>
+            </div>
+  
+            <div class="acc-modal-row">
+              <div class="input-group-prepend">
+                <span class="acc-modal-label" id="lbcomment">Memo</span>
+              </div>
+              <input [(ngModel)]="this.updateTxn.comment" name="txComment" id="txComment" type="text" class="form-control form-control-sm" placeholder="" aria-label=""  aria-describedby="lbcomment">
+               
+              <button *ngIf="this.updateTxn.comment" (click)="this.updateTxn.comment='';" class="btn ps-1 pe-0" type="button" id="button-addon2">
+                 <i class="bi bi-x-circle" aria-hidden="true"></i>
+              </button>
+           </div>
+  
+           <div class="acc-modal-row">
+              <div class="input-group-prepend">
+                 <span class="acc-modal-label" id="lbamount">Amount Debited</span>
+              </div>
+              <input [(ngModel)]="this.updateTxn.amount" name="txAmount" id="txAmount" type="number" class="form-control form-control-sm" placeholder="-ve number for Credit" aria-label="-ve number for Credit"  aria-describedby="lbamount">
+           </div>          
+        </form>
+     </div>
+       <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="updmodal.dismiss('CANCEL')">Cancel</button>
+          <button type="button" class="btn btn-default btn-primary" (click)="updmodal.close('UPDATE')">Update</button>
+       </div>        
+    </div> <!-- modal-content -->
+ </div> <!-- modal-dialog -->
+
+</ng-template>
