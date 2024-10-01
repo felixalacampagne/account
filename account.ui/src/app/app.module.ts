@@ -1,3 +1,4 @@
+// account.ui/src/app/app.module.ts
 import { BrowserModule, HammerModule, HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-browser';
 import { importProvidersFrom, Injectable, NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -8,6 +9,11 @@ import { AppComponent } from './app.component';
 import {AccountService} from '../shared/service/account.service';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { QrscannerComponent } from './qrscanner/qrscanner.component';
+import { TransactionsComponent } from './transactions/transactions.component';
+import { StandingordersComponent } from './standingorders/standingorders.component';
+import { provideRouter, RouterLink, RouterLinkActive, RouterOutlet, withComponentInputBinding } from '@angular/router';
+import { routes } from './app.routes';
+
 
 
 // Magic required to get normal scrolling to work when swipe left is used.
@@ -50,13 +56,19 @@ export class HammerConfigForNormalScroll extends HammerGestureConfig {
       BrowserModule,
       FormsModule,
       NgbModule,
-      HammerModule
+      HammerModule,
+      TransactionsComponent,
+      StandingordersComponent,
+      RouterOutlet,
+      RouterLink,
+      RouterLinkActive
    ], 
     providers: [
       AccountService, 
       DatePipe, 
       provideHttpClient(withInterceptorsFromDi()),
-      { provide: HAMMER_GESTURE_CONFIG, useClass: HammerConfigForNormalScroll }
+      { provide: HAMMER_GESTURE_CONFIG, useClass: HammerConfigForNormalScroll },
+      provideRouter(routes, withComponentInputBinding())
    ]
 })
 export class AppModule { }
