@@ -70,7 +70,7 @@ public class StandingOrderProcessor
 
    public void processStandingOrder(StandingOrders so)
    {
-      BigDecimal balance = BigDecimal.ZERO;
+      
       log.info("processStandingOrder: processing {}", so);
 
       // Generate comment
@@ -82,16 +82,7 @@ public class StandingOrderProcessor
       BigDecimal soamt = so.getSOAmount();
       Long accId = so.getAccount().getAccId();
       
-      // Get last transaction
-      Optional<Transaction> lasttxn = this.transactionService.getLatestTransaction(accId);
 
-      // Calculate next balance
-      if(lasttxn.isPresent() && (lasttxn.get().getBalance() != null))
-      {
-         balance = lasttxn.get().getBalance();
-      }
-      balance = balance.subtract(soamt);
-      
       
       // create new transaction
       Transaction sotxn = new Transaction();
@@ -108,8 +99,6 @@ public class StandingOrderProcessor
       {
          sotxn.setDebit(soamt);
       }
-      sotxn.setBalance(balance);
-
       adjustSODates(so);
 
       // needs to be in same transaction and there is potentially an issue

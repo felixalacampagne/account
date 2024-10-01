@@ -76,3 +76,53 @@
  table.table.table-striped tr.txn-locked td {
   background-color:#f3eefd;
 }
+
+
+/* Couldn't figure out if there was a nicer way to apply the right to td and th with the account-amount class.
+   .account-amount td,th   - didn't work
+   td,th account-amount    - didn't work
+   account-amount          - this worked but applied to everything
+   td.account-amount, th.account-amount - works but is very ugly
+ */
+td.account-amount, th.account-amount
+{
+	text-align: right;
+	border-bottom-width: 0;
+}
+
+/*
+   Text colour does not change when '!important' is omitted
+ */
+.account-negbalance
+{
+	color: red !important;
+}
+
+
+/* Trying to reduce the wasted space between the rows. Some was due to padding on the update button and icon
+   but most is due to the bootstrap table css and nowhere is it documented how to remove the padding.
+   The only thing that has made any difference is the padding/margin settings, and they only work if
+   !important is used. Why on earth don't they realise that not everyone wants to waste very valuable screen
+   space by filling it with useless whitespace??
+   
+   The 'btn' class is modified in the .scss file to remove the excessive line-height, padding and margin.
+   I couldn't figure out how to do the same for the 'table' class which is using. The bootstrap docs
+   refer to variables being used to set properties but I failed to find anything which made an sense
+   regarding how to override the variable - it seems the only way to do it is to modify the original values or
+   to add a custom file to bootstrap directory - which seems like a terrible idea.
+   So this will have to do for now as it appears to do what I want, ie. put the rows closer together.
+ */
+td, tr {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+  font-size: 10pt !important;
+
+  border-bottom-width: 0 !important;
+}
+
+td.nowrap  {
+	white-space: nowrap;
+}
+

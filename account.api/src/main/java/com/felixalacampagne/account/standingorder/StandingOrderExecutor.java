@@ -3,6 +3,7 @@ package com.felixalacampagne.account.standingorder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -30,10 +31,13 @@ public class StandingOrderExecutor
    //   day of week
    // "0 10 08 * * ?"  08:10 every day
    // "*/10 * * * * *" every 10 seconds
+
+   @Value("${falc.account.standingorder.cron}")
+   private String cronstr;
    @Scheduled(cron = "${falc.account.standingorder.cron}")
    public void standingOrderDailyTask()
    {
-      log.info("standingOrderDailyTask: processing standing orders: start");
+      log.info("standingOrderDailyTask: processing standing orders: cronstr:{}", cronstr);
       standingOrderProcessor.processStandingOrders();
       log.info("standingOrderDailyTask: processing standing orders: finished");
    }

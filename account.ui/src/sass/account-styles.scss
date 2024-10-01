@@ -13,3 +13,14 @@
    @extend .input-group-sm;
    @extend .mb-2;
 }
+
+
+.acc-table-btn
+{
+   @extend .btn;
+   @extend .my-0;
+   @extend .py-0;
+   --bs-btn-line-height: 16px;
+   --bs-btn-border-width: 0;
+   border-bottom-width: 0;
+}

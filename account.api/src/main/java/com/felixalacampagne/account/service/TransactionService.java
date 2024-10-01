@@ -1,10 +1,7 @@
 package com.felixalacampagne.account.service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -16,9 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.felixalacampagne.account.common.Utils;
 import com.felixalacampagne.account.model.TransactionItem;
 import com.felixalacampagne.account.model.Transactions;
 import com.felixalacampagne.account.persistence.entities.Transaction;
@@ -33,12 +32,12 @@ public class TransactionService
    private final TransactionJpaRepository transactionJpaRepository;
    private final ConnectionResurrector<TransactionJpaRepository> connectionResurrector;
 
-   // yyyy-MM-dd is the iso date format supported by Javascript Date
-   private final DateTimeFormatter DATEFORMAT_YYYYMMDD = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+   BalanceService balanceService;
 
    @Autowired
-   public TransactionService(TransactionJpaRepository transactionJpaRepository) {
+   public TransactionService(TransactionJpaRepository transactionJpaRepository, BalanceService balanceService) {
       this.transactionJpaRepository = transactionJpaRepository;
+      this.balanceService = balanceService;
       this.connectionResurrector = new ConnectionResurrector<TransactionJpaRepository>(transactionJpaRepository, TransactionJpaRepository.class);
    }
 
@@ -77,15 +76,6 @@ public class TransactionService
       return txns;
    }
 
-   public void addTransaction(TransactionItem transactionItem)
-   {
-      Transaction txn = mapToEntity(transactionItem);
-
-      connectionResurrector.ressurectConnection();
-      txn = transactionJpaRepository.saveAndFlush(txn);
-      log.info("addTransaction: added transaction for account id {}: id:{}", txn.getAccountId(), txn.getSequence());
-   }
-
    public Optional<Transaction> getTransaction(long id)
    {
       connectionResurrector.ressurectConnection();
@@ -94,16 +84,24 @@ public class TransactionService
       return transactionJpaRepository.findById(id);
    }
 
-   public Optional<Transaction> getLatestTransaction(long accountId)
+   public void addTransaction(TransactionItem transactionItem)
    {
-      return transactionJpaRepository.findFirstByAccountIdOrderBySequenceDesc(accountId);
+      Transaction txn = mapToEntity(transactionItem);
+
+
+
+      txn = add(txn);
+      log.info("addTransaction: added transaction for account id {}: id:{}", txn.getAccountId(), txn.getSequence());
    }
 
-   public void updateTransaction(TransactionItem transactionItem)
+   // This must be @Transactional because it calls 'update()' which is @Transactional and in the same class which
+   // means the Spring @Transactional proxies would be bypassed - I think
+   @Transactional
+   public Transaction updateTransaction(TransactionItem transactionItem)
    {
       log.info("updateTransaction: transactionItem:{}", transactionItem);
       if(transactionItem == null)
-         return;
+         return null;
       Transaction txn = getTransaction(transactionItem.getId())
             .orElseThrow(()->new AccountException("Transaction id " + transactionItem.getId() + " not found"));
 
@@ -114,7 +112,7 @@ public class TransactionService
          throw new  AccountException("Transaction id " + transactionItem.getId() + " is locked");
       }
 
-      String origToken = getToken(txn);
+      String origToken = Utils.getToken(txn);
       if(!origToken.equals(transactionItem.getToken()))
       {
          log.info("updateTransaction: Token mismatch for transaction id:{}: original:{} supplied:{}",
@@ -135,40 +133,29 @@ public class TransactionService
       txn.setDate(updtxn.getDate());
       txn.setType(updtxn.getType());
       txn.setComment(updtxn.getComment());
-      if(!(areEqual(txn.getCredit(), updtxn.getCredit()) && areEqual(txn.getDebit(), updtxn.getDebit())))
-      {
-         txn.setBalance(null);
-      }
       txn.setCredit(updtxn.getCredit());
       txn.setDebit(updtxn.getDebit());
-      transactionJpaRepository.saveAndFlush(txn);
+
+      return update(txn);
    }
 
+   // This must be @Transactional because it recalculates the balances of all following transactions
+   // and any failure during this calculation should revert all changes
+   @Transactional
+   public Transaction update(Transaction txn)
+   {
+      txn = transactionJpaRepository.save(txn);
+      txn = balanceService.calculateBalances(txn);
+      return txn;
+   }
+
+   // Add is effectively the same as update but with 0 following transactions
+   @Transactional
    public Transaction add(Transaction txn)
    {
-      return transactionJpaRepository.saveAndFlush(txn);
-   }
-
-   private boolean areEqual(BigDecimal one, BigDecimal two)
-   {
-      if((one == null) && (two == null))
-         return true;
-      else if(((one == null) && (two != null))
-             || ((one != null) && (two == null)))
-         return false;
-      return one.compareTo(two) == 0;
-   }
-
-   public String getToken(Transaction transaction)
-   {
-      // Crude value intended to confirm the record being updated is the correct one,
-      // eg. to avoid a wrong/spoofed ID from being sent from the client
-      return formatDate(transaction.getDate())
-         + ":" + formatAmount(transaction.getDebit())
-         + ":" + formatAmount(transaction.getDebit())
-         + ":" + transaction.getType()
-         + ":" + transaction.getComment()
-         + ":" + transaction.getChecked();
+      txn = transactionJpaRepository.save(txn);
+      txn = balanceService.calculateBalances(txn);
+      return txn;
    }
 
    private Transaction mapToEntity(TransactionItem transactionItem)
@@ -178,21 +165,27 @@ public class TransactionService
 
       String isodate = transactionItem.getDate();
 
-      LocalDate localDate = LocalDate.parse(isodate, DATEFORMAT_YYYYMMDD);
+      LocalDate localDate = LocalDate.parse(isodate, Utils.DATEFORMAT_YYYYMMDD);
       tosave.setDate(localDate); // TODO: change the type to LocalDate
       tosave.setType(transactionItem.getType());
       tosave.setComment(transactionItem.getComment());
 
       BigDecimal amount = new BigDecimal(transactionItem.getAmount());
       amount.setScale(2); // Max. two decimal places for a normal currency transaction
+
+      // With VB app both credit and debit could be set. This is not
+      // supported for the web UI, ie. either credit or debit can be set, not both
       if(amount.signum() < 0)
       {
+         // Transactions in web UI are +ve for DEBIT since debits are what is usually entered
          amount = amount.abs();
          tosave.setCredit(amount);
+         tosave.setDebit(null);
       }
       else
       {
          tosave.setDebit(amount);
+         tosave.setCredit(null);
       }
       return tosave;
    }
@@ -214,32 +207,15 @@ public class TransactionService
 
       // jackson doesn't handle Java dates and bigdecimal has too many decimal places so it's
       // simpler just to send the data as Strings with the desired formating.
-      String token = getToken(t);
+      String token = Utils.getToken(t);
       return new TransactionItem(t.getAccountId(),
-      		formatDate(t.getDate()),
-            formatAmount(amount),
+            Utils.formatDate(t.getDate()),
+            Utils.formatAmount(amount),
             t.getType(),
             t.getComment(),
-            t.getChecked(), t.getSequence(), token);
+            t.getChecked(), t.getSequence(), token, Utils.formatAmount(t.getBalance()));
    }
 
-   private String formatAmount(BigDecimal bigdec)
-   {
-   String amt = "";
-      if(bigdec != null)
-      {
-         amt = bigdec.setScale(2, RoundingMode.HALF_UP).toString();
-      }
-      return amt;
-   }
 
-   private String formatDate(LocalDate ts)
-   {
-      String date = "";
-      if(ts != null)
-      {
-         date = ts.format(DATEFORMAT_YYYYMMDD);
-      }
-      return date;
-   }
+
 }

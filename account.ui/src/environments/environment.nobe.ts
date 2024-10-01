@@ -5,6 +5,6 @@ export const environment = {
   accountapi_host: "http://localhost:4200",
   accountapi_app: "/accountapi/",
   envName: ' (NODB)',
-  uiversion: ' ng18l',
+  uiversion: ' dbal',
   folder: '/assets'  
 };

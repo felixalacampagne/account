@@ -10,6 +10,7 @@ import com.felixalacampagne.account.persistence.entities.StandingOrders;
 import com.felixalacampagne.account.persistence.entities.Transaction;
 import com.felixalacampagne.account.persistence.repository.StandingOrdersJpaRepository;
 import com.felixalacampagne.account.persistence.repository.TransactionJpaRepository;
+import com.felixalacampagne.account.service.TransactionService;
 
 @Service
 public class StandingOrderProcessingService
@@ -17,21 +18,21 @@ public class StandingOrderProcessingService
    Logger log = LoggerFactory.getLogger(this.getClass());
 
    private final StandingOrdersJpaRepository standingOrdersJpaRepository;
-   private final TransactionJpaRepository transactionJpaRepository;
+   private final TransactionService transactionService;
 
    @Autowired
    public StandingOrderProcessingService(StandingOrdersJpaRepository standingOrdersJpaRepository,
-                                         TransactionJpaRepository transactionJpaRepository)
+   		TransactionService transactionService)
    {
       this.standingOrdersJpaRepository = standingOrdersJpaRepository;
-      this.transactionJpaRepository = transactionJpaRepository;
+      this.transactionService = transactionService;
    }
 
    @Transactional
    void updateTxnAndSo(StandingOrders so, Transaction txn)
    {
-      // needs to be in same transaction
-      this.transactionJpaRepository.saveAndFlush(txn);
+      // must add transaction via the transactionservice in order to calculate the balance 
+      this.transactionService.add(txn);
       this.standingOrdersJpaRepository.saveAndFlush(so);
    }
 }

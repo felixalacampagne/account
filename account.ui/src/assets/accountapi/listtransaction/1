@@ -2,182 +2,278 @@
     "transactions": [
         {
             "accid": 1,
-            "comment": "Transfer TO KeyTrade Current KEYT201802",
-            "date": "2018-02-15",
-            "amount": "300.00",
-            "type": "TFR",
-            "locked": true
+            "comment": "Grocery - GB, Tervuren",
+            "date": "1998-10-06",
+            "amount": "4472.00",
+            "type": "BC",
+            "id": 1308,
+            "locked": true,
+            "balance": "147500.00",
+            "token": "1998-10-06:4472.00:4472.00:BC:Grocery - GB, Tervuren:true"
         },
         {
             "accid": 1,
-            "comment": "Linda-Grocery  week 8 On:18 Feb 18",
-            "date": "2018-02-19",
-            "amount": "150.00",
-            "type": "GROC",
-            "locked": true            
-        },
-        {
-            "accid": 1,
-            "comment": "BCC MC 2018 02 (847233244948) BCC MC (EUR) (BE72 0012 1222 0316)  On:18 Feb 19:21",
-            "date": "2018-02-28",
-            "amount": "970.96",
+            "comment": "05/10/98 Visa BCC(Tfr) On:17 Oct 11:25",
+            "date": "1998-10-17",
+            "amount": "34806.00",
             "type": "PTFR",
-            "locked": true
+            "id": 1310,
+            "locked": true,
+            "balance": "112694.00",
+            "token": "1998-10-17:34806.00:34806.00:PTFR:05/10/98 Visa BCC(Tfr) On:17 Oct 11:25:true"
         },
         {
             "accid": 1,
-            "comment": "Adele resto",
-            "date": "2018-02-13",
-            "amount": "2.42",
-            "type": "BC"
+            "comment": "Grocery - Delhaize, Perwez",
+            "date": "1998-10-13",
+            "amount": "1181.00",
+            "type": "BC",
+            "id": 1311,
+            "locked": true,
+            "balance": "111513.00",
+            "token": "1998-10-13:1181.00:1181.00:BC:Grocery - Delhaize, Perwez:true"
         },
         {
             "accid": 1,
-            "comment": "Adele resto",
-            "date": "2018-02-14",
-            "amount": "2.38",
-            "type": "BC"
+            "comment": "Escort2, Perwez (70434km 28.68l *)",
+            "date": "1998-10-13",
+            "amount": "1000.00",
+            "type": "BC",
+            "id": 1312,
+            "locked": true,
+            "balance": "110513.00",
+            "token": "1998-10-13:1000.00:1000.00:BC:Escort2, Perwez (70434km 28.68l *):true"
         },
         {
             "accid": 1,
-            "comment": "Lindap Cat litter (FVAS 40 20.02.2018) Animal Success,Rue de Huy 73c,4280,Hannut (BE75 3400 8524 4951) ",
-            "date": "2018-02-21",
-            "amount": "312.18",
-            "type": "PNOW"
+            "comment": "Pharm.Mouton - 2xOtrivine + 5Bancontact charge",
+            "date": "1998-10-15",
+            "amount": "349.00",
+            "type": "BC",
+            "id": 1313,
+            "locked": true,
+            "balance": "110164.00",
+            "token": "1998-10-15:349.00:349.00:BC:Pharm.Mouton - 2xOtrivine + 5Bancontact charge:true"
         },
         {
             "accid": 1,
-            "comment": "Lindap Washing cat beds (17466/1251) Nouveau Lavoir Hannutois,Ch.de Wavre 11,3280,Hannut (BE86 2400 2595 2150) ",
-            "date": "2018-02-21",
-            "amount": "205.70",
+            "comment": "Securex (Dental Feb 98)",
+            "date": "1998-10-01",
+            "amount": "-618.00",
+            "type": "MED",
+            "id": 1314,
+            "locked": true,
+            "balance": "110782.00",
+            "token": "1998-10-01:::MED:Securex (Dental Feb 98):true"
+        },
+        {
+            "accid": 1,
+            "comment": "Securex (Dental Aug L+C)",
+            "date": "1998-11-01",
+            "amount": "-618.00",
+            "type": "MED",
+            "id": 1315,
+            "locked": true,
+            "balance": "111400.00",
+            "token": "1998-11-01:::MED:Securex (Dental Aug L+C):true"
+        },
+        {
+            "accid": 1,
+            "comment": "Nov 98 Escort 96 On:21 Oct 98",
+            "date": "1998-11-01",
+            "amount": "7794.00",
+            "type": "CAR",
+            "id": 1318,
+            "locked": true,
+            "balance": "103606.00",
+            "token": "1998-11-01:7794.00:7794.00:CAR:Nov 98 Escort 96 On:21 Oct 98:true"
+        },
+        {
+            "accid": 1,
+            "comment": "Escort2, Nossegem (69936km 35.15l)",
+            "date": "1998-10-08",
+            "amount": "1096.00",
+            "type": "BC",
+            "id": 1319,
+            "locked": true,
+            "balance": "102510.00",
+            "token": "1998-10-08:1096.00:1096.00:BC:Escort2, Nossegem (69936km 35.15l):true"
+        },
+        {
+            "accid": 1,
+            "comment": "Escort2, Orbais (70902km 41.31l)",
+            "date": "1998-10-20",
+            "amount": "1400.00",
+            "type": "BC",
+            "id": 1320,
+            "locked": true,
+            "balance": "101110.00",
+            "token": "1998-10-20:1400.00:1400.00:BC:Escort2, Orbais (70902km 41.31l):true"
+        },
+        {
+            "accid": 1,
+            "comment": "Grocery - Delhaize, Perwez",
+            "date": "1998-10-20",
+            "amount": "2505.00",
+            "type": "BC",
+            "id": 1321,
+            "locked": true,
+            "balance": "98605.00",
+            "token": "1998-10-20:2505.00:2505.00:BC:Grocery - Delhaize, Perwez:true"
+        },
+        {
+            "accid": 1,
+            "comment": "Escort2, Orbais (71327km 29.50l)",
+            "date": "1998-10-26",
+            "amount": "1000.00",
+            "type": "BC",
+            "id": 1324,
+            "locked": true,
+            "balance": "97605.00",
+            "token": "1998-10-26:1000.00:1000.00:BC:Escort2, Orbais (71327km 29.50l):true"
+        },
+        {
+            "accid": 1,
+            "comment": "Transfer FROM Kreditbank Savings",
+            "date": "1998-10-26",
+            "amount": "-40000.00",
+            "type": "PTFR",
+            "id": 1325,
+            "locked": true,
+            "balance": "137605.00",
+            "token": "1998-10-26:::PTFR:Transfer FROM Kreditbank Savings:true"
+        },
+        {
+            "accid": 1,
+            "comment": "Manual transfer on 26/10/98 to CERA savings",
+            "date": "1998-10-27",
+            "amount": "40000.00",
+            "type": "PFUT",
+            "id": 1327,
+            "locked": true,
+            "balance": "97605.00",
+            "token": "1998-10-27:40000.00:40000.00:PFUT:Manual transfer on 26/10/98 to CERA savings:true"
+        },
+        {
+            "accid": 1,
+            "comment": "KB, Tervuren",
+            "date": "1998-10-27",
+            "amount": "10000.00",
+            "type": "ATM",
+            "id": 1329,
+            "locked": true,
+            "balance": "87605.00",
+            "token": "1998-10-27:10000.00:10000.00:ATM:KB, Tervuren:true"
+        },
+        {
+            "accid": 1,
+            "comment": "Grocery - GB, Tervuren",
+            "date": "1998-10-27",
+            "amount": "4213.00",
+            "type": "BC",
+            "id": 1331,
+            "locked": true,
+            "balance": "83392.00",
+            "token": "1998-10-27:4213.00:4213.00:BC:Grocery - GB, Tervuren:true"
+        },
+        {
+            "accid": 1,
+            "comment": "Escort2, Orbais (71848km 35.4l)",
+            "date": "1998-10-30",
+            "amount": "1200.00",
+            "type": "BC",
+            "id": 1332,
+            "locked": true,
+            "balance": "82192.00",
+            "token": "1998-10-30:1200.00:1200.00:BC:Escort2, Orbais (71848km 35.4l):true"
+        },
+        {
+            "accid": 1,
+            "comment": "Nov 98 On:08 Nov 98",
+            "date": "1998-11-18",
+            "amount": "25000.00",
+            "type": "MORT",
+            "id": 1336,
+            "locked": true,
+            "balance": "57192.00",
+            "token": "1998-11-18:25000.00:25000.00:MORT:Nov 98 On:08 Nov 98:true"
+        },
+        {
+            "accid": 1,
+            "comment": "Grocery - GB, Tervuren",
+            "date": "1998-11-03",
+            "amount": "2794.00",
+            "type": "BC",
+            "id": 1337,
+            "locked": true,
+            "balance": "54398.00",
+            "token": "1998-11-03:2794.00:2794.00:BC:Grocery - GB, Tervuren:true"
+        },
+        {
+            "accid": 1,
+            "comment": "Escort2, Orbais (72345km 38.36l)",
+            "date": "1998-11-06",
+            "amount": "1300.00",
+            "type": "BC",
+            "id": 1338,
+            "locked": true,
+            "balance": "53098.00",
+            "token": "1998-11-06:1300.00:1300.00:BC:Escort2, Orbais (72345km 38.36l):true"
+        },
+        {
+            "accid": 1,
+            "comment": "Escort2, Orbais (72773km 25.50l *)",
+            "date": "1998-11-13",
+            "amount": "1000.00",
+            "type": "BC",
+            "id": 1340,
+            "locked": true,
+            "balance": "52098.00",
+            "token": "1998-11-13:1000.00:1000.00:BC:Escort2, Orbais (72773km 25.50l *):true"
+        },
+        {
+            "accid": 1,
+            "comment": "Grocery - GB, Tervuren",
+            "date": "1998-11-17",
+            "amount": "4515.00",
+            "type": "BC",
+            "id": 1341,
+            "locked": true,
+            "balance": "47583.00",
+            "token": "1998-11-17:4515.00:4515.00:BC:Grocery - GB, Tervuren:true"
+        },
+        {
+            "accid": 1,
+            "comment": "Transfer FROM Kreditbank Savings",
+            "date": "1998-11-19",
+            "amount": "-50000.00",
             "type": "PNOW",
-            "locked": true
+            "id": 1343,
+            "locked": true,
+            "balance": "97583.00",
+            "token": "1998-11-19:::PNOW:Transfer FROM Kreditbank Savings:true"
         },
         {
             "accid": 1,
-            "comment": "Lindap blood work 14.12.2017 (019390313235) Labo Luc Olivier,Rue Leopold Genicot 16,5380,Fernelmont (BE50 3400 2450 0218) ",
-            "date": "2018-02-21",
-            "amount": "8.70",
-            "type": "PNOW"
+            "comment": "Transfer TO CERA Savings",
+            "date": "1998-11-19",
+            "amount": "50000.00",
+            "type": "PNOW",
+            "id": 1345,
+            "locked": true,
+            "balance": "47583.00",
+            "token": "1998-11-19:50000.00:50000.00:PNOW:Transfer TO CERA Savings:true"
         },
         {
             "accid": 1,
-            "comment": "Transfer FROM CBC-Esavings (EUR)",
-            "date": "2018-02-22",
-            "amount": "-1500.00",
-            "type": "TFR"
-        },
-        {
-            "accid": 1,
-            "comment": "TAX 2017 Income 2016 (077/8572/56427) (BE20 6792 0026 2156)",
-            "date": "2018-02-22",
-            "amount": "1132.45",
-            "type": "TAX"
-        },
-        {
-            "accid": 1,
-            "comment": "Transfer FROM CBC-Esavings (EUR)",
-            "date": "2018-02-22",
-            "amount": "-500.00",
-            "type": "TFR"
-        },
-        {
-            "accid": 1,
-            "comment": "Lindap Lambert Negoce bathroom cupboard",
-            "date": "2018-02-26",
-            "amount": "788.92",
-            "type": "TFR"
-        },
-        {
-            "accid": 1,
-            "comment": "Adele resto",
-            "date": "2018-02-20",
-            "amount": "2.72",
-            "type": "BC"
-        },
-        {
-            "accid": 1,
-            "comment": "Linda-Grocery  week 9 On:25 Feb 18",
-            "date": "2018-02-26",
-            "amount": "150.00",
-            "type": "GROC"
-        },
-        {
-            "accid": 1,
-            "comment": "Pay Feb 2018 On:25 Feb 18",
-            "date": "2018-02-28",
-            "amount": "-3553.40",
-            "type": "PAY"
-        },
-        {
-            "accid": 1,
-            "comment": "To Savings Mar 18 On:01 Mar 18",
-            "date": "2018-03-01",
-            "amount": "900.00",
-            "type": "SAVE"
-        },
-        {
-            "accid": 1,
-            "comment": "Pricos CPA Mar 2018 On:01 Mar 18",
-            "date": "2018-03-03",
-            "amount": "78.34",
-            "type": "PRIC"
-        },
-        {
-            "accid": 1,
-            "comment": "Hansard Mar 18 On:01 Mar 18",
-            "date": "2018-03-05",
-            "amount": "185.92",
-            "type": "PENS"
-        },
-        {
-            "accid": 1,
-            "comment": "TO PAY Proximus 2018 03 Ref X BE31 4354 1116 11 On:01 Mar 18",
-            "date": "2018-03-06",
-            "amount": "3.00",
-            "type": "ZOOM"
-        },
-        {
-            "accid": 1,
-            "comment": "TO PAY Scarlet 2018 03 Ref X On:01 Mar 18",
-            "date": "2018-03-07",
-            "amount": "49.95",
-            "type": "FEE"
-        },
-        {
-            "accid": 1,
-            "comment": "Luminus 2018 03 Ref 651164623857 - 335-0554598-95 Zoomit On:01 Mar 18",
-            "date": "2018-03-16",
-            "amount": "45.00",
-            "type": "ZOOM"
-        },
-        {
-            "accid": 1,
-            "comment": "Adele resto",
-            "date": "2018-02-27",
-            "amount": "3.03",
-            "type": "BC"
-        },
-        {
-            "accid": 1,
-            "comment": "Ph.Mouton Knee warmer,lens fluid",
-            "date": "2018-03-02",
-            "amount": "43.36",
-            "type": "BC"
-        },
-        {
-            "accid": 1,
-            "comment": "Lindap Vets Ghys Trim.Check",
-            "date": "2018-03-03",
-            "amount": "72.70",
-            "type": "ITFR"
-        },
-        {
-            "accid": 1,
-            "comment": "Vets Ghys LANCELOT 20-02-2017",
-            "date": "2018-03-03",
-            "amount": "249.99",
-            "type": "INET"
+            "comment": "Account closed",
+            "date": "1998-11-19",
+            "amount": "47583.00",
+            "type": "PNOW",
+            "id": 1347,
+            "locked": true,
+            "balance": "0.00",
+            "token": "1998-11-19:47583.00:47583.00:PNOW:Account closed:true"
         }
     ]
 }
