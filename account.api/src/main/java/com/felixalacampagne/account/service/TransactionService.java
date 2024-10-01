@@ -1,9 +1,7 @@
 package com.felixalacampagne.account.service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -33,12 +31,12 @@ public class TransactionService
    private final TransactionJpaRepository transactionJpaRepository;
    private final ConnectionResurrector<TransactionJpaRepository> connectionResurrector;
 
-   // yyyy-MM-dd is the iso date format supported by Javascript Date
-   private final DateTimeFormatter DATEFORMAT_YYYYMMDD = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+   BalanceService balanceService;
 
    @Autowired
-   public TransactionService(TransactionJpaRepository transactionJpaRepository) {
+   public TransactionService(TransactionJpaRepository transactionJpaRepository, BalanceService balanceService) {
       this.transactionJpaRepository = transactionJpaRepository;
+      this.balanceService = balanceService;
       this.connectionResurrector = new ConnectionResurrector<TransactionJpaRepository>(transactionJpaRepository, TransactionJpaRepository.class);
    }
 
@@ -85,26 +83,11 @@ public class TransactionService
       return transactionJpaRepository.findById(id);
    }
 
-   public Optional<Transaction> getLatestTransaction(long accountId)
-   {
-      return transactionJpaRepository.findFirstByAccountIdOrderBySequenceDesc(accountId);
-   }
-
-   public Optional<Transaction> getPreviousTransaction(Transaction txn)
-   {
-      return transactionJpaRepository.findFirstByAccountIdAndSequenceLessThanOrderBySequenceDesc(txn.getAccountId(), txn.getSequence());
-   }
-
-   public List<Transaction> getFollowingTransactions(Transaction txn)
-   {
-      return transactionJpaRepository.findByAccountIdAndSequenceGreaterThanOrderBySequenceAsc(txn.getAccountId(), txn.getSequence());
-   }
-
    public void addTransaction(TransactionItem transactionItem)
    {
       Transaction txn = mapToEntity(transactionItem);
 
-      connectionResurrector.ressurectConnection();
+
 
       txn = add(txn);
       log.info("addTransaction: added transaction for account id {}: id:{}", txn.getAccountId(), txn.getSequence());
@@ -128,7 +111,7 @@ public class TransactionService
          throw new  AccountException("Transaction id " + transactionItem.getId() + " is locked");
       }
 
-      String origToken = getToken(txn);
+      String origToken = Utils.getToken(txn);
       if(!origToken.equals(transactionItem.getToken()))
       {
          log.info("updateTransaction: Token mismatch for transaction id:{}: original:{} supplied:{}",
@@ -160,73 +143,18 @@ public class TransactionService
    @Transactional
    public Transaction update(Transaction txn)
    {
-   	BigDecimal balance = BigDecimal.ZERO;
-   	BigDecimal amt = getAmount(txn);
-
-      // Get last transaction
-      Optional<Transaction> prevtxn = getPreviousTransaction(txn);
-      if(prevtxn.isPresent() && (prevtxn.get().getBalance() != null))
-      {
-         balance = getZeroOrValue(prevtxn.get().getBalance());
-      }
-      balance = balance.add(amt);
-      txn.setBalance(balance);
-      transactionJpaRepository.saveAndFlush(txn);
-
-      // Now need to update the balance for any transactions which occurred AFTER the updated transaction
-      List<Transaction> txns = getFollowingTransactions(txn);
-
-      for(Transaction nxttxn : txns)
-      {
-      	amt = getAmount(nxttxn);
-      	balance = balance.add(amt);
-      	nxttxn.setBalance(balance);
-      	transactionJpaRepository.saveAndFlush(nxttxn);
-      }
+      txn = transactionJpaRepository.save(txn);
+      txn = balanceService.calculateBalances(txn);
       return txn;
    }
 
-   // Before inserting into the DB the new balance is calculated based on the value most recent previous transaction
+   // Add is effectively the same as update but with 0 following transactions
+   @Transactional
    public Transaction add(Transaction txn)
    {
-   	BigDecimal balance = BigDecimal.ZERO;
-   	BigDecimal amt = getAmount(txn);
-
-      // Get last transaction
-      Optional<Transaction> lasttxn = getLatestTransaction(txn.getAccountId());
-
-      // Calculate next balance
-      if(lasttxn.isPresent() && (lasttxn.get().getBalance() != null))
-      {
-         balance = getZeroOrValue(lasttxn.get().getBalance());
-      }
-      balance = balance.add(amt);
-
-      txn.setBalance(balance);
-   	// Need to calculate the new balance
-      return transactionJpaRepository.saveAndFlush(txn);
-   }
-
-   private boolean areEqual(BigDecimal one, BigDecimal two)
-   {
-      if((one == null) && (two == null))
-         return true;
-      else if(((one == null) && (two != null))
-             || ((one != null) && (two == null)))
-         return false;
-      return one.compareTo(two) == 0;
-   }
-
-   public String getToken(Transaction transaction)
-   {
-      // Crude value intended to confirm the record being updated is the correct one,
-      // eg. to avoid a wrong/spoofed ID from being sent from the client
-      return formatDate(transaction.getDate())
-         + ":" + formatAmount(transaction.getDebit())
-         + ":" + formatAmount(transaction.getDebit())
-         + ":" + transaction.getType()
-         + ":" + transaction.getComment()
-         + ":" + transaction.getChecked();
+      txn = transactionJpaRepository.save(txn);
+      txn = balanceService.calculateBalances(txn);
+      return txn;
    }
 
    private Transaction mapToEntity(TransactionItem transactionItem)
@@ -236,7 +164,7 @@ public class TransactionService
 
       String isodate = transactionItem.getDate();
 
-      LocalDate localDate = LocalDate.parse(isodate, DATEFORMAT_YYYYMMDD);
+      LocalDate localDate = LocalDate.parse(isodate, Utils.DATEFORMAT_YYYYMMDD);
       tosave.setDate(localDate); // TODO: change the type to LocalDate
       tosave.setType(transactionItem.getType());
       tosave.setComment(transactionItem.getComment());
@@ -278,44 +206,15 @@ public class TransactionService
 
       // jackson doesn't handle Java dates and bigdecimal has too many decimal places so it's
       // simpler just to send the data as Strings with the desired formating.
-      String token = getToken(t);
+      String token = Utils.getToken(t);
       return new TransactionItem(t.getAccountId(),
-      		formatDate(t.getDate()),
-            formatAmount(amount),
+            Utils.formatDate(t.getDate()),
+            Utils.formatAmount(amount),
             t.getType(),
             t.getComment(),
-            t.getChecked(), t.getSequence(), token, formatAmount(t.getBalance()));
+            t.getChecked(), t.getSequence(), token, Utils.formatAmount(t.getBalance()));
    }
 
-   private String formatAmount(BigDecimal bigdec)
-   {
-   String amt = "";
-      if(bigdec != null)
-      {
-         amt = bigdec.setScale(2, RoundingMode.HALF_UP).toString();
-      }
-      return amt;
-   }
 
-   private String formatDate(LocalDate ts)
-   {
-      String date = "";
-      if(ts != null)
-      {
-         date = ts.format(DATEFORMAT_YYYYMMDD);
-      }
-      return date;
-   }
-
-   public BigDecimal getZeroOrValue(BigDecimal value)
-   {
-      return value==null ? BigDecimal.ZERO : value;
-   }
-
-   // Combines credit and debit into a single amount, +ve for credit, -ve for debit
-   public BigDecimal getAmount(Transaction txn)
-   {
-      return getZeroOrValue(txn.getCredit()).subtract(getZeroOrValue(txn.getDebit()));
-   }
 
 }
