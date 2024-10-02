@@ -1,3 +1,4 @@
+// app/transactions/transactions.component.ts
 import { Component, OnInit, ChangeDetectorRef, ViewChild, Input, SimpleChanges } from '@angular/core';
 import { FormsModule, NgForm, NgModel } from '@angular/forms';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -13,6 +14,15 @@ import {AccountItem} from '../../shared/model/accountitem.model';
 import {TransactionItem} from '../../shared/model/transaction.model';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { Html5QrcodeResult } from 'html5-qrcode/esm/core';
+import { ActivatedRoute } from '@angular/router';
+
+
+function makeAccountItem(value: any | undefined)
+{
+   console.log("TransactionsComponent.makeAccountItem: value:" + JSON.stringify(value, null, 2));  
+   return ''; 
+}
+  
 
 // WARNING: 'standalone: true' means the component must not be put in app.module and all imports must be duplicated
 // in the imports sections of @Component otherwise many inexplicable errors will occur, eg.
@@ -26,11 +36,10 @@ import { Html5QrcodeResult } from 'html5-qrcode/esm/core';
   providers: [{provide: NgbDateParserFormatter, useClass: isoNgbDateParserFormatter}]
 })
 
-export class TransactionsComponent implements OnInit {
-  @Input() accid!: number;
 
+export class TransactionsComponent implements OnInit {
   activeaccount!: AccountItem; 
-  
+
   @ViewChild('closebutton') closebutton: any;   
   modalReference: NgbModalRef | undefined;
 
@@ -73,6 +82,7 @@ export class TransactionsComponent implements OnInit {
     private cd: ChangeDetectorRef,
     private datePipe: DatePipe,
     private modalService: NgbModal,
+    private route: ActivatedRoute,
     private deviceService: DeviceDetectorService)
   {
     
@@ -85,26 +95,40 @@ export class TransactionsComponent implements OnInit {
     this.desktopDisplay = this.deviceService.isDesktop();
   }
 
+
+   ngOnInit() 
+   {
+      // console.log('TransactionsComponent.ngOnInit: start');
+      this.route.queryParams.subscribe(params => {
+         // console.log("TransactionsComponent.ngOnInit: params:" + JSON.stringify(params, null, 2));
+         let account : AccountItem = JSON.parse(params["account"]);
+         // console.log("TransactionsComponent.ngOnInit: account from json:" + JSON.stringify(account, null, 2));
+         this. getTransactions(account);
+      });
+      // console.log("TransactionsComponent.ngOnInit: finish");
+   }
+
    resetDatepicker()
    {
       const d: Date = new Date();  
       this.txDate = {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()}; 
    }
 
-  // Call this to display the modal. 'content' is the name of the 'template' containing the elements to be displayed in the modal, I think
-   open(content: any, txn: TransactionItem) {
+   // Call this to display the modal. 'content' is the name of the 'template' containing the elements to be displayed in the modal, I think
+   open(content: any, txn: TransactionItem) 
+   {
       this.origupdTxn = txn;
       this.updateTxn = new TransactionItem();
       this.updateTxn.copy(this.origupdTxn);
       console.log("open: txn:" + JSON.stringify(this.updateTxn, null, 2));
-    // Date picker field is somehow tied to content of this.txDate which is some sort of date object
-    // so must the txn date into the date object... Date seems able to handle the date string in TransactionItem 
-    let d : Date = new Date(this.updateTxn.date); // ISO date format, ie. YYYY-MM-DD
-    console.log("open: txn orig date:" + d);
-    this.txDate = {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()}; 
-    
-    this.modalReference = this.modalService.open(content);
-    this.modalReference.result.then((result) => {
+      // Date picker field is somehow tied to content of this.txDate which is some sort of date object
+      // so must the txn date into the date object... Date seems able to handle the date string in TransactionItem 
+      let d : Date = new Date(this.updateTxn.date); // ISO date format, ie. YYYY-MM-DD
+      console.log("open: txn orig date:" + d);
+      this.txDate = {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()}; 
+      
+      this.modalReference = this.modalService.open(content);
+      this.modalReference.result.then((result) => {
       console.log("open:modalReference:result");
       // One maybe the updated transaction will come from the modal
       this.updmodalCloseAction(`${result}`, this.updateTxn);
@@ -142,43 +166,37 @@ export class TransactionsComponent implements OnInit {
    }
 
 
-   ngOnInit() 
-   {
-      console.log('TransactionsComponent.ngOnInit: Starting');
-   
-   
-      console.log("TransactionsComponent.ngOnInit:Finished");
-   }
 
-   ngOnChanges(changes: SimpleChanges ) 
-   {
-      console.log("TransactionsComponent.ngOnChanges: enter");
-      for (const propName in changes) 
-      {
-         console.log("TransactionsComponent.ngOnChanges: propName:" + propName);
-         if(propName === 'accid')
-         {
-            const chng = changes[propName];
-            this.getTransactionsForAccId(chng.currentValue);
-         }
-      }
-   }
+//   ngOnChanges(changes: SimpleChanges ) 
+//   {
+//      console.log("TransactionsComponent.ngOnChanges: enter");
+//      for (const propName in changes) 
+//      {
+//         console.log("TransactionsComponent.ngOnChanges: propName:" + propName);
+//         if(propName === 'activeaccount')
+//         {
+//            const chng = changes[propName];
+//            console.log("TransactionsComponent.ngOnChanges: activeaccount:" + JSON.stringify(this.activeaccount, null, 2));
+//            this.getTransactions(chng.currentValue);
+//         }
+//      }
+//   }
    
-   getTransactionsForAccId(id : number)
-   {
-      let accounts : AccountItem[] = this.accountService.getAccountList();
-      
-      // WARNING: using '===' did NOT work, but '==' does!
-      let acc = accounts.find(a => (a.id == id));
-      if(acc)
-      {
-         this.getTransactions(acc);
-      }
-      else
-      {
-         console.log("TransactionsComponent.getTransactionsForAccId: failed to find ID:" + id + " in account list:" + JSON.stringify(accounts, null, 2));
-      }
-   }
+//   getTransactionsForAccId(id : number)
+//   {
+//      let accounts : AccountItem[] = this.accountService.getAccountList();
+//      
+//      // WARNING: using '===' did NOT work, but '==' does!
+//      let acc = accounts.find(a => (a.id == id));
+//      if(acc)
+//      {
+//         this.getTransactions(acc);
+//      }
+//      else
+//      {
+//         console.log("TransactionsComponent.getTransactionsForAccId: failed to find ID:" + id + " in account list:" + JSON.stringify(accounts, null, 2));
+//      }
+//   }
    
    getTransactions(acc : AccountItem)
    {
@@ -192,25 +210,25 @@ export class TransactionsComponent implements OnInit {
                //debugger;
                if(!this.transactions)
                {
-                 console.log("AppComponent.getTransactions: variable is not initialized");
+                 console.log("TransactionsComponent.getTransactions: variable is not initialized");
                }
                else
                {
-                 console.log("AppComponent.getTransactions: transactions contains " + this.transactions.length + " items.");
+                 console.log("TransactionsComponent.getTransactions: transactions contains " + this.transactions.length + " items.");
                  let t : TransactionItem=this.transactions[this.transactions.length-1]
-                 console.log("AppComponent.getTransactions: last transaction " + t.comment + ", " +t.amount);
+                 console.log("TransactionsComponent.getTransactions: last transaction " + t.comment + ", " +t.amount);
                  // Fingers crossed this causes an update of the displayed transaction list, which
                  // does not happen automatically when a new transaction is added
                  this.cd.markForCheck();
                }
              },
          error: (err)=>{
-             console.log("AppComponent.getTransactions: An error occured during getTransactions subscribe" + err);
+             console.log("TransactionsComponent.getTransactions: An error occured during getTransactions subscribe" + err);
              } ,
-         complete: ()=>{console.log("AppComponent.getTransactions: getTransactions loading completed");}
+         complete: ()=>{console.log("TransactionsComponent.getTransactions: getTransactions loading completed");}
       });
    
-     console.log("AppComponent.getTransactions:Finished");
+     console.log("TransactionsComponent.getTransactions:Finished");
      this.activeaccount = acc;
    }
 
