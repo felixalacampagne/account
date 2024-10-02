@@ -8,7 +8,7 @@ NB  "flex-nowrap flex-row" can be used to prevent the 'vertical' navbar from app
     <li ngbDropdown class="nav-item d-inline-block">
         <button class="btn btn-sm btn-dark" id="btnAccounts" ngbDropdownToggle>Accounts</button>
         <div ngbDropdownMenu aria-labelledby="btnAccounts">
-          <button *ngFor="let a of accounts" [routerLink]="['/transactions',a.id]" class="dropdown-item">{{a.name}}</button>
+          <button *ngFor="let a of accounts" [routerLink]="['/transactions']" [queryParams]="getqp(a)" class="dropdown-item">{{a.name}}</button>
         </div>
     </li>
   </ul> 
