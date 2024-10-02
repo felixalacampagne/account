@@ -2,10 +2,13 @@
 import {Routes} from '@angular/router';
 import { StandingordersComponent } from './standingorders/standingorders.component';
 import { TransactionsComponent } from './transactions/transactions.component';
+import { AccountsComponent } from './accounts/accounts.component';
 
 export const routes = [
    {path: 'transactions', title: "Transactions", component: TransactionsComponent},
-   {path: 'standingorders', title: "Standing Orders", component: StandingordersComponent}
+   {path: 'standingorders', title: "Standing Orders", component: StandingordersComponent},
+   {path: 'accounts', title: "Accounts", component: AccountsComponent}
+   
    //, {path: '**', redirectTo: '/'}
 ];
 
