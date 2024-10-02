@@ -4,7 +4,7 @@ import { StandingordersComponent } from './standingorders/standingorders.compone
 import { TransactionsComponent } from './transactions/transactions.component';
 
 export const routes = [
-   {path: 'transactions/:accid', title: "Transactions", component: TransactionsComponent},
+   {path: 'transactions', title: "Transactions", component: TransactionsComponent},
    {path: 'standingorders', title: "Standing Orders", component: StandingordersComponent},
    {path: '**', redirectTo: '/'}
 ];
