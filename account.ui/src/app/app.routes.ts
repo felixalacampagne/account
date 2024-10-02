@@ -5,8 +5,8 @@ import { TransactionsComponent } from './transactions/transactions.component';
 
 export const routes = [
    {path: 'transactions', title: "Transactions", component: TransactionsComponent},
-   {path: 'standingorders', title: "Standing Orders", component: StandingordersComponent},
-   {path: '**', redirectTo: '/'}
+   {path: 'standingorders', title: "Standing Orders", component: StandingordersComponent}
+   //, {path: '**', redirectTo: '/'}
 ];
 
 // Refresh page doesn't work which means I'll have to waste even more time getting
