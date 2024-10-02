@@ -69,11 +69,11 @@ export class HammerConfigForNormalScroll extends HammerGestureConfig {
 // is triggered before the account list is present so nothing gets displayed. If I can find a way
 // of forcing list to be present before it is used then it might work without this reuseroute shirt.
 // Alas I have no clue how to get everything to wait for the list to be loaded!!
-export class FixRefreshRouteReuseStrategy extends BaseRouteReuseStrategy {
-  public override shouldReuseRoute(future: ActivatedRouteSnapshot, curr: ActivatedRouteSnapshot): boolean {
-    return false; // (future.routeConfig === curr.routeConfig) || future.data.reuseComponent;
-  }
-}
+//export class FixRefreshRouteReuseStrategy extends BaseRouteReuseStrategy {
+//  public override shouldReuseRoute(future: ActivatedRouteSnapshot, curr: ActivatedRouteSnapshot): boolean {
+//    return false; // (future.routeConfig === curr.routeConfig) || future.data.reuseComponent;
+//  }
+//}
 
 
 
@@ -103,10 +103,10 @@ export class FixRefreshRouteReuseStrategy extends BaseRouteReuseStrategy {
       DatePipe, 
       provideHttpClient(withInterceptorsFromDi()),
       { provide: HAMMER_GESTURE_CONFIG, useClass: HammerConfigForNormalScroll },
-      { provide: RouteReuseStrategy, useClass: FixRefreshRouteReuseStrategy}, // supposed to replace this.router.routeReuseStrategy.shouldReuseRoute = () => { return false; }; in app.module
+      //{ provide: RouteReuseStrategy, useClass: FixRefreshRouteReuseStrategy}, // supposed to replace this.router.routeReuseStrategy.shouldReuseRoute = () => { return false; }; in app.module
       provideRouter(routes, withComponentInputBinding()
-      , withRouterConfig({onSameUrlNavigation: 'reload'})
-      ) // onSameUrlNavigation must be reload for refresh button to work
+      //, withRouterConfig({onSameUrlNavigation: 'reload'}) // onSameUrlNavigation must be reload for refresh button to work
+      ) 
    ]
 })
 export class AppModule { }
