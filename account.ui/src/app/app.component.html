@@ -1,18 +1,36 @@
 <!-- account.ui/src/app/app.component.html
 
-NB  "flex-nowrap flex-row" can be used to prevent the 'vertical' navbar from appearing on phone display, but I
-     I don't think it looks any better
+NB. The 'ngXxx' stuff is from 'ng-bootstrap': https://ng-bootstrap.github.io/
+The 'ng-bootstrap' bootstrap stuff seems to be a layer on top of 'regular' bootstrap.
+I'm not clear why I'm using it, probably this code is based on something that was
+using it and I had no idea. It appears to replace the bootstrap classes with
+what I believe is called a 'directive' which makes it a little easier to read.
+
+Still don't understand whether the 'nav' tag is needed - some ng-bootstrap
+examples have it, some don't, instead they put the ngbNav on the 'ul'. Then
+the app title would be outside the ul so maybe the 'nav' actually defines the 
+bar across the top of the page...
  -->
- <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+ <nav ngbNav class="navbar navbar-expand-sm navbar-dark bg-dark">
   <ul class="navbar-nav">
-    <li ngbDropdown class="nav-item d-inline-block">
-        <button class="btn btn-sm btn-dark" id="btnAccounts" ngbDropdownToggle>Accounts</button>
+    <li ngbDropdown>
+      <button ngbDropdownToggle class="btn btn-sm btn-dark remove-caret" id="btnMenu"><span class="navbar-toggler-icon"></span></button>
+      <div ngbDropdownMenu class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+         <button ngbDropdownItem routerLink="/standingorders">Standing OrdersButton</button>
+         <button ngbDropdownItem routerLink="/">Standing OrdersButton</button>
+         <button ngbDropdownItem routerLink="/">Account details</button>
+         <button ngbDropdownItem routerLink="/">Check items (maybe)</button>
+         <button ngbDropdownItem routerLink="/">Extracts aka. Search (eventually)</button>
+      </div>
+    </li>  
+    <li ngbDropdown>
+        <button ngbDropdownToggle class="btn btn-sm btn-dark" id="btnAccounts">Accounts</button>
         <div ngbDropdownMenu aria-labelledby="btnAccounts">
-          <button *ngFor="let a of accounts" [routerLink]="['/transactions']" [queryParams]="getqp(a)" class="dropdown-item">{{a.name}}</button>
+          <button ngbDropdownItem *ngFor="let a of accounts" routerLink="/transactions" [queryParams]="getqp(a)">{{a.name}}</button>
         </div>
     </li>
   </ul> 
-  <a class="btn btn-sm btn-dark" routerLink="/standingorders" routerLinkActive="activebutton" ariaCurrentWhenActive="page">SOs</a>
+  
   <div class="ms-auto order-last">
       <a class="navbar-brand" href="#">{{title}}<small> {{versiontxt}}</small></a>
   </div>
