@@ -5,6 +5,7 @@ import {AccountService} from '../shared/service/account.service';
 import {AccountItem} from '../shared/model/accountitem.model';
 
 import { Version } from 'src/shared/model/version.model';
+import { Params } from '@angular/router';
 
 
 
@@ -34,7 +35,7 @@ export class AppComponent {
    ngOnInit() 
    {
       console.log('AppComponent.ngOnInit: Starting');
-   
+      
       // Change syntax sugar to avoid deprecated warning 
       this.accountService.getVersion().subscribe({
          next:(res) => {
@@ -86,6 +87,13 @@ export class AppComponent {
    {
       console.log("AppComponent.loadTransactions:account.id:" + acc.id);
       this.currentAccount = acc;
+   }
+   
+   getqp(acc:AccountItem) : Params
+   {
+      let p : Params = { "account": JSON.stringify(acc, null, 0)};
+      
+      return p;
    }
 }
 
