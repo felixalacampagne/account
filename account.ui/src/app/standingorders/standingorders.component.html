@@ -1,1 +1,24 @@
-<p>Hello! When I grow up I'm going to be a list of standing orders!</p>
+<!-- account.ui/src/app/standingorders/standingorders.component.html -->
+<div class="standingorders" *ngIf="isStandorders()">
+  <table class="table table-striped table-sm">
+    <thead class="thead-inverse">
+    <tr><th>Entry Date</th><th>Pay Date</th><th>Amount</th><th>Memo</th><th>Account</th><th>Period</th><th>Count</th><th>Type</th></tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let so of standorders">
+       <td class="nowrap">{{so.soentrydate.substring(2)}}</td>
+       <td class="nowrap">{{so.sonextpaydate.substring(2)}}</td>
+       <td class="account-amount">{{so.soamount}}</td>
+       <td>{{so.sodesc}}</td>
+       <td>{{so.accountname}}</td>
+       <td>{{so.soperiod}}</td>
+       <td>{{so.socount}}</td>
+       <td>{{so.sotfrtype}}</td>
+       <td>
+         <button class="acc-table-btn" (click)="open(so)"><i class="bi bi-pencil-square" aria-hidden="true"></i></button>
+       </td>
+       </tr>
+    </tbody>
+  </table>
+</div>
+
