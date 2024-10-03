@@ -1,5 +1,7 @@
 package com.felixalacampagne.account.controller;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
@@ -13,10 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.felixalacampagne.account.model.Accounts;
+import com.felixalacampagne.account.model.StandingOrderItem;
 import com.felixalacampagne.account.model.TransactionItem;
 import com.felixalacampagne.account.model.Transactions;
 import com.felixalacampagne.account.model.Version;
 import com.felixalacampagne.account.service.AccountService;
+import com.felixalacampagne.account.service.StandingOrderService;
 import com.felixalacampagne.account.service.TransactionService;
 
 @RestController
@@ -26,13 +30,18 @@ public class AccountController {
    private final Logger log = LoggerFactory.getLogger(this.getClass());
    private final AccountService accountService;
    private final TransactionService transactionService;
+   private final StandingOrderService standingOrderService;
 
    private final Version version;
 
-   public AccountController(AccountService accountService, TransactionService transactionService, Version version)
+   public AccountController(AccountService accountService,
+                           TransactionService transactionService,
+                           StandingOrderService standingOrderService,
+                           Version version)
    {
       this.accountService = accountService;
       this.transactionService = transactionService;
+      this.standingOrderService = standingOrderService;
       this.version = version;
    }
 
@@ -101,5 +110,12 @@ public class AccountController {
        }
 
        return "ok";
+    }
+
+    // Note Spring will automatically convert objects to json string and supply the appropriate header
+    @GetMapping("/liststandingorders")
+    public List<StandingOrderItem> getStandingOrderItems()
+    {
+       return this.standingOrderService.getStandingOrderItems();
     }
 }
