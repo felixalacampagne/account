@@ -1,7 +1,6 @@
 package com.felixalacampagne.account.service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -15,8 +14,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.felixalacampagne.account.common.Utils;
 import com.felixalacampagne.account.model.TransactionItem;
 import com.felixalacampagne.account.model.Transactions;
@@ -27,7 +24,7 @@ import com.felixalacampagne.account.persistence.repository.TransactionJpaReposit
 public class TransactionService
 {
    private final Logger log = LoggerFactory.getLogger(this.getClass());
-   private final ObjectMapper objmap = new ObjectMapper();
+//   private final ObjectMapper localdateJsonMapper;
 
    private final TransactionJpaRepository transactionJpaRepository;
    private final ConnectionResurrector<TransactionJpaRepository> connectionResurrector;
@@ -35,10 +32,15 @@ public class TransactionService
    BalanceService balanceService;
 
    @Autowired
-   public TransactionService(TransactionJpaRepository transactionJpaRepository, BalanceService balanceService) {
+   public TransactionService(TransactionJpaRepository transactionJpaRepository,
+                             BalanceService balanceService
+//                             ,ObjectMapper localdateJsonMapper
+                             ) {
       this.transactionJpaRepository = transactionJpaRepository;
       this.balanceService = balanceService;
       this.connectionResurrector = new ConnectionResurrector<TransactionJpaRepository>(transactionJpaRepository, TransactionJpaRepository.class);
+
+//      this.localdateJsonMapper = localdateJsonMapper;
    }
 
    public Transactions getTransactions(long accountId)
@@ -51,20 +53,20 @@ public class TransactionService
    }
 
 
-   public String getTransactionsJson(long accountId)
-   {
-      String result = "";
-      Transactions trns = getTransactions(accountId);
-      try
-      {
-         result = objmap.writeValueAsString(trns);
-      }
-      catch (JsonProcessingException e)
-      {
-         log.info("getTransactions: failed to serialize account list to json:", e);
-      }
-      return result;
-   }
+//   public String getTransactionsJson(long accountId)
+//   {
+//      String result = "";
+//      Transactions trns = getTransactions(accountId);
+//      try
+//      {
+//         result = localdateJsonMapper.writeValueAsString(trns);
+//      }
+//      catch (JsonProcessingException e)
+//      {
+//         log.info("getTransactions: failed to serialize account list to json:", e);
+//      }
+//      return result;
+//   }
 
    public List<Transaction> getTransactionPage(int page, int rows, long accountId)
    {
@@ -163,10 +165,11 @@ public class TransactionService
       Transaction tosave = new Transaction();
       tosave.setAccountId(transactionItem.getAccid());
 
-      String isodate = transactionItem.getDate();
+//      String isodate = transactionItem.getDate();
+//      LocalDate localDate = LocalDate.parse(isodate, Utils.DATEFORMAT_YYYYMMDD);
+//      tosave.setDate(localDate); // TODO: change the type to LocalDate
+      tosave.setDate(transactionItem.getDate());
 
-      LocalDate localDate = LocalDate.parse(isodate, Utils.DATEFORMAT_YYYYMMDD);
-      tosave.setDate(localDate); // TODO: change the type to LocalDate
       tosave.setType(transactionItem.getType());
       tosave.setComment(transactionItem.getComment());
 
@@ -203,13 +206,11 @@ public class TransactionService
          amount = t.getCredit().negate();
       }
 
-
-
-      // jackson doesn't handle Java dates and bigdecimal has too many decimal places so it's
+      // jackson doesn't handle Java dates [it does now!!] and bigdecimal has too many decimal places so it's
       // simpler just to send the data as Strings with the desired formating.
       String token = Utils.getToken(t);
       return new TransactionItem(t.getAccountId(),
-            Utils.formatDate(t.getDate()),
+            t.getDate(),
             Utils.formatAmount(amount),
             t.getType(),
             t.getComment(),
