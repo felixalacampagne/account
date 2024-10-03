@@ -1,18 +1,27 @@
 package com.felixalacampagne.account.model;
 
+import java.time.LocalDate;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 public class TransactionItem
 {
-   private final long accid;
-   private final String comment;
-   private final String date;
-   private final String amount;
-   private final String type;
-   private final long id;
-   private final boolean locked;
-   private final String balance;
-   private final String token;
+   private  long accid;
+   private  String comment;
 
-   public TransactionItem(Long accid, String date, String amount, String type, String comment,
+   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+   private  LocalDate date;
+   private  String amount;
+   private  String type;
+   private  long id;
+   private  boolean locked;
+   private  String balance;
+   private  String token;
+
+   public TransactionItem()
+   {
+   }
+   public TransactionItem(Long accid, LocalDate date, String amount, String type, String comment,
                           boolean locked, long id, String token, String balance)
    {
       this.accid = accid;
@@ -27,7 +36,7 @@ public class TransactionItem
    }
 
 
-   public String getDate()
+   public LocalDate getDate()
    {
       return date;
    }
