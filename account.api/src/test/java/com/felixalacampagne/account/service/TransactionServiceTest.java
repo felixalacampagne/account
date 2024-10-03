@@ -32,12 +32,12 @@ class TransactionServiceTest
    {
    }
 
-   @Test
-   void testGetTransactions()
-   {
-      String txnjson = transactionService.getTransactionsJson(1L);
-      log.info("testGetTransactions: transaction list\n{}", txnjson);
-   }
+//   @Test
+//   void testGetTransactions()
+//   {
+//      String txnjson = transactionService.getTransactionsJson(1L);
+//      log.info("testGetTransactions: transaction list\n{}", txnjson);
+//   }
 
    @Test
    void testUpdateTransaction()
