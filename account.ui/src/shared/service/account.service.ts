@@ -7,22 +7,24 @@ import {environment} from '../../environments/environment';
 import { AccountItem } from '../model/accountitem.model';
 import { TransactionItem } from '../model/transaction.model';
 import { Version } from '../model/version.model';
+import { StandingOrderItem } from '../model/standingorderitem.model';
 
 @Injectable()
 export class AccountService 
 {
-    private serverhost : string; // = "http://minnie"; //""; //"http://minnie"; //"http://localhost:8080";
-    private accountapiapp : string = ""; // /account/";
-    private apiurl : string;
-    private listaccsvc : string = "listaccount";
-    private listtxnsvc : string = "listtransaction/";
-    private addtxnsvc : string = "addtransaction";
-    private updtxnsvc : string = "updatetransaction";
-    private versionsvc : string = "version";
-    
-    private accounts : AccountItem[]=[];
-    constructor(private http : HttpClient)
-    {
+   private serverhost : string; // = "http://minnie"; //""; //"http://minnie"; //"http://localhost:8080";
+   private accountapiapp : string = ""; // /account/";
+   private apiurl : string;
+   private listaccsvc : string = "listaccount";
+   private listtxnsvc : string = "listtransaction/";
+   private addtxnsvc : string = "addtransaction";
+   private updtxnsvc : string = "updatetransaction";
+   private versionsvc : string = "version";
+   private listsosvc : string = "liststandingorders";
+   
+   private accounts : AccountItem[]=[];
+   constructor(private http : HttpClient)
+   {
         // If host value is not given by environment then should assume api
         // is on same server as frontend. Frontend server can be obtained from
         // window.location.hostname, window.location.pathname
@@ -41,7 +43,8 @@ export class AccountService
         this.accountapiapp = environment.folder + environment.accountapi_app;
         this.apiurl = this.serverhost + this.accountapiapp
         console.log("Account API server host: " + this.apiurl);
-    }    
+    
+   }    
 
 
    // For the life of me I cannot figure out how to wait for the http request to finish
@@ -53,6 +56,7 @@ export class AccountService
       console.log("AccountService.setAccountList: account list: " + accounts);
       this.accounts = accounts;
    }
+   
    getAccountList() : AccountItem[]
    {
        return this.accounts; 
@@ -127,4 +131,14 @@ export class AccountService
         console.log("getVersion: API URL: " + url);
         return this.http.get(url).pipe( map((res:any) => res) );    
     }    
+
+    getStandingOrders() : Observable<StandingOrderItem[]>
+    {
+        let url : string;
+        url = this.apiurl + this.listsosvc;
+        // The account items are returned wrapped in an array named accounts
+        console.log("getAccount API URL: " + url);
+        return this.http.get(url).pipe( map((res:any) => res) );    
+    }
+
 }
