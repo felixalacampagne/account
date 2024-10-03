@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import com.felixalacampagne.account.persistence.entities.StandingOrders;
 import com.felixalacampagne.account.persistence.entities.Transaction;
 
 public class Utils
@@ -47,6 +48,22 @@ public class Utils
          + ":" + transaction.getComment()
          + ":" + transaction.getChecked();
    }
+
+   public static String getToken(StandingOrders standingOrder)
+   {
+      // Crude value intended to confirm the record being updated is the correct one,
+      // eg. to avoid a wrong/spoofed ID from being sent from the client
+      return formatDate(standingOrder.getSOEntryDate())
+         + ":" + formatDate(standingOrder.getSONextPayDate())
+         + ":" + formatAmount(standingOrder.getSOAmount())
+         + ":" + standingOrder.getSOPeriod()
+         + ":" + standingOrder.getSOCount()
+         + ":" + standingOrder.getSOTfrType()
+         + ":" + standingOrder.getSOid()
+         + ":" + standingOrder.getAccount().getAccId()
+         ;
+   }
+
 
    public static String formatAmount(BigDecimal bigdec)
    {
