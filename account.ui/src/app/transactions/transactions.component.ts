@@ -103,7 +103,7 @@ export class TransactionsComponent implements OnInit {
          // console.log("TransactionsComponent.ngOnInit: params:" + JSON.stringify(params, null, 2));
          let account : AccountItem = JSON.parse(params["account"]);
          // console.log("TransactionsComponent.ngOnInit: account from json:" + JSON.stringify(account, null, 2));
-         this. getTransactions(account);
+         this.getTransactions(account);
       });
       // console.log("TransactionsComponent.ngOnInit: finish");
    }
