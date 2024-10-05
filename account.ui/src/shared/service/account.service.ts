@@ -27,7 +27,6 @@ export class AccountService
    private listaccinf : string = "listaccinf";
    private accinf : string = "accinf/";
    
-   private accounts : AccountItem[]=[];
    constructor(private http : HttpClient)
    {
       // If host value is not given by environment then should assume api
@@ -49,23 +48,6 @@ export class AccountService
       this.apiurl = this.serverhost + this.accountapiapp
       console.log("Account API server host: " + this.apiurl);
    }    
-
-
-   // For the life of me I cannot figure out how to wait for the http request to finish
-   // so I can store the list of accounts for lookup by id when loading the transaction list
-   // via the routing. So now when the account list is built by the master app.component
-   // it will set the list in the service.
-   setAccountList(accounts : AccountItem[])
-   {
-      console.log("AccountService.setAccountList: account list: " + accounts);
-      this.accounts = accounts;
-   }
-   
-   getAccountList() : AccountItem[]
-   {
-       return this.accounts; 
-   }
-
 
    getAccounts() : Observable<AccountItem[]>
    {

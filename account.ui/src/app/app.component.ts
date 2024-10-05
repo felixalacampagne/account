@@ -61,16 +61,16 @@ export class AppComponent {
    
       this.accountService.getAccounts().subscribe({
          next: (res) => {
-              this.accounts = res;
+              
               // debugger;
-              if(!this.accounts)
+              if(!res)
               {
                 console.log('AppComponent.ngOnInit: accounts is not initialized');
               }
               else
               {
+               this.accounts = res;
                 console.log("AppComponent.ngOnInit: Accounts contains " + this.accounts.length + " items.");
-                this.accountService.setAccountList(this.accounts);
               }
             },
          error: (err)=>{
@@ -78,8 +78,6 @@ export class AppComponent {
             } ,
          complete: ()=>{console.log("AppComponent.ngOnInit: getAccounts loading completed");}
       });
-   
-   
       console.log("AppComponent.ngOnInit:Finished");
    }
 
