@@ -5,7 +5,7 @@ import { TransactionsComponent } from './transactions/transactions.component';
 import { AccountsComponent } from './accounts/accounts.component';
 
 export const routes = [
-   {path: 'transactions', title: "Transactions", component: TransactionsComponent},
+   {path: 'transactions/:accid', title: "Transactions", component: TransactionsComponent},
    {path: 'standingorders', title: "Standing Orders", component: StandingordersComponent},
    {path: 'accounts', title: "Accounts", component: AccountsComponent}
    

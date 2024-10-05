@@ -16,14 +16,6 @@ import { Html5QrcodeScanner } from 'html5-qrcode';
 import { Html5QrcodeResult } from 'html5-qrcode/esm/core';
 import { ActivatedRoute } from '@angular/router';
 
-
-function makeAccountItem(value: any | undefined)
-{
-   console.log("TransactionsComponent.makeAccountItem: value:" + JSON.stringify(value, null, 2));  
-   return ''; 
-}
-  
-
 // WARNING: 'standalone: true' means the component must not be put in app.module and all imports must be duplicated
 // in the imports sections of @Component otherwise many inexplicable errors will occur, eg.
 // NG8002: Can't bind to 'ngModel' since it isn't a known property of 'select'
@@ -38,33 +30,42 @@ function makeAccountItem(value: any | undefined)
 
 
 export class TransactionsComponent implements OnInit {
-  activeaccount!: AccountItem; 
 
-  @ViewChild('closebutton') closebutton: any;   
-  modalReference: NgbModalRef | undefined;
+   // accid is set via the route URL which is detected via ngOnChanges. The id is used to load the accountitem from
+   // the server - cannot rely on the list previously loaded by the main app is it is cleared by the refresh button
+   // and there is no way to know when it has been reloaded.
+   // The loadaccount method has to trigger the loadtransactions from within its subscribe lmbda as that is
+   // is the only way to know when the accountitem has been loaded. Its mind blowingly clumsy but at least
+   // it appears to work including when the refresh button is used.
+   @Input() accid!: number;
+   
+   activeaccount!: AccountItem; 
+
+   @ViewChild('closebutton') closebutton: any;   
+   modalReference: NgbModalRef | undefined;
 
 
-  transactions: TransactionItem[] = [];
+   transactions: TransactionItem[] = [];
   
-  public submitted: boolean = false;
-  public defaultdate: string = '';
-  envName: string = '';
+   public submitted: boolean = false;
+   public defaultdate: string = '';
+   envName: string = '';
 
-  txDate: NgbDateStruct = {year: 1970, month: 12, day: 25};
-  txType: string;
-  txComment: string = '';
-  txAmount: string = '';
-  txPastearea: string = '';
-  closeResult: string = '';
-  html5QrcodeScanner: Html5QrcodeScanner | undefined; // Only defined while a scan is being performed
-  desktopDisplay: boolean = false;
-  // The modal code in .html will not compile if updateTxn is set to undefined since it
-  // references 'this.updateTxn'. Obviously it should only consider the value when it is displayed
-  // however I have no idea how to get it to do this. Thus 'origupdTxn' is the value to check to
-  // determine whether an edit is really in progress.
-  updateTxn: TransactionItem = new TransactionItem(); // Edited valeus of transaction beign updated
-  origupdTxn:TransactionItem | undefined; // Original values of transaction being updated.
-  public txnTypes: string[] = [
+   txDate: NgbDateStruct = {year: 1970, month: 12, day: 25};
+   txType: string;
+   txComment: string = '';
+   txAmount: string = '';
+   txPastearea: string = '';
+   closeResult: string = '';
+   html5QrcodeScanner: Html5QrcodeScanner | undefined; // Only defined while a scan is being performed
+   desktopDisplay: boolean = false;
+   // The modal code in .html will not compile if updateTxn is set to undefined since it
+   // references 'this.updateTxn'. Obviously it should only consider the value when it is displayed
+   // however I have no idea how to get it to do this. Thus 'origupdTxn' is the value to check to
+   // determine whether an edit is really in progress.
+   updateTxn: TransactionItem = new TransactionItem(); // Edited valeus of transaction beign updated
+   origupdTxn:TransactionItem | undefined; // Original values of transaction being updated.
+   public txnTypes: string[] = [
     "BC",
     "AWAL",
     "ITFR",
@@ -76,35 +77,33 @@ export class TransactionsComponent implements OnInit {
     "INT",
     "TFR",
     "ZOOM"
-  ];
+   ];
   
-  constructor(private accountService: AccountService,
-    private cd: ChangeDetectorRef,
-    private datePipe: DatePipe,
-    private modalService: NgbModal,
-    private route: ActivatedRoute,
-    private deviceService: DeviceDetectorService)
-  {
-    
-    this.envName = environment.envName;
-    // Default values for the add transaction form
-    
-    // This is only necessary because the ngModel attribute breaks the selected behaviour of the option tag
-    this.txType = 'BC';
-    this.resetDatepicker();
-    this.desktopDisplay = this.deviceService.isDesktop();
-  }
+   constructor(private accountService: AccountService,
+      private cd: ChangeDetectorRef,
+      private datePipe: DatePipe,
+      private modalService: NgbModal,
+      private route: ActivatedRoute,
+      private deviceService: DeviceDetectorService)
+   {
+      this.envName = environment.envName;
+
+      // This is only necessary because the ngModel attribute breaks the selected behaviour of the option tag
+      this.txType = 'BC';
+      this.resetDatepicker();
+      this.desktopDisplay = this.deviceService.isDesktop();
+   }
 
 
    ngOnInit() 
    {
       // console.log('TransactionsComponent.ngOnInit: start');
-      this.route.queryParams.subscribe(params => {
-         // console.log("TransactionsComponent.ngOnInit: params:" + JSON.stringify(params, null, 2));
-         let account : AccountItem = JSON.parse(params["account"]);
-         // console.log("TransactionsComponent.ngOnInit: account from json:" + JSON.stringify(account, null, 2));
-         this.getTransactions(account);
-      });
+      //this.route.queryParams.subscribe(params => {
+      //   // console.log("TransactionsComponent.ngOnInit: params:" + JSON.stringify(params, null, 2));
+      //   let account : AccountItem = JSON.parse(params["account"]);
+      //   // console.log("TransactionsComponent.ngOnInit: account from json:" + JSON.stringify(account, null, 2));
+      //   this.getTransactions(account);
+      //});
       // console.log("TransactionsComponent.ngOnInit: finish");
    }
 
@@ -167,70 +166,71 @@ export class TransactionsComponent implements OnInit {
 
 
 
-//   ngOnChanges(changes: SimpleChanges ) 
-//   {
-//      console.log("TransactionsComponent.ngOnChanges: enter");
-//      for (const propName in changes) 
-//      {
-//         console.log("TransactionsComponent.ngOnChanges: propName:" + propName);
-//         if(propName === 'activeaccount')
-//         {
-//            const chng = changes[propName];
-//            console.log("TransactionsComponent.ngOnChanges: activeaccount:" + JSON.stringify(this.activeaccount, null, 2));
-//            this.getTransactions(chng.currentValue);
-//         }
-//      }
-//   }
-   
-//   getTransactionsForAccId(id : number)
-//   {
-//      let accounts : AccountItem[] = this.accountService.getAccountList();
-//      
-//      // WARNING: using '===' did NOT work, but '==' does!
-//      let acc = accounts.find(a => (a.id == id));
-//      if(acc)
-//      {
-//         this.getTransactions(acc);
-//      }
-//      else
-//      {
-//         console.log("TransactionsComponent.getTransactionsForAccId: failed to find ID:" + id + " in account list:" + JSON.stringify(accounts, null, 2));
-//      }
-//   }
-   
-   getTransactions(acc : AccountItem)
+   ngOnChanges(changes: SimpleChanges ) 
    {
-     console.log("TransactionsComponent.getTransactions: Starting");
-     if(acc.id < 0)
-         return;
+      console.log("TransactionsComponent.ngOnChanges: enter: " + JSON.stringify(changes, null, 2));
+      for (const propName in changes) 
+      {
+         console.log("TransactionsComponent.ngOnChanges: propName:" + propName);
+         const chng = changes[propName];
+         if(propName === 'accid')
+         {
+            this.loadAccount(chng.currentValue);
+         }
+      }
+   }
+
+   loadAccount(id : number)
+   {
+     console.log("TransactionsComponent.loadAccount: Starting: id " + id);
          
-     this.accountService.getTransactions(acc).subscribe({
+     this.accountService.getAccount(id).subscribe({
          next: (res)=>{
-               this.transactions = res;
-               //debugger;
-               if(!this.transactions)
-               {
-                 console.log("TransactionsComponent.getTransactions: variable is not initialized");
-               }
-               else
-               {
-                 console.log("TransactionsComponent.getTransactions: transactions contains " + this.transactions.length + " items.");
-                 let t : TransactionItem=this.transactions[this.transactions.length-1]
-                 console.log("TransactionsComponent.getTransactions: last transaction " + t.comment + ", " +t.amount);
-                 // Fingers crossed this causes an update of the displayed transaction list, which
-                 // does not happen automatically when a new transaction is added
-                 this.cd.markForCheck();
-               }
-             },
+            if(!res)
+            {
+              console.log("TransactionsComponent.loadAccount: variable is not initialized");
+            }
+            else
+            {
+               this.loadTransactions(res);
+            }
+          },
          error: (err)=>{
-             console.log("TransactionsComponent.getTransactions: An error occured during getTransactions subscribe" + err);
+             console.log("TransactionsComponent.loadAccount: An error occured during subscribe: " + JSON.stringify(err, null, 2));
              } ,
-         complete: ()=>{console.log("TransactionsComponent.getTransactions: getTransactions loading completed");}
+         complete: ()=>{console.log("TransactionsComponent.loadAccount: completed");}
       });
    
-     console.log("TransactionsComponent.getTransactions:Finished");
-     this.activeaccount = acc;
+     console.log("TransactionsComponent.loadAccount:Finished");
    }
+   
+loadTransactions(acc : AccountItem)
+{
+   console.log("TransactionsComponent.loadTransactions: Starting: " + + JSON.stringify(acc, null, 2));
+   if(acc.id < 0)
+      return;
+      
+   this.accountService.getTransactions(acc).subscribe({
+      next: (res)=>{
+            if(!res)
+            {
+              console.log("TransactionsComponent.loadTransactions: variable is not initialized");
+            }
+            else
+            {
+              this.activeaccount = acc;
+              this.transactions = res;
+              console.log("TransactionsComponent.loadTransactions: transactions contains " + this.transactions.length + " items.");
+            }
+          },
+      error: (err)=>{
+          console.log("TransactionsComponent.loadTransactions: An error occured during loadTransactions subscribe" + err);
+          } ,
+      complete: ()=>{console.log("TransactionsComponent.loadTransactions: loadTransactions loading completed");}
+   });
+
+   console.log("TransactionsComponent.loadTransactions:Finished");
+}
 
 addTransactionToDB(txn : TransactionItem)
 {
@@ -239,15 +239,15 @@ addTransactionToDB(txn : TransactionItem)
       next: (res)=>{
           console.log("AppComponent.addTransactionToDB: Response: " + res);
           // Must wait for add to complete before loading new transaction list
-          this.getTransactions(this.activeaccount);
+          this.loadTransactions(this.activeaccount);
           // Reset amount to prevent double entry
           this.txAmount = '';
           this.txPastearea = '';
           },
       error: (err)=>{
-          console.log("AppComponent.addTransactionToDB: An error occured during getTransactions subscribe:" + JSON.stringify(err));
+          console.log("AppComponent.addTransactionToDB: An error occured during addTransactionToDB subscribe:" + JSON.stringify(err));
           } ,
-      complete: ()=>{console.log("AppComponent.addTransactionToDB: getTransactions loading completed");}
+      complete: ()=>{console.log("AppComponent.addTransactionToDB: completed");}
    });
 
   console.log("AppComponent.addTransactionToDB:Finished");
@@ -287,15 +287,15 @@ updTransactionToDB(txn : TransactionItem)
       next: (res)=>{
           console.log("AppComponent.updTransactionToDB: Response: " + res);
           // Must wait for add to complete before loading new transaction list
-          this.getTransactions(this.activeaccount);
+          this.loadTransactions(this.activeaccount);
           // Reset amount to prevent double entry
           this.txAmount = '';
           this.txPastearea = '';
           },
       error: (err)=>{
-          console.log("AppComponent.updTransactionToDB: An error occured during getTransactions subscribe:" + JSON.stringify(err));
+          console.log("AppComponent.updTransactionToDB: An error occured during updTransactionToDB subscribe:" + JSON.stringify(err));
           } ,
-      complete: ()=>{console.log("AppComponent.updTransactionToDB: getTransactions loading completed");}
+      complete: ()=>{console.log("AppComponent.updTransactionToDB: completed");}
    });
 
   console.log("AppComponent.updTransactionToDB:Finished");

@@ -25,7 +25,7 @@ bar across the top of the page...
     <li ngbDropdown>
         <button ngbDropdownToggle class="btn btn-sm btn-dark" id="btnAccounts">Accounts</button>
         <div ngbDropdownMenu aria-labelledby="btnAccounts">
-          <button ngbDropdownItem *ngFor="let a of accounts" routerLink="/transactions" [queryParams]="getqp(a)">{{a.name}}</button>
+          <button ngbDropdownItem *ngFor="let a of accounts" [routerLink]="['transactions', a.id]">{{a.name}}</button>
         </div>
     </li>
   </ul> 
