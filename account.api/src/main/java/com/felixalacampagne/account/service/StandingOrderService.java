@@ -103,4 +103,12 @@ public class StandingOrderService
                .collect(Collectors.toList());
       return sois;
    }
+   
+   public StandingOrderItem getStandingOrderItem(long id)
+   {
+      return this.standingOrdersJpaRepository.findById(id)
+                                      .map(s -> mapToItem(s))
+                                      .orElseThrow(() -> new AccountException("Standing order not found: id " + id));
+                                      
+   }
 }

@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import com.felixalacampagne.account.persistence.entities.Account;
 import com.felixalacampagne.account.persistence.entities.StandingOrders;
 import com.felixalacampagne.account.persistence.entities.Transaction;
 
@@ -64,6 +65,12 @@ public class Utils
          ;
    }
 
+   public static String getToken(Account acc)
+   {
+      return "" + acc.getAccId() 
+         + ":" + acc.getAccCode()
+         + ":" + acc.getAccDesc();
+   }
 
    public static String formatAmount(BigDecimal bigdec)
    {
@@ -90,4 +97,5 @@ public class Utils
    {
       // utility class should only contain statics
    }
+
 }

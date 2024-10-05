@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.felixalacampagne.account.model.AccountDetail;
+import com.felixalacampagne.account.model.AccountItem;
 import com.felixalacampagne.account.model.Accounts;
 import com.felixalacampagne.account.model.StandingOrderItem;
 import com.felixalacampagne.account.model.TransactionItem;
@@ -66,6 +68,25 @@ public class AccountController {
        return this.accountService.getAccounts();
     }
 
+    @GetMapping("/account/{id}")
+    public AccountItem getAccount(@PathVariable Long id)
+    {
+       return this.accountService.getAccountItem(id);
+    }
+      
+    @GetMapping("/accinf/{id}")
+    public AccountDetail getAccountDetail(@PathVariable Long id)
+    {
+       return this.accountService.getAccountDetail(id);
+    }
+
+    @GetMapping("/listaccinf")
+    public List<AccountDetail> getAccountDetails()
+    {
+       return this.accountService.getAccountDetailList();
+    }
+
+    
 //    Could use @RequestParam(name="name", required=false, defaultValue="World" to supply as url ? values
     @GetMapping("/listtransaction/{accountid}")
     public Transactions getTransactions(@PathVariable Long accountid) // This needs to receive an account id
@@ -118,4 +139,10 @@ public class AccountController {
     {
        return this.standingOrderService.getStandingOrderItems();
     }
+    
+    @GetMapping("/standingorder/{id}")
+    public StandingOrderItem getStandingOrderItem(@PathVariable Long id)
+    {
+       return this.standingOrderService.getStandingOrderItem(id);
+    }    
 }

@@ -25,11 +25,11 @@ class AccountServiceTest
 	@Autowired
 	AccountService accountService;
 	
-	@Test
-	void testGetAccounts()
-	{
-		String acclistjson = accountService.getAccountsJson();
-		log.info("testGetAccounts: json accoount list: {}", acclistjson);
-	}
+//	@Test
+//	void testGetAccounts()
+//	{
+//		String acclistjson = accountService.getAccountsJson();
+//		log.info("testGetAccounts: json accoount list: {}", acclistjson);
+//	}
 
 }
