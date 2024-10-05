@@ -1,16 +1,10 @@
 // account.ui/src/app/app.component.ts
-import { Component, OnInit, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 
 import {AccountService} from '../shared/service/account.service';
 import {AccountItem} from '../shared/model/accountitem.model';
 
 import { Version } from 'src/shared/model/version.model';
-import { Params } from '@angular/router';
-
-
-
-// <transactions [activeaccount]="currentAccount"></transactions>
-// <standingorders></standingorders>
 
 @Component({
   selector: 'app-root',
@@ -24,9 +18,7 @@ export class AppComponent {
   version : Version | undefined;
   accounts: AccountItem[] = [];
   uiversion: string ='';
-  
-  currentAccount: AccountItem = new AccountItem();
-  
+
   constructor(private accountService: AccountService)
   {
 
@@ -39,14 +31,14 @@ export class AppComponent {
       // Change syntax sugar to avoid deprecated warning 
       this.accountService.getVersion().subscribe({
          next:(res) => {
-              this.version = res;
-              // debugger;
-              if(!this.version)
+              
+              if(!res)
               {
                 console.log('AppComponent.ngOnInit: Version is not initialized');
               }
               else
               {
+               this.version = res;
                this.title = this.version.name + " (" + this.version.db +")";
                this.versiontxt = " v" + this.version.version + this.uiversion;
                console.log("AppComponent.ngOnInit: Version: " + this.title + " " + this.versiontxt);
@@ -79,19 +71,6 @@ export class AppComponent {
          complete: ()=>{console.log("AppComponent.ngOnInit: getAccounts loading completed");}
       });
       console.log("AppComponent.ngOnInit:Finished");
-   }
-
-   loadTransactions(acc : AccountItem)
-   {
-      console.log("AppComponent.loadTransactions:account.id:" + acc.id);
-      this.currentAccount = acc;
-   }
-   
-   getqp(acc:AccountItem) : Params
-   {
-      let p : Params = { "account": JSON.stringify(acc, null, 0)};
-      
-      return p;
    }
 }
 

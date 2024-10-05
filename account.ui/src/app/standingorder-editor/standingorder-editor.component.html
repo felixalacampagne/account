@@ -1,0 +1,13 @@
+<form [formGroup]="soForm"  (ngSubmit)="onSubmit()">
+
+<label for="sodesc">Memo: </label><input id="sodesc" type="text" formControlName="sodesc">
+<label for="soentrydate">Entry Date: </label><input id="soentrydate" type="text" formControlName="soentrydate">
+<label for="sonextpaydate">Pay Date: </label><input id="sonextpaydate" type="text" formControlName="sonextpaydate">
+<label for="soamount">Amount: </label><input id="soamount" type="text" formControlName="soamount">
+<label for="accountname">Account: </label><input id="accountname" type="text" formControlName="accountname">
+<label for="soperiod">Period: </label><input id="soperiod" type="text" formControlName="soperiod">
+<label for="socount">Repeat: </label><input id="socount" type="text" formControlName="socount">
+<label for="sotfrtype">Type: </label><input id="sotfrtype" type="text" formControlName="sotfrtype">
+<button type="submit" [disabled]="!soForm.valid">Submit</button>
+</form>
+

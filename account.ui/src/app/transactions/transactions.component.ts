@@ -1,9 +1,9 @@
 // app/transactions/transactions.component.ts
 import { Component, OnInit, ChangeDetectorRef, ViewChild, Input, SimpleChanges } from '@angular/core';
-import { FormsModule, NgForm, NgModel } from '@angular/forms';
+import { FormsModule} from '@angular/forms';
 import { CommonModule, DatePipe } from '@angular/common';
 import { NgbModal, ModalDismissReasons, NgbModalRef, NgbModule} from '@ng-bootstrap/ng-bootstrap';
-import { NgbDatepickerConfig, NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { DeviceDetectorService } from 'ngx-device-detector';
 
 import {environment} from '../../environments/environment';
@@ -34,8 +34,8 @@ export class TransactionsComponent implements OnInit {
    // accid is set via the route URL which is detected via ngOnChanges. The id is used to load the accountitem from
    // the server - cannot rely on the list previously loaded by the main app is it is cleared by the refresh button
    // and there is no way to know when it has been reloaded.
-   // The loadaccount method has to trigger the loadtransactions from within its subscribe lmbda as that is
-   // is the only way to know when the accountitem has been loaded. Its mind blowingly clumsy but at least
+   // The loadaccount method has to trigger the loadtransactions from within its subscribe lambda as that is
+   // the only way to know when the accountitem has been loaded. Its mind blowingly clumsy but at least
    // it appears to work including when the refresh button is used.
    @Input() accid!: number;
    

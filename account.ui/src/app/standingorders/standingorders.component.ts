@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DeviceDetectorService } from 'ngx-device-detector';
-import { StandingOrderItem } from 'src/shared/model/standingorderitem.model';
-import { AccountService } from 'src/shared/service/account.service';
+import { StandingOrderItem } from '../../shared/model/standingorderitem.model';
+import { AccountService } from '../../shared/service/account.service';
+import { StandingorderEditorComponent } from '../standingorder-editor/standingorder-editor.component'
 
 @Component({
   selector: 'standingorders',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, StandingorderEditorComponent],
   templateUrl: './standingorders.component.html',
   styleUrls: ['../../sass/account-styles.scss', '../app.component.css', './standingorders.component.css'],
 })
