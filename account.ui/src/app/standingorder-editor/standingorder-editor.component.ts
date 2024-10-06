@@ -3,15 +3,29 @@
 // The hope is that it will be displayed as a modal above the standingorder list
 // and used to add or update standingorder items.
 
+
+// Mysteries to be solved (requiring hours to be wasted):
+// - why does the scss cause the labels to be in the worng place
+// - how to link the datepicker input to the formcontrol value
+// - how to display the editor as a modal above the so list
+// - how to populate the dropdown list fields, eg. Period, Type
+// - how to require numeric/decimal values for repeat/amount
+//
+// such trivial things yet they will take weeks of guessing, googling, more guessing and hoping before
+// they are in a usable form!!!
 import { Component } from '@angular/core';
 import { FormGroup, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { StandingOrderItem } from '../../shared/model/standingorderitem.model';
+import { AccountService } from 'src/shared/service/account.service';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 @Component({
   selector: 'standingorder-editor',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, NgbModule],
   templateUrl: './standingorder-editor.component.html',
-  styleUrl: './standingorder-editor.component.css'
+
+  // '../../sass/account-styles.scss', for unknown reasons the scss causes the labels toappear above the inputs instead on the same line
+  styleUrls: [ '../app.component.css', './standingorder-editor.component.css'],
 })
 export class StandingorderEditorComponent {
   editso : StandingOrderItem = new StandingOrderItem();
@@ -43,8 +57,40 @@ export class StandingorderEditorComponent {
     sotfrtype: new FormControl('')        // dowpdown list of types as shown in transaction
   });
 
+   constructor(private accountService: AccountService)
+   {
+   
+   }
+
+   populateFormFromSO(so : StandingOrderItem)
+   {
+      this.soForm.setValue({
+         sodesc : so.sodesc,
+         soentrydate : so.soentrydate,
+         sonextpaydate : so.sonextpaydate,
+         soamount : so.soamount,
+         accountname : so.accountname,
+      //NB Looks like the FormControls only accept strings
+         soperiod : "" + so.soperiod,
+         socount : "" + so.socount,
+         sotfrtype : so.sotfrtype
+      });
+   }
 
   onSubmit() {
-    console.warn(this.soForm.value.sodesc);  
+    console.warn(this.soForm.value.sodesc); 
+
+    let so : StandingOrderItem = new StandingOrderItem();
+    so.sodesc = "descriptive text";
+    so.accountname = "An Account";
+    so.soamount = "100.99";
+    so.socount = 2;
+    so.soentrydate = "2024-11-02";
+    so.sonextpaydate = "2024-11-05";
+    so.soperiod = "M";
+    so.sotfrtype = 'TEST';
+
+    this.populateFormFromSO(so);
+
   }  
 }
