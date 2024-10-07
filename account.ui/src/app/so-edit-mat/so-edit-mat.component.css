@@ -1,0 +1,24 @@
+/* so-edit-mat/so-edit-mat.component.css */
+.full-width {
+  width: 100%;
+}
+
+.so-card {
+  min-width: 120px;
+  margin: 14px auto;
+}
+.row {
+  display: flex;
+  flex-direction: row;
+  margin: 0px ;
+  padding: 0px ;
+}
+
+.col {
+  flex: 1;
+  margin-right: 20px;
+}
+
+.col:last-child {
+  margin-right: 0;
+}
