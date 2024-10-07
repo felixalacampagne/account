@@ -1,7 +1,7 @@
 // account.ui/src/app/app.module.ts
 import { BrowserModule, HammerModule, HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-browser';
 import { APP_INITIALIZER, importProvidersFrom, Injectable, NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
@@ -15,6 +15,12 @@ import { ActivatedRouteSnapshot, BaseRouteReuseStrategy, provideRouter, RouteReu
 import { routes } from './app.routes';
 import { AccountItem } from 'src/shared/model/accountitem.model';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { SoEditMatComponent } from './so-edit-mat/so-edit-mat.component';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatSelectModule } from '@angular/material/select';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatCardModule } from '@angular/material/card';
 
 
 
@@ -82,6 +88,7 @@ export class HammerConfigForNormalScroll extends HammerGestureConfig {
 @NgModule({ declarations: [
         AppComponent,
         QrscannerComponent
+      //   SoEditMatComponent
     ],
     bootstrap: [AppComponent], 
     imports: [
@@ -93,7 +100,13 @@ export class HammerConfigForNormalScroll extends HammerGestureConfig {
       StandingordersComponent,
       RouterOutlet,
       RouterLink,
-      RouterLinkActive
+      RouterLinkActive,
+      // MatInputModule,
+      // MatButtonModule,
+      // MatSelectModule,
+      // MatRadioModule,
+      // MatCardModule,
+      // ReactiveFormsModule
    ], 
     providers: [
       AccountService, 
@@ -108,7 +121,7 @@ export class HammerConfigForNormalScroll extends HammerGestureConfig {
       provideRouter(routes, withComponentInputBinding()
       //, withRouterConfig({onSameUrlNavigation: 'reload'}) // onSameUrlNavigation must be reload for refresh button to work
       ),
-      provideAnimationsAsync()
+      provideAnimationsAsync() 
    ]
 })
 export class AppModule { }
