@@ -5,8 +5,8 @@
 
 
 // Mysteries to be solved (requiring hours to be wasted):
-// - why does the scss cause the labels to be in the worng place
-// - how to link the datepicker input to the formcontrol value
+// - how to link the datepicker input to the formcontrol value - think I've figured this one out.
+// - why does the scss cause the labels to be in the wrong place - absolutely no clue
 // - how to display the editor as a modal above the so list
 // - how to populate the dropdown list fields, eg. Period, Type
 // - how to require numeric/decimal values for repeat/amount
@@ -17,7 +17,8 @@ import { Component } from '@angular/core';
 import { FormGroup, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { StandingOrderItem } from '../../shared/model/standingorderitem.model';
 import { AccountService } from 'src/shared/service/account.service';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDateParserFormatter, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { isoNgbDateParserFormatter } from 'src/shared/datepickformatter';
 @Component({
   selector: 'standingorder-editor',
   standalone: true,
@@ -25,7 +26,10 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
   templateUrl: './standingorder-editor.component.html',
 
   // '../../sass/account-styles.scss', for unknown reasons the scss causes the labels toappear above the inputs instead on the same line
-  styleUrls: [ '../app.component.css', './standingorder-editor.component.css'],
+  styleUrls: [ '../app.component.css', './standingorder-editor.component.css'
+             //  , '../../sass/account-styles.scss'
+  ],
+  providers: [{provide: NgbDateParserFormatter, useClass: isoNgbDateParserFormatter}]
 })
 export class StandingorderEditorComponent {
   editso : StandingOrderItem = new StandingOrderItem();
@@ -45,10 +49,9 @@ export class StandingorderEditorComponent {
   // I suppose it avoids the plethora of various different types of brakets needing
   // to be sprinkled all over the HTML so maybe its worth persevering with it... will
   // have to try to find some useful examples though...
-
   soForm = new FormGroup({
-    soentrydate: new FormControl(''),     // a date picker, probably not worth it
-    sonextpaydate: new FormControl(''),   // a date picker, probably not worth it
+    soentrydate: new FormControl(),       // a date picker
+    sonextpaydate: new FormControl(),     // a date picker, probably not worth it
     soamount: new FormControl(''),        // numerics only
     sodesc: new FormControl(''),          // the memo field, free format
     accountname: new FormControl(''),     // select from dropdown of accounts?
@@ -64,10 +67,14 @@ export class StandingorderEditorComponent {
 
    populateFormFromSO(so : StandingOrderItem)
    {
+      let d : Date = new Date(so.soentrydate); // ISO date format, ie. YYYY-MM-DD
+      let entryDate = {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()}; 
+      d = new Date(so.sonextpaydate); 
+      let payDate = {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()};             
       this.soForm.setValue({
-         sodesc : so.sodesc,
-         soentrydate : so.soentrydate,
-         sonextpaydate : so.sonextpaydate,
+         sodesc : so.sodesc, 
+         soentrydate : entryDate,
+         sonextpaydate : payDate,
          soamount : so.soamount,
          accountname : so.accountname,
       //NB Looks like the FormControls only accept strings
