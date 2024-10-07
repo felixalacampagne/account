@@ -5,12 +5,12 @@ import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import { StandingOrderItem } from '../../shared/model/standingorderitem.model';
 import { AccountService } from '../../shared/service/account.service';
-import { StandingorderEditorComponent } from '../standingorder-editor/standingorder-editor.component'
+import { SoEditMatComponent } from '../so-edit-mat/so-edit-mat.component';
 
 @Component({
   selector: 'standingorders',
   standalone: true,
-  imports: [CommonModule, StandingorderEditorComponent],
+  imports: [CommonModule, SoEditMatComponent],
   templateUrl: './standingorders.component.html',
   styleUrls: ['../../sass/account-styles.scss', '../app.component.css', './standingorders.component.css'],
 })
