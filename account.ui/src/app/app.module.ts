@@ -14,6 +14,7 @@ import { StandingordersComponent } from './standingorders/standingorders.compone
 import { ActivatedRouteSnapshot, BaseRouteReuseStrategy, provideRouter, RouteReuseStrategy, RouterLink, RouterLinkActive, RouterModule, RouterOutlet, withComponentInputBinding, withRouterConfig } from '@angular/router';
 import { routes } from './app.routes';
 import { AccountItem } from 'src/shared/model/accountitem.model';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 
 
@@ -106,7 +107,8 @@ export class HammerConfigForNormalScroll extends HammerGestureConfig {
       //{ provide: RouteReuseStrategy, useClass: FixRefreshRouteReuseStrategy}, // supposed to replace this.router.routeReuseStrategy.shouldReuseRoute = () => { return false; }; in app.module
       provideRouter(routes, withComponentInputBinding()
       //, withRouterConfig({onSameUrlNavigation: 'reload'}) // onSameUrlNavigation must be reload for refresh button to work
-      ) 
+      ),
+      provideAnimationsAsync()
    ]
 })
 export class AppModule { }
