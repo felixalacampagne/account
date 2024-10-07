@@ -11,6 +11,8 @@ import { StandingOrderItem } from 'src/shared/model/standingorderitem.model';
 import { DateAdapter, MAT_DATE_FORMATS, MatDateFormats, NativeDateAdapter } from '@angular/material/core';
 import { ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { AccountService } from 'src/shared/service/account.service';
+import { AccountItem } from 'src/shared/model/accountitem.model';
 
 @Injectable()
 export class FormatingDateAdapter extends NativeDateAdapter 
@@ -119,52 +121,79 @@ public txnTypes: string[] = [
   soForm = new FormGroup({
    soentrydate: new FormControl(new Date(), Validators.required),       // a date picker
    sonextpaydate: new FormControl(new Date(), Validators.required),     // a date picker
-   soamount: new FormControl('', Validators.required),        // numerics only
+   soamount: new FormControl(0.00, Validators.required),        // numerics only
    sodesc: new FormControl('', Validators.required),          // the memo field, free format
-   accountname: new FormControl('', Validators.required),     // select from dropdown of accounts?
+   accountid: new FormControl(-1, Validators.required),     // select from dropdown of accounts?
    soperiod: new FormControl('', Validators.required),        // select from dropdown of period types
-   socount: new FormControl('', Validators.required),         // integer only
+   socount: new FormControl(1, Validators.required),         // integer only
    sotfrtype: new FormControl(this.txnTypes[0], Validators.required)        // dowpdown list of types as shown in transaction
  });
 
   
-  periodTypes = [
-   {period: "D", desc: "Day"},
-   {period: "W", desc: "Week"},
-   {period: "M", desc: "Month"},
-   {period: "Y", desc: "Year"}
-  ];
-
+  periodTypes : any;
   
+  accounts: AccountItem[] = [];
+
+  constructor(private accountService: AccountService)
+  {
+
+  }
+  ngOnInit()
+  {
+   this.accountService.getAccounts().subscribe({
+      next: (res) => {
+           
+           // debugger;
+           if(!res)
+           {
+             console.log('AppComponent.ngOnInit: accounts is not initialized');
+           }
+           else
+           {
+            this.accounts = res;
+             console.log("AppComponent.ngOnInit: Accounts contains " + this.accounts.length + " items.");
+           }
+         },
+      error: (err)=>{
+         console.log("AppComponent.ngOnInit: An error occured during getAccounts subscribe: " + JSON.stringify(err, null, 2));
+         } ,
+      complete: ()=>{console.log("AppComponent.ngOnInit: getAccounts loading completed");}
+   });
+
+   this.periodTypes = this.accountService.periodTypes;
+   console.log("AppComponent.ngOnInit:Finished");
+  }
   onSubmit(): void {
 
    console.log("onSubmit: form values: " + JSON.stringify(this.soForm.value, null, 2));
    let so : StandingOrderItem = new StandingOrderItem();
-   so.sodesc = "descriptive text";
-   so.accountname = "An Account";
-   so.soamount = "100.99";
-   so.socount = 2;
-   so.soentrydate = new Date("2024-11-02");
-   so.sonextpaydate = new Date("2024-11-05");
-   so.soperiod = "M";
-   so.sotfrtype = 'TEST';
-
-   this.populateFormFromSO(so);
+   so.sodesc = "" + this.soForm.value.sodesc;
+   so.accountid = this.soForm.value.accountid ?? -1;
+   // TODO how to get the selected description? 
+   so.soamount = "" + this.soForm.value.soamount;
+   so.socount = this.soForm.value.socount ?? -1;
+   so.soentrydate = this.soForm.value.soentrydate ?? new Date();
+   so.sonextpaydate = this.soForm.value.sonextpaydate ?? new Date();
+   so.soperiod = "" + this.soForm.value.soperiod;
+   so.sotfrtype = "" + this.soForm.value.sotfrtype;
+   console.log("onSubmit: mapped SO to submit to server: " + JSON.stringify(so, null, 2));
+   
   }
+
   populateFormFromSO(so : StandingOrderItem)
   {
      let ed : Date = new Date(so.soentrydate); // ISO date format, ie. YYYY-MM-DD
-   //   let entryDate = {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()}; 
+   //   let entryDate = {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()}
      let pd = new Date(so.sonextpaydate); 
    //   let payDate = {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()};             
      this.soForm.setValue({
         sodesc : so.sodesc, 
         soentrydate : so.soentrydate,
         sonextpaydate : so.sonextpaydate,
-        soamount : so.soamount,
-        accountname : so.accountname,
+        soamount : parseFloat(so.soamount),
+        accountid : so.accountid,
         soperiod : "" + so.soperiod,
-        socount : "" + so.socount,
+        socount : so.socount,
         sotfrtype : so.sotfrtype
      });
   }  

@@ -27,6 +27,13 @@ export class AccountService
    private listaccinf : string = "listaccinf";
    private accinf : string = "accinf/";
    
+   public periodTypes = [
+      {period: "D", desc: "Day"},
+      {period: "W", desc: "Week"},
+      {period: "M", desc: "Month"},
+      {period: "Y", desc: "Year"}
+     ];
+     
    constructor(private http : HttpClient)
    {
       // If host value is not given by environment then should assume api

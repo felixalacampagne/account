@@ -41,7 +41,11 @@
       <div class="row">
          <mat-form-field  appearance="outline" class="full-width">
             <mat-label>Account</mat-label>
-            <input matInput placeholder="" formControlName="accountname">
+            <mat-select formControlName="accountid">
+               @for (acc of accounts; track acc) {
+                 <mat-option [value]="acc.id">{{ acc.name }}</mat-option>
+               }
+             </mat-select>             
          </mat-form-field>
       </div>
       <div class="row">
