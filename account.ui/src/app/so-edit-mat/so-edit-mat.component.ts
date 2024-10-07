@@ -138,14 +138,14 @@ public txnTypes: string[] = [
   
   onSubmit(): void {
 
-   console.log("onSubmit: form values: " + JSON.stringify(this.soForm, null, 2));
+   console.log("onSubmit: form values: " + JSON.stringify(this.soForm.value, null, 2));
    let so : StandingOrderItem = new StandingOrderItem();
    so.sodesc = "descriptive text";
    so.accountname = "An Account";
    so.soamount = "100.99";
    so.socount = 2;
-   so.soentrydate = "2024-11-02";
-   so.sonextpaydate = "2024-11-05";
+   so.soentrydate = new Date("2024-11-02");
+   so.sonextpaydate = new Date("2024-11-05");
    so.soperiod = "M";
    so.sotfrtype = 'TEST';
 
@@ -159,8 +159,8 @@ public txnTypes: string[] = [
    //   let payDate = {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()};             
      this.soForm.setValue({
         sodesc : so.sodesc, 
-        soentrydate : ed,
-        sonextpaydate : pd,
+        soentrydate : so.soentrydate,
+        sonextpaydate : so.sonextpaydate,
         soamount : so.soamount,
         accountname : so.accountname,
         soperiod : "" + so.soperiod,

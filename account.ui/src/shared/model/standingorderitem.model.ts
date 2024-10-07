@@ -5,8 +5,8 @@ export class StandingOrderItem
    public soamount : string = '';
    public socount : number = -1;
    public sodesc : string = '';
-   public soentrydate : string = '';
-   public sonextpaydate : string = '';
+   public soentrydate!: Date;
+   public sonextpaydate!: Date;
    public soperiod : string = '';
    public sotfrtype : string = '';
    public accountid : number = -1;
