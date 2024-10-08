@@ -34,13 +34,13 @@ public class StandingOrderService
    public List<StandingOrders> getPendingStandingOrders()
    {
 
-      List<StandingOrders> sopending = standingOrdersJpaRepository.findBySOEntryDateLessThanOrderBySOEntryDateAsc(getCurrentEntryDate());
+      List<StandingOrders> sopending = standingOrdersJpaRepository.findBySOEntryDateLessThanEqualOrderBySOEntryDateAsc(getCurrentEntryDate());
       return sopending;
    }
 
    public Optional<StandingOrders> getNextPendingStandingOrder()
    {
-      return standingOrdersJpaRepository.findFirstBySOEntryDateLessThanOrderBySONextPayDateAsc(getCurrentEntryDate());
+      return standingOrdersJpaRepository.findFirstBySOEntryDateLessThanEqualOrderBySONextPayDateAsc(getCurrentEntryDate());
    }
 
    public LocalDate getCurrentEntryDate()

@@ -13,6 +13,6 @@ import com.felixalacampagne.account.persistence.entities.StandingOrders;
 public interface StandingOrdersJpaRepository extends JpaRepository<StandingOrders, Long>
 {
 
-   public Optional<StandingOrders> findFirstBySOEntryDateLessThanOrderBySONextPayDateAsc(LocalDate soEntryDate);
-   public List<StandingOrders> findBySOEntryDateLessThanOrderBySOEntryDateAsc(LocalDate soEntryDate);
+   public Optional<StandingOrders> findFirstBySOEntryDateLessThanEqualOrderBySONextPayDateAsc(LocalDate soEntryDate);
+   public List<StandingOrders> findBySOEntryDateLessThanEqualOrderBySOEntryDateAsc(LocalDate soEntryDate);
 }
