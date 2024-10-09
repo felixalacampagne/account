@@ -4,19 +4,28 @@
 }
 
 .so-card {
-  min-width: 120px;
-  margin: 14px auto;
+  width: 50%;
+  min-width: 400px;
+  margin: 0px auto;
+  margin-top: 0px; 
 }
+
+.so-card-head 
+{
+   margin-top: 0px; 
+   margin-bottom: 10px;
+}
+
 .row {
   display: flex;
   flex-direction: row;
-  margin: 0px ;
-  padding: 0px ;
+  margin-top: 0px; 
+  margin-bottom: 0px;
 }
 
 .col {
   flex: 1;
-  margin-right: 20px;
+
 }
 
 .col:last-child {
