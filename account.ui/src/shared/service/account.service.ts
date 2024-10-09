@@ -50,7 +50,8 @@ export class AccountService
    "SAVE",
    "GROC",
    "PRIC",
-   "FEE"
+   "FEE",
+   "BANK"
    ];
         
    constructor(private http : HttpClient)
