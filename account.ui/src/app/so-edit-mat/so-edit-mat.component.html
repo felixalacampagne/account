@@ -6,25 +6,46 @@
    -->
 <form [formGroup]="soForm" novalidate (ngSubmit)="onSubmit()">
   <mat-card class="so-card">
-    <mat-card-header>
+    <mat-card-header class="so-card-head">
       <mat-card-title>Standing Order</mat-card-title>
     </mat-card-header>
     <mat-card-content>
       <div class="row">
-         <mat-form-field  appearance="outline" class="full-width">
-            <mat-label>Entry Date</mat-label>
-            <input matInput [matDatepicker]="entrydatepicker" placeholder="yyyy-mm-dd" formControlName="soentrydate">
-            <mat-datepicker-toggle matIconSuffix [for]="entrydatepicker"></mat-datepicker-toggle>
-            <mat-datepicker #entrydatepicker></mat-datepicker>            
-         </mat-form-field>
+         <div class="col">
+            <mat-form-field  appearance="outline" class="full-width">
+               <mat-label>Entry Date</mat-label>
+               <input matInput [matDatepicker]="entrydatepicker" placeholder="yyyy-mm-dd" formControlName="soentrydate">
+               <mat-datepicker-toggle matIconSuffix [for]="entrydatepicker"></mat-datepicker-toggle>
+               <mat-datepicker #entrydatepicker></mat-datepicker>            
+            </mat-form-field>
+         </div>
+         <div class="col">
+            <mat-form-field  appearance="outline" class="full-width">
+               <mat-label>Pay Date</mat-label>
+               <input matInput [matDatepicker]="paydatepicker" placeholder="yyyy-mm-dd" formControlName="sonextpaydate">
+               <mat-datepicker-toggle matIconSuffix [for]="paydatepicker"></mat-datepicker-toggle>
+               <mat-datepicker #paydatepicker></mat-datepicker>  
+            </mat-form-field>
+         </div>
       </div>
+
       <div class="row">
-         <mat-form-field  appearance="outline" class="full-width">
-            <mat-label>Pay Date</mat-label>
-            <input matInput [matDatepicker]="paydatepicker" placeholder="yyyy-mm-dd" formControlName="sonextpaydate">
-            <mat-datepicker-toggle matIconSuffix [for]="paydatepicker"></mat-datepicker-toggle>
-            <mat-datepicker #paydatepicker></mat-datepicker>  
-         </mat-form-field>
+         <div class="col">
+            <mat-form-field  appearance="outline" class="full-width">
+               <mat-label>Amount</mat-label>
+               <input type="number" matInput placeholder="0.00" formControlName="soamount">
+            </mat-form-field>
+         </div>
+         <div class="col">
+            <mat-form-field  appearance="outline" class="full-width">
+               <mat-label>Type</mat-label>
+               <mat-select placeholder="BC" formControlName="sotfrtype">
+                  @for (type of txnTypes; track type) {
+                  <mat-option [value]="type">{{ type }}</mat-option>
+                  }
+               </mat-select>            
+            </mat-form-field>
+         </div>
       </div>
       <div class="row">
          <mat-form-field  appearance="outline" class="full-width">
@@ -34,21 +55,22 @@
       </div>
       <div class="row">
          <mat-form-field  appearance="outline" class="full-width">
-            <mat-label>Amount</mat-label>
-            <input matInput placeholder="0.00" formControlName="soamount">
-         </mat-form-field>
-      </div>
-      <div class="row">
-         <mat-form-field  appearance="outline" class="full-width">
             <mat-label>Account</mat-label>
-            <mat-select formControlName="accountid">
+            <mat-select formControlName="account">
                @for (acc of accounts; track acc) {
-                 <mat-option [value]="acc.id">{{ acc.name }}</mat-option>
+                 <mat-option [value]="acc">{{ acc.name }}</mat-option>
                }
              </mat-select>             
          </mat-form-field>
       </div>
       <div class="row">
+         <div class="col">
+            <mat-form-field  appearance="outline" class="full-width">
+               <mat-label>Repeat</mat-label>
+               <input matInput placeholder="1" formControlName="socount">
+            </mat-form-field>
+         </div>
+         <div class="col">
          <mat-form-field  appearance="outline" class="full-width">
             <mat-label>Period</mat-label>
             <mat-select formControlName="soperiod">
@@ -57,26 +79,11 @@
                }
              </mat-select>              
          </mat-form-field>
-      </div>
-      <div class="row">
-         <mat-form-field  appearance="outline" class="full-width">
-            <mat-label>Repeat</mat-label>
-            <input matInput placeholder="1" formControlName="socount">
-         </mat-form-field>
-      </div>
-      <div class="row">
-         <mat-form-field  appearance="outline" class="full-width">
-            <mat-label>Type</mat-label>
-            <mat-select placeholder="BC" formControlName="sotfrtype">
-               @for (type of txnTypes; track type) {
-                 <mat-option [value]="type">{{ type }}</mat-option>
-               }
-             </mat-select>            
-         </mat-form-field>
-      </div>
+         </div>
+      </div>   
     </mat-card-content>
     <mat-card-actions>
-      <button mat-raised-button color="primary" type="submit">Submit</button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="!soForm.valid">Submit</button>
     </mat-card-actions>
   </mat-card>
 </form>
