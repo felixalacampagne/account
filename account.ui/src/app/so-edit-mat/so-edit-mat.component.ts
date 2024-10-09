@@ -1,5 +1,5 @@
 // so-edit-mat/so-edit-mat.component.ts
-import { Component, inject, Injectable, Input, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, inject, Injectable, Input, Output, SimpleChanges } from '@angular/core';
 
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -89,6 +89,7 @@ export const ISO_DATE_FORMAT : MatDateFormats = {
 export class SoEditMatComponent 
 {
    @Input() origSOitem: StandingOrderItem | undefined;
+   @Output() public submittedEvent = new EventEmitter();
 
   soForm : FormGroup;
   periodTypes : any;
@@ -180,6 +181,8 @@ export class SoEditMatComponent
    so.sotfrtype = "" + this.soForm.value.sotfrtype;
    console.log("onSubmit: orig SO: " + JSON.stringify(this.origSOitem, null, 2) + " updated: " + JSON.stringify(so, null, 2));
 
+   // This should trigger closing of a parent modal
+   this.submittedEvent.emit('CLOSE_PARENT_MODAL');
    //this.populateFormFromSO(so);
    
   }
