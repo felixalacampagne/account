@@ -1,4 +1,4 @@
-// src\app\standingorder-editor\standingorder-editor.component.ts
+// src\app\standingorder-editor/standingorder-editor.component.ts
 // This component is going to try to use 'reactive' forms
 // The hope is that it will be displayed as a modal above the standingorder list
 // and used to add or update standingorder items.
@@ -92,8 +92,8 @@ export class StandingorderEditorComponent {
     so.accountname = "An Account";
     so.soamount = "100.99";
     so.socount = 2;
-    so.soentrydate = "2024-11-02";
-    so.sonextpaydate = "2024-11-05";
+    so.soentrydate = new Date("2024-11-02");
+    so.sonextpaydate = new Date("2024-11-05");
     so.soperiod = "M";
     so.sotfrtype = 'TEST';
 
