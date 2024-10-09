@@ -1,11 +1,17 @@
 // standingorders.component.ts
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import { StandingOrderItem } from '../../shared/model/standingorderitem.model';
 import { AccountService } from '../../shared/service/account.service';
 import { SoEditMatComponent } from '../so-edit-mat/so-edit-mat.component';
+import { MatDialog } from '@angular/material/dialog';
+import { SoEditMatDialog } from '../so-edit-mat/so-edit-mat.dialog';
+
+export interface DialogData {
+   sodata: StandingOrderItem;
+ }
 
 @Component({
   selector: 'standingorders',
@@ -28,6 +34,10 @@ export class StandingordersComponent implements OnInit {
     ngOnInit(): void {
         this.getStandingorders();
     }
+
+   dialog = inject(MatDialog);
+
+
 
    getStandingorders()
    {
@@ -57,10 +67,15 @@ export class StandingordersComponent implements OnInit {
      console.log("StandingordersComponent.getStandingorders :Finished");
    }
    
-   open(so :StandingOrderItem) // maybe needs the modal content
+   editso(so :StandingOrderItem) // maybe needs the modal content
    {
-      // Open the editor
+      this.dialog.open(SoEditMatDialog, { data: so } );      
    }
+
+   addso() {
+      let newso = new StandingOrderItem();
+      this.editso(newso);
+   }   
    
    isStandorders()
    {
