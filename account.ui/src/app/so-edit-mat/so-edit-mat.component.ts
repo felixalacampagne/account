@@ -1,5 +1,5 @@
 // so-edit-mat/so-edit-mat.component.ts
-import { Component, inject, Injectable } from '@angular/core';
+import { Component, inject, Injectable, Input, SimpleChanges } from '@angular/core';
 
 import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -75,7 +75,8 @@ export const ISO_DATE_FORMAT : MatDateFormats = {
       {provide: DateAdapter, useClass: FormatingDateAdapter},
       {provide: MAT_DATE_FORMATS, useValue: ISO_DATE_FORMAT}
    ],
-   imports: [MatCardModule,      MatInputModule,
+   imports: [MatCardModule,      
+      MatInputModule,
       MatButtonModule,
       MatSelectModule,
       MatDatepickerModule, 
@@ -87,6 +88,8 @@ export const ISO_DATE_FORMAT : MatDateFormats = {
 
 export class SoEditMatComponent 
 {
+   @Input() origSOitem: StandingOrderItem | undefined;
+
   soForm : FormGroup;
   periodTypes : any;
   txnTypes : any;
@@ -103,7 +106,7 @@ export class SoEditMatComponent
          soamount: new FormControl(null as unknown as number, 
             [
                Validators.required,
-               Validators.pattern(/^\d+(\.\d{1,2}){0,1}$/) // decimal with max 2 places only
+               Validators.pattern(/^-?\d+(\.\d{1,2}){0,1}$/) // decimal with max 2 places only
             ] ),        
          sodesc: new FormControl('', Validators.required), 
          account: new FormControl(null as unknown as AccountItem, Validators.required), // select from dropdown of accounts
@@ -119,47 +122,65 @@ export class SoEditMatComponent
 
    ngOnInit()
    {
-   this.accountService.getAccounts().subscribe({
-      next: (res) => {
-           
-           // debugger;
-           if(!res)
-           {
-             console.log('AppComponent.ngOnInit: accounts is not initialized');
-           }
-           else
-           {
-            this.accounts = res;
-             console.log("AppComponent.ngOnInit: Accounts contains " + this.accounts.length + " items.");
-           }
-         },
-      error: (err)=>{
-         console.log("AppComponent.ngOnInit: An error occured during getAccounts subscribe: " + JSON.stringify(err, null, 2));
-         } ,
-      complete: ()=>{console.log("AppComponent.ngOnInit: getAccounts loading completed");}
-   });
+      this.accountService.getAccounts().subscribe({
+         next: (res) => {
+            
+            // debugger;
+            if(!res)
+            {
+               console.log('AppComponent.ngOnInit: accounts is not initialized');
+            }
+            else
+            {
+               this.accounts = res;
+               console.log("AppComponent.ngOnInit: Accounts contains " + this.accounts.length + " items.");
+            }
+            },
+         error: (err)=>{
+            console.log("AppComponent.ngOnInit: An error occured during getAccounts subscribe: " + JSON.stringify(err, null, 2));
+            } ,
+         complete: ()=>{console.log("AppComponent.ngOnInit: getAccounts loading completed");}
+      });
 
-   
-   console.log("AppComponent.ngOnInit:Finished");
-  }
+      
+      console.log("AppComponent.ngOnInit:Finished");
+   }
+
+   ngOnChanges(changes : SimpleChanges)
+   {
+      for (const propName in changes) 
+      {
+         const chng = changes[propName];
+         const cur  = JSON.stringify(chng.currentValue);
+         const prev = JSON.stringify(chng.previousValue);
+         console.log("propName: " + propName + " currentValue: " + cur + " previousValue: " + prev);
+         if(propName == "origSOitem")
+         {
+            let so : StandingOrderItem = chng.currentValue;
+            this.populateFormFromSO(so);
+         }
+      } 
+   }
+
   onSubmit(): void {
 
    console.log("onSubmit: form values: " + JSON.stringify(this.soForm.value, null, 2));
    let so : StandingOrderItem = new StandingOrderItem();
-   so.sodesc = "" + this.soForm.value.sodesc;
+   so.soid = this.origSOitem?.soid ?? -1;
+   so.token = this.origSOitem?.token ?? '';
 
+   so.sodesc = "" + this.soForm.value.sodesc;
    so.accountid = this.soForm.value.account?.id ?? -1;
    so.accountname = this.soForm.value.account?.name ?? '';
-   
    so.soamount = "" + this.soForm.value.soamount; // TODO: use number for StandingOrderItem amount
    so.socount = this.soForm.value.socount ?? -1;
    so.soentrydate = this.soForm.value.soentrydate ?? new Date();
    so.sonextpaydate = this.soForm.value.sonextpaydate ?? new Date();
    so.soperiod = "" + this.soForm.value.soperiod;
    so.sotfrtype = "" + this.soForm.value.sotfrtype;
-   console.log("onSubmit: mapped SO to submit to server: " + JSON.stringify(so, null, 2));
+   console.log("onSubmit: orig SO: " + JSON.stringify(this.origSOitem, null, 2) + " updated: " + JSON.stringify(so, null, 2));
 
-   this.populateFormFromSO(so);
+   //this.populateFormFromSO(so);
    
   }
 
@@ -167,14 +188,15 @@ export class SoEditMatComponent
   {
      let ed : Date = new Date(so.soentrydate); // ISO date format, ie. YYYY-MM-DD
      let pd = new Date(so.sonextpaydate); 
+     let acc = new AccountItem(so.accountid, so.accountname);
      this.soForm.setValue({
-        sodesc : "repop:" + so.sodesc, 
+        sodesc : so.sodesc, 
         soentrydate : so.soentrydate,
         sonextpaydate : so.sonextpaydate,
-        soamount : parseFloat(so.soamount) + 5.0, // TODO: use number for StandingOrderItem amount
-        account : this.accounts[0],
+        soamount : parseFloat(so.soamount), // TODO: use number for StandingOrderItem amount
+        account : acc,
         soperiod : "" + so.soperiod,
-        socount :  so.socount + 2,
+        socount :  so.socount,
         sotfrtype : so.sotfrtype
      });
   }  
