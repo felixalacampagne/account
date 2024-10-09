@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.felixalacampagne.account.common.Utils;
 import com.felixalacampagne.account.model.StandingOrderItem;
+import com.felixalacampagne.account.persistence.entities.Account;
 import com.felixalacampagne.account.persistence.entities.StandingOrders;
 import com.felixalacampagne.account.persistence.repository.StandingOrdersJpaRepository;
 
@@ -50,26 +51,54 @@ public class StandingOrderService
       return  date; //Date.valueOf(date);
    }
 
+   
+   public void addStandingOrderItem(StandingOrderItem standingOrderItem)
+   {
+      StandingOrders so = mapToEntity(standingOrderItem);
+      add(so);
+   }
+
+   public void updateStandingOrderItem(StandingOrderItem standingOrderItem)
+   {
+      StandingOrders so = mapToEntity(standingOrderItem);
+      // TODO Validate the token, copy non-null/empty fields to the original from the update
+      update(so);
+   }   
+   public StandingOrders add(StandingOrders newso)
+   {
+      return standingOrdersJpaRepository.saveAndFlush(newso);
+   }
+   
    public StandingOrders update(StandingOrders updso)
    {
-      return standingOrdersJpaRepository.save(updso);
+      return standingOrdersJpaRepository.saveAndFlush(updso);
    }
 
    private StandingOrders mapToEntity(StandingOrderItem standingOrderItem)
    {
       StandingOrders tosave = new StandingOrders();
       BigDecimal amount = new BigDecimal(standingOrderItem.getSOAmount());
+      
       amount.setScale(2); // Max. two decimal places for a normal currency transaction
 
-
-      tosave.setSOid( standingOrderItem.getSOId());
+      if(standingOrderItem.getSOId() > 0)
+      {
+         tosave.setSOid(standingOrderItem.getSOId());
+      }
+     
       tosave.setSOAmount(amount);
-      tosave.setSOCount(      standingOrderItem.getSOCount());
+      tosave.setSOCount(standingOrderItem.getSOCount());
       tosave.setSODesc( standingOrderItem.getSODesc());
       tosave.setSOEntryDate( standingOrderItem.getSOEntrydate());
       tosave.setSONextPayDate( standingOrderItem.getSONextpaydate());
       tosave.setSOPeriod( standingOrderItem.getSOPeriod());
       tosave.setSOTfrType( standingOrderItem.getSOTfrtype());
+      
+      // TODO: How to handle the foreign key - really only the value of SOAccId is needed
+      // but that isn't a field at the moment.... should/can it be??
+      Account acc = new Account();
+      acc.setAccId(standingOrderItem.getAccountid());
+      tosave.setAccount(acc);
 //      this.token = token;
 //      this.accountid = accountid;
 //      this.accountname = accountname;
@@ -111,4 +140,5 @@ public class StandingOrderService
                                       .orElseThrow(() -> new AccountException("Standing order not found: id " + id));
                                       
    }
+
 }

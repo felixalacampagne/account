@@ -38,11 +38,11 @@ StandingOrdersJpaRepository standingOrdersJpaRepository;
 
       LocalDate date = LocalDate.of(2018,03,01);
       Date ts = Date.valueOf(date);
-      List<StandingOrders> soallpending = standingOrdersJpaRepository.findBySOEntryDateLessThanOrderBySOEntryDateAsc(date);
+      List<StandingOrders> soallpending = standingOrdersJpaRepository.findBySOEntryDateLessThanEqualOrderBySOEntryDateAsc(date);
       log.info("testFindAll: these are the pending StandingOrders:\n{}", soallpending);
 
 
-      Optional<StandingOrders> optsopending = standingOrdersJpaRepository.findFirstBySOEntryDateLessThanOrderBySONextPayDateAsc(date);
+      Optional<StandingOrders> optsopending = standingOrdersJpaRepository.findFirstBySOEntryDateLessThanEqualOrderBySONextPayDateAsc(date);
       assertTrue(optsopending.isPresent());
 
       StandingOrders sopending = optsopending.get();

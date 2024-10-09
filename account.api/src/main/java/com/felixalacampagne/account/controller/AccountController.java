@@ -145,4 +145,40 @@ public class AccountController {
     {
        return this.standingOrderService.getStandingOrderItem(id);
     }    
+
+    @PostMapping(value = "/addstandingorder")
+    public String addStandingOrder(@RequestBody StandingOrderItem standingOrderItem, Model model)
+    {
+       log.info("addStandingOrder: item to add: {}", standingOrderItem);
+       try
+       {
+          this.standingOrderService.addStandingOrderItem(standingOrderItem);
+
+       }
+       catch(Exception ex)
+       {
+          log.info("addStandingOrder: Failed to add: {}", standingOrderItem, ex);
+          return "failed: " + ex.getMessage();
+       }
+
+       return "ok";
+    }
+
+    @PostMapping(value = "/updatestandingorder")
+    public String updateStandingOrder(@RequestBody StandingOrderItem standingOrderItem, Model model)
+    {
+       log.info("updateStandingOrder: item to update: {}", standingOrderItem);
+       try
+       {
+          this.standingOrderService.updateStandingOrderItem(standingOrderItem);
+
+       }
+       catch(Exception ex)
+       {
+          log.info("updateStandingOrder: Failed to update: {}", standingOrderItem, ex);
+          return "failed: " + ex.getMessage();
+       }
+
+       return "ok";
+    }    
 }
