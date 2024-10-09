@@ -25,10 +25,16 @@ import { SoEditMatComponent } from './so-edit-mat.component';
 export class SoEditMatDialog 
 {
    data = inject(MAT_DIALOG_DATA);
-   constructor(public dialogRef: MatDialogRef<any>) { }
+   constructor(public dialogRef: MatDialogRef<SoEditMatDialog>
+      
+   ) { }
 
    // The dialog displays with the selected SO populating the fields.
    // TODO: The dialog does not close when the submit button is clicked
+   //       Figured out a way to do this using an @Output on the component which
+   //       emits an event when the SO is submitted - eventually this will happen
+   //       when the SO is successfully sent to the server. This at least
+   //       makes the component somewhat unaware of how it is being displayed.
    // TODO: transmit the new/updated SO to the server
    // TODO: refresh the SO list if SO was created/updated
    //
@@ -43,5 +49,11 @@ export class SoEditMatDialog
    ngOnInit() 
    {
 
-   }   
+   } 
+   
+   closeDialog(event: any)
+   {
+      console.log("SoEditMatDialog: request to close received");
+      this.dialogRef.close();      
+   }
 }
