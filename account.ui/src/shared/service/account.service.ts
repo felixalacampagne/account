@@ -34,6 +34,20 @@ export class AccountService
       {period: "Y", desc: "Year"}
      ];
      
+   public txnTypes: string[] = [
+   "BC",
+   "AWAL",
+   "ITFR",
+   "INET",
+   "PPAL",
+   "CARD",
+   "QRMP",
+   "DDBT",
+   "INT",
+   "TFR",
+   "ZOOM"
+   ];
+        
    constructor(private http : HttpClient)
    {
       // If host value is not given by environment then should assume api
