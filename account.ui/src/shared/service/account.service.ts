@@ -1,4 +1,4 @@
-// account.service
+// account.service.ts
 import {Injectable} from '@angular/core';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import {Observable} from "rxjs";
@@ -45,7 +45,12 @@ export class AccountService
    "DDBT",
    "INT",
    "TFR",
-   "ZOOM"
+   "ZOOM",
+   "PAY",
+   "SAVE",
+   "GROC",
+   "PRIC",
+   "FEE"
    ];
         
    constructor(private http : HttpClient)
