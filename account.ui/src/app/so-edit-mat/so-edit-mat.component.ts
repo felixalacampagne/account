@@ -32,17 +32,17 @@ export class FormatingDateAdapter extends NativeDateAdapter
 
    constructor(private datePipe: DatePipe) 
    {
-      super();
-      
+      super();   
    }
+
    override parse(value: any, parseFormat: any): Date {
-      console.log("FormatingDateAdapter.format: value=" + value + " parseFormat=" + parseFormat);
-       return new Date(value);
+      //console.log("FormatingDateAdapter.format: value=" + value + " parseFormat=" + parseFormat);
+      return new Date(value);
    }
    override format(date: Date, displayFormat: Object): string 
    {
       let fmt : string = 'yyyy-MM-dd';
-      console.log("FormatingDateAdapter.format: date=" + date + " displayFormat: " + displayFormat);
+      //console.log("FormatingDateAdapter.format: date=" + date + " displayFormat: " + displayFormat);
 
       if(displayFormat)
       {
@@ -85,61 +85,40 @@ export const ISO_DATE_FORMAT : MatDateFormats = {
    styleUrl: './so-edit-mat.component.css'
 })
 
-export class SoEditMatComponent {
-//   private fb = inject(FormBuilder);
-//   soForm = this.fb.group({
-//       soentrydate: [null, Validators.required],       // a date picker
-//       sonextpaydate: [null, Validators.required],     // a date picker, probably not worth it
-//       soamount: [null, Validators.required],        // numerics only
-//       sodesc: [null, Validators.required],          // the memo field, free format
-//       accountname: [null, Validators.required],     // select from dropdown of accounts?
-//       soperiod: [null, Validators.required],        // select from dropdown of period types
-//       socount: [null, Validators.compose([
-//          Validators.required, 
-//          Validators.pattern("\\d*"), 
-//          Validators.minLength(1), 
-//          Validators.maxLength(3)])
-//        ],         // integer only
-//       sotfrtype: [null, Validators.required],        // dowpdown list of types as shown in transaction
-//   });
-
-// Need to share this with transactions component
-public txnTypes: string[] = [
-   "BC",
-   "AWAL",
-   "ITFR",
-   "INET",
-   "PPAL",
-   "CARD",
-   "QRMP",
-   "DDBT",
-   "INT",
-   "TFR",
-   "ZOOM"
-  ];
-
-  soForm = new FormGroup({
-   soentrydate: new FormControl(new Date(), Validators.required),       // a date picker
-   sonextpaydate: new FormControl(new Date(), Validators.required),     // a date picker
-   soamount: new FormControl(0.00, Validators.required),        // numerics only
-   sodesc: new FormControl('', Validators.required),          // the memo field, free format
-   accountid: new FormControl(-1, Validators.required),     // select from dropdown of accounts?
-   soperiod: new FormControl('', Validators.required),        // select from dropdown of period types
-   socount: new FormControl(1, Validators.required),         // integer only
-   sotfrtype: new FormControl(this.txnTypes[0], Validators.required)        // dowpdown list of types as shown in transaction
- });
-
-  
+export class SoEditMatComponent 
+{
+  soForm : FormGroup;
   periodTypes : any;
-  
+  txnTypes : any;
+
   accounts: AccountItem[] = [];
 
-  constructor(private accountService: AccountService)
-  {
+   constructor(private accountService: AccountService)
+   {
+      this.periodTypes = this.accountService.periodTypes;
+      this.txnTypes = this.accountService.txnTypes;
+      this.soForm = new FormGroup({
+         soentrydate: new FormControl(new Date(), Validators.required),       // a date picker
+         sonextpaydate: new FormControl(new Date(), Validators.required),     // a date picker
+         soamount: new FormControl(null as unknown as number, 
+            [
+               Validators.required,
+               Validators.pattern(/^\d+(\.\d{1,2}){0,1}$/) // decimal with max 2 places only
+            ] ),        
+         sodesc: new FormControl('', Validators.required), 
+         account: new FormControl(null as unknown as AccountItem, Validators.required), // select from dropdown of accounts
+         soperiod: new FormControl('', Validators.required), // select from dropdown of period string
+         socount: new FormControl(1, 
+            [
+               Validators.required,
+               Validators.pattern(/^\d+$/)  // integer only
+            ] ),         
+         sotfrtype: new FormControl(this.txnTypes[0], Validators.required)  // dowpdown list of types as shown in transaction
+       });
+   }
 
-  }
-  ngOnInit()
-  {
+   ngOnInit()
+   {
    this.accountService.getAccounts().subscribe({
       next: (res) => {
            
@@ -160,7 +139,7 @@ public txnTypes: string[] = [
       complete: ()=>{console.log("AppComponent.ngOnInit: getAccounts loading completed");}
    });
 
-   this.periodTypes = this.accountService.periodTypes;
+   
    console.log("AppComponent.ngOnInit:Finished");
   }
   onSubmit(): void {
@@ -168,32 +147,34 @@ public txnTypes: string[] = [
    console.log("onSubmit: form values: " + JSON.stringify(this.soForm.value, null, 2));
    let so : StandingOrderItem = new StandingOrderItem();
    so.sodesc = "" + this.soForm.value.sodesc;
-   so.accountid = this.soForm.value.accountid ?? -1;
-   // TODO how to get the selected description? 
-   so.soamount = "" + this.soForm.value.soamount;
+
+   so.accountid = this.soForm.value.account?.id ?? -1;
+   so.accountname = this.soForm.value.account?.name ?? '';
+   
+   so.soamount = "" + this.soForm.value.soamount; // TODO: use number for StandingOrderItem amount
    so.socount = this.soForm.value.socount ?? -1;
    so.soentrydate = this.soForm.value.soentrydate ?? new Date();
    so.sonextpaydate = this.soForm.value.sonextpaydate ?? new Date();
    so.soperiod = "" + this.soForm.value.soperiod;
    so.sotfrtype = "" + this.soForm.value.sotfrtype;
    console.log("onSubmit: mapped SO to submit to server: " + JSON.stringify(so, null, 2));
+
+   this.populateFormFromSO(so);
    
   }
 
   populateFormFromSO(so : StandingOrderItem)
   {
      let ed : Date = new Date(so.soentrydate); // ISO date format, ie. YYYY-MM-DD
-   //   let entryDate = {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()}
      let pd = new Date(so.sonextpaydate); 
-   //   let payDate = {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()};             
      this.soForm.setValue({
-        sodesc : so.sodesc, 
+        sodesc : "repop:" + so.sodesc, 
         soentrydate : so.soentrydate,
         sonextpaydate : so.sonextpaydate,
-        soamount : parseFloat(so.soamount),
-        accountid : so.accountid,
+        soamount : parseFloat(so.soamount) + 5.0, // TODO: use number for StandingOrderItem amount
+        account : this.accounts[0],
         soperiod : "" + so.soperiod,
-        socount : so.socount,
+        socount :  so.socount + 2,
         sotfrtype : so.sotfrtype
      });
   }  
