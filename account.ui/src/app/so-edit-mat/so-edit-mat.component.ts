@@ -13,6 +13,7 @@ import { ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { AccountService } from 'src/shared/service/account.service';
 import { AccountItem } from 'src/shared/model/accountitem.model';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class FormatingDateAdapter extends NativeDateAdapter 
@@ -97,13 +98,13 @@ export class SoEditMatComponent
 
   accounts: AccountItem[] = [];
 
-   constructor(private accountService: AccountService)
+   constructor(private accountService: AccountService, private datePipe: DatePipe)
    {
       this.periodTypes = this.accountService.periodTypes;
       this.txnTypes = this.accountService.txnTypes;
       this.soForm = new FormGroup({
-         soentrydate: new FormControl(new Date(), Validators.required),       // a date picker
-         sonextpaydate: new FormControl(new Date(), Validators.required),     // a date picker
+         soentrydate: new FormControl('', Validators.required),       // a date picker
+         sonextpaydate: new FormControl('', Validators.required),     // a date picker
          soamount: new FormControl(null as unknown as number, 
             [
                Validators.required,
@@ -129,22 +130,26 @@ export class SoEditMatComponent
             // debugger;
             if(!res)
             {
-               console.log('AppComponent.ngOnInit: accounts is not initialized');
+               console.log('SoEditMatComponent.ngOnInit: accounts is not initialized');
             }
             else
             {
                this.accounts = res;
-               console.log("AppComponent.ngOnInit: Accounts contains " + this.accounts.length + " items.");
+               console.log("SoEditMatComponent.ngOnInit: Accounts contains " + this.accounts.length + " items.");
+               if(this.origSOitem)
+               {
+                  this.populateFormFromSO(this.origSOitem);
+               }
             }
             },
          error: (err)=>{
-            console.log("AppComponent.ngOnInit: An error occured during getAccounts subscribe: " + JSON.stringify(err, null, 2));
+            console.log("SoEditMatComponent.ngOnInit: An error occured during getAccounts subscribe: " + JSON.stringify(err, null, 2));
             } ,
-         complete: ()=>{console.log("AppComponent.ngOnInit: getAccounts loading completed");}
+         complete: ()=>{console.log("SoEditMatComponent.ngOnInit: getAccounts loading completed");}
       });
 
       
-      console.log("AppComponent.ngOnInit:Finished");
+      console.log("SoEditMatComponent.ngOnInit:Finished");
    }
 
    ngOnChanges(changes : SimpleChanges)
@@ -154,18 +159,37 @@ export class SoEditMatComponent
          const chng = changes[propName];
          const cur  = JSON.stringify(chng.currentValue);
          const prev = JSON.stringify(chng.previousValue);
-         console.log("propName: " + propName + " currentValue: " + cur + " previousValue: " + prev);
+         // console.log("propName: " + propName + " currentValue: " + cur + " previousValue: " + prev);
          if(propName == "origSOitem")
          {
-            let so : StandingOrderItem = chng.currentValue;
-            this.populateFormFromSO(so);
+            // origSOitem is already initialised with the new value
+            console.log("ngOnChanges: propName: origSOitem: " + JSON.stringify(this.origSOitem, null, 2));
+            if(this.accounts.length > 0 )
+            {
+               // Angular/typescript sucks when it comes to getting values initialized.
+               // This form needs a list of accounts which it can only get asynchronously. 
+               // ngOnChanges usually starts before the list is filled so the method which
+               // loads the list must call populateFormFromSO when the list is loaded, but it might
+               // happen that the list has already been filled so must call populateFormFromSO from
+               // here if the list is filled.
+               let so : StandingOrderItem = chng.currentValue;
+               this.populateFormFromSO(so);
+            }
          }
       } 
    }
 
+   onCancel(): void {
+      console.log("SoEditMatComponent.onCancel:");
+      this.submittedEvent.emit('CANCELLED');
+   }
+
   onSubmit(): void {
 
-   console.log("onSubmit: form values: " + JSON.stringify(this.soForm.value, null, 2));
+   console.log("SoEditMatComponent.onSubmit: form values: " + JSON.stringify(this.soForm.value, null, 2));
+   let fmt = 'yyyy-MM-dd';
+   let ed : Date = new Date(this.soForm.value.soentrydate); // ISO date format, ie. YYYY-MM-DD
+   let pd : Date = new Date(this.soForm.value.sonextpaydate);    
    let so : StandingOrderItem = new StandingOrderItem();
    so.soid = this.origSOitem?.soid ?? -1;
    so.token = this.origSOitem?.token ?? '';
@@ -175,32 +199,54 @@ export class SoEditMatComponent
    so.accountname = this.soForm.value.account?.name ?? '';
    so.soamount = "" + this.soForm.value.soamount; // TODO: use number for StandingOrderItem amount
    so.socount = this.soForm.value.socount ?? -1;
-   so.soentrydate = this.soForm.value.soentrydate ?? new Date();
-   so.sonextpaydate = this.soForm.value.sonextpaydate ?? new Date();
+   so.soentrydate = this.datePipe.transform(ed, fmt) ?? '';
+   so.sonextpaydate = this.datePipe.transform(pd, fmt) ?? '';
    so.soperiod = "" + this.soForm.value.soperiod;
    so.sotfrtype = "" + this.soForm.value.sotfrtype;
-   console.log("onSubmit: orig SO: " + JSON.stringify(this.origSOitem, null, 2) + " updated: " + JSON.stringify(so, null, 2));
+   console.log("SoEditMatComponent.onSubmit: orig SO: " + JSON.stringify(this.origSOitem, null, 2) + " updated: " + JSON.stringify(so, null, 2));
 
-   // This should trigger closing of a parent modal
-   this.submittedEvent.emit('CLOSE_PARENT_MODAL');
-   //this.populateFormFromSO(so);
+   let put : Observable<string>;
+   if(so.soid < 1)
+   {
+      put = this.accountService.addStandingOrder(so);
+   }
+   else
+   {
+      put = this.accountService.updateStandingOrder(so);
+   }
+
+   put.subscribe({
+      next: (res)=>{
+            console.log("SoEditMatComponent.onSubmit: response: " + JSON.stringify(res, null, 2) );
+          },
+      error: (err)=>{
+         console.log("SoEditMatComponent.onSubmit: error: " + JSON.stringify(err, null, 2) );
+          } ,
+      complete: ()=>{
+         console.log("SoEditMatComponent.onSubmit: complete " );
+            // This should trigger closing of a parent modal
+         this.submittedEvent.emit('SUBMIT_COMPLETED');
+      }
+   });
    
   }
 
-  populateFormFromSO(so : StandingOrderItem)
-  {
-     let ed : Date = new Date(so.soentrydate); // ISO date format, ie. YYYY-MM-DD
-     let pd = new Date(so.sonextpaydate); 
-     let acc = new AccountItem(so.accountid, so.accountname);
-     this.soForm.setValue({
+   populateFormFromSO(so : StandingOrderItem)
+   {
+      let ed : Date = so.soentrydate ? new Date(so.soentrydate) : new Date();
+      let pd : Date = so.sonextpaydate ? new Date(so.sonextpaydate) : new Date();
+      let acc = this.accounts.find(a => (a.id == so.accountid));
+      // console.log("SoEditMatComponent.populateFormFromSO: accountid:" + so.accountid + " account:" + JSON.stringify(acc, null, 2)) 
+      let amt = so.soamount ? parseFloat(so.soamount) : null;
+      this.soForm.setValue({
         sodesc : so.sodesc, 
-        soentrydate : so.soentrydate,
-        sonextpaydate : so.sonextpaydate,
-        soamount : parseFloat(so.soamount), // TODO: use number for StandingOrderItem amount
-        account : acc,
+        soentrydate : this.datePipe.transform(ed, 'yyyy-MM-dd') ?? '',
+        sonextpaydate : this.datePipe.transform(pd, 'yyyy-MM-dd') ?? '',
+        soamount : amt, // TODO: use number for StandingOrderItem amount
+        account : acc ?? null,
         soperiod : "" + so.soperiod,
         socount :  so.socount,
         sotfrtype : so.sotfrtype
-     });
+      });
   }  
 }
