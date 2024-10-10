@@ -1,35 +1,40 @@
 package com.felixalacampagne.account.service;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.felixalacampagne.account.common.Utils;
 import com.felixalacampagne.account.model.StandingOrderItem;
 import com.felixalacampagne.account.persistence.entities.Account;
 import com.felixalacampagne.account.persistence.entities.StandingOrders;
+import com.felixalacampagne.account.persistence.repository.AccountJpaRepository;
 import com.felixalacampagne.account.persistence.repository.StandingOrdersJpaRepository;
 
 @Service
 public class StandingOrderService
 {
+   private final Logger log = LoggerFactory.getLogger(this.getClass());
    final StandingOrdersJpaRepository standingOrdersJpaRepository;
-   final ObjectMapper localdateJsonMapper;
+   final AccountJpaRepository accountJpaRepository;
+//   final ObjectMapper localdateJsonMapper;
 
    @Autowired // Not sure this is required but it helps to remind where the object comes from
    public StandingOrderService(StandingOrdersJpaRepository standingOrdersJpaRepository,
-                               ObjectMapper localdateJsonMapper)
+//                               ObjectMapper localdateJsonMapper,
+                               AccountJpaRepository accountJpaRepository)
    {
       this.standingOrdersJpaRepository = standingOrdersJpaRepository;
-      this.localdateJsonMapper = localdateJsonMapper;
+      this.accountJpaRepository = accountJpaRepository;
+//      this.localdateJsonMapper = localdateJsonMapper;
    }
 
    public List<StandingOrders> getPendingStandingOrders()
@@ -47,11 +52,10 @@ public class StandingOrderService
    public LocalDate getCurrentEntryDate()
    {
       LocalDate date = LocalDate.now();
-      Timestamp ts = Timestamp.valueOf(date.atTime(23,59,59));
-      return  date; //Date.valueOf(date);
+      return  date;
    }
 
-   
+
    public void addStandingOrderItem(StandingOrderItem standingOrderItem)
    {
       StandingOrders so = mapToEntity(standingOrderItem);
@@ -60,15 +64,28 @@ public class StandingOrderService
 
    public void updateStandingOrderItem(StandingOrderItem standingOrderItem)
    {
-      StandingOrders so = mapToEntity(standingOrderItem);
-      // TODO Validate the token, copy non-null/empty fields to the original from the update
-      update(so);
-   }   
+      StandingOrders updso = mapToEntity(standingOrderItem);
+      StandingOrders origso = standingOrdersJpaRepository.findById(updso.getSOid())
+                                 .orElseThrow(() -> new AccountException("StandingOrder not found: id:" + updso.getSOid()));
+
+      String origToken = Utils.getToken(origso);
+      if(!origToken.equals(standingOrderItem.getToken()))
+      {
+         log.info("updateStandingOrderItem: Token mismatch for StandingOrder id:{}: original:{} supplied:{}",
+               standingOrderItem.getSOId(), origToken, standingOrderItem.getToken());
+         throw new  AccountException("Token does not match StandingOrder id " + standingOrderItem.getSOId());
+
+      }
+
+      // Going to assume that ALL fields are present in updso so it can replace the origso... it may be
+      // required to copy the fields from updso into origso by the framework
+      update(updso);
+   }
    public StandingOrders add(StandingOrders newso)
    {
       return standingOrdersJpaRepository.saveAndFlush(newso);
    }
-   
+
    public StandingOrders update(StandingOrders updso)
    {
       return standingOrdersJpaRepository.saveAndFlush(updso);
@@ -78,14 +95,16 @@ public class StandingOrderService
    {
       StandingOrders tosave = new StandingOrders();
       BigDecimal amount = new BigDecimal(standingOrderItem.getSOAmount());
-      
       amount.setScale(2); // Max. two decimal places for a normal currency transaction
+
+      Account acc = accountJpaRepository.findById(standingOrderItem.getAccountid())
+            .orElseThrow(() -> new AccountException("Account not found: id:" + standingOrderItem.getAccountid()));
 
       if(standingOrderItem.getSOId() > 0)
       {
          tosave.setSOid(standingOrderItem.getSOId());
       }
-     
+
       tosave.setSOAmount(amount);
       tosave.setSOCount(standingOrderItem.getSOCount());
       tosave.setSODesc( standingOrderItem.getSODesc());
@@ -93,15 +112,7 @@ public class StandingOrderService
       tosave.setSONextPayDate( standingOrderItem.getSONextpaydate());
       tosave.setSOPeriod( standingOrderItem.getSOPeriod());
       tosave.setSOTfrType( standingOrderItem.getSOTfrtype());
-      
-      // TODO: How to handle the foreign key - really only the value of SOAccId is needed
-      // but that isn't a field at the moment.... should/can it be??
-      Account acc = new Account();
-      acc.setAccId(standingOrderItem.getAccountid());
       tosave.setAccount(acc);
-//      this.token = token;
-//      this.accountid = accountid;
-//      this.accountname = accountname;
       return tosave;
    }
 
@@ -132,13 +143,13 @@ public class StandingOrderService
                .collect(Collectors.toList());
       return sois;
    }
-   
+
    public StandingOrderItem getStandingOrderItem(long id)
    {
       return this.standingOrdersJpaRepository.findById(id)
                                       .map(s -> mapToItem(s))
                                       .orElseThrow(() -> new AccountException("Standing order not found: id " + id));
-                                      
+
    }
 
 }
