@@ -29,21 +29,6 @@ export class SoEditMatDialog
       
    ) { }
 
-   // The dialog displays with the selected SO populating the fields.
-   // TODO: The dialog does not close when the submit button is clicked
-   //       Figured out a way to do this using an @Output on the component which
-   //       emits an event when the SO is submitted - eventually this will happen
-   //       when the SO is successfully sent to the server. This at least
-   //       makes the component somewhat unaware of how it is being displayed.
-   // TODO: transmit the new/updated SO to the server
-   // TODO: refresh the SO list if SO was created/updated
-   //
-   // The first is a major problem - no examples consider the concept of making the
-   // input form a reusable component so they all mix up the modal and the form stuff.
-   // Might need to resort to doing the update from the modal which means will
-   // need a way to get the data from the component to here. Ugh! Why is this shirt to
-   // difficult to make usable?!
-
    // WARNING: To get the SoEditMatComponent content to fill the dialog box the
    // .mat-mdc-dialog-content max-height style had to be overriden.
    ngOnInit() 
@@ -53,7 +38,7 @@ export class SoEditMatDialog
    
    closeDialog(event: any)
    {
-      console.log("SoEditMatDialog: request to close received");
-      this.dialogRef.close();      
+      console.log("SoEditMatDialog: request to close received: " + JSON.stringify(event, null, 2));
+      this.dialogRef.close(event);      
    }
 }
