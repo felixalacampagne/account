@@ -24,6 +24,8 @@ export class AccountService
    private versionsvc : string = "version";
    private listsosvc : string = "liststandingorders";
    private standingorder : string = "standingorder/";
+   private addsosvc : string = "addstandingorder";
+   private updsosvc : string = "updatestandingorder";
    private listaccinf : string = "listaccinf";
    private accinf : string = "accinf/";
    
@@ -185,5 +187,38 @@ export class AccountService
         // The account items are returned wrapped in an array named accounts
         console.log("getAccount API URL: " + url);
         return this.http.get(url).pipe( map((res:any) => res) );    
+    }
+
+    addStandingOrder(soi : StandingOrderItem) : Observable<string>
+    {
+      let json : string;
+      let url : string;
+      let res;
+      json = JSON.stringify(soi);
+      url = this.apiurl + this.addsosvc;
+      console.log("addStandingOrder: POSTing to " + url + ": " + json);
+
+      // Spring gives exception saying text/plain not supported so need to set content type to JSON
+      var headers = new HttpHeaders();
+      headers = headers.set('Content-Type', 'application/json');
+      headers = headers.set("Accept", "text/plain");
+        
+      return this.http.post(url, json, {headers: headers,  responseType: 'text'});      
+    }
+    
+    updateStandingOrder(soi : StandingOrderItem) : Observable<string>
+    {
+        let json : string;
+        let url : string;
+        let res;
+        json = JSON.stringify(soi);
+        url = this.apiurl + this.updsosvc;
+        console.log("updateStandingOrder: PUTing to " + url + ": " + json);
+
+        var headers = new HttpHeaders();
+        headers = headers.set('Content-Type', 'application/json');
+        headers = headers.set("Accept", "text/plain");
+        
+        return this.http.put(url, json, {headers: headers,  responseType: 'text'}); 
     }
 }
