@@ -3,10 +3,10 @@ export class StandingOrderItem
 {
    public soid : number = -1;
    public soamount : string = '';
-   public socount : number = -1;
+   public socount : number = 1;
    public sodesc : string = '';
-   public soentrydate!: Date;
-   public sonextpaydate!: Date;
+   public soentrydate: string = '';
+   public sonextpaydate: string = '';
    public soperiod : string = '';
    public sotfrtype : string = '';
    public accountid : number = -1;
