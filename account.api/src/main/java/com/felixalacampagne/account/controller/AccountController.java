@@ -73,7 +73,7 @@ public class AccountController {
     {
        return this.accountService.getAccountItem(id);
     }
-      
+
     @GetMapping("/accinf/{id}")
     public AccountDetail getAccountDetail(@PathVariable Long id)
     {
@@ -86,7 +86,7 @@ public class AccountController {
        return this.accountService.getAccountDetailList();
     }
 
-    
+
 //    Could use @RequestParam(name="name", required=false, defaultValue="World" to supply as url ? values
     @GetMapping("/listtransaction/{accountid}")
     public Transactions getTransactions(@PathVariable Long accountid) // This needs to receive an account id
@@ -139,12 +139,12 @@ public class AccountController {
     {
        return this.standingOrderService.getStandingOrderItems();
     }
-    
+
     @GetMapping("/standingorder/{id}")
     public StandingOrderItem getStandingOrderItem(@PathVariable Long id)
     {
        return this.standingOrderService.getStandingOrderItem(id);
-    }    
+    }
 
     @PostMapping(value = "/addstandingorder")
     public String addStandingOrder(@RequestBody StandingOrderItem standingOrderItem, Model model)
@@ -164,7 +164,7 @@ public class AccountController {
        return "ok";
     }
 
-    @PostMapping(value = "/updatestandingorder")
+    @PutMapping(value = "/updatestandingorder")
     public String updateStandingOrder(@RequestBody StandingOrderItem standingOrderItem, Model model)
     {
        log.info("updateStandingOrder: item to update: {}", standingOrderItem);
@@ -180,5 +180,5 @@ public class AccountController {
        }
 
        return "ok";
-    }    
+    }
 }
