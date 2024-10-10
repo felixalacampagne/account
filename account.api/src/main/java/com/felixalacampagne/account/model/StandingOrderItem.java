@@ -28,7 +28,6 @@ public class StandingOrderItem
          LocalDate sOEntryDate, LocalDate sONextPayDate, String sOPeriod, String sOTfrType,
          String token, Long accountid, String accountname)
    {
-      super();
       this.soid = sOid;
       this.soamount = sOAmount;
       this.socount = sOCount;
