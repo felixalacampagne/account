@@ -69,7 +69,14 @@ export class StandingordersComponent implements OnInit {
    
    editso(so :StandingOrderItem) // maybe needs the modal content
    {
-      this.dialog.open(SoEditMatDialog, { data: so } );      
+      this.dialog.open(SoEditMatDialog, { data: so } ) //;     // returns MatDialogRef  
+      .afterClosed().subscribe(result => {
+         console.log("StandingordersComponent.editso: dialog closed: " + JSON.stringify(result, null, 2));
+         if(result == 'SUBMIT_COMPLETED')
+         {
+            this.getStandingorders();
+         }
+       });
    }
 
    addso() {
