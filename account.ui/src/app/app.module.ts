@@ -11,17 +11,9 @@ import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'
 import { QrscannerComponent } from './qrscanner/qrscanner.component';
 import { TransactionsComponent } from './transactions/transactions.component';
 import { StandingordersComponent } from './standingorders/standingorders.component';
-import { ActivatedRouteSnapshot, BaseRouteReuseStrategy, provideRouter, RouteReuseStrategy, RouterLink, RouterLinkActive, RouterModule, RouterOutlet, withComponentInputBinding, withRouterConfig } from '@angular/router';
+import { provideRouter, RouterLink, RouterLinkActive, RouterOutlet, withComponentInputBinding, withHashLocation, withRouterConfig } from '@angular/router';
 import { routes } from './app.routes';
-import { AccountItem } from 'src/shared/model/accountitem.model';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { SoEditMatComponent } from './so-edit-mat/so-edit-mat.component';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSelectModule } from '@angular/material/select';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatCardModule } from '@angular/material/card';
-
 
 
 // Magic required to get normal scrolling to work when swipe left is used.
@@ -34,7 +26,7 @@ export class HammerConfigForNormalScroll extends HammerGestureConfig {
 
    // Also requires entry in @NgModule 'providers' below
    override overrides = <any> {
-       'pinch': { enable: false },
+       'pinch': { enable: true },
        'rotate': { enable: false }
       //  ,'press': { enable: false },
       //  'tap' : { enable: false },
@@ -44,15 +36,6 @@ export class HammerConfigForNormalScroll extends HammerGestureConfig {
 
    // This appears to restore the selection behviour for the swipe column   
    override options = {cssProps:{userSelect:'auto'}}  
-   // Suggested in some places but seems to block the swipe
-   // override buildHammer(element: HTMLElement) {
-      // Hammer.defaults.cssProps.userSelect = '';
-      // let mc = new Hammer(element, {
-      //   touchAction: "pan-y",
-      // });
-      // return mc;
-   //  }   
-  
 }
 
 
@@ -100,13 +83,7 @@ export class HammerConfigForNormalScroll extends HammerGestureConfig {
       StandingordersComponent,
       RouterOutlet,
       RouterLink,
-      RouterLinkActive,
-      // MatInputModule,
-      // MatButtonModule,
-      // MatSelectModule,
-      // MatRadioModule,
-      // MatCardModule,
-      // ReactiveFormsModule
+      RouterLinkActive
    ], 
     providers: [
       AccountService, 
@@ -119,6 +96,7 @@ export class HammerConfigForNormalScroll extends HammerGestureConfig {
       { provide: HAMMER_GESTURE_CONFIG, useClass: HammerConfigForNormalScroll },
       //{ provide: RouteReuseStrategy, useClass: FixRefreshRouteReuseStrategy}, // supposed to replace this.router.routeReuseStrategy.shouldReuseRoute = () => { return false; }; in app.module
       provideRouter(routes, withComponentInputBinding()
+      , withHashLocation()  // try to workaround 403 for main.ts in deployed version and keep refresh button working
       //, withRouterConfig({onSameUrlNavigation: 'reload'}) // onSameUrlNavigation must be reload for refresh button to work
       ),
       provideAnimationsAsync() 
