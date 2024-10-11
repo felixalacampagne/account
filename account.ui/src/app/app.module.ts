@@ -26,7 +26,7 @@ export class HammerConfigForNormalScroll extends HammerGestureConfig {
 
    // Also requires entry in @NgModule 'providers' below
    override overrides = <any> {
-       'pinch': { enable: true },
+       'pinch': { enable: false }, // MUST be false otherwise scrolling is broken, so no pinch to reset forked up zoom
        'rotate': { enable: false }
       //  ,'press': { enable: false },
       //  'tap' : { enable: false },
