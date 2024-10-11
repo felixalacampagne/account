@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>accountapi</artifactId> <!-- NB this is part of the war file name -->
-  <version>0.4.5.1-SNAPSHOT</version>
+  <version>0.4.5.2-SNAPSHOT</version>
   
   <packaging>war</packaging>
   <name>Account API</name>
