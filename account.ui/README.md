@@ -1,5 +1,30 @@
 # Accountui
 
+02-Oct-2024 After much blood, sweat and tears - well hours of wasted time thanks to the continuous improvement grassholes
+that keep changing how to do things (whilst senselessly breaking basic UI behaviour) and providing zero useable documentation
+thereby ensuring all googling results in misinformation - I have managed to force the display of the transactions into 
+something more or less acceptable to me.
+
+So I thought it was time to start thinking about how to add screens for things like the standing order definitions, account
+definitions, etc. 
+
+First thing to do was get the transaction list into a 'screen' of it's own. Naturally this was anything but straight
+forward. The biggest problem was getting the account menu to communicate the account to display the transaction for. 
+There are all sorts of wonderous ways to transfer data between a parent and a child - which of course are all useless when
+the 'routing' to different screens comes into play. Thus only an id can be readily sent from the routing link to the 
+transaction component. No problem, there is a list of accounts already loaded so just put that into the service so it can
+be used to lookup the account by its id. No problem, right?? Wrong. When the browser is refreshed the list goes away, and
+there is no way to get the transaction list to wait for the account menu to reload it. So, once again, there go the
+hours and hours of my time disappearing out the window while trying to figure out how to workaround this. Again the 
+continuous grassholes have worked their magic to ensure there is nothing useful for the current way to get this work, if there
+even is one. After a few false leads, like getting it to reload the same url when the refresh button is used instead of ignoring it (which worked!) I eventually figured out a way to pass the account object via the routing url. It looks pretty
+clumsy in the address bar, but who gives a shirt about that. So now browser navigation works as I expect it to. Eventually 
+I might go back to passing just the id and doing a getAccount for a single id.
+
+Next is to populate the standing order list, should be easypeasy now!!!! Afterall it's more or less the same thing as 
+the transaction list, just slight different data.
+
+
 26-Sep-2024 Have managed to get the update modal working and have even managed to implement a crude 'swipe' to 
 trigger it. Simply doing a swipe left triggers the update modal, on rows what can be updated. The 'locked' rows
 are colourized to indicate that update is not available. On a desktop display there is an edit icon since swipe is

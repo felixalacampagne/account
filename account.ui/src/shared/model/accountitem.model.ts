@@ -1,9 +1,14 @@
+// accountitem.model
 export class AccountItem
 {
     public id : number = -1;
     public name : string = '';
-    constructor()
+    
+    constructor();
+    constructor(id : number, name: string);
+    constructor(id? : number, name?: string)
     {
-        
+       this.id = id ?? -1;
+       this.name = name ?? '';
     }
 }

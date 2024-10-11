@@ -1,6 +1,7 @@
+// account.ui/src/app/app.module.ts
 import { BrowserModule, HammerModule, HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-browser';
-import { importProvidersFrom, Injectable, NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { APP_INITIALIZER, importProvidersFrom, Injectable, NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DatePipe } from '@angular/common';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
@@ -8,6 +9,11 @@ import { AppComponent } from './app.component';
 import {AccountService} from '../shared/service/account.service';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { QrscannerComponent } from './qrscanner/qrscanner.component';
+import { TransactionsComponent } from './transactions/transactions.component';
+import { StandingordersComponent } from './standingorders/standingorders.component';
+import { provideRouter, RouterLink, RouterLinkActive, RouterOutlet, withComponentInputBinding, withHashLocation, withRouterConfig } from '@angular/router';
+import { routes } from './app.routes';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
 
 // Magic required to get normal scrolling to work when swipe left is used.
@@ -20,7 +26,7 @@ export class HammerConfigForNormalScroll extends HammerGestureConfig {
 
    // Also requires entry in @NgModule 'providers' below
    override overrides = <any> {
-       'pinch': { enable: false },
+       'pinch': { enable: false }, // MUST be false otherwise scrolling is broken, so no pinch to reset forked up zoom
        'rotate': { enable: false }
       //  ,'press': { enable: false },
       //  'tap' : { enable: false },
@@ -30,34 +36,70 @@ export class HammerConfigForNormalScroll extends HammerGestureConfig {
 
    // This appears to restore the selection behviour for the swipe column   
    override options = {cssProps:{userSelect:'auto'}}  
-   // Suggested in some places but seems to block the swipe
-   // override buildHammer(element: HTMLElement) {
-      // Hammer.defaults.cssProps.userSelect = '';
-      // let mc = new Hammer(element, {
-      //   touchAction: "pan-y",
-      // });
-      // return mc;
-   //  }   
-  
 }
+
+
+// Originally the fix for reload/refresh not working was to add
+// this.router.routeReuseStrategy.shouldReuseRoute = () => { return false; };
+// to app.module which seemed to solve the problem but compiler complained that
+// it was deprecated and, of course, provided no useful indication what to replace it with. 
+// Once again countless hours were wasted thanks to the grasshole continuous improvers
+// whose sole purpose in life is to fork over the folks who are unfortunate enough to
+// have been suckered into using this shirt. 
+// Eventually I managed to put the thing below which,
+// together with the 'provide: RouteReuseStrategy' and
+// 'withRouterConfig({onSameUrlNavigation: 'reload'})' statements in 'providers' below,
+// appears to replace the entry in app.module and allow reload/refresh to work!
+//
+// NB. It might be possible to avoid needing this if I can find a way to delay loading the
+// transaction list until the account list has been re-loaded.
+// It seems that the reload/refresh resets the account list in AccountService which can only
+// be loaded via AppComponent. Normally this works because the link to the transactions can only
+// be used when the account list is populated. On refresh/reload however the transaction link
+// is triggered before the account list is present so nothing gets displayed. If I can find a way
+// of forcing list to be present before it is used then it might work without this reuseroute shirt.
+// Alas I have no clue how to get everything to wait for the list to be loaded!!
+//export class FixRefreshRouteReuseStrategy extends BaseRouteReuseStrategy {
+//  public override shouldReuseRoute(future: ActivatedRouteSnapshot, curr: ActivatedRouteSnapshot): boolean {
+//    return false; // (future.routeConfig === curr.routeConfig) || future.data.reuseComponent;
+//  }
+//}
+
+
+
 
 @NgModule({ declarations: [
         AppComponent,
         QrscannerComponent
+      //   SoEditMatComponent
     ],
     bootstrap: [AppComponent], 
     imports: [
       BrowserModule,
       FormsModule,
       NgbModule,
-      HammerModule
+      HammerModule,
+      TransactionsComponent,
+      StandingordersComponent,
+      RouterOutlet,
+      RouterLink,
+      RouterLinkActive
    ], 
     providers: [
       AccountService, 
+      //{ provide: APP_INITIALIZER, useFactory: () => appConfigFactory,
+      //           deps: [AccountService],
+      //           multi: true
+      //},      
       DatePipe, 
       provideHttpClient(withInterceptorsFromDi()),
-      { provide: HAMMER_GESTURE_CONFIG, useClass: HammerConfigForNormalScroll }
+      { provide: HAMMER_GESTURE_CONFIG, useClass: HammerConfigForNormalScroll },
+      //{ provide: RouteReuseStrategy, useClass: FixRefreshRouteReuseStrategy}, // supposed to replace this.router.routeReuseStrategy.shouldReuseRoute = () => { return false; }; in app.module
+      provideRouter(routes, withComponentInputBinding()
+      , withHashLocation()  // try to workaround 403 for main.ts in deployed version and keep refresh button working
+      //, withRouterConfig({onSameUrlNavigation: 'reload'}) // onSameUrlNavigation must be reload for refresh button to work
+      ),
+      provideAnimationsAsync() 
    ]
 })
 export class AppModule { }
-

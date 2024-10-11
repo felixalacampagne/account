@@ -1,5 +1,7 @@
 package com.felixalacampagne.account.controller;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
@@ -12,11 +14,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.felixalacampagne.account.model.AccountDetail;
+import com.felixalacampagne.account.model.AccountItem;
 import com.felixalacampagne.account.model.Accounts;
+import com.felixalacampagne.account.model.StandingOrderItem;
 import com.felixalacampagne.account.model.TransactionItem;
 import com.felixalacampagne.account.model.Transactions;
 import com.felixalacampagne.account.model.Version;
 import com.felixalacampagne.account.service.AccountService;
+import com.felixalacampagne.account.service.StandingOrderService;
 import com.felixalacampagne.account.service.TransactionService;
 
 @RestController
@@ -26,13 +32,18 @@ public class AccountController {
    private final Logger log = LoggerFactory.getLogger(this.getClass());
    private final AccountService accountService;
    private final TransactionService transactionService;
+   private final StandingOrderService standingOrderService;
 
    private final Version version;
 
-   public AccountController(AccountService accountService, TransactionService transactionService, Version version)
+   public AccountController(AccountService accountService,
+                           TransactionService transactionService,
+                           StandingOrderService standingOrderService,
+                           Version version)
    {
       this.accountService = accountService;
       this.transactionService = transactionService;
+      this.standingOrderService = standingOrderService;
       this.version = version;
    }
 
@@ -56,6 +67,25 @@ public class AccountController {
     {
        return this.accountService.getAccounts();
     }
+
+    @GetMapping("/account/{id}")
+    public AccountItem getAccount(@PathVariable Long id)
+    {
+       return this.accountService.getAccountItem(id);
+    }
+
+    @GetMapping("/accinf/{id}")
+    public AccountDetail getAccountDetail(@PathVariable Long id)
+    {
+       return this.accountService.getAccountDetail(id);
+    }
+
+    @GetMapping("/listaccinf")
+    public List<AccountDetail> getAccountDetails()
+    {
+       return this.accountService.getAccountDetailList();
+    }
+
 
 //    Could use @RequestParam(name="name", required=false, defaultValue="World" to supply as url ? values
     @GetMapping("/listtransaction/{accountid}")
@@ -97,6 +127,55 @@ public class AccountController {
        catch(Exception ex)
        {
           log.info("updateTransaction: Failed to update: {}", transactionItem, ex);
+          return "failed: " + ex.getMessage();
+       }
+
+       return "ok";
+    }
+
+    // Note Spring will automatically convert objects to json string and supply the appropriate header
+    @GetMapping("/liststandingorders")
+    public List<StandingOrderItem> getStandingOrderItems()
+    {
+       return this.standingOrderService.getStandingOrderItems();
+    }
+
+    @GetMapping("/standingorder/{id}")
+    public StandingOrderItem getStandingOrderItem(@PathVariable Long id)
+    {
+       return this.standingOrderService.getStandingOrderItem(id);
+    }
+
+    @PostMapping(value = "/addstandingorder")
+    public String addStandingOrder(@RequestBody StandingOrderItem standingOrderItem, Model model)
+    {
+       log.info("addStandingOrder: item to add: {}", standingOrderItem);
+       try
+       {
+          this.standingOrderService.addStandingOrderItem(standingOrderItem);
+
+       }
+       catch(Exception ex)
+       {
+          log.info("addStandingOrder: Failed to add: {}", standingOrderItem, ex);
+          return "failed: " + ex.getMessage();
+       }
+
+       return "ok";
+    }
+
+    @PutMapping(value = "/updatestandingorder")
+    public String updateStandingOrder(@RequestBody StandingOrderItem standingOrderItem, Model model)
+    {
+       log.info("updateStandingOrder: item to update: {}", standingOrderItem);
+       try
+       {
+          this.standingOrderService.updateStandingOrderItem(standingOrderItem);
+
+       }
+       catch(Exception ex)
+       {
+          log.info("updateStandingOrder: Failed to update: {}", standingOrderItem, ex);
           return "failed: " + ex.getMessage();
        }
 

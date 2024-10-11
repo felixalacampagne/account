@@ -1,3 +1,4 @@
+/* account.ui/src/app/app.component.css */
 .modal-open { position: fixed; }
 
 /*
@@ -86,8 +87,8 @@
  */
 td.account-amount, th.account-amount
 {
-	text-align: right;
-	border-bottom-width: 0;
+   text-align: right;
+   border-bottom-width: 0;
 }
 
 /*
@@ -95,7 +96,7 @@ td.account-amount, th.account-amount
  */
 .account-negbalance
 {
-	color: red !important;
+   color: red !important;
 }
 
 
@@ -123,6 +124,9 @@ td, tr {
 }
 
 td.nowrap  {
-	white-space: nowrap;
+   white-space: nowrap;
 }
 
+.remove-caret::after {
+    display: none !important;
+}

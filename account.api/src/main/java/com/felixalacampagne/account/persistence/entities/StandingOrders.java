@@ -2,7 +2,6 @@ package com.felixalacampagne.account.persistence.entities;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.time.LocalDate;
 
 import jakarta.persistence.Column;
@@ -29,7 +28,7 @@ public class StandingOrders implements Serializable {
 //	private Long SOAccId;
 	private Account account;
 	private BigDecimal SOAmount;
-	private short SOCount;
+	private Long SOCount;
 	private String SODesc;
 	private LocalDate SOEntryDate;
 	private LocalDate SONextPayDate;
@@ -62,12 +61,12 @@ public class StandingOrders implements Serializable {
 
 
 	@Column(name="SOCount")
-	public short getSOCount() {
+	public Long getSOCount() {
 		return this.SOCount;
 	}
 
-	public void setSOCount(short SOCount) {
-		this.SOCount = SOCount;
+	public void setSOCount(Long i) {
+		this.SOCount = i;
 	}
 
 

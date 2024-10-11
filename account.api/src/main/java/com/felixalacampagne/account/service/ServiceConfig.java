@@ -14,5 +14,36 @@ import org.springframework.context.annotation.Configuration;
 @ComponentScan(basePackages = {"com.felixalacampagne.account.service"})
 public class ServiceConfig
 {
+   // This is used by services to 'manually' create the JSON string from the Java object containing LocalDate
+   // before returning a response. I don't think this is actually used anymore, the conversion from Java object
+   // to JSON is being done by Spring.
+//   @Bean
+//   public ObjectMapper localdateJsonMapper()
+//   {
+//      return JsonMapper.builder()
+//            .addModule(new JavaTimeModule())
+//            .build();
+//   }
 
+// Added this in attempt at fixing the exception I had trying to save. Problem was actually due to
+// missing 'default' constructor which appears to be required when using non-simple fields.
+// Add,view and update appear to be working without needing this.
+//   @Bean
+//   public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
+//
+//       return builder -> {
+//
+//           // formatter
+//           DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//           DateTimeFormatter dateTimeFormatter =  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+//
+//           // deserializers
+//           builder.deserializers(new LocalDateDeserializer(dateFormatter));
+//           builder.deserializers(new LocalDateTimeDeserializer(dateTimeFormatter));
+//
+//           // serializers
+//           builder.serializers(new LocalDateSerializer(dateFormatter));
+//           builder.serializers(new LocalDateTimeSerializer(dateTimeFormatter));
+//       };
+//   }
 }

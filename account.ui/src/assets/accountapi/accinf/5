@@ -1,0 +1,13 @@
+{
+    "id": 5,
+    "name": "Bank of New York Current",
+    "address": "Bank of New York, 20 Point Plaza, Rocky Point, N.Y. 11778, U.S.A.",
+    "code": "6909224045",
+    "currency": "USD",
+    "format": "$#,##0.00",
+    "order": 255,
+    "statement": "05/21/02",
+    "bic": null,
+    "telephone": "435435",
+    "token": "5:6909224045:Bank of New York Current"
+}

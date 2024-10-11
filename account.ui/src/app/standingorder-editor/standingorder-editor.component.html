@@ -1,0 +1,74 @@
+<!-- standingorder-editor/standingorder-editor.component.html -->
+<div class="container border border-warning rounded pt-3 pb-3">
+    <form [formGroup]="soForm"  (ngSubmit)="onSubmit()">
+      <div class="row align-items-center">
+         <label class="col-sm-1 col-form-label-sm" for="soentrydate">Entry Date: </label>
+         <div class="col-sm-10"> 
+            <div class="input-group flex-nowrap">       
+               <input  ngbDatepicker #dt="ngbDatepicker" class="form-control-date form-control form-control-sm" id="soentrydate" type="text" formControlName="soentrydate"  placeholder="YYYY-MM-DD">
+               <div class="input-group-append">
+                  <button class="btn btn-outline-secondary bi bi-calendar3" (click)="dt.toggle()" type="button"></button>
+               </div>            
+            </div>
+         </div>
+      </div>
+
+      <div class="row align-items-center">
+         <label class="col-sm-1 col-form-label-sm" for="sonextpaydate">Pay Date: </label>
+
+         <div class="col-sm-10"> 
+            <div class="input-group flex-nowrap">       
+               <input  ngbDatepicker #dtp="ngbDatepicker" class="form-control-date form-control form-control-sm" id="sonextpaydate" type="text" formControlName="sonextpaydate"  placeholder="YYYY-MM-DD">
+               <div class="input-group-append">
+                  <button class="btn btn-outline-secondary bi bi-calendar3" (click)="dtp.toggle()" type="button"></button>
+               </div>            
+            </div>
+         </div>
+      </div>
+      
+      <div class="row align-items-center">
+         <label class="col-sm-1 col-form-label-sm" for="sodesc">Memo: </label>
+         <div class="col-sm-10">
+               <input  class="form-control form-control-sm" id="sodesc" type="text" formControlName="sodesc">
+         </div>
+      </div>
+
+        <div class="row align-items-center">
+         <label class="col-sm-1 col-form-label-sm" for="soamount">Amount: </label>
+         <div class="col-sm-10">        
+                <input class="form-control form-control-sm" id="soamount" type="text" formControlName="soamount">
+            </div>
+        </div>
+
+        <div class="row align-items-center">
+         <label class="col-sm-1 col-form-label-sm" for="accountname">Account: </label>
+         <div class="col-sm-10">        
+                <input class="form-control form-control-sm" id="accountname" type="text" formControlName="accountname">
+            </div>
+        </div>
+        
+        <div class="row align-items-center">
+         <label class="col-sm-1 col-form-label-sm" for="soperiod">Period: </label>
+         <div class="col-sm-10">        
+                <input class="form-control form-control-sm" id="soperiod" type="text" formControlName="soperiod">
+            </div>
+        </div>
+        
+        <div class="row align-items-center">
+         <label class="col-sm-1 col-form-label-sm" for="socount">Repeat: </label>
+         <div class="col-sm-10">        
+                <input class="form-control form-control-sm" id="socount" type="text" formControlName="socount">
+            </div>
+        </div>
+        
+        <div class="row align-items-center">
+         <label class="col-sm-1 col-form-label-sm" for="sotfrtype">Type: </label>
+         <div class="col-sm-10">        
+                <input class="form-control form-control-sm" id="sotfrtype" type="text" formControlName="sotfrtype">
+            </div>
+        </div>
+        <button type="button" class="btn btn-secondary">Cancel</button>
+        <button type="submit" class="btn btn-default btn-primary" [disabled]="!soForm.valid">Submit</button>
+    </form>
+
+</div>

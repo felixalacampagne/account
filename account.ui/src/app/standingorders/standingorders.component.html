@@ -1,0 +1,34 @@
+<!-- account.ui/src/app/standingorders/standingorders.component.html -->
+<div class="container-fluid">
+   <div class="row">
+     <div class="col text-start">
+      <h3>Standing Orders</h3>
+     </div>
+     <div class="col text-end">
+      <button class="btn btn-secondary bi bi-plus-square" (click)="addso()"></button>
+     </div>
+   </div>
+ </div>
+
+<div class="standingorders" *ngIf="isStandorders()">
+  <table class="table table-striped table-sm">
+    <thead class="thead-inverse">
+    <tr><th>Entry Date</th><th>Pay Date</th><th>Amount</th><th>Memo</th><th>Account</th><th>Period</th><th>Count</th><th>Type</th></tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let so of standorders">
+       <td class="nowrap">{{so.soentrydate}}</td>
+       <td class="nowrap">{{so.sonextpaydate}}</td>
+       <td class="account-amount">{{so.soamount}}</td>
+       <td>{{so.sodesc}}</td>
+       <td>{{so.accountname}}</td>
+       <td>{{so.soperiod}}</td>
+       <td>{{so.socount}}</td>
+       <td>{{so.sotfrtype}}</td>
+       <td>
+         <button class="acc-table-btn" (click)="editso(so)"><i class="bi bi-pencil-square" aria-hidden="true"></i></button>
+       </td>
+       </tr>
+    </tbody>
+  </table>
+</div>
