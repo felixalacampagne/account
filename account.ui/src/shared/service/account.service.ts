@@ -53,7 +53,12 @@ export class AccountService
    "GROC",
    "PRIC",
    "FEE",
-   "BANK"
+   "BANK",
+   "DOMI",
+   "PRIC",
+   "INV",
+   "INSR",
+   "CAR"
    ];
         
    constructor(private http : HttpClient)
