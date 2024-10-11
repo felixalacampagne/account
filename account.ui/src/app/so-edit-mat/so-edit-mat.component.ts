@@ -180,6 +180,9 @@ export class SoEditMatComponent
    }
 
    onCancel(): void {
+      // Only cancels/avoids the form submission if the button type=reset - this is not documented anywhere
+      // in the material or react docs - just have to waste hours googling until you stumble on something 
+      // which looks like what you are doing and see if it works for you!
       console.log("SoEditMatComponent.onCancel:");
       this.submittedEvent.emit('CANCELLED');
    }
