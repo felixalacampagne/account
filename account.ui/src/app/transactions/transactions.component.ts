@@ -280,12 +280,22 @@ addtransaction()
   this.addTransactionToDB(newent); 
 }
 
+lockedChange()
+{
+  //console.log("TransactionsComponent.lockedChange: locked:" + this.updateTxn.locked);
+  if(this.updateTxn.locked && !this.updateTxn.statementref)
+  {
+    //console.log("TransactionsComponent.lockedChange: set ref:" + this.activeaccount.statementref);
+    this.updateTxn.statementref = this.activeaccount.statementref;  
+  }
+}
+
 updTransactionToDB(txn : TransactionItem)
 {
-  console.log("AppComponent.updTransactionToDB: Starting");
+  console.log("TransactionsComponent.updTransactionToDB: Starting");
   this.accountService.updateTransaction(txn).subscribe( {
       next: (res)=>{
-          console.log("AppComponent.updTransactionToDB: Response: " + res);
+          console.log("TransactionsComponent.updTransactionToDB: Response: " + res);
           // Must wait for add to complete before loading new transaction list
           this.loadTransactions(this.activeaccount);
           // Reset amount to prevent double entry
@@ -293,12 +303,12 @@ updTransactionToDB(txn : TransactionItem)
           this.txPastearea = '';
           },
       error: (err)=>{
-          console.log("AppComponent.updTransactionToDB: An error occured during updTransactionToDB subscribe:" + JSON.stringify(err));
+          console.log("TransactionsComponent.updTransactionToDB: An error occured during updTransactionToDB subscribe:" + JSON.stringify(err));
           } ,
-      complete: ()=>{console.log("AppComponent.updTransactionToDB: completed");}
+      complete: ()=>{console.log("TransactionsComponent.updTransactionToDB: completed");}
    });
 
-  console.log("AppComponent.updTransactionToDB:Finished");
+  console.log("TransactionsComponent.updTransactionToDB:Finished");
 }
 
 // Specify the updated transaction in case I ever manage to make the modal into a separate component
@@ -339,6 +349,11 @@ updatetransaction(updtxn : TransactionItem)
    console.log("Amount:  new:" + updtxn.amount) + " old:" + this.origupdTxn.amount;   
    this.updTransactionToDB(updtxn);
 
+   // TODO: If the locked state was changed to locked and the txn statementref is present
+   // and different to the account statementref then the account statementref should be updated.
+   // This will require an update on the server as the accountitem is loaded each time the 
+   // update dialog is displayed.
+   
    // NB updTransactionToDB refreshes the transaction list when the response is received.
    // Horribly ugly code, I guess there must be a better way of doing it but alas I
    // don't know what it is...

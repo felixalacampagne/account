@@ -9,7 +9,7 @@ export class TransactionItem
     public locked: boolean = false;
     public token: string = '';
     public balance : string = '';
-    
+    public statementref : string = "";
     constructor()
     {
         
@@ -25,6 +25,7 @@ export class TransactionItem
       this.type = item.type;
       this.id = item.id;
       this.locked = item.locked;
+      this.statementref = item.statementref;
       this.token = item.token;
 
     }
