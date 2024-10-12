@@ -22,7 +22,7 @@ import com.felixalacampagne.account.persistence.repository.AccountJpaRepository;
 public class AccountService
 {
    private final Logger log = LoggerFactory.getLogger(this.getClass());
-//   private final ObjectMapper objmap = new ObjectMapper();
+
    private final AccountJpaRepository accountJpaRepository;
    private final ConnectionResurrector<AccountJpaRepository> connectionResurrector;
    
@@ -38,7 +38,7 @@ public class AccountService
       List<Account> accs = accountJpaRepository.findAccountsExcludeAccOrderSorted(Collections.singletonList(255L));
       List<AccountItem> accitems = accs.stream()
             // .sorted(Comparator.comparing(Account::getAccDesc))
-            .map(a -> { return new AccountItem(a.getAccId(), a.getAccDesc()); })
+            .map(a -> { return new AccountItem(a.getAccId(), a.getAccDesc(), a.getAccSid()); })
             .collect(Collectors.toList());
       return accitems;
    }
@@ -46,7 +46,7 @@ public class AccountService
    public AccountItem getAccountItem(long id)
    {
       return accountJpaRepository.findById(id)
-                          .map(a -> { return new AccountItem(a.getAccId(), a.getAccDesc()); })
+                          .map(a -> { return new AccountItem(a.getAccId(), a.getAccDesc(), a.getAccSid()); })
                           .orElseThrow(() -> new AccountException("Account not found: " + id));
    }
    
@@ -85,17 +85,4 @@ public class AccountService
             acc.getAccTel(),
             token);      
    }
-   //   public String getAccountsJson() {
-//      String result = "";
-//      Accounts accs = getAccounts();
-//      try
-//      {
-//         result = objmap.writeValueAsString(accs);
-//      }
-//      catch (JsonProcessingException e)
-//      {
-//         log.info("getAccounts: failed to serialize account list to json:", e);
-//      }
-//      return result;
-//   }
 }

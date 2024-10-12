@@ -49,7 +49,7 @@ class TransactionServiceTest
       TransactionItem updtxnitm = new TransactionItem(
             origtxnitm.getAccid(), origtxnitm.getDate(), "9" + origtxnitm.getAmount(), origtxnitm.getType(),
             "TEST" + origtxnitm.getComment(),
-            origtxnitm.isLocked(), origtxnitm.getId(), origtxnitm.getToken(), origtxnitm.getBalance());
+            origtxnitm.isLocked(), origtxnitm.getId(), origtxnitm.getToken(), origtxnitm.getBalance(), origtxnitm.getStatementref());
 
       Transaction updtxn = transactionService.updateTransaction(updtxnitm);
       log.info("testUpdateTransaction: new amount:{} balance: before:{} after:{}",
@@ -64,7 +64,7 @@ class TransactionServiceTest
             origtxnitm.getAccid(), origtxnitm.getDate(), origtxnitm.getAmount(), origtxnitm.getType(),
             origtxnitm.getComment(),
             origtxnitm.isLocked(), origtxnitm.getId(),
-            updtxnitm.getToken(), null); // this transaction now has the token of the update
+            updtxnitm.getToken(), null,  origtxnitm.getStatementref()); // this transaction now has the token of the update
       updtxn = transactionService.updateTransaction(origtxnitm);
    }
 }

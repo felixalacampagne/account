@@ -24,7 +24,6 @@ import com.felixalacampagne.account.persistence.repository.TransactionJpaReposit
 public class TransactionService
 {
    private final Logger log = LoggerFactory.getLogger(this.getClass());
-//   private final ObjectMapper localdateJsonMapper;
 
    private final TransactionJpaRepository transactionJpaRepository;
    private final ConnectionResurrector<TransactionJpaRepository> connectionResurrector;
@@ -34,13 +33,10 @@ public class TransactionService
    @Autowired
    public TransactionService(TransactionJpaRepository transactionJpaRepository,
                              BalanceService balanceService
-//                             ,ObjectMapper localdateJsonMapper
                              ) {
       this.transactionJpaRepository = transactionJpaRepository;
       this.balanceService = balanceService;
       this.connectionResurrector = new ConnectionResurrector<TransactionJpaRepository>(transactionJpaRepository, TransactionJpaRepository.class);
-
-//      this.localdateJsonMapper = localdateJsonMapper;
    }
 
    public Transactions getTransactions(long accountId)
@@ -51,22 +47,6 @@ public class TransactionService
       Transactions trns = new Transactions(txnitems); // For fronted compatibility
       return trns;
    }
-
-
-//   public String getTransactionsJson(long accountId)
-//   {
-//      String result = "";
-//      Transactions trns = getTransactions(accountId);
-//      try
-//      {
-//         result = localdateJsonMapper.writeValueAsString(trns);
-//      }
-//      catch (JsonProcessingException e)
-//      {
-//         log.info("getTransactions: failed to serialize account list to json:", e);
-//      }
-//      return result;
-//   }
 
    public List<Transaction> getTransactionPage(int page, int rows, long accountId)
    {
@@ -89,9 +69,6 @@ public class TransactionService
    public void addTransaction(TransactionItem transactionItem)
    {
       Transaction txn = mapToEntity(transactionItem);
-
-
-
       txn = add(txn);
       log.info("addTransaction: added transaction for account id {}: id:{}", txn.getAccountId(), txn.getSequence());
    }
@@ -137,7 +114,8 @@ public class TransactionService
       txn.setComment(updtxn.getComment());
       txn.setCredit(updtxn.getCredit());
       txn.setDebit(updtxn.getDebit());
-
+      txn.setChecked(updtxn.getChecked());
+      txn.setStid(updtxn.getStid());
       return update(txn);
    }
 
@@ -164,15 +142,12 @@ public class TransactionService
    {
       Transaction tosave = new Transaction();
       tosave.setAccountId(transactionItem.getAccid());
-
-//      String isodate = transactionItem.getDate();
-//      LocalDate localDate = LocalDate.parse(isodate, Utils.DATEFORMAT_YYYYMMDD);
-//      tosave.setDate(localDate); // TODO: change the type to LocalDate
       tosave.setDate(transactionItem.getDate());
-
       tosave.setType(transactionItem.getType());
       tosave.setComment(transactionItem.getComment());
-
+      tosave.setChecked(transactionItem.isLocked());
+      tosave.setStid(transactionItem.getStatementref());
+      
       BigDecimal amount = new BigDecimal(transactionItem.getAmount());
       amount.setScale(2); // Max. two decimal places for a normal currency transaction
 
@@ -214,7 +189,12 @@ public class TransactionService
             Utils.formatAmount(amount),
             t.getType(),
             t.getComment(),
-            t.getChecked(), t.getSequence(), token, Utils.formatAmount(t.getBalance()));
+            t.getChecked(), 
+            t.getSequence(), 
+            token, 
+            Utils.formatAmount(t.getBalance()),
+            t.getStid()
+            );
    }
 
 
