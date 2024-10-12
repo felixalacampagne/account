@@ -70,6 +70,20 @@ public class AccountService
             .orElseThrow(() -> new AccountException("Account not found: " + id));      
    }
    
+   public Account updateStatementRef(AccountItem accountItem)
+   {
+      log.info("updateStatementRef: account:{}", accountItem);
+      String accstref = accountItem.getStatementref();
+      if((accstref==null) || accstref.isEmpty())
+      {
+         throw new AccountException("Invalid statement reference: '" + accstref + "'");
+      }
+      Account acc = accountJpaRepository.findById(accountItem.getId()).orElseThrow(() -> new AccountException("Account not found: " + accountItem.getId()));
+      acc.setAccSid(accstref);
+      acc = accountJpaRepository.saveAndFlush(acc);
+      return acc;
+   }   
+   
    private AccountDetail mapToDetail(Account acc)
    {
       String token = Utils.getToken(acc);
@@ -85,4 +99,6 @@ public class AccountService
             acc.getAccTel(),
             token);      
    }
+
+
 }
