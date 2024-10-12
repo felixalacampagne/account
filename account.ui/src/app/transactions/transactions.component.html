@@ -182,7 +182,11 @@ related to using angular with the modal
                      (change)="lockedChange()"
                      [checked]="this.updateTxn.locked"
                      [(ngModel)]="this.updateTxn.locked">
-                     <label class="btn btn-outline-success" for="chkLocked">{{this.updateTxn.locked ? 'Verified' : 'Unverified'}}</label>
+                     <label class="btn btn-outline-success" for="chkLocked">
+                        <i *ngIf="!this.updateTxn.locked" class="bi bi-x-circle" aria-hidden="true"></i>
+                        <i *ngIf="this.updateTxn.locked" class="bi bi-check-circle" aria-hidden="true"></i>
+                        {{this.updateTxn.locked ? 'Verified' : 'Unverified'}}
+                     </label>
    
                   </div>                     
                </div>
