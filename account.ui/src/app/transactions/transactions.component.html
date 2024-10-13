@@ -16,7 +16,7 @@
      <tbody >
         <tr *ngFor="let txn of transactions" [ngClass]="{'table-success': txn.locked}">
            <td class="nowrap">{{txn.date.substring(2)}}</td>
-           <td (swipeleft)="!txn.locked && open(content, txn)">{{txn.comment}}</td>
+           <td (swipeleft)="open(content, txn)">{{txn.comment}}</td>
            <td class="account-amount">{{txn.amount}}</td>
            <td class="account-amount" [ngClass]="{'account-negbalance': txn.balance.startsWith('-')}" *ngIf="desktopDisplay">{{txn.balance}}</td>
            <td *ngIf="desktopDisplay">
@@ -185,7 +185,7 @@ related to using angular with the modal
                      <label class="btn btn-outline-success" for="chkLocked">
                         <i *ngIf="!this.updateTxn.locked" class="bi bi-x-circle" aria-hidden="true"></i>
                         <i *ngIf="this.updateTxn.locked" class="bi bi-check-circle" aria-hidden="true"></i>
-                        {{this.updateTxn.locked ? 'Verified' : 'Unverified'}}
+                        <span *ngIf="desktopDisplay"> {{this.updateTxn.locked ? '&nbsp;&nbsp;Verified&nbsp;&nbsp;' : 'Unverified'}}</span>
                      </label>
    
                   </div>                     
