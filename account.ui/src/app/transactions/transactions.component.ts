@@ -65,31 +65,18 @@ export class TransactionsComponent implements OnInit {
    // determine whether an edit is really in progress.
    updateTxn: TransactionItem = new TransactionItem(); // Edited valeus of transaction beign updated
    origupdTxn:TransactionItem | undefined; // Original values of transaction being updated.
-   public txnTypes: string[] = [
-    "BC",
-    "AWAL",
-    "ITFR",
-    "INET",
-    "PPAL",
-    "CARD",
-    "QRMP",
-    "DDBT",
-    "INT",
-    "TFR",
-    "ZOOM"
-   ];
+   public txnTypes: string[] = [];
   
    constructor(private accountService: AccountService,
       private cd: ChangeDetectorRef,
       private datePipe: DatePipe,
       private modalService: NgbModal,
-      private route: ActivatedRoute,
       private deviceService: DeviceDetectorService)
    {
       this.envName = environment.envName;
-
+      this.txnTypes = this.accountService.txnTypes;
       // This is only necessary because the ngModel attribute breaks the selected behaviour of the option tag
-      this.txType = 'BC';
+      this.txType = this.txnTypes[0];
       this.resetDatepicker();
       this.desktopDisplay = this.deviceService.isDesktop();
    }
@@ -280,12 +267,22 @@ addtransaction()
   this.addTransactionToDB(newent); 
 }
 
+lockedChange()
+{
+  //console.log("TransactionsComponent.lockedChange: locked:" + this.updateTxn.locked);
+  if(this.updateTxn.locked && !this.updateTxn.statementref)
+  {
+    //console.log("TransactionsComponent.lockedChange: set ref:" + this.activeaccount.statementref);
+    this.updateTxn.statementref = this.activeaccount.statementref;  
+  }
+}
+
 updTransactionToDB(txn : TransactionItem)
 {
-  console.log("AppComponent.updTransactionToDB: Starting");
+  console.log("TransactionsComponent.updTransactionToDB: Starting");
   this.accountService.updateTransaction(txn).subscribe( {
       next: (res)=>{
-          console.log("AppComponent.updTransactionToDB: Response: " + res);
+          console.log("TransactionsComponent.updTransactionToDB: Response: " + res);
           // Must wait for add to complete before loading new transaction list
           this.loadTransactions(this.activeaccount);
           // Reset amount to prevent double entry
@@ -293,12 +290,12 @@ updTransactionToDB(txn : TransactionItem)
           this.txPastearea = '';
           },
       error: (err)=>{
-          console.log("AppComponent.updTransactionToDB: An error occured during updTransactionToDB subscribe:" + JSON.stringify(err));
+          console.log("TransactionsComponent.updTransactionToDB: An error occured during updTransactionToDB subscribe:" + JSON.stringify(err));
           } ,
-      complete: ()=>{console.log("AppComponent.updTransactionToDB: completed");}
+      complete: ()=>{console.log("TransactionsComponent.updTransactionToDB: completed");}
    });
 
-  console.log("AppComponent.updTransactionToDB:Finished");
+  console.log("TransactionsComponent.updTransactionToDB:Finished");
 }
 
 // Specify the updated transaction in case I ever manage to make the modal into a separate component
@@ -336,8 +333,24 @@ updatetransaction(updtxn : TransactionItem)
    console.log("Date:    new:" + updtxn.date + " old:" + oldDatestr);
    console.log("Type:    new:" + updtxn.type + " old:" + this.origupdTxn.type);
    console.log("Comment: new:" + updtxn.comment + " old:" + this.origupdTxn.comment);
-   console.log("Amount:  new:" + updtxn.amount) + " old:" + this.origupdTxn.amount;   
+   console.log("Amount:  new:" + updtxn.amount + " old:" + this.origupdTxn.amount);  
+   console.log("Locked:  new:" + updtxn.locked + " old:" + this.origupdTxn.locked);   
+   console.log("StRef:   new:" + updtxn.statementref + " accref:" + this.activeaccount.statementref);   
    this.updTransactionToDB(updtxn);
+
+   // TODO: If the locked state was changed to locked and the txn statementref is present
+   // and different to the account statementref then the account statementref should be updated.
+   // This will require an update on the server as the accountitem is loaded each time the 
+   // update dialog is displayed.
+   if((!this.origupdTxn.locked && updtxn.locked)
+        && updtxn.statementref 
+        && (updtxn.statementref != this.activeaccount.statementref))
+   {
+    this.activeaccount.statementref = updtxn.statementref;
+    this.accountService.updateAccountStatementRef(this.activeaccount.id, this.activeaccount.statementref);
+   }
+
+
 
    // NB updTransactionToDB refreshes the transaction list when the response is received.
    // Horribly ugly code, I guess there must be a better way of doing it but alas I

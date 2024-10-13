@@ -10,7 +10,6 @@ public class AccountDetail extends AccountItem
    private String currency;
    private String format;
    private Long order;
-   private String statement;
    private String bic;
    private String telephone;
    private String token;
@@ -25,13 +24,12 @@ public class AccountDetail extends AccountItem
          String statement, String bic, String telephone,
          String token)
    {
-      super(id, name);
+      super(id, name, statement);
       this.address = address;
       this.code = code;
       this.currency = currency;
       this.format = format;
       this.order = order;
-      this.statement = statement;
       this.bic = bic;
       this.telephone = telephone;
       this.token = token;
@@ -62,11 +60,6 @@ public class AccountDetail extends AccountItem
       return order;
    }
 
-   public String getStatement()
-   {
-      return statement;
-   }
-
    public String getBic()
    {
       return bic;
@@ -85,7 +78,9 @@ public class AccountDetail extends AccountItem
    @Override
    public String toString()
    {
-      return "AccountDetail [id=" + id + ", name=" + name + ", code=" + code + ", address=" + address + ", currency=" + currency + ", format=" + format + ", statement=" + statement + ", bic=" + bic + ", telephone=" + telephone + ", order="
+      return "AccountDetail [id=" + getId() + ", name=" + getName() + ", code=" + code + ", address=" + address 
+            + ", currency=" + currency + ", format=" + format + ", statement=" + getStatementref() + ", bic=" + bic 
+            + ", telephone=" + telephone + ", order="
             + order + ", token=" + token + "]";
    }
 

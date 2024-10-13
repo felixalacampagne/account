@@ -16,13 +16,16 @@ public class TransactionItem
    private  long id;
    private  boolean locked;
    private  String balance;
+   private String statementref;
+   
+
    private  String token;
 
    public TransactionItem()
    {
    }
    public TransactionItem(Long accid, LocalDate date, String amount, String type, String comment,
-                          boolean locked, long id, String token, String balance)
+                          boolean locked, long id, String token, String balance, String statementref)
    {
       this.accid = accid;
       this.date = date;
@@ -32,6 +35,7 @@ public class TransactionItem
       this.id = id;
       this.locked = locked;
 		this.balance = balance;
+		this.statementref = statementref;
       this.token = token; // Maybe create this here?
    }
 
@@ -79,6 +83,7 @@ public class TransactionItem
             + ", type=" + type
             + ", id=" + id
             + ", locked=" + locked
+            + ", statementref=" + statementref
             + ", balance=" + balance
             + ", token=" + token
             + "]";
@@ -96,6 +101,10 @@ public class TransactionItem
       return locked;
    }
 
+   public String getStatementref()
+   {
+      return statementref;
+   }
 
    public String getToken()
    {

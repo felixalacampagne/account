@@ -14,7 +14,7 @@ export class AccountDetail
     public bic : string = "";
     public telephone : string = "";
     public token : string = "";
-        
+    public statementref : string = "";
     //constructor();
     //constructor(id : number, name: string);
     //constructor(id? : number, name?: string)

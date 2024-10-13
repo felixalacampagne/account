@@ -19,20 +19,20 @@ constructor(private datePipe: DatePipe)
    {
       let d : Date = new Date();
       
-      console.log("isoNgbDateParserFormatter.parse: value=" + value);
+      //console.log("isoNgbDateParserFormatter.parse: value=" + value);
       if (value) 
       {
          d = new Date(value);
       }
       let n : NgbDateStruct = {day: d.getDate(), month: d.getMonth(), year: d.getFullYear()};
-      console.log("isoNgbDateParserFormatter.parse: ret=" + n);
+      //console.log("isoNgbDateParserFormatter.parse: ret=" + n);
       return n;
    }
 
    format(date: NgbDateStruct): string 
    {
       let d : Date;
-      console.log("isoNgbDateParserFormatter.format: date=" + date);
+      //console.log("isoNgbDateParserFormatter.format: date=" + date);
       if(date == null)
       {
          d = new Date();
@@ -43,7 +43,7 @@ constructor(private datePipe: DatePipe)
       }
       let ret : string;
       ret = this.datePipe.transform(d, 'yyyy-MM-dd') ?? '';
-      console.log("isoNgbDateParserFormatter.format: ret=" + ret);
+      //console.log("isoNgbDateParserFormatter.format: ret=" + ret);
       return ret;
    }
 }

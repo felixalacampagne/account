@@ -13,11 +13,13 @@ import { StandingOrderItem } from '../model/standingorderitem.model';
 @Injectable()
 export class AccountService 
 {
+
    private serverhost : string; // = "http://minnie"; //""; //"http://minnie"; //"http://localhost:8080";
    private accountapiapp : string = ""; // /account/";
    private apiurl : string;
    private listaccsvc : string = "listaccount";
    private account : string = "account/";
+   private updaccstref : string = "updaccountstref";
    private listtxnsvc : string = "listtransaction/";
    private addtxnsvc : string = "addtransaction";
    private updtxnsvc : string = "updatetransaction";
@@ -116,6 +118,36 @@ export class AccountService
       console.log("getAccountDetail API URL: " + url);
       return this.http.get(url).pipe( map((res:any) => res) );    
    }    
+
+   updateAccountStatementRef(id: number, statementref: string) : void
+   {
+      this.putUpdateAccountStatementRef(id,statementref).subscribe( {
+      next: (res)=>{
+         console.log("updateAccountStatementRef: Response: " + res);
+         },
+      error: (err)=>{
+         console.log("updateAccountStatementRef: An error occured:" + JSON.stringify(err));
+         } ,
+      complete: ()=>{console.log("updateAccountStatementRef: completed");}
+  });      
+   }
+   putUpdateAccountStatementRef(id: number, statementref: string) : Observable<string>
+   {
+      let url : string;
+      url = this.apiurl + this.updaccstref;
+
+      let acc : AccountItem = new AccountItem(id, '');
+      acc.statementref = statementref;
+
+      let json = JSON.stringify(acc);
+      console.log("updateAccountStatementRef: PUTing to " + url + ": " + json);
+
+      var headers = new HttpHeaders();
+      headers = headers.set('Content-Type', 'application/json');
+      headers = headers.set("Accept", "text/plain");
+      
+      return this.http.put(url, json, {headers: headers,  responseType: 'text'});       
+   }
 
    getTransactions(a : AccountItem) : Observable<TransactionItem[]>
    {

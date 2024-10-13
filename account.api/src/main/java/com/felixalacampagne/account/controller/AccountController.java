@@ -87,6 +87,23 @@ public class AccountController {
     }
 
 
+    @PutMapping(value = "/updaccountstref")
+    public String updateAccountStatementRef(@RequestBody AccountItem accountItem, Model model)
+    {
+       log.info("updateAccountStatementRef:  item to update: {}", accountItem);
+       try
+       {
+          this.accountService.updateStatementRef(accountItem);
+       }
+       catch(Exception ex)
+       {
+          log.info("updateAccountStatementRef: Failed to update: {}", accountItem, ex);
+          return "failed: " + ex.getMessage();
+       }
+
+       return "ok";
+    }    
+
 //    Could use @RequestParam(name="name", required=false, defaultValue="World" to supply as url ? values
     @GetMapping("/listtransaction/{accountid}")
     public Transactions getTransactions(@PathVariable Long accountid) // This needs to receive an account id
