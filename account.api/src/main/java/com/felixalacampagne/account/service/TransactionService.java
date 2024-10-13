@@ -84,12 +84,6 @@ public class TransactionService
       Transaction txn = getTransaction(transactionItem.getId())
             .orElseThrow(()->new AccountException("Transaction id " + transactionItem.getId() + " not found"));
 
-      if(txn.getChecked())
-      {
-         log.info("updateTransaction: Locked transaction: id:{}", transactionItem.getId());
-
-         throw new  AccountException("Transaction id " + transactionItem.getId() + " is locked");
-      }
 
       String origToken = Utils.getToken(txn);
       if(!origToken.equals(transactionItem.getToken()))
@@ -107,8 +101,20 @@ public class TransactionService
          throw new  AccountException("Account id does not match Transaction id " + transactionItem.getId());
       }
 
-      // updtxn is incomplete and only a limited number of values can be
-      // updated from web UI at the moment so copy values into txn from DB
+      // Not allowing any updates when checked is a bit extreme. The VB app allowed the checked flag to be 
+      // cleared, a value updated, and then checked again which was a behaviour I have used on many occasions. 
+      // Not so easy to implement the same thing now but I
+      // still want to ability to update checked entries if required. 
+      // Thus if the update has the checked flag cleared then allow the update.
+      if(txn.getChecked() && updtxn.getChecked())
+      {
+         log.info("updateTransaction: Locked transaction: id:{}", transactionItem.getId());
+
+         throw new  AccountException("Transaction id " + transactionItem.getId() + " is locked");
+      }      
+      
+      // updtxn is possibly not a complete set of Transaction values.
+      // Maybe should add checks for presence of values???
       txn.setDate(updtxn.getDate());
       txn.setType(updtxn.getType());
       txn.setComment(updtxn.getComment());
