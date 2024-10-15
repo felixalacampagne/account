@@ -193,7 +193,7 @@ export class TransactionsComponent implements OnInit {
    
 loadTransactions(acc : AccountItem)
 {
-   console.log("TransactionsComponent.loadTransactions: Starting: " + + JSON.stringify(acc, null, 2));
+   console.log("TransactionsComponent.loadTransactions: Starting: " + JSON.stringify(acc, null, 2));
    if(acc.id < 0)
       return;
       

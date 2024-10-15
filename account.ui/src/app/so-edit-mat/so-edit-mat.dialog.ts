@@ -19,7 +19,9 @@ import { SoEditMatComponent } from './so-edit-mat.component';
    imports: [MatDialogContent, SoEditMatComponent],
    changeDetection: ChangeDetectionStrategy.OnPush,
    templateUrl: './so-edit-mat.dialog.html',
-   styleUrl: './so-edit-mat.component.css'
+   styleUrls: [
+      './so-edit-mat.component.css'
+   ]
 })
 
 export class SoEditMatDialog 

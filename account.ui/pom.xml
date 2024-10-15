@@ -22,6 +22,9 @@
       <skipKarma>true</skipKarma>
    </properties>
    <profiles>
+       <!-- WARNING: Some environments have 'dev' activated by default via the global settings.xml
+           This must be deactivated via the command line using -P=-dev or similar
+       -->
       <profile>
          <id>dev</id>
          <properties>

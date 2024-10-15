@@ -18,9 +18,12 @@ export interface DialogData {
   standalone: true,
   imports: [CommonModule, SoEditMatComponent],
   templateUrl: './standingorders.component.html',
-  styleUrls: ['../../sass/account-styles.scss', '../app.component.css', './standingorders.component.css'],
-})
-export class StandingordersComponent implements OnInit {
+  styleUrls: ['../../sass/account-styles.scss'
+    , '../app.component.css'
+    , './standingorders.component.css'],
+  })
+
+  export class StandingordersComponent implements OnInit {
 
   standorders : StandingOrderItem[] = []; 
     
