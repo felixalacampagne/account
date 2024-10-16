@@ -357,10 +357,24 @@ updatetransaction(updtxn : TransactionItem)
    // don't know what it is...
 }
 
-parseEPC(epc : string) : TransactionItem
+// An EPC looks like this
+// BCD
+// 002
+// 1
+// SCT
+//
+// account name
+// BE30776595425911
+// EUR100.00
+//
+// memo text line
+//
+
+
+parseEPC(epc : string) : TransactionItem | undefined
 {
   console.log('parseEPC: entry');
-  const trans : TransactionItem = new TransactionItem();
+  let trans : TransactionItem | undefined;
 
   // Docs say replaceAll should exist but it fails to compile. VSCode says replace should replace
   // all but it doesn't. I guess something needs to be updated but not sure what!! Maybe
@@ -372,6 +386,7 @@ parseEPC(epc : string) : TransactionItem
   if((lines[0] === 'BCD') && (lines[3] === 'SCT'))
   {
     // Name Comment (Account)
+    trans = new TransactionItem();
     trans.comment = lines[5] + " " + lines[9] + lines[10] + " " + lines[6];
     trans.amount = lines[7].substring(3);
     trans.type = 'QRMP';
@@ -387,20 +402,25 @@ parseEPC(epc : string) : TransactionItem
   return trans;
 }
 
-// So once again ease and convenience of use is well and truely shafted by 'security' which makes
-// reading the clipboard from the browser effectively impossible, especially for the primary target
-// browser, ie. iphone safari. In the absence of any other solution for now I will have to manually
-// paste from the clipboard into a textarea and then read the pasted data. 
+// Adapted this so I can paste an EPC code into the memo field and have it parsed
+// This relies on the EPC parser returning undefined if it fails to parse the
+// clipboard content, in which case the normal paste action should take place
+// To be seen whether it works on the phone!
 onPaste(event: ClipboardEvent) {
   console.log("onPaste: entry");
   const clipboardData = event.clipboardData; // || window.clipboardData;
   if(clipboardData !== null)
   {
     const epc = clipboardData.getData('text');
-    const txn : TransactionItem = this.parseEPC(epc);
-    this.txAmount = txn.amount;
-    this.txComment = txn.comment;
-    this.txType = txn.type;
+    const txn : TransactionItem | undefined = this.parseEPC(epc);
+    if(txn)
+    {
+      this.txAmount = txn.amount;
+      this.txComment = txn.comment;
+      this.txType = txn.type;
+      //clipboardData.setData('text', '');
+      event.preventDefault();
+    }
   }
   console.log("onPaste: exit");
 }
@@ -415,11 +435,14 @@ onScanSuccess(decodedText: string, decodedResult: Html5QrcodeResult) {
     this.html5QrcodeScanner = undefined;
   }  
   console.log('onScanSuccess: Parsing result ' + decodedText);
-  const txn : TransactionItem = this.parseEPC(decodedText);
-  console.log('onScanSuccess: setting transaction details');
-  this.txAmount = txn.amount;
-  this.txComment = txn.comment;
-  this.txType = txn.type;
+  const txn : TransactionItem | undefined = this.parseEPC(decodedText);
+  if(txn)
+  {
+   console.log('onScanSuccess: setting transaction details');
+   this.txAmount = txn.amount;
+   this.txComment = txn.comment;
+   this.txType = txn.type;
+  }
   console.log('onScanSuccess: exit');
 }
 
@@ -430,10 +453,21 @@ onScanFailure(error: any) {
 }
 
 doScan() {
-  this.html5QrcodeScanner = new Html5QrcodeScanner(
-    "reader",
-    { fps: 10, qrbox: {width: 250, height: 250}, supportedScanTypes: [], rememberLastUsedCamera: true },
-    /* verbose= */ false);
+   this.html5QrcodeScanner = new Html5QrcodeScanner("reader",
+      { 
+         fps: 10, 
+         qrbox: {width: 250, height: 250}, 
+         supportedScanTypes: [],
+         showTorchButtonIfSupported: true,
+         rememberLastUsedCamera: true,
+         experimentalFeatures: 
+         {
+            // This requires the 'Shape Detection API' flag to be true. This is located buried in 
+            // Settings>Apps>Safari>Advanced>Feature Flags>Shape Detection API. No clue if it makes any difference
+            useBarCodeDetectorIfSupported: true
+         } 
+      },
+      /* verbose= */ false);
 
   // Could not get it to work. It appeared to execute the first console.log of onScanSuccess and then vanish
   // literally without trace. Luckily I remembered something about 'this' getting lost especially in callbacks.
@@ -441,6 +475,25 @@ doScan() {
   // and an image on the iPhone but seems to work OK on the iPhone apart from always needing to ask permission.
   let callback = (this.onScanSuccess).bind(this);
   this.html5QrcodeScanner.render(callback,  this.onScanFailure);
+
+   // // Found this as a suggestion to allow scanning of small(er) QR codes. The phone wont
+   // // scan the small QR codes which have started appearing on invoices recently, which is a pity
+   // // since the same phone can scan the codes from the banking app.
+   // // Obviously it doesn't actually compile because 'zoom' is not a valid property,
+   // // and autofocus already appears to be enabled by default.
+   // // wait 2 seconds to guarantee the camera has already started to apply the focus mode and zoom...
+   // setTimeout(() => 
+   // {
+   //    if(this.html5QrcodeScanner)
+   //    {
+   //       this.html5QrcodeScanner.applyVideoConstraints(
+   //       {
+   //          focusMode: "continuous"
+   //          , advanced: [{ zoom: 2.0 }],
+   //       } );
+   //    }
+   // }, 2000);
+
 }
 
 isTransactions() : boolean {

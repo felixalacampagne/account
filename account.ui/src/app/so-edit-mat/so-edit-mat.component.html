@@ -8,8 +8,8 @@
       <mat-card-header class="so-card-head">
         <mat-card-title>Standing Order</mat-card-title>
       </mat-card-header>
-      <mat-card-content>
-        <form [formGroup]="soForm" novalidate (ngSubmit)="onSubmit()">
+      <form [formGroup]="soForm" novalidate (ngSubmit)="onSubmit()">
+        <mat-card-content>
            <div class="row">
               <div class="col">
                  <mat-form-field  appearance="outline" class="full-width">
@@ -81,11 +81,11 @@
               </mat-form-field>
               </div>
            </div>   
-        </form>
-     </mat-card-content>
-     <mat-card-actions align='end'>
-        <button mat-stroked-button type="reset" (click)="onCancel()">Cancel</button>
-        <button mat-flat-button type="submit" [disabled]="!soForm.valid">Submit</button>
-     </mat-card-actions>
-    </mat-card>
+        </mat-card-content>
+        <mat-card-actions align='end'>
+           <button mat-stroked-button type="reset" (click)="onCancel()">Cancel</button>
+           <button mat-flat-button type="submit" [disabled]="!soForm.valid">Submit</button>
+        </mat-card-actions>
+     </form>
+  </mat-card>
   
