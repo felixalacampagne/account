@@ -5,6 +5,7 @@
 
 .so-card {
   width: 100%;
+  height:101vh;
   box-shadow:inset 0px 0px 0px 1px rgb(179, 176, 176);
   border: 3px solid  white !important;
   border-radius: 30px !important;
@@ -24,7 +25,7 @@
 /* On the phone the dialog is displayed with the buttons hidden by the address bar at the bottom of the screen
    and it is impossible to scroll the page up to reveal them - typical forked up angular material UI design.
    This is supposed to make it possible to scroll the dialog up to see the buttons so they can be used. 
-   It appears to work in the MS Edge emulator.
+   It appears to work in the MS Edge emulator... it doesn't work for the actual phone though
    Alas there appears to no solution for the dialog not displaying in the center of the phone screen even though
    the width of the dialog is set appropriately - instead it displays half on/half off and must be scrolled
    into view (yet more forked up angular material UI design). NB The workaround for this is to apply a
