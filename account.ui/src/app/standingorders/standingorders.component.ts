@@ -75,6 +75,9 @@ export class StandingordersComponent implements OnInit {
       // The dimensions are applicable to the iPhone 15 in portrait mode.
       const position = this.deviceService.isMobile()? { top:'60px', left: '15px'} : {} ;
 
+      // these have no effect on the height of the dialog
+      //   ,height: '1000px',
+      //   minHeight: '1000px'
       this.dialog.open(SoEditMatDialog, { 
          data: so,
          position: position
