@@ -8,23 +8,25 @@
         <tr>
            <th>Date</th>
            <th>Memo</th>
+           <th *ngIf="desktopDisplay">Ref</th>
            <th class="account-amount">Amount</th>
            <th class="account-amount" *ngIf="desktopDisplay">Balance</th>
-           <th *ngIf="desktopDisplay"></th>
+           <th class="account-edit" *ngIf="desktopDisplay"></th>
         </tr>
       </thead>
       <tbody >
-        <tr *ngFor="let txn of transactions" [ngClass]="{'table-success': txn.locked}">
-           <td class="nowrap">{{txn.date.substring(2)}}</td>
-           <td (swipeleft)="open(content, txn)">{{txn.comment}}</td>
-           <td class="account-amount">{{txn.amount}}</td>
-           <td class="account-amount" [ngClass]="{'account-negbalance': txn.balance.startsWith('-')}" *ngIf="desktopDisplay">{{txn.balance}}</td>
-           <td *ngIf="desktopDisplay">
-              <button class="acc-table-btn" type="button" (click)="open(content, txn)" title="edit">
-                 <i class="bi bi-pencil-square" aria-hidden="true"></i>
-              </button>
-           </td>
-        </tr>
+         <tr *ngFor="let txn of transactions" [ngClass]="{'table-success': txn.locked}">
+            <td class="nowrap">{{txn.date.substring(2)}}</td>
+            <td (swipeleft)="open(content, txn)">{{txn.comment}}</td>
+            <td *ngIf="desktopDisplay">{{txn.statementref}}</td>
+            <td class="account-amount" [ngClass]="{'account-negamount': txn.amount.startsWith('-')}">{{txn.amount}}</td>
+            <td class="account-amount" [ngClass]="{'account-negbalance': txn.balance.startsWith('-')}" *ngIf="desktopDisplay">{{txn.balance}}</td>
+            <td class="account-edit" *ngIf="desktopDisplay">
+               <button class="acc-table-btn" type="button" (click)="open(content, txn)" title="edit">
+                  <i class="bi bi-pencil-square" aria-hidden="true"></i>
+               </button>
+            </td>
+         </tr>
       </tbody>
    </table>
    <div class="text-center text-md-left">
