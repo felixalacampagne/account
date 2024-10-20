@@ -39,9 +39,13 @@ public class TransactionService
       this.connectionResurrector = new ConnectionResurrector<TransactionJpaRepository>(transactionJpaRepository, TransactionJpaRepository.class);
    }
 
-   public Transactions getTransactions(long accountId)
+   public Transactions getTransactions(long accountId, int page)
    {
-      List<TransactionItem> txnitems = getTransactionPage(0, 25, accountId).stream()
+   	if(page < 0)
+   	{
+   		page = 0;
+   	}
+      List<TransactionItem> txnitems = getTransactionPage(page, 25, accountId).stream()
             .map(t -> mapToItem(t))
             .collect(Collectors.toList());
       Transactions trns = new Transactions(txnitems); // For fronted compatibility

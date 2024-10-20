@@ -66,7 +66,8 @@ export class TransactionsComponent implements OnInit {
    updateTxn: TransactionItem = new TransactionItem(); // Edited valeus of transaction beign updated
    origupdTxn:TransactionItem | undefined; // Original values of transaction being updated.
    public txnTypes: string[] = [];
-  
+   pageNumber: number = 0;
+
    constructor(private accountService: AccountService,
       private cd: ChangeDetectorRef,
       private datePipe: DatePipe,
@@ -191,13 +192,13 @@ export class TransactionsComponent implements OnInit {
      console.log("TransactionsComponent.loadAccount:Finished");
    }
    
-loadTransactions(acc : AccountItem)
+loadTransactions(acc : AccountItem, page: number = 0)
 {
    console.log("TransactionsComponent.loadTransactions: Starting: " + JSON.stringify(acc, null, 2));
    if(acc.id < 0)
       return;
       
-   this.accountService.getTransactions(acc).subscribe({
+   this.accountService.getTransactions(acc, page).subscribe({
       next: (res)=>{
             if(!res)
             {
@@ -207,6 +208,7 @@ loadTransactions(acc : AccountItem)
             {
               this.activeaccount = acc;
               this.transactions = res;
+              this.pageNumber = page;
               console.log("TransactionsComponent.loadTransactions: transactions contains " + this.transactions.length + " items.");
             }
           },
@@ -217,6 +219,27 @@ loadTransactions(acc : AccountItem)
    });
 
    console.log("TransactionsComponent.loadTransactions:Finished");
+}
+
+nextPage() 
+{
+   this.loadTransactions(this.activeaccount, this.pageNumber + 1);
+}
+
+prevPage() 
+{
+   let p = this.pageNumber;
+   if(p < 1)
+   {
+      return;
+   }
+   p = p - 1;
+   this.loadTransactions(this.activeaccount, p);
+}
+
+firstPage()
+{
+   this.loadTransactions(this.activeaccount);
 }
 
 addTransactionToDB(txn : TransactionItem)
@@ -284,7 +307,7 @@ updTransactionToDB(txn : TransactionItem)
       next: (res)=>{
           console.log("TransactionsComponent.updTransactionToDB: Response: " + res);
           // Must wait for add to complete before loading new transaction list
-          this.loadTransactions(this.activeaccount);
+          this.loadTransactions(this.activeaccount, this.pageNumber);
           // Reset amount to prevent double entry
           this.txAmount = '';
           this.txPastearea = '';

@@ -1,6 +1,7 @@
 package com.felixalacampagne.account.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,10 +106,17 @@ public class AccountController {
     }    
 
 //    Could use @RequestParam(name="name", required=false, defaultValue="World" to supply as url ? values
-    @GetMapping("/listtransaction/{accountid}")
-    public Transactions getTransactions(@PathVariable Long accountid) // This needs to receive an account id
+    @GetMapping(value = {"/listtransaction/{accountid}", "/listtransaction/{accountid}/{page}"})
+    public Transactions getTransactions(
+   		 @PathVariable Long accountid,
+   		 @PathVariable Optional<Integer> page)
     {
-       return this.transactionService.getTransactions(accountid);
+   	 int pageno = 0;
+   	 if(page.isPresent())
+   	 {
+   		 pageno = page.get();
+   	 }
+       return this.transactionService.getTransactions(accountid, pageno);
     }
 
 
