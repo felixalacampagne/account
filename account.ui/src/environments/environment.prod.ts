@@ -4,7 +4,7 @@ export const environment = {
   production: true,
   accountapi_host: "", // http://minnie",
   accountapi_app: "/jaccountapi/",
-  envName: ' (J-LIVE)',  
-  uiversion: ' ui4.7a',
+  envName: ' (JLIVE)',  
+  uiversion: '',
   folder: ''
 };
