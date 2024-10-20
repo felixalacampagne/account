@@ -18,7 +18,9 @@ export interface DialogData {
   standalone: true,
   imports: [CommonModule, SoEditMatComponent],
   templateUrl: './standingorders.component.html',
-  styleUrls: ['../../sass/account-styles.scss', '../app.component.css', './standingorders.component.css'],
+  styleUrls: ['../../sass/account-styles.scss'
+            , '../app.component.css'
+            , './standingorders.component.css'],
 })
 export class StandingordersComponent implements OnInit {
 
@@ -69,7 +71,17 @@ export class StandingordersComponent implements OnInit {
    
    editso(so :StandingOrderItem) // maybe needs the modal content
    {
-      this.dialog.open(SoEditMatDialog, { data: so } ) //;     // returns MatDialogRef  
+      // This is a kludge for the dialog displaying half off-screen on the phone.
+      // The dimensions are applicable to the iPhone 15 in portrait mode.
+      const position = this.deviceService.isMobile()? { top:'60px', left: '15px'} : {} ;
+
+      // these have no effect on the height of the dialog
+      //   ,height: '1000px',
+      //   minHeight: '1000px'
+      this.dialog.open(SoEditMatDialog, { 
+         data: so,
+         position: position
+      } ) //;     // returns MatDialogRef  
       .afterClosed().subscribe(result => {
          console.log("StandingordersComponent.editso: dialog closed: " + JSON.stringify(result, null, 2));
          if(result == 'SUBMIT_COMPLETED')

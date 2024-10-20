@@ -50,6 +50,11 @@ public class ConnectionResurrector<R extends JpaRepository<?, ?>>
          {
             log.info("ressurectConnection<{}>: attempt {} failed: {}", this.id, attempt, ex.toString());
          }
+         catch(Exception ex)
+         {
+            log.info("ressurectConnection<{}>: attempt {} failed: {}", this.id, attempt, ex.toString());
+            throw ex;
+         }         
       }
       return rc;
       

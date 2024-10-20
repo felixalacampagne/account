@@ -57,7 +57,6 @@ export class AccountService
    "FEE",
    "BANK",
    "DOMI",
-   "PRIC",
    "INV",
    "INSR",
    "CAR"

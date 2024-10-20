@@ -84,7 +84,9 @@ export const ISO_DATE_FORMAT : MatDateFormats = {
       ReactiveFormsModule],
    changeDetection: ChangeDetectionStrategy.OnPush,
    templateUrl: './so-edit-mat.component.html',
-   styleUrl: './so-edit-mat.component.css'
+   styleUrls: [
+      './so-edit-mat.component.css'
+   ]
 })
 
 export class SoEditMatComponent 

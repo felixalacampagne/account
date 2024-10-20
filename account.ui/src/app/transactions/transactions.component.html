@@ -68,7 +68,7 @@
                <div class="input-group-prepend">
                   <span class="acc-modal-label" id="lbcomment">Memo</span>
                </div>
-               <input title="comment" [(ngModel)]="txComment" name="txComment" id="txComment" type="text" class="form-control form-control-sm" placeholder="" aria-label=""  aria-describedby="lbcomment">
+               <input title="comment" [(ngModel)]="txComment" (paste)="onPaste($event)" name="txComment" id="txComment" type="text" class="form-control form-control-sm" placeholder="" aria-label=""  aria-describedby="lbcomment">
 
                <button *ngIf="txComment" (click)="clearComment()" class="btn ps-1 pe-0" type="button" id="button-addon2" title="clrcomment">
                   <i class="bi bi-x-circle" aria-hidden="true"></i>

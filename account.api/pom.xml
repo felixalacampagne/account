@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>accountapi</artifactId> <!-- NB this is part of the war file name -->
-  <version>0.4.6-RELEASE</version>
+  <version>0.4.7-RELEASE</version>
   
   <packaging>war</packaging>
   <name>Account API</name>
@@ -82,6 +82,26 @@
          <plugin>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
+         </plugin>
+         <plugin>
+             <artifactId>maven-resources-plugin</artifactId>
+             <executions>
+                 <execution>
+                     <id>copy-resources</id>
+                     <phase>validate</phase>
+                     <goals>
+                         <goal>copy-resources</goal>
+                     </goals>
+                     <configuration>
+                         <outputDirectory>${project.build.directory}/classes/static/</outputDirectory>
+                         <resources>
+                             <resource>
+                                 <directory>../account.ui/dist/accountui/browser</directory>
+                             </resource>
+                         </resources>
+                     </configuration>
+                 </execution>
+            </executions>
          </plugin>
          <plugin>
             <artifactId>maven-war-plugin</artifactId>   

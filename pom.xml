@@ -6,8 +6,15 @@
   <packaging>pom</packaging>
   <name>account parent</name>
   <description>Parent project for the account sub-projects</description>
+  
+   <properties>
+      <java.version>17</java.version>
+      <maven.compiler.target>${java.version}</maven.compiler.target>
+      <maven.compiler.source>${java.version}</maven.compiler.source>
+   </properties>
+     
   <modules>
-     <module>account.api</module>
      <module>account.ui</module>
+     <module>account.api</module>
   </modules>
 </project>
