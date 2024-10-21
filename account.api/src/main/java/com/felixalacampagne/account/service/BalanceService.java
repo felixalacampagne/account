@@ -57,6 +57,24 @@ public class BalanceService
       return startTransaction;
    }
 
+   // TODO Support startTransaction if needed
+   @Transactional
+   public void calculateCheckedBalances(long accountId)
+   {
+   	List<Transaction> chktxns = transactionJpaRepository.findByAccountIdAndCheckedOrderBySequenceAsc(accountId, true);
+      BigDecimal balance = BigDecimal.ZERO;
+      BigDecimal amt = BigDecimal.ZERO; 
+      
+      for(Transaction nxttxn : chktxns)
+      {
+         amt = Utils.getAmount(nxttxn);
+         balance = balance.add(amt);
+         nxttxn.setCheckedBalance(balance);
+      }  
+      transactionJpaRepository.saveAll(chktxns);
+      transactionJpaRepository.flush();      
+   }
+   
    // These were originally intended to go in TransactionService but that causes a
    // circular dependency between TransactionService and BalanceService.
    // BalanceService is only needed to make sure that Spring recognises the @Transactionals

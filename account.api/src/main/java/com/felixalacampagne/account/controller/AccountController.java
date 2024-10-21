@@ -23,6 +23,7 @@ import com.felixalacampagne.account.model.TransactionItem;
 import com.felixalacampagne.account.model.Transactions;
 import com.felixalacampagne.account.model.Version;
 import com.felixalacampagne.account.service.AccountService;
+import com.felixalacampagne.account.service.BalanceService;
 import com.felixalacampagne.account.service.StandingOrderService;
 import com.felixalacampagne.account.service.TransactionService;
 
@@ -34,18 +35,21 @@ public class AccountController {
    private final AccountService accountService;
    private final TransactionService transactionService;
    private final StandingOrderService standingOrderService;
+   private final BalanceService balanceService;
 
    private final Version version;
 
    public AccountController(AccountService accountService,
                            TransactionService transactionService,
                            StandingOrderService standingOrderService,
-                           Version version)
+                           Version version,
+                           BalanceService balanceService)
    {
       this.accountService = accountService;
       this.transactionService = transactionService;
       this.standingOrderService = standingOrderService;
       this.version = version;
+      this.balanceService = balanceService;
    }
 
     @GetMapping("/greeting")
@@ -206,4 +210,27 @@ public class AccountController {
 
        return "ok";
     }
+    
+    
+    // UI should call this once when opening the page, then call getCheckedTransactions
+    // for display. Can't think of a better way to do it (without changing the DB) at the moment
+    @GetMapping(value = "/calcchecked/{accountid}")
+    public String calcChecked(@PathVariable Long accountid)
+    {
+   	 this.balanceService.calculateCheckedBalances(accountid);
+       return "ok";
+    }
+    
+    @GetMapping(value = {"/listchecked/{accountid}", "/listchecked/{accountid}/{page}"})
+    public Transactions getCheckedTransactions(
+   		 @PathVariable Long accountid,
+   		 @PathVariable Optional<Integer> page)
+    {
+   	 int pageno = 0;
+   	 if(page.isPresent())
+   	 {
+   		 pageno = page.get();
+   	 }
+       return this.transactionService.getTransactions(accountid, pageno);
+    }    
 }
