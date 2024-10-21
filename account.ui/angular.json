@@ -87,6 +87,14 @@
                            "with": "src/environments/environment.nobe.ts"
                         }
                      ]                     
+                  },
+                  "nobegh": {
+                     "fileReplacements": [
+                        {
+                           "replace": "src/environments/environment.ts",
+                           "with": "src/environments/environment.nobegh.ts"
+                        }
+                     ]                     
                   }
                },
                "defaultConfiguration": "production"
@@ -102,6 +110,9 @@
                   },
                   "nobe": {
                      "buildTarget": "accountui:build:nobe"
+                  },
+                  "nobegh": {
+                     "buildTarget": "accountui:build:nobegh"
                   }
                },
                "defaultConfiguration": "development"
