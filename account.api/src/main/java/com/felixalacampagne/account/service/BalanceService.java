@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,6 +56,29 @@ public class BalanceService
       transactionJpaRepository.flush();
       log.info("calculateBalances: done startTransaction:{}", startTransaction.getSequence());
       return startTransaction;
+   }
+
+   // TODO Support startTransaction if needed
+   @Transactional
+   public Optional<Transaction> calculateCheckedBalances(long accountId)
+   {
+   	List<Transaction> chktxns = transactionJpaRepository.findByAccountIdAndCheckedOrderBySequenceAsc(accountId, true, Pageable.unpaged());
+   	if(chktxns.isEmpty())
+   	{
+   	   return Optional.empty();
+   	}
+      BigDecimal balance = BigDecimal.ZERO;
+      BigDecimal amt = BigDecimal.ZERO;
+
+      for(Transaction nxttxn : chktxns)
+      {
+         amt = Utils.getAmount(nxttxn);
+         balance = balance.add(amt);
+         nxttxn.setCheckedBalance(balance);
+      }
+      transactionJpaRepository.saveAll(chktxns);
+      transactionJpaRepository.flush();
+      return Optional.of(chktxns.get(chktxns.size()-1));
    }
 
    // These were originally intended to go in TransactionService but that causes a

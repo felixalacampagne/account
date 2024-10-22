@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,12 +46,19 @@ public class TransactionService
    	{
    		page = 0;
    	}
-      List<TransactionItem> txnitems = getTransactionPage(page, 25, accountId).stream()
+      return getTransactions(getTransactionPage(page, 15, accountId));
+   }
+
+   public Transactions getTransactions(List<Transaction> txns)
+   {
+
+      List<TransactionItem> txnitems = txns.stream()
             .map(t -> mapToItem(t))
             .collect(Collectors.toList());
-      Transactions trns = new Transactions(txnitems); // For fronted compatibility
+      Transactions trns = new Transactions(txnitems);
       return trns;
    }
+
 
    public List<Transaction> getTransactionPage(int page, int rows, long accountId)
    {
@@ -105,18 +113,18 @@ public class TransactionService
          throw new  AccountException("Account id does not match Transaction id " + transactionItem.getId());
       }
 
-      // Not allowing any updates when checked is a bit extreme. The VB app allowed the checked flag to be 
-      // cleared, a value updated, and then checked again which was a behaviour I have used on many occasions. 
+      // Not allowing any updates when checked is a bit extreme. The VB app allowed the checked flag to be
+      // cleared, a value updated, and then checked again which was a behaviour I have used on many occasions.
       // Not so easy to implement the same thing now but I
-      // still want to ability to update checked entries if required. 
+      // still want to ability to update checked entries if required.
       // Thus if the update has the checked flag cleared then allow the update.
       if(txn.getChecked() && updtxn.getChecked())
       {
          log.info("updateTransaction: Locked transaction: id:{}", transactionItem.getId());
 
          throw new  AccountException("Transaction id " + transactionItem.getId() + " is locked");
-      }      
-      
+      }
+
       // updtxn is possibly not a complete set of Transaction values.
       // Maybe should add checks for presence of values???
       txn.setDate(updtxn.getDate());
@@ -157,7 +165,7 @@ public class TransactionService
       tosave.setComment(transactionItem.getComment());
       tosave.setChecked(transactionItem.isLocked());
       tosave.setStid(transactionItem.getStatementref());
-      
+
       BigDecimal amount = new BigDecimal(transactionItem.getAmount());
       amount.setScale(2); // Max. two decimal places for a normal currency transaction
 
@@ -199,12 +207,31 @@ public class TransactionService
             Utils.formatAmount(amount),
             t.getType(),
             t.getComment(),
-            t.getChecked(), 
-            t.getSequence(), 
-            token, 
+            t.getChecked(),
+            t.getSequence(),
+            token,
             Utils.formatAmount(t.getBalance()),
             t.getStid()
             );
+   }
+
+   public Transactions getCheckedTransactions(long accountId, int rows, int pageno)
+   {
+      return getTransactions(getCheckedTransactionPage(accountId, rows, pageno));
+   }
+
+   public List<Transaction> getCheckedTransactionPage(long accountId, int rows, int pageno)
+   {
+      Pageable p = Pageable.unpaged();
+      if(pageno >=0 )
+      {
+         p = PageRequest.of(pageno, rows);
+      }
+      List<Transaction> txns = transactionJpaRepository.
+            findByAccountIdAndCheckedOrderBySequenceAsc(accountId, true, p).stream()
+            .sorted(Comparator.comparingLong(Transaction::getSequence))
+            .collect(Collectors.toList());
+      return txns;
    }
 
 
