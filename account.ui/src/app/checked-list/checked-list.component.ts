@@ -15,7 +15,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [MatTableModule, MatCardModule, CommonModule],
   templateUrl: './checked-list.component.html',
-  styleUrl: './checked-list.component.css'
+  styleUrls: ['../app.component.css', './checked-list.component.css']
 })
 export class CheckedListComponent implements OnInit {
    @Input() accid!: number;  
