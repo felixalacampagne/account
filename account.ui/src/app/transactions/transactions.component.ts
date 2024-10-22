@@ -14,7 +14,7 @@ import {AccountItem} from '../../shared/model/accountitem.model';
 import {TransactionItem} from '../../shared/model/transaction.model';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { Html5QrcodeResult } from 'html5-qrcode/esm/core';
-import { ActivatedRoute } from '@angular/router';
+import { RouterModule, RouterOutlet } from '@angular/router'; // for 'routerlink is not a property of button'
 
 // WARNING: 'standalone: true' means the component must not be put in app.module and all imports must be duplicated
 // in the imports sections of @Component otherwise many inexplicable errors will occur, eg.
@@ -22,7 +22,7 @@ import { ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'transactions',
   standalone: true,
-  imports: [FormsModule, CommonModule, NgbModule],
+  imports: [FormsModule, CommonModule, NgbModule, RouterModule, RouterOutlet ],
   templateUrl: './transactions.component.html',
   styleUrls: ['../../sass/account-styles.scss', '../app.component.css', './transactions.component.css'],
   providers: [{provide: NgbDateParserFormatter, useClass: isoNgbDateParserFormatter}]

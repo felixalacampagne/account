@@ -3,9 +3,11 @@ import {Routes} from '@angular/router';
 import { StandingordersComponent } from './standingorders/standingorders.component';
 import { TransactionsComponent } from './transactions/transactions.component';
 import { AccountsComponent } from './accounts/accounts.component';
+import { CheckedListComponent } from './checked-list/checked-list.component';
 
 export const routes = [
    {path: 'transactions/:accid', title: "Transactions", component: TransactionsComponent},
+   {path: 'viewchecked/:accid', title: "Checked Transactions", component: CheckedListComponent},
    {path: 'standingorders', title: "Standing Orders", component: StandingordersComponent},
    {path: 'accounts', title: "Accounts", component: AccountsComponent}
    

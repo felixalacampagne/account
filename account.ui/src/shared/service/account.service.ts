@@ -21,6 +21,7 @@ export class AccountService
    private account : string = "account/";
    private updaccstref : string = "updaccountstref";
    private listtxnsvc : string = "listtransaction/";
+   private listchktxn : string = "listchecked/";
    private addtxnsvc : string = "addtransaction";
    private updtxnsvc : string = "updatetransaction";
    private versionsvc : string = "version";
@@ -146,6 +147,14 @@ export class AccountService
       headers = headers.set("Accept", "text/plain");
       
       return this.http.put(url, json, {headers: headers,  responseType: 'text'});       
+   }
+
+   // TODO: could combine this with getTransactions
+   getCheckedTransactions(a : AccountItem, p: number = 0) : Observable<TransactionItem[]>
+   {
+      let url : string;
+      url = this.apiurl + this.listchktxn + a.id + '/' + p;
+      return this.http.get(url).pipe( map((res:any) => res.transactions));      
    }
 
    getTransactions(a : AccountItem, p: number = 0) : Observable<TransactionItem[]>

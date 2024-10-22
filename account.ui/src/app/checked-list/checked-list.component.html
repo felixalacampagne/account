@@ -1,0 +1,49 @@
+<!-- account.ui/src/app/checked-list/checked-list.component.html -->
+<mat-card appearance="outlined">
+   <mat-card-header>
+      <mat-card-title>Checked Transactions for {{activeaccount.name}}</mat-card-title>
+   </mat-card-header>
+   <mat-card-content>
+      <div class="transactions" *ngIf="isTransactions()">
+         <table mat-table [dataSource]="transactions" class="mat-elevation-z8">
+            <ng-container matColumnDef="date">
+               <th mat-header-cell *matHeaderCellDef>Date</th>
+               <td mat-cell *matCellDef="let txn">{{txn.date.substring(2)}}</td>
+            </ng-container>
+            <ng-container matColumnDef="memo">
+               <th mat-header-cell *matHeaderCellDef>Memo</th>
+               <td mat-cell *matCellDef="let txn">{{txn.comment}}</td>
+            </ng-container>
+            <ng-container matColumnDef="ref">
+               <th mat-header-cell *matHeaderCellDef>Ref</th>
+               <td mat-cell *matCellDef="let txn">{{txn.statementref}}</td>
+            </ng-container>
+            <ng-container matColumnDef="amount">
+               <th mat-header-cell *matHeaderCellDef>Amount</th>
+               <td mat-cell *matCellDef="let txn">{{txn.amount}}</td>
+            </ng-container>
+            <ng-container matColumnDef="chkbal">
+               <th mat-header-cell *matHeaderCellDef>Chkd Bal</th>
+               <td mat-cell *matCellDef="let txn">{{txn.balance}}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+            <tr mat-row *matRowDef="let row; columns: columnsToDisplay;"></tr>
+         </table>
+         
+         <div class="text-center text-md-left">
+            <div  class="btn-group" role="group">
+               <button class="acc-table-btn" type="button" (click)="nextPage()" title="prev">
+                  <i class="bi bi-caret-left-fill" aria-hidden="true"></i>
+               </button>
+               <button class="acc-table-btn" type="button" (click)="prevPage()" title="next">
+                  <i class="bi bi-caret-right-fill" aria-hidden="true"></i>
+               </button>  
+               <button class="acc-table-btn" type="button" (click)="firstPage()" title="latest">
+                  <i class="bi bi-skip-end-fill" aria-hidden="true"></i>
+               </button>          
+            </div>
+         </div>  
+      </div>
+   </mat-card-content>
+</mat-card>

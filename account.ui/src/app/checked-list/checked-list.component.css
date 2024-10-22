@@ -1,0 +1,25 @@
+.mat-mdc-row:nth-child(odd)
+{
+    background-color: rgba(255, 251, 0, 0.089);
+}
+
+.mat-mdc-row:nth-child(even)
+{
+    background-color: rgba(128, 125, 2, 0.089);
+}
+
+.mat-mdc-header-row
+{
+    background-color: rgba(192, 189, 2, 0.623);
+    height: 30px;
+    font-weight: bold;
+}
+.mat-mdc-row
+{
+    height: 0px; 
+}
+
+.mat-mdc-cell, .mat-mdc-header-cell 
+{
+    border: none !important;
+}
