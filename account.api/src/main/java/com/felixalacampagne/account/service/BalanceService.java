@@ -62,7 +62,7 @@ public class BalanceService
    @Transactional
    public Optional<Transaction> calculateCheckedBalances(long accountId)
    {
-   	List<Transaction> chktxns = transactionJpaRepository.findByAccountIdAndCheckedOrderBySequenceAsc(accountId, true, Pageable.unpaged());
+   	List<Transaction> chktxns = transactionJpaRepository.findByAccountIdAndCheckedOrderBySequenceAsc(accountId, true);
    	if(chktxns.isEmpty())
    	{
    	   return Optional.empty();

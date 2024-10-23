@@ -14,6 +14,7 @@ import com.felixalacampagne.account.AccountTest;
 import com.felixalacampagne.account.model.TransactionItem;
 import com.felixalacampagne.account.persistence.entities.Transaction;
 import com.felixalacampagne.account.persistence.repository.TransactionJpaRepository;
+import com.felixalacampagne.account.service.TransactionService.BalanceType;
 
 
 
@@ -45,7 +46,7 @@ class TransactionServiceTest
       List<Transaction> txnsforacc = transactionJpaRepository.findByAccountId(22L, PageRequest.of(0, 25, Sort.by("sequence").descending()));
 
       Transaction origtxn = txnsforacc.get(5);
-      TransactionItem origtxnitm = transactionService.mapToItem(origtxn);
+      TransactionItem origtxnitm = transactionService.mapToItem(origtxn, BalanceType.NORMAL);
       TransactionItem updtxnitm = new TransactionItem(
             origtxnitm.getAccid(), origtxnitm.getDate(), "9" + origtxnitm.getAmount(), origtxnitm.getType(),
             "TEST" + origtxnitm.getComment(),
@@ -56,7 +57,7 @@ class TransactionServiceTest
             updtxnitm.getAmount(), origtxn.getBalance(), updtxnitm.getBalance());
 
       Transaction updatedtxn = transactionService.getTransaction(origtxnitm.getId()).get();
-      updtxnitm = transactionService.mapToItem(updatedtxn);
+      updtxnitm = transactionService.mapToItem(updatedtxn, BalanceType.NORMAL);
       log.info("testUpdateTransaction: update transaction: {}", updatedtxn);
 
 

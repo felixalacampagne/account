@@ -23,3 +23,7 @@
 {
     border: none !important;
 }
+.mat-column-date
+{
+   white-space: nowrap;
+}

@@ -1,7 +1,7 @@
 <!-- account.ui/src/app/checked-list/checked-list.component.html -->
 <mat-card appearance="outlined">
    <mat-card-header>
-      <mat-card-title>Checked Transactions for {{activeaccount.name}}</mat-card-title>
+      <mat-card-title *ngIf="isTransactions()">Checked Transactions for {{activeaccount.name}}</mat-card-title>
    </mat-card-header>
    <mat-card-content>
       <div class="transactions" *ngIf="isTransactions()">
@@ -31,16 +31,19 @@
             <tr mat-row *matRowDef="let row; columns: columnsToDisplay;"></tr>
          </table>
          
-         <div class="text-center text-md-left">
+      <!-- should find a way to use Material instead of Bootstrap for this page but once again
+           the lack of comprehensible documentation for how to do this blocks me
+        -->
+         <div class="text-center text-md-left pt-2">
             <div  class="btn-group" role="group">
-               <button class="acc-table-btn" type="button" (click)="nextPage()" title="prev">
-                  <i class="bi bi-caret-left-fill" aria-hidden="true"></i>
+               <button class="btn btn-outline-dark btn-sm" (click)="nextPage()" title="prev">
+                  <i class="bi bi-chevron-left"></i>
                </button>
-               <button class="acc-table-btn" type="button" (click)="prevPage()" title="next">
-                  <i class="bi bi-caret-right-fill" aria-hidden="true"></i>
+               <button class="btn btn-outline-dark btn-sm" type="button" (click)="prevPage()" title="next">
+                  <i class="bi bi-chevron-right"></i>
                </button>  
-               <button class="acc-table-btn" type="button" (click)="firstPage()" title="latest">
-                  <i class="bi bi-skip-end-fill" aria-hidden="true"></i>
+               <button class="btn btn-outline-dark btn-sm" type="button" (click)="firstPage()" title="latest">
+                  <i class="bi bi-chevron-bar-right"></i>
                </button>          
             </div>
          </div>  
