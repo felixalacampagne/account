@@ -1,3 +1,4 @@
+/* src/app/checked-list/checked-list.component.css */
 .mat-mdc-row:nth-child(odd)
 {
     background-color: rgba(255, 251, 0, 0.089);
@@ -22,4 +23,48 @@
 .mat-mdc-cell, .mat-mdc-header-cell 
 {
     border: none !important;
+}
+.mat-column-date
+{
+   white-space: nowrap;
+}
+
+/* Unbelievably the icon inside an 'icon button' is forking displayed in the center by default! 
+   This should go in the main styles.css since it is so fundamentally forking basic.
+ */
+.mat-icon 
+{
+   display: flex;
+   align-items: center;
+   justify-content: center;
+}
+
+/*
+    More hours spent trying to get the title text on the left and an icon on the left.
+    For some reason it suddenly started to work - fingers crossed it carries on working!!
+    These bits of magic coupled with some in the html seem to be responsible. 
+
+    Unfortunately the title overflows the size of the card content hence padding is
+    required which requires hard-coded values.
+
+    Seems it was mat-mdc-card-header which was breaking the flush right. mat-mdc-card-header
+    also provides the required padding to align the title with the content. It seems that
+    replacing the 'display: flex' in mat-mdc-card-header with something else reenables the right flush.
+*/
+.mat-mdc-card-header
+{
+   display:inline;
+}
+
+.title-card-right
+{
+   font-size: 16px;
+   display: inline;
+   float: right;
+}
+
+.title-card-left
+{
+   display: inline;
+   font-size: 16px;   
 }

@@ -22,6 +22,7 @@ export class AccountService
    private updaccstref : string = "updaccountstref";
    private listtxnsvc : string = "listtransaction/";
    private listchktxn : string = "listchecked/";
+   private calcchkbal : string = "calcchecked/";
    private addtxnsvc : string = "addtransaction";
    private updtxnsvc : string = "updatetransaction";
    private versionsvc : string = "version";
@@ -147,6 +148,14 @@ export class AccountService
       headers = headers.set("Accept", "text/plain");
       
       return this.http.put(url, json, {headers: headers,  responseType: 'text'});       
+   }
+
+   calcChecked(a : AccountItem) : Observable<TransactionItem>
+   {
+      let url : string;
+      url = this.apiurl + this.calcchkbal + a.id;
+      console.log("calcChecked API URL: " + url);
+      return this.http.get(url).pipe( map((res:any) => res) );      
    }
 
    // TODO: could combine this with getTransactions

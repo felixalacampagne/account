@@ -7,13 +7,17 @@ import { AccountService } from '../../shared/service/account.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AccountItem } from 'src/shared/model/accountitem.model';
 import { CommonModule } from '@angular/common';
+import {MatIconModule} from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { RouterModule, RouterOutlet } from '@angular/router'; // for 'routerlink is not a property of button'
+
 // import { DataSource } from '@angular/cdk/collections';
 // import { BehaviorSubject, Observable } from 'rxjs';
 
 @Component({
   selector: 'checked-list',
   standalone: true,
-  imports: [MatTableModule, MatCardModule, CommonModule],
+  imports: [MatTableModule, MatCardModule, MatIconModule, MatButtonModule, CommonModule, RouterModule, RouterOutlet],
   templateUrl: './checked-list.component.html',
   styleUrls: ['../app.component.css', './checked-list.component.css']
 })

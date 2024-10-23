@@ -39,14 +39,14 @@ export class TransactionsComponent implements OnInit {
    // it appears to work including when the refresh button is used.
    @Input() accid!: number;
    
-   activeaccount!: AccountItem; 
-
+  
    @ViewChild('closebutton') closebutton: any;   
    modalReference: NgbModalRef | undefined;
 
-
+   activeaccount!: AccountItem; 
    transactions: TransactionItem[] = [];
-  
+   checkTransaction!: TransactionItem;
+
    public submitted: boolean = false;
    public defaultdate: string = '';
    envName: string = '';
@@ -242,12 +242,28 @@ firstPage()
    this.loadTransactions(this.activeaccount);
 }
 
+calcCheckedBalance()
+{
+   console.log("TransactionsComponent.calcCheckedBalance: Starting");
+   this.accountService.calcChecked(this.activeaccount).subscribe( {
+      next: (res)=>{
+          console.log("TransactionsComponent.calcCheckedBalance: Response: " + res);
+          this.checkTransaction = res;
+          },
+      error: (err)=>{
+          console.log("TransactionsComponent.calcCheckedBalance: An error occured during calcCheckedBalance subscribe:" + JSON.stringify(err));
+          } ,
+      complete: ()=>{console.log("TransactionsComponent.calcCheckedBalance: completed");}
+   });
+   console.log("TransactionsComponent.calcCheckedBalance: Finished");
+}
+
 addTransactionToDB(txn : TransactionItem)
 {
-  console.log("AppComponent.addTransactionToDB: Starting");
+  console.log("TransactionsComponent.addTransactionToDB: Starting");
   this.accountService.addTransaction(txn).subscribe( {
       next: (res)=>{
-          console.log("AppComponent.addTransactionToDB: Response: " + res);
+          console.log("TransactionsComponent.addTransactionToDB: Response: " + res);
           // Must wait for add to complete before loading new transaction list
           this.loadTransactions(this.activeaccount);
           // Reset amount to prevent double entry
@@ -255,12 +271,12 @@ addTransactionToDB(txn : TransactionItem)
           this.txPastearea = '';
           },
       error: (err)=>{
-          console.log("AppComponent.addTransactionToDB: An error occured during addTransactionToDB subscribe:" + JSON.stringify(err));
+          console.log("TransactionsComponent.addTransactionToDB: An error occured during addTransactionToDB subscribe:" + JSON.stringify(err));
           } ,
-      complete: ()=>{console.log("AppComponent.addTransactionToDB: completed");}
+      complete: ()=>{console.log("TransactionsComponent.addTransactionToDB: completed");}
    });
 
-  console.log("AppComponent.addTransactionToDB:Finished");
+  console.log("TransactionsComponent.addTransactionToDB:Finished");
 }
 
 addtransaction()

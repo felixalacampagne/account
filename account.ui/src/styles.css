@@ -1,4 +1,5 @@
-/* You can add global styles to this file, and also import other style files */
+/* To make material icons (aka. symbols) work! @imports must be first in the file!!! */
+@import 'material-symbols';
 
 /* NB Bootstrap also needs jquery.js, popper.min.js, and bootstrap.js entries in .angular-cli.json */
 /* might need to do 
@@ -14,4 +15,3 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
