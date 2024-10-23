@@ -27,6 +27,7 @@ import com.felixalacampagne.account.service.AccountService;
 import com.felixalacampagne.account.service.BalanceService;
 import com.felixalacampagne.account.service.StandingOrderService;
 import com.felixalacampagne.account.service.TransactionService;
+import com.felixalacampagne.account.service.TransactionService.BalanceType;
 
 @RestController
 @RequestMapping
@@ -220,7 +221,7 @@ public class AccountController {
     {
        // An exception might be a bit extreme for no checked balances
        TransactionItem ti = this.balanceService.calculateCheckedBalances(accountid)
-                      .map(t ->this.transactionService.mapToItem(t))
+                      .map(t ->this.transactionService.mapToItem(t, BalanceType.CHECKED))
                       .orElseThrow(() -> new AccountException("Checked balances not found: " + accountid));
        return ti;
     }

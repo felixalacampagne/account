@@ -46,14 +46,14 @@ public class TransactionService
    	{
    		page = 0;
    	}
-      return getTransactions(getTransactionPage(page, 15, accountId));
+      return getTransactions(getTransactionPage(page, 15, accountId), BalanceType.NORMAL);
    }
 
-   public Transactions getTransactions(List<Transaction> txns)
+   public Transactions getTransactions(List<Transaction> txns, BalanceType balanceType)
    {
 
       List<TransactionItem> txnitems = txns.stream()
-            .map(t -> mapToItem(t))
+            .map(t -> mapToItem(t, balanceType))
             .collect(Collectors.toList());
       Transactions trns = new Transactions(txnitems);
       return trns;
@@ -186,7 +186,14 @@ public class TransactionService
       return tosave;
    }
 
-   public TransactionItem mapToItem(Transaction t)
+   public enum BalanceType
+   {
+   	NORMAL,
+   	CHECKED,
+   	SORTED
+   }
+   
+   public TransactionItem mapToItem(Transaction t, BalanceType balanceType)
    {
       BigDecimal amount = BigDecimal.ZERO;
 
@@ -199,6 +206,19 @@ public class TransactionService
          amount = t.getCredit().negate();
       }
 
+      String itemBalance;
+      switch(balanceType)
+      {
+      case CHECKED:
+      	itemBalance = Utils.formatAmount(t.getCheckedBalance());
+      	break;
+      case SORTED:
+      	itemBalance = Utils.formatAmount(t.getSortedBalance());
+      	break;
+      case NORMAL:
+      default:
+      	itemBalance = Utils.formatAmount(t.getBalance());
+      }
       // jackson doesn't handle Java dates [it does now!!] and bigdecimal has too many decimal places so it's
       // simpler just to send the data as Strings with the desired formating.
       String token = Utils.getToken(t);
@@ -210,14 +230,14 @@ public class TransactionService
             t.getChecked(),
             t.getSequence(),
             token,
-            Utils.formatAmount(t.getBalance()),
+            itemBalance,
             t.getStid()
             );
    }
 
    public Transactions getCheckedTransactions(long accountId, int rows, int pageno)
    {
-      return getTransactions(getCheckedTransactionPage(accountId, rows, pageno));
+      return getTransactions(getCheckedTransactionPage(accountId, rows, pageno), BalanceType.CHECKED);
    }
 
    public List<Transaction> getCheckedTransactionPage(long accountId, int rows, int pageno)
@@ -228,7 +248,7 @@ public class TransactionService
          p = PageRequest.of(pageno, rows);
       }
       List<Transaction> txns = transactionJpaRepository.
-            findByAccountIdAndCheckedOrderBySequenceAsc(accountId, true, p).stream()
+            findByAccountIdAndCheckedOrderBySequenceDesc(accountId, true, p).stream()
             .sorted(Comparator.comparingLong(Transaction::getSequence))
             .collect(Collectors.toList());
       return txns;

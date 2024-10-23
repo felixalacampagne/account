@@ -41,7 +41,7 @@ public class BalanceServiceTest
 
       BigDecimal origCBal = t.getCheckedBalance();
 
-      List<Transaction> ctxns = transactionJpaRepository.findByAccountIdAndCheckedOrderBySequenceAsc(22, true, Pageable.unpaged());
+      List<Transaction> ctxns = transactionJpaRepository.findByAccountIdAndCheckedOrderBySequenceAsc(22, true);
       log.info("testCalcBalances: checked transaction count: {}", ctxns.size());
 
       Transaction tupd = ctxns.get(ctxns.size() / 2);
