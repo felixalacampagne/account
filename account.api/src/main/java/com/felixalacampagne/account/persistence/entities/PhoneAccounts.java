@@ -19,121 +19,121 @@ import jakarta.persistence.Table;
 @Table(name="PhoneAccounts")
 //@NamedQuery(name="PhoneAccount.findAll", query="SELECT p FROM PhoneAccount p")
 public class PhoneAccounts implements Serializable {
-	private static final long serialVersionUID = 1L;
-	private Long PAid;
-	private String PAAccessCode;
-	private Long PAaccid;
-	private String PAdesc;
-	private String PALastComm;
-	private Long PAmaster;
-	private String PAnumber;
-	private int PAorder;
-	private String paswiftbic;
-	private String PAtype;
+   private static final long serialVersionUID = 1L;
+   private Long PAid;
+   private String PAAccessCode;
+   private Long PAaccid;
+   private String PAdesc;
+   private String PALastComm;
+   private Long PAmaster;
+   private String PAnumber;
+   private int PAorder;
+   private String paswiftbic;
+   private String PAtype;
 
-	public PhoneAccounts() {
-	}
-
-
-	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="PAid", unique=true, nullable=false)
-	public Long getPAid() {
-		return this.PAid;
-	}
-
-	public void setPAid(Long PAid) {
-		this.PAid = PAid;
-	}
+   public PhoneAccounts() {
+   }
 
 
-	@Column(name="PAAccessCode", length=80)
-	public String getPAAccessCode() {
-		return this.PAAccessCode;
-	}
+   @Id
+   @GeneratedValue(strategy=GenerationType.IDENTITY)
+   @Column(name="PAid", unique=true, nullable=false)
+   public Long getPAid() {
+      return this.PAid;
+   }
 
-	public void setPAAccessCode(String PAAccessCode) {
-		this.PAAccessCode = PAAccessCode;
-	}
-
-
-	@Column(name="PAaccid")
-	public Long getPAaccid() {
-		return this.PAaccid;
-	}
-
-	public void setPAaccid(Long PAaccid) {
-		this.PAaccid = PAaccid;
-	}
+   public void setPAid(Long PAid) {
+      this.PAid = PAid;
+   }
 
 
-	@Column(name="PAdesc", length=255)
-	public String getPAdesc() {
-		return this.PAdesc;
-	}
+   @Column(name="PAAccessCode", length=80)
+   public String getPAAccessCode() {
+      return this.PAAccessCode;
+   }
 
-	public void setPAdesc(String PAdesc) {
-		this.PAdesc = PAdesc;
-	}
-
-
-	@Column(name="PALastComm", length=255)
-	public String getPALastComm() {
-		return this.PALastComm;
-	}
-
-	public void setPALastComm(String PALastComm) {
-		this.PALastComm = PALastComm;
-	}
+   public void setPAAccessCode(String PAAccessCode) {
+      this.PAAccessCode = PAAccessCode;
+   }
 
 
-	@Column(name="PAmaster")
-	public Long getPAmaster() {
-		return this.PAmaster;
-	}
+   @Column(name="PAaccid")
+   public Long getPAaccid() {
+      return this.PAaccid;
+   }
 
-	public void setPAmaster(Long PAmaster) {
-		this.PAmaster = PAmaster;
-	}
-
-
-	@Column(name="PAnumber", length=20)
-	public String getPAnumber() {
-		return this.PAnumber;
-	}
-
-	public void setPAnumber(String PAnumber) {
-		this.PAnumber = PAnumber;
-	}
+   public void setPAaccid(Long PAaccid) {
+      this.PAaccid = PAaccid;
+   }
 
 
-	@Column(name="PAorder")
-	public int getPAorder() {
-		return this.PAorder;
-	}
+   @Column(name="PAdesc", length=255)
+   public String getPAdesc() {
+      return this.PAdesc;
+   }
 
-	public void setPAorder(int PAorder) {
-		this.PAorder = PAorder;
-	}
-
-
-	@Column(length=255)
-	public String getPaswiftbic() {
-		return this.paswiftbic;
-	}
-
-	public void setPaswiftbic(String paswiftbic) {
-		this.paswiftbic = paswiftbic;
-	}
+   public void setPAdesc(String PAdesc) {
+      this.PAdesc = PAdesc;
+   }
 
 
-	@Column(name="PAtype", length=1)
-	public String getPAtype() {
-		return this.PAtype;
-	}
+   @Column(name="PALastComm", length=255)
+   public String getPALastComm() {
+      return this.PALastComm;
+   }
 
-	public void setPAtype(String PAtype) {
-		this.PAtype = PAtype;
-	}
+   public void setPALastComm(String PALastComm) {
+      this.PALastComm = PALastComm;
+   }
+
+
+   @Column(name="PAmaster")
+   public Long getPAmaster() {
+      return this.PAmaster;
+   }
+
+   public void setPAmaster(Long PAmaster) {
+      this.PAmaster = PAmaster;
+   }
+
+
+   @Column(name="PAnumber", length=20)
+   public String getPAnumber() {
+      return this.PAnumber;
+   }
+
+   public void setPAnumber(String PAnumber) {
+      this.PAnumber = PAnumber;
+   }
+
+
+   @Column(name="PAorder")
+   public int getPAorder() {
+      return this.PAorder;
+   }
+
+   public void setPAorder(int PAorder) {
+      this.PAorder = PAorder;
+   }
+
+
+   @Column(length=255)
+   public String getPaswiftbic() {
+      return this.paswiftbic;
+   }
+
+   public void setPaswiftbic(String paswiftbic) {
+      this.paswiftbic = paswiftbic;
+   }
+
+
+   @Column(name="PAtype", length=1)
+   public String getPAtype() {
+      return this.PAtype;
+   }
+
+   public void setPAtype(String PAtype) {
+      this.PAtype = PAtype;
+   }
 
 }

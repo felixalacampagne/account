@@ -34,8 +34,8 @@ public class TransactionItem
       this.comment = comment;
       this.id = id;
       this.locked = locked;
-		this.balance = balance;
-		this.statementref = statementref;
+      this.balance = balance;
+      this.statementref = statementref;
       this.token = token; // Maybe create this here?
    }
 

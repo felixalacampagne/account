@@ -25,8 +25,8 @@ import org.springframework.context.annotation.Import;
 @Import(AccountApplicationConfig.class)
 public class AccountApplication extends SpringBootServletInitializer {
 
-	public static void main(String[] args) {
-		SpringApplication.run(AccountApplication.class, args);
-	}
+   public static void main(String[] args) {
+      SpringApplication.run(AccountApplication.class, args);
+   }
 
 }

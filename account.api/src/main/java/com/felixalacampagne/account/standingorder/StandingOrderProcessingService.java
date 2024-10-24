@@ -22,7 +22,7 @@ public class StandingOrderProcessingService
 
    @Autowired
    public StandingOrderProcessingService(StandingOrdersJpaRepository standingOrdersJpaRepository,
-   		TransactionService transactionService)
+         TransactionService transactionService)
    {
       this.standingOrdersJpaRepository = standingOrdersJpaRepository;
       this.transactionService = transactionService;

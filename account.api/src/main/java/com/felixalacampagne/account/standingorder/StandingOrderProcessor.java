@@ -144,11 +144,11 @@ public class StandingOrderProcessor
          fmtdate = txndate;
          if(pat.startsWith("E"))
          {
-         	pat = pat.substring(1, pat.length());
-         	if(entdate != null)
-         	{
-         		fmtdate = entdate;
-         	}
+            pat = pat.substring(1, pat.length());
+            if(entdate != null)
+            {
+               fmtdate = entdate;
+            }
          }
          // pat should now be a VB date format - unfortunately this is not the same as a Java date format
          // There are only a few formats actually used and the main difference is for month, ie. m vs. M for java

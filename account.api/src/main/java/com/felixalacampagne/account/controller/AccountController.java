@@ -31,219 +31,219 @@ import com.felixalacampagne.account.service.TransactionService.BalanceType;
 
 @RestController
 @RequestMapping
-@CrossOrigin(origins	= "http://localhost:4200")	//	required	because ng serve is on 4200 and standalone spring server	is	on	8080
+@CrossOrigin(origins   = "http://localhost:4200")   //   required   because ng serve is on 4200 and standalone spring server   is   on   8080
 public class AccountController {
-	private final Logger	log =	LoggerFactory.getLogger(this.getClass());
-	private final AccountService accountService;
-	private final TransactionService	transactionService;
-	private final StandingOrderService standingOrderService;
-	private final BalanceService balanceService;
+   private final Logger   log =   LoggerFactory.getLogger(this.getClass());
+   private final AccountService accountService;
+   private final TransactionService   transactionService;
+   private final StandingOrderService standingOrderService;
+   private final BalanceService balanceService;
 
-	private final Version version;
+   private final Version version;
 
-	public AccountController(AccountService accountService,
-									TransactionService transactionService,
-									StandingOrderService	standingOrderService,
-									Version version,
-									BalanceService	balanceService)
-	{
-		this.accountService = accountService;
-		this.transactionService	= transactionService;
-		this.standingOrderService = standingOrderService;
-		this.version =	version;
-		this.balanceService = balanceService;
-	}
+   public AccountController(AccountService accountService,
+                           TransactionService transactionService,
+                           StandingOrderService   standingOrderService,
+                           Version version,
+                           BalanceService   balanceService)
+   {
+      this.accountService = accountService;
+      this.transactionService   = transactionService;
+      this.standingOrderService = standingOrderService;
+      this.version =   version;
+      this.balanceService = balanceService;
+   }
 
-	 @GetMapping("/greeting")
-	 public String	getMessage()
-	 {
-		  return	"Welcome	to	the Account	Spring Boot	Application	running on Tomcat	server\nand	reading from Access database;\n";
-	 }
+    @GetMapping("/greeting")
+    public String   getMessage()
+    {
+        return   "Welcome   to   the Account   Spring Boot   Application   running on Tomcat   server\nand   reading from Access database;\n";
+    }
 
-	 @GetMapping("/version")
-	 public Version getVersion()
-	 {
-		 log.debug("getVersion:	{}", this.version);
-		 return this.version;
-	 }
-
-
-	 // Note	Spring will	automatically convert objects	to	json string	and supply the	appropriate	header
-	 @GetMapping("/listaccount")
-	 public Accounts getAccounts()
-	 {
-		 return this.accountService.getAccounts();
-	 }
-
-	 @GetMapping("/account/{id}")
-	 public AccountItem getAccount(@PathVariable	Long id)
-	 {
-		 return this.accountService.getAccountItem(id);
-	 }
-
-	 @GetMapping("/accinf/{id}")
-	 public AccountDetail getAccountDetail(@PathVariable Long id)
-	 {
-		 return this.accountService.getAccountDetail(id);
-	 }
-
-	 @GetMapping("/listaccinf")
-	 public List<AccountDetail> getAccountDetails()
-	 {
-		 return this.accountService.getAccountDetailList();
-	 }
+    @GetMapping("/version")
+    public Version getVersion()
+    {
+       log.debug("getVersion:   {}", this.version);
+       return this.version;
+    }
 
 
-	 @PutMapping(value =	"/updaccountstref")
-	 public String	updateAccountStatementRef(@RequestBody	AccountItem	accountItem, Model model)
-	 {
-		 log.info("updateAccountStatementRef:	item to update: {}",	accountItem);
-		 try
-		 {
-			 this.accountService.updateStatementRef(accountItem);
-		 }
-		 catch(Exception ex)
-		 {
-			 log.info("updateAccountStatementRef: Failed	to	update: {}", accountItem, ex);
-			 return "failed: " +	ex.getMessage();
-		 }
+    // Note   Spring will   automatically convert objects   to   json string   and supply the   appropriate   header
+    @GetMapping("/listaccount")
+    public Accounts getAccounts()
+    {
+       return this.accountService.getAccounts();
+    }
 
-		 return "ok";
-	 }
+    @GetMapping("/account/{id}")
+    public AccountItem getAccount(@PathVariable   Long id)
+    {
+       return this.accountService.getAccountItem(id);
+    }
 
-//		Could	use @RequestParam(name="name", required=false, defaultValue="World" to supply	as	url ?	values
-	 @GetMapping(value =	{"/listtransaction/{accountid}",	"/listtransaction/{accountid}/{page}"})
-	 public Transactions	getTransactions(
-			 @PathVariable	Long accountid,
-			 @PathVariable	Optional<Integer>	page)
-	 {
-		 int pageno	= 0;
-		 if(page.isPresent())
-		 {
-			 pageno = page.get();
-		 }
-		 return this.transactionService.getTransactions(accountid, pageno);
-	 }
+    @GetMapping("/accinf/{id}")
+    public AccountDetail getAccountDetail(@PathVariable Long id)
+    {
+       return this.accountService.getAccountDetail(id);
+    }
+
+    @GetMapping("/listaccinf")
+    public List<AccountDetail> getAccountDetails()
+    {
+       return this.accountService.getAccountDetailList();
+    }
 
 
-	 // Without	@RequestBody Spring seems to be expecting	something other than	the JSON	of	the
-	 // TransactionItem (haven't got	a forking clue	what it is expecting). The	front-end not surprisingly
-	 // only	provides	the TransactionItem json.
-	 @PostMapping(value = "/addtransaction")
-	 public String	addTransaction(@RequestBody TransactionItem transactionItem, Model model)
-	 {
-		 log.info("addTransaction:	transaction	item to add: {}",	transactionItem);
-		 try
-		 {
-			 this.transactionService.addTransaction(transactionItem);
+    @PutMapping(value =   "/updaccountstref")
+    public String   updateAccountStatementRef(@RequestBody   AccountItem   accountItem, Model model)
+    {
+       log.info("updateAccountStatementRef:   item to update: {}",   accountItem);
+       try
+       {
+          this.accountService.updateStatementRef(accountItem);
+       }
+       catch(Exception ex)
+       {
+          log.info("updateAccountStatementRef: Failed   to   update: {}", accountItem, ex);
+          return "failed: " +   ex.getMessage();
+       }
 
-		 }
-		 catch(Exception ex)
-		 {
-			 log.info("addTransaction:	Failed to add:	{}", transactionItem, ex);
-			 return "failed: " +	ex.getMessage();
-		 }
+       return "ok";
+    }
 
-		 return "ok";
-	 }
-
-	 @PutMapping(value =	"/updatetransaction")
-	 public String	updateTransaction(@RequestBody TransactionItem transactionItem, Model model)
-	 {
-		 log.info("updateTransaction:	transaction	item to add: {}",	transactionItem);
-		 try
-		 {
-			 this.transactionService.updateTransaction(transactionItem);
-		 }
-		 catch(Exception ex)
-		 {
-			 log.info("updateTransaction:	Failed to update:	{}", transactionItem, ex);
-			 return "failed: " +	ex.getMessage();
-		 }
-
-		 return "ok";
-	 }
-
-	 // Note	Spring will	automatically convert objects	to	json string	and supply the	appropriate	header
-	 @GetMapping("/liststandingorders")
-	 public List<StandingOrderItem> getStandingOrderItems()
-	 {
-		 return this.standingOrderService.getStandingOrderItems();
-	 }
-
-	 @GetMapping("/standingorder/{id}")
-	 public StandingOrderItem getStandingOrderItem(@PathVariable Long	id)
-	 {
-		 return this.standingOrderService.getStandingOrderItem(id);
-	 }
-
-	 @PostMapping(value = "/addstandingorder")
-	 public String	addStandingOrder(@RequestBody	StandingOrderItem	standingOrderItem, Model model)
-	 {
-		 log.info("addStandingOrder: item to add:	{}", standingOrderItem);
-		 try
-		 {
-			 this.standingOrderService.addStandingOrderItem(standingOrderItem);
-
-		 }
-		 catch(Exception ex)
-		 {
-			 log.info("addStandingOrder: Failed	to	add: {}", standingOrderItem, ex);
-			 return "failed: " +	ex.getMessage();
-		 }
-
-		 return "ok";
-	 }
-
-	 @PutMapping(value =	"/updatestandingorder")
-	 public String	updateStandingOrder(@RequestBody	StandingOrderItem	standingOrderItem, Model model)
-	 {
-		 log.info("updateStandingOrder: item to update:	{}", standingOrderItem);
-		 try
-		 {
-			 this.standingOrderService.updateStandingOrderItem(standingOrderItem);
-
-		 }
-		 catch(Exception ex)
-		 {
-			 log.info("updateStandingOrder: Failed	to	update: {}", standingOrderItem, ex);
-			 return "failed: " +	ex.getMessage();
-		 }
-
-		 return "ok";
-	 }
+//      Could   use @RequestParam(name="name", required=false, defaultValue="World" to supply   as   url ?   values
+    @GetMapping(value =   {"/listtransaction/{accountid}",   "/listtransaction/{accountid}/{page}"})
+    public Transactions   getTransactions(
+          @PathVariable   Long accountid,
+          @PathVariable   Optional<Integer>   page)
+    {
+       int pageno   = 0;
+       if(page.isPresent())
+       {
+          pageno = page.get();
+       }
+       return this.transactionService.getTransactions(accountid, pageno);
+    }
 
 
-	 // UI should call this	once when opening	the page, then	call getCheckedTransactions
-	 // for display. Can't think of a better way	to	do	it	(without	changing	the DB) at the	moment
-	 @GetMapping(value =	"/calcchecked/{accountid}")
-	 public TransactionItem	calcChecked(@PathVariable Long accountid)
-	 {
-		 // An exception might be a bit extreme for no checked balances
-		 TransactionItem ti = this.balanceService.calculateCheckedBalances(accountid)
-							 .map(t ->this.transactionService.mapToItem(t, BalanceType.CHECKED))
-							 .orElseThrow(() -> new	AccountException("Checked balances not	found: "	+ accountid));
-		 return ti;
-	 }
+    // Without   @RequestBody Spring seems to be expecting   something other than   the JSON   of   the
+    // TransactionItem (haven't got   a forking clue   what it is expecting). The   front-end not surprisingly
+    // only   provides   the TransactionItem json.
+    @PostMapping(value = "/addtransaction")
+    public String   addTransaction(@RequestBody TransactionItem transactionItem, Model model)
+    {
+       log.info("addTransaction:   transaction   item to add: {}",   transactionItem);
+       try
+       {
+          this.transactionService.addTransaction(transactionItem);
 
-	 @GetMapping(value =	"/getchecked/{accountid}")
-	 public TransactionItem	getLatestChecked(@PathVariable Long	accountid)
-	 {
-		 // An exception might be a bit extreme for no checked balances
-		 TransactionItem ti = this.transactionService.getCheckedBalance(accountid);
-		 return ti;
-	 }
+       }
+       catch(Exception ex)
+       {
+          log.info("addTransaction:   Failed to add:   {}", transactionItem, ex);
+          return "failed: " +   ex.getMessage();
+       }
 
-	 @GetMapping(value =	{"/listchecked/{accountid}", "/listchecked/{accountid}/{page}"})
-	 public Transactions	getCheckedTransactions(
-			 @PathVariable	Long accountid,
-			 @PathVariable	Optional<Integer>	page)
-	 {
-		 int pageno	= -1;
-		 if(page.isPresent())
-		 {
-			 pageno = page.get();
-		 }
-		 return this.transactionService.getCheckedTransactions(accountid,	25, pageno);
-	 }
+       return "ok";
+    }
+
+    @PutMapping(value =   "/updatetransaction")
+    public String   updateTransaction(@RequestBody TransactionItem transactionItem, Model model)
+    {
+       log.info("updateTransaction:   transaction   item to add: {}",   transactionItem);
+       try
+       {
+          this.transactionService.updateTransaction(transactionItem);
+       }
+       catch(Exception ex)
+       {
+          log.info("updateTransaction:   Failed to update:   {}", transactionItem, ex);
+          return "failed: " +   ex.getMessage();
+       }
+
+       return "ok";
+    }
+
+    // Note   Spring will   automatically convert objects   to   json string   and supply the   appropriate   header
+    @GetMapping("/liststandingorders")
+    public List<StandingOrderItem> getStandingOrderItems()
+    {
+       return this.standingOrderService.getStandingOrderItems();
+    }
+
+    @GetMapping("/standingorder/{id}")
+    public StandingOrderItem getStandingOrderItem(@PathVariable Long   id)
+    {
+       return this.standingOrderService.getStandingOrderItem(id);
+    }
+
+    @PostMapping(value = "/addstandingorder")
+    public String   addStandingOrder(@RequestBody   StandingOrderItem   standingOrderItem, Model model)
+    {
+       log.info("addStandingOrder: item to add:   {}", standingOrderItem);
+       try
+       {
+          this.standingOrderService.addStandingOrderItem(standingOrderItem);
+
+       }
+       catch(Exception ex)
+       {
+          log.info("addStandingOrder: Failed   to   add: {}", standingOrderItem, ex);
+          return "failed: " +   ex.getMessage();
+       }
+
+       return "ok";
+    }
+
+    @PutMapping(value =   "/updatestandingorder")
+    public String   updateStandingOrder(@RequestBody   StandingOrderItem   standingOrderItem, Model model)
+    {
+       log.info("updateStandingOrder: item to update:   {}", standingOrderItem);
+       try
+       {
+          this.standingOrderService.updateStandingOrderItem(standingOrderItem);
+
+       }
+       catch(Exception ex)
+       {
+          log.info("updateStandingOrder: Failed   to   update: {}", standingOrderItem, ex);
+          return "failed: " +   ex.getMessage();
+       }
+
+       return "ok";
+    }
+
+
+    // UI should call this   once when opening   the page, then   call getCheckedTransactions
+    // for display. Can't think of a better way   to   do   it   (without   changing   the DB) at the   moment
+    @GetMapping(value =   "/calcchecked/{accountid}")
+    public TransactionItem   calcChecked(@PathVariable Long accountid)
+    {
+       // An exception might be a bit extreme for no checked balances
+       TransactionItem ti = this.balanceService.calculateCheckedBalances(accountid)
+                      .map(t ->this.transactionService.mapToItem(t, BalanceType.CHECKED))
+                      .orElseThrow(() -> new   AccountException("Checked balances not   found: "   + accountid));
+       return ti;
+    }
+
+    @GetMapping(value =   "/getchecked/{accountid}")
+    public TransactionItem   getLatestChecked(@PathVariable Long   accountid)
+    {
+       // An exception might be a bit extreme for no checked balances
+       TransactionItem ti = this.transactionService.getCheckedBalance(accountid);
+       return ti;
+    }
+
+    @GetMapping(value =   {"/listchecked/{accountid}", "/listchecked/{accountid}/{page}"})
+    public Transactions   getCheckedTransactions(
+          @PathVariable   Long accountid,
+          @PathVariable   Optional<Integer>   page)
+    {
+       int pageno   = -1;
+       if(page.isPresent())
+       {
+          pageno = page.get();
+       }
+       return this.transactionService.getCheckedTransactions(accountid,   25, pageno);
+    }
 }

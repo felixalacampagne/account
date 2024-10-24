@@ -62,11 +62,11 @@ public class BalanceService
    @Transactional
    public Optional<Transaction> calculateCheckedBalances(long accountId)
    {
-   	List<Transaction> chktxns = transactionJpaRepository.findByAccountIdAndCheckedOrderBySequenceAsc(accountId, true);
-   	if(chktxns.isEmpty())
-   	{
-   	   return Optional.empty();
-   	}
+      List<Transaction> chktxns = transactionJpaRepository.findByAccountIdAndCheckedOrderBySequenceAsc(accountId, true);
+      if(chktxns.isEmpty())
+      {
+         return Optional.empty();
+      }
       BigDecimal balance = BigDecimal.ZERO;
       BigDecimal amt = BigDecimal.ZERO;
 
