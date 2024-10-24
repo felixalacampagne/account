@@ -1,28 +1,53 @@
 # Accountui
 
-02-Oct-2024 After much blood, sweat and tears - well hours of wasted time thanks to the continuous improvement grassholes
-that keep changing how to do things (whilst senselessly breaking basic UI behaviour) and providing zero useable documentation
-thereby ensuring all googling results in misinformation - I have managed to force the display of the transactions into 
-something more or less acceptable to me.
+24-Oct-2024 Really rockin' 'n rollin' now with working versions of transaction update, standing order
+processing and editing and now 'checked balance' calculation and display and even paging to show 
+the history. 
 
-So I thought it was time to start thinking about how to add screens for things like the standing order definitions, account
-definitions, etc. 
+For now I'm keeping the original format of the transaction list with the add new transaction panel 
+below the list since this is what seems to work best on the phone.
+The standing order edit dialog was the first use of Angular Material and now I've used it for the
+display of the checked entry balances. It seems to be essentially a really ugly replacement
+for Bootstrap with virtually zero useful documentation for making it look any better. Therefore I've
+ended up wasting hours trying to get it looking half way decent, and I'm not really sure I actually
+achieved that! Still, I can see the checked balances when I need to so I suppose it's an 
+achievement of sorts. I haven't figured out what the point of Material is given that Bootstrap seems 
+to do the same thing but with better looks and documentation. At some stage I should opt to go with 
+Material everywhere, or convert the Material things back to Bootstrap - it'll probably end staying a
+mixture of both for the forseeable future since there are more interesting things to add, like the
+transfers, previously known as phone transfers. Not so sure that the way it works for the VB app
+makes sense nowadays, although having previous used destinations still makes it easier to enter
+a transfer, and entering the info once to do transfers between 'my' accounts is also nice - same
+would be nice when entering standing orders between 'my' accounts.
 
-First thing to do was get the transaction list into a 'screen' of it's own. Naturally this was anything but straight
-forward. The biggest problem was getting the account menu to communicate the account to display the transaction for. 
-There are all sorts of wonderous ways to transfer data between a parent and a child - which of course are all useless when
-the 'routing' to different screens comes into play. Thus only an id can be readily sent from the routing link to the 
-transaction component. No problem, there is a list of accounts already loaded so just put that into the service so it can
-be used to lookup the account by its id. No problem, right?? Wrong. When the browser is refreshed the list goes away, and
-there is no way to get the transaction list to wait for the account menu to reload it. So, once again, there go the
-hours and hours of my time disappearing out the window while trying to figure out how to workaround this. Again the 
-continuous grassholes have worked their magic to ensure there is nothing useful for the current way to get this work, if there
-even is one. After a few false leads, like getting it to reload the same url when the refresh button is used instead of ignoring it (which worked!) I eventually figured out a way to pass the account object via the routing url. It looks pretty
-clumsy in the address bar, but who gives a shirt about that. So now browser navigation works as I expect it to. Eventually 
-I might go back to passing just the id and doing a getAccount for a single id.
+02-Oct-2024 After much blood, sweat and tears - well hours of wasted time thanks to the 
+continuous improvement grassholes that keep changing how to do things (whilst senselessly 
+breaking basic UI behaviour) and providing zero useable documentation
+thereby ensuring all googling results in misinformation - I have managed to 
+force the display of the transactions into something more or less acceptable to me.
 
-Next is to populate the standing order list, should be easypeasy now!!!! Afterall it's more or less the same thing as 
-the transaction list, just slight different data.
+So I thought it was time to start thinking about how to add screens for things like the 
+standing order definitions, account definitions, etc. 
+
+First thing to do was get the transaction list into a 'screen' of it's own. Naturally this 
+was anything but straight forward. The biggest problem was getting the account menu to 
+communicate the account to display the transaction for. 
+There are all sorts of wonderous ways to transfer data between a parent and 
+a child - which of course are all useless when the 'routing' to different screens comes into play. 
+Thus only an id can be readily sent from the routing link to the transaction component. 
+No problem, there is a list of accounts already loaded so just put that into the service so it can
+be used to lookup the account by its id. No problem, right?? Wrong. When the browser 
+is refreshed the list goes away, and there is no way to get the transaction list to wait for 
+the account menu to reload it. So, once again, there go the hours and hours of my time 
+disappearing out the window while trying to figure out how to workaround this. Again the 
+continuous grassholes have worked their magic to ensure there is nothing useful for the 
+current way to get this work, if there even is one. After a few false leads, like getting it to reload the same url when the refresh button is used instead of ignoring it (which worked!) I eventually figured out a way to pass the account object via the routing url. It looks pretty
+clumsy in the address bar, but who gives a shirt about that. So now browser navigation works as I expect it to.
+
+Eventually I might go back to passing just the id and doing a getAccount for a single id.
+
+Next is to populate the standing order list, should be easypeasy now!!!! Afterall 
+it's more or less the same thing as the transaction list, just slightly different data.
 
 
 26-Sep-2024 Have managed to get the update modal working and have even managed to implement a crude 'swipe' to 
