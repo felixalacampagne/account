@@ -226,6 +226,14 @@ public class AccountController {
        return ti;
     }
 
+    @GetMapping(value = "/getchecked/{accountid}")
+    public TransactionItem getLatestChecked(@PathVariable Long accountid)
+    {
+       // An exception might be a bit extreme for no checked balances
+       TransactionItem ti = this.transactionService.getCheckedBalance(accountid);
+       return ti;
+    }
+
     @GetMapping(value = {"/listchecked/{accountid}", "/listchecked/{accountid}/{page}"})
     public Transactions getCheckedTransactions(
    		 @PathVariable Long accountid,

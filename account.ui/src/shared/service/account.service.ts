@@ -23,6 +23,7 @@ export class AccountService
    private listtxnsvc : string = "listtransaction/";
    private listchktxn : string = "listchecked/";
    private calcchkbal : string = "calcchecked/";
+   private getchktxn  : string = "getchecked/";
    private addtxnsvc : string = "addtransaction";
    private updtxnsvc : string = "updatetransaction";
    private versionsvc : string = "version";
@@ -164,6 +165,13 @@ export class AccountService
       let url : string;
       url = this.apiurl + this.listchktxn + a.id + '/' + p;
       return this.http.get(url).pipe( map((res:any) => res.transactions));      
+   }
+
+   getCheckedBalance(a : AccountItem) : Observable<TransactionItem>
+   {
+      let url : string;
+      url = this.apiurl + this.getchktxn + a.id;
+      return this.http.get(url).pipe( map((res:any) => res));
    }
 
    getTransactions(a : AccountItem, p: number = 0) : Observable<TransactionItem[]>

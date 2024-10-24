@@ -192,7 +192,7 @@ public class TransactionService
    	CHECKED,
    	SORTED
    }
-   
+
    public TransactionItem mapToItem(Transaction t, BalanceType balanceType)
    {
       BigDecimal amount = BigDecimal.ZERO;
@@ -252,6 +252,14 @@ public class TransactionService
             .sorted(Comparator.comparingLong(Transaction::getSequence))
             .collect(Collectors.toList());
       return txns;
+   }
+
+   public TransactionItem getCheckedBalance(Long accountid)
+   {
+      Transaction t =  this.transactionJpaRepository.findFirstByAccountIdAndCheckedIsTrueAndCheckedBalanceIsNotNullOrderBySequenceDesc(accountid)
+            .orElseThrow(() -> new AccountException("Checked balances not found: " + accountid));
+      TransactionItem ti = mapToItem(t, BalanceType.CHECKED);
+      return ti;
    }
 
 

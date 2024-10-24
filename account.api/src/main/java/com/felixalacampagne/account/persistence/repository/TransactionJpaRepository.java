@@ -52,4 +52,5 @@ public interface TransactionJpaRepository extends JpaRepository<Transaction, Lon
 
    List<Transaction> findByAccountIdAndCheckedOrderBySequenceAsc(long accountId, boolean checked);
    List<Transaction> findByAccountIdAndCheckedOrderBySequenceDesc(long accountId, boolean checked, Pageable pageable);
+   Optional<Transaction> findFirstByAccountIdAndCheckedIsTrueAndCheckedBalanceIsNotNullOrderBySequenceDesc(long accountId);
 }

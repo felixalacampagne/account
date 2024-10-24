@@ -181,6 +181,7 @@ export class TransactionsComponent implements OnInit {
             else
             {
                this.loadTransactions(res);
+               this.getCheckedBalance(res);
             }
           },
          error: (err)=>{
@@ -191,7 +192,34 @@ export class TransactionsComponent implements OnInit {
    
      console.log("TransactionsComponent.loadAccount:Finished");
    }
+
+   getCheckedBalance(acc : AccountItem)
+   {
+      console.log("TransactionsComponent.getCheckedBalance: Starting: " + JSON.stringify(acc, null, 2));
+      if(acc.id < 0)
+         return;
+
+      this.accountService.getCheckedBalance(acc).subscribe({
+         next: (res)=>{
+               if(!res)
+               {
+                 console.log("TransactionsComponent.getCheckedBalance: variable is not initialized");
+               }
+               else
+               {
+                 this.checkTransaction = res;
+                 console.log("TransactionsComponent.getCheckedBalance: returned");
+               }
+             },
+         error: (err)=>{
+             console.log("TransactionsComponent.getCheckedBalance: An error occured during getCheckedBalance subscribe: " + JSON.stringify(err, null, 2));
+             } ,
+         complete: ()=>{console.log("TransactionsComponent.getCheckedBalance: getCheckedBalance loading completed");}
+      });
    
+      console.log("TransactionsComponent.getCheckedBalance:Finished");
+   }
+
 loadTransactions(acc : AccountItem, page: number = 0)
 {
    console.log("TransactionsComponent.loadTransactions: Starting: " + JSON.stringify(acc, null, 2));
@@ -213,7 +241,7 @@ loadTransactions(acc : AccountItem, page: number = 0)
             }
           },
       error: (err)=>{
-          console.log("TransactionsComponent.loadTransactions: An error occured during loadTransactions subscribe" + err);
+          console.log("TransactionsComponent.loadTransactions: An error occured during loadTransactions subscribe: " + JSON.stringify(err, null, 2));
           } ,
       complete: ()=>{console.log("TransactionsComponent.loadTransactions: loadTransactions loading completed");}
    });
