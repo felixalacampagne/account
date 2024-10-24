@@ -12,18 +12,18 @@ public class ConnectionResurrector<R extends JpaRepository<?, ?>>
    private final R repository;
    private final String id;
    private final int MAX_ATTEMPTS=10;
-   
+
    // NB id should be the class name of R. Using R as the class name gives an unhelpful jpa proxy name,
    // eg. jdk.proxy2.$Proxy119>, which is not helpful for logging. Perhaps I should make the parameter
    // the actual class since it has proven frustrating that the class is not accessible from a template...
-   public ConnectionResurrector(R repository, Class<?> repoClass) 
+   public ConnectionResurrector(R repository, Class<?> repoClass)
    {
       this.repository = repository;
       this.id = repoClass.getSimpleName();
    }
-   
-   
-   // Have not been able to find anything to prevent the connections from being closed after 
+
+
+   // Have not been able to find anything to prevent the connections from being closed after
    // a certain period and Hikari is no help since it seems to happily give out useless closed connections.
    // I discovered that after refreshing the account page 10 or so times the connections started to
    // work again.
@@ -33,7 +33,7 @@ public class ConnectionResurrector<R extends JpaRepository<?, ?>>
    //
    // Unfortunately there is nothing to say that after successfully reading the DB here the
    // next call immediately after wont give 'connection closed'. So this is just a start....
-   public boolean ressurectConnection() 
+   public boolean ressurectConnection()
    {
       boolean rc = false;
       int attempt;
@@ -54,9 +54,9 @@ public class ConnectionResurrector<R extends JpaRepository<?, ?>>
          {
             log.info("ressurectConnection<{}>: attempt {} failed: {}", this.id, attempt, ex.toString());
             throw ex;
-         }         
+         }
       }
       return rc;
-      
+
    }
 }

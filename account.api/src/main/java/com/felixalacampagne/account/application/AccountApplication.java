@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Import;
 // Also has to explicitly import AccountApplicationConfig, which is strange given that it is in the
 // same package as Application - that's SPriong for you, constantly finding way to fork you over and
 // suck up available time on idiocies.
-// 
+//
 // So now need to figure out how to override AccountApplication with TestApplication for the tests
 @SpringBootApplication(scanBasePackages = {
 "com.felixalacampagne.account.controller"

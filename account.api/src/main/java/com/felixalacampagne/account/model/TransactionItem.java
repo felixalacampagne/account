@@ -17,7 +17,7 @@ public class TransactionItem
    private  boolean locked;
    private  String balance;
    private String statementref;
-   
+
 
    private  String token;
 

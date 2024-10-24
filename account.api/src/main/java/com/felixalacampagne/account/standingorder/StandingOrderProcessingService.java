@@ -31,7 +31,7 @@ public class StandingOrderProcessingService
    @Transactional
    void updateTxnAndSo(StandingOrders so, Transaction txn)
    {
-      // must add transaction via the transactionservice in order to calculate the balance 
+      // must add transaction via the transactionservice in order to calculate the balance
       this.transactionService.add(txn);
       this.standingOrdersJpaRepository.saveAndFlush(so);
    }

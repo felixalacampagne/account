@@ -23,16 +23,16 @@ import org.hibernate.mapping.Table;
 import org.hibernate.mapping.UniqueKey;
 
 /**
- * 
+ *
  * Hibernate dialect for UCanAccess - support for unique columns
- * 
+ *
  */
 public class UCanAccessDialectUniqueDelegate implements UniqueDelegate {
    public static final UCanAccessDialectUniqueDelegate UNIQUE_DELEGATE =
          new UCanAccessDialectUniqueDelegate();
 
-   
-   
+
+
    @Override
    public String getColumnDefinitionUniquenessFragment(Column column, SqlStringGenerationContext context)
    {
