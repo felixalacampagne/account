@@ -42,10 +42,10 @@ public class TransactionService
 
    public Transactions getTransactions(long accountId, int page)
    {
-   	if(page < 0)
-   	{
-   		page = 0;
-   	}
+      if(page < 0)
+      {
+         page = 0;
+      }
       return getTransactions(getTransactionPage(page, 15, accountId), BalanceType.NORMAL);
    }
 
@@ -188,9 +188,9 @@ public class TransactionService
 
    public enum BalanceType
    {
-   	NORMAL,
-   	CHECKED,
-   	SORTED
+      NORMAL,
+      CHECKED,
+      SORTED
    }
 
    public TransactionItem mapToItem(Transaction t, BalanceType balanceType)
@@ -210,14 +210,14 @@ public class TransactionService
       switch(balanceType)
       {
       case CHECKED:
-      	itemBalance = Utils.formatAmount(t.getCheckedBalance());
-      	break;
+         itemBalance = Utils.formatAmount(t.getCheckedBalance());
+         break;
       case SORTED:
-      	itemBalance = Utils.formatAmount(t.getSortedBalance());
-      	break;
+         itemBalance = Utils.formatAmount(t.getSortedBalance());
+         break;
       case NORMAL:
       default:
-      	itemBalance = Utils.formatAmount(t.getBalance());
+         itemBalance = Utils.formatAmount(t.getBalance());
       }
       // jackson doesn't handle Java dates [it does now!!] and bigdecimal has too many decimal places so it's
       // simpler just to send the data as Strings with the desired formating.
