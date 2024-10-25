@@ -181,7 +181,7 @@ export class TransactionsComponent implements OnInit {
             else
             {
                this.loadTransactions(res);
-               this.getCheckedBalance(res);
+               // this.getCheckedBalance(res);
             }
           },
          error: (err)=>{
@@ -344,7 +344,7 @@ lockedChange()
   }
 }
 
-updTransactionToDB(txn : TransactionItem)
+updTransactionToDB(txn : TransactionItem, showcheckedbal: boolean)
 {
   console.log("TransactionsComponent.updTransactionToDB: Starting");
   this.accountService.updateTransaction(txn).subscribe( {
@@ -355,6 +355,10 @@ updTransactionToDB(txn : TransactionItem)
           // Reset amount to prevent double entry
           this.txAmount = '';
           this.txPastearea = '';
+          if(showcheckedbal)
+          {
+            this.getCheckedBalance(this.activeaccount);
+          }
           },
       error: (err)=>{
           console.log("TransactionsComponent.updTransactionToDB: An error occured during updTransactionToDB subscribe:" + JSON.stringify(err));
@@ -402,10 +406,20 @@ updatetransaction(updtxn : TransactionItem)
    console.log("Comment: new:" + updtxn.comment + " old:" + this.origupdTxn.comment);
    console.log("Amount:  new:" + updtxn.amount + " old:" + this.origupdTxn.amount);  
    console.log("Locked:  new:" + updtxn.locked + " old:" + this.origupdTxn.locked);   
-   console.log("StRef:   new:" + updtxn.statementref + " accref:" + this.activeaccount.statementref);   
-   this.updTransactionToDB(updtxn);
+   console.log("StRef:   new:" + updtxn.statementref + " accref:" + this.activeaccount.statementref); 
+   
+   // Only update the checked balance when it is changed to locked
+   // this is not really correct but it is consistent with what the backend is doing at the moment.
+   // It assumes that an unlock is temporary for adjustment, eg. of the comment, and the txn
+   // will be re-locked immediately.
+   let showcheckedbal: boolean = false;
+   if(!this.origupdTxn.locked && updtxn.locked)
+   {
+      showcheckedbal  = true;
+   }   
+   this.updTransactionToDB(updtxn, showcheckedbal);
 
-   // TODO: If the locked state was changed to locked and the txn statementref is present
+   // If the locked state was changed to locked and the txn statementref is present
    // and different to the account statementref then the account statementref should be updated.
    // This will require an update on the server as the accountitem is loaded each time the 
    // update dialog is displayed.
@@ -413,8 +427,8 @@ updatetransaction(updtxn : TransactionItem)
         && updtxn.statementref 
         && (updtxn.statementref != this.activeaccount.statementref))
    {
-    this.activeaccount.statementref = updtxn.statementref;
-    this.accountService.updateAccountStatementRef(this.activeaccount.id, this.activeaccount.statementref);
+      this.activeaccount.statementref = updtxn.statementref;
+      this.accountService.updateAccountStatementRef(this.activeaccount.id, this.activeaccount.statementref);
    }
 
 

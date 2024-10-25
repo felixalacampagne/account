@@ -124,6 +124,7 @@ public class TransactionService
 
          throw new  AccountException("Transaction id " + transactionItem.getId() + " is locked");
       }
+      boolean  bRecalcChecked = (!txn.getChecked() && updtxn.getChecked());
 
       // updtxn is possibly not a complete set of Transaction values.
       // Maybe should add checks for presence of values???
@@ -134,7 +135,14 @@ public class TransactionService
       txn.setDebit(updtxn.getDebit());
       txn.setChecked(updtxn.getChecked());
       txn.setStid(updtxn.getStid());
-      return update(txn);
+      Transaction txnupdated = update(txn);
+      
+      if(bRecalcChecked)
+      {
+      	// not sure if I really want this as it could be very time consuming
+      	balanceService.calculateCheckedBalances(txnupdated.getAccountId());
+      }
+      return txnupdated;
    }
 
    // This must be @Transactional because it recalculates the balances of all following transactions
