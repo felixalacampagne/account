@@ -178,7 +178,7 @@ related to using angular with the modal
                   <div class="input-group-prepend">
                      <span class="acc-modal-label" id="lbcomment">Memo</span>
                   </div>
-                  <input [(ngModel)]="this.updateTxn.comment" name="txComment" id="txComment" type="text"
+                  <input [(ngModel)]="this.updateTxn.comment" (paste)="onPasteUpd($event)" name="txComment" id="txComment" type="text"
                      class="form-control form-control-sm" placeholder="" aria-label=""  aria-describedby="lbcomment">
 
                   <button *ngIf="this.updateTxn.comment" (click)="this.updateTxn.comment='';" class="btn ps-1 pe-0" type="button" id="button-addon2">

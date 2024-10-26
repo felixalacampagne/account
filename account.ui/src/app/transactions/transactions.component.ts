@@ -483,6 +483,61 @@ parseEPC(epc : string) : TransactionItem | undefined
   return trans;
 }
 
+
+cleanSComm( rawval : string) : string | undefined
+{
+   let scomm : string | undefined;
+   console.log("cleanSComm: rawval: " + rawval);
+   const scommre = /(?: *\+){0,3} *(\d) *(\d) *(\d) *\/* *(\d) *(\d) *(\d) *(\d) *\/* *(\d) *(\d) *(\d) *(\d) *(\d)(?: *\+){0,3} */;
+   const replace =   '$1$2$3$4$5$6$7$8$9$10$11$12';
+   if(rawval.match(scommre))
+   {
+      scomm =rawval.replace(scommre, replace);
+      console.log("cleanSComm: clean val: " + scomm);
+   }
+   else
+   {
+      console.log("cleanSComm: scomm NO MATCH");
+   }
+   return scomm;
+}
+
+onPasteUpd(event: ClipboardEvent) {
+   console.log("onPasteUpd: entry");
+   const clipboardData = event.clipboardData; // || window.clipboardData;
+   if(clipboardData !== null)
+   {
+     const clptxt = clipboardData.getData('text');
+     const scomm : string | undefined = this.cleanSComm(clptxt);
+     if(scomm)
+     {
+      console.log("onPasteUpd: replace clipboard content with cleaned scomm: " + scomm); 
+
+      // Can't update the clipboard and do the paste with the new text.
+      // Inst3ead need to cancel the paste and then try to emulate what should
+      // be happening. Forking crazy.
+      // This BS seems to work except for some things don't work properly after, eg. it is not 
+      // possible to revert the change, ie. Ctrl-Z. Still it is better than trying to edit//
+      // the structure communications by hand on the phone!!
+      //clipboardData.setData('text', scomm);
+
+      event.preventDefault();
+   
+      let element = event.target  as HTMLInputElement;;
+      console.log("onPasteUpd: " + JSON.stringify(element, null, 2));
+      let start = element.selectionStart as number;
+      let end = element.selectionEnd as number;
+      console.log("onPasteUpd: start,end:" + start + "," + end);
+
+      const value = element.value;
+      element.value = value.slice(0, start) + scomm + value.slice(end);
+      console.log("onPasteUpd: text: orig: " + value + " new: " + element.value);
+      element.selectionStart = element.selectionEnd = start + scomm.length;
+     }
+   }
+   console.log("onPasteUpd: exit");
+ }
+ 
 // Adapted this so I can paste an EPC code into the memo field and have it parsed
 // This relies on the EPC parser returning undefined if it fails to parse the
 // clipboard content, in which case the normal paste action should take place
