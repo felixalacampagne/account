@@ -140,7 +140,7 @@ public class TransactionService
       if(bRecalcChecked)
       {
       	// not sure if I really want this as it could be very time consuming
-      	balanceService.calculateCheckedBalances(txnupdated.getAccountId());
+      	balanceService.calculateCheckedBalances(txnupdated.getAccountId(), Optional.of(txnupdated));
       }
       return txnupdated;
    }
