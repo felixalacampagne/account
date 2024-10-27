@@ -42,7 +42,7 @@ public class ConnectionResurrector<R extends JpaRepository<?, ?>>
          try
          {
             long count = repository.count();
-            log.info("ressurectConnection<{}>: attempt {} successful: count={}", this.id, attempt, count);
+            log.debug("ressurectConnection<{}>: attempt {} successful: count={}", this.id, attempt, count);
             rc = true;
             break;
          }
