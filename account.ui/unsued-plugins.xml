@@ -1,0 +1,30 @@
+         
+<!--
+ Some plugin definitions which might come in handy at some time. Couldn't keep them in the pom.xml
+ file because it is impossible to comment blocks which already contain comments (which Java committee
+ member thought that one up??). Unfortunately the suggested use of a dummy 'processing instruction',
+ ie. '<?ignore evertying including comments ?>' didn't work and for some reason CDATA doesn't work either.
+ 
+ So only choice is to remove the entire block since the comments are vital to understanding what the fork
+ the gibberish is trying to accomplish.
+-->         
+         <!-- test  nothing to be done here, all testing is manual but this is an example of what might be
+         required if I ever need automated tests
+         -->
+         <!-- plugin>
+            <groupId>com.kelveden</groupId>
+            <artifactId>maven-karma-plugin</artifactId>
+            <version>1.8</version>
+            <executions>
+            <execution>
+            <goals>
+            <goal>start</goal>
+            </goals>
+            </execution>
+            </executions>
+            <configuration>
+            <browsers>Chrome</browsers>
+            </configuration>
+         </plugin -->
+
+

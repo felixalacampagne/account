@@ -73,12 +73,12 @@ public class StandingOrderProcessorTest
    @Test
    void testCron()
    {
-   	CronExpression cron = CronExpression.parse("* 5 * * * *");
-   	
-   	 LocalDateTime nextexec = cron.next(LocalDateTime.now());
-   	 log.info("testCron: next execution time: {}", nextexec);
-   	 
-   	 nextexec = cron.next(nextexec.plusMinutes(2));
-   	 log.info("testCron: next execution time after: {}", nextexec);
+      CronExpression cron = CronExpression.parse("* 5 * * * *");
+
+       LocalDateTime nextexec = cron.next(LocalDateTime.now());
+       log.info("testCron: next execution time: {}", nextexec);
+
+       nextexec = cron.next(nextexec.plusMinutes(2));
+       log.info("testCron: next execution time after: {}", nextexec);
    }
 }

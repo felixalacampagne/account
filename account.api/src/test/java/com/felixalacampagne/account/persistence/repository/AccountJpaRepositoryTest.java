@@ -44,5 +44,5 @@ class AccountJpaRepositoryTest
             .collect(Collectors.joining("\n"))
             );
 
-   }   
+   }
 }

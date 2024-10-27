@@ -70,7 +70,7 @@ public class StandingOrderProcessor
 
    public void processStandingOrder(StandingOrders so)
    {
-      
+
       log.info("processStandingOrder: processing {}", so);
 
       // Generate comment
@@ -78,12 +78,12 @@ public class StandingOrderProcessor
       LocalDate entdate = so.getSOEntryDate();
       String memo = expandSOmemo(so.getSODesc(), txndate, entdate);
       memo = String.join(" ", memo, "On:" + memoon.format(LocalDate.now()));
-      
+
       BigDecimal soamt = so.getSOAmount();
       Long accId = so.getAccount().getAccId();
-      
 
-      
+
+
       // create new transaction
       Transaction sotxn = new Transaction();
       sotxn.setAccountId(accId);
@@ -116,7 +116,7 @@ public class StandingOrderProcessor
       String sr;
       String pat;
       LocalDate fmtdate;
-      
+
       do
       {
          i = srtn.indexOf('#');
@@ -140,15 +140,15 @@ public class StandingOrderProcessor
             sr = srtn.substring(e+1, srtn.length());
 
          pat = srtn.substring(i+1, e);
-         
+
          fmtdate = txndate;
          if(pat.startsWith("E"))
          {
-         	pat = pat.substring(1, pat.length());
-         	if(entdate != null)
-         	{
-         		fmtdate = entdate;
-         	}
+            pat = pat.substring(1, pat.length());
+            if(entdate != null)
+            {
+               fmtdate = entdate;
+            }
          }
          // pat should now be a VB date format - unfortunately this is not the same as a Java date format
          // There are only a few formats actually used and the main difference is for month, ie. m vs. M for java

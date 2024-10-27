@@ -90,7 +90,13 @@ td.account-amount, th.account-amount
    text-align: right;
    border-bottom-width: 0;
 }
-
+td.account-edit, th.account-edit
+{
+   width:0.1%;
+   white-space: nowrap;
+   padding: 0px;
+   margin: 0px;
+}
 /*
    Text colour does not change when '!important' is omitted
  */
@@ -98,8 +104,10 @@ td.account-amount, th.account-amount
 {
    color: red !important;
 }
-
-
+.account-negamount
+{
+   color: green !important;
+}
 /* Trying to reduce the wasted space between the rows. Some was due to padding on the update button and icon
    but most is due to the bootstrap table css and nowhere is it documented how to remove the padding.
    The only thing that has made any difference is the padding/margin settings, and they only work if

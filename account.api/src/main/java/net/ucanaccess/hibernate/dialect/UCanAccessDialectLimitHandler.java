@@ -18,11 +18,11 @@ package net.ucanaccess.hibernate.dialect;
 import org.hibernate.dialect.pagination.LimitOffsetLimitHandler;
 
 /**
- * 
+ *
  * Hibernate dialect for UCanAccess - limit handler for query results
- * 
+ *
  * With Hibernate 6.5 this class is never used because the Dialect.getLimitHandler method is never invoked.
- * 
+ *
  */
 public class UCanAccessDialectLimitHandler extends LimitOffsetLimitHandler { //implements LimitHandler {
    public static final UCanAccessDialectLimitHandler LIMIT_HANDLER = new UCanAccessDialectLimitHandler();
@@ -47,7 +47,7 @@ public class UCanAccessDialectLimitHandler extends LimitOffsetLimitHandler { //i
 //   public String processSql(String sql, Limit limit)
 //   {
 //      System.out.println("UCanAccessDialectLimitHandler.processSql: " + sql);
-//      return String.format("%s limit %d offset %d", sql, 
+//      return String.format("%s limit %d offset %d", sql,
 //            limit.getMaxRows(), limit.getFirstRow());
 ////            selection.getMaxRows(), selection.getFirstRow());
 //
@@ -71,7 +71,7 @@ public class UCanAccessDialectLimitHandler extends LimitOffsetLimitHandler { //i
 //   public void setMaxRows(Limit limit, PreparedStatement statement) throws SQLException
 //   {
 //      // TODO Auto-generated method stub
-//      
+//
 //   }
 
 }
