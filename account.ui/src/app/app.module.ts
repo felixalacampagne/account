@@ -14,6 +14,7 @@ import { StandingordersComponent } from './standingorders/standingorders.compone
 import { provideRouter, RouterLink, RouterLinkActive, RouterOutlet, withComponentInputBinding, withHashLocation, withRouterConfig } from '@angular/router';
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { CheckedListComponent } from './checked-list/checked-list.component';
 
 
 // Magic required to get normal scrolling to work when swipe left is used.
@@ -80,7 +81,8 @@ export class HammerConfigForNormalScroll extends HammerGestureConfig {
       NgbModule,
       HammerModule,
       TransactionsComponent,
-      StandingordersComponent,
+      StandingordersComponent, // possibly required for routing
+      CheckedListComponent,
       RouterOutlet,
       RouterLink,
       RouterLinkActive

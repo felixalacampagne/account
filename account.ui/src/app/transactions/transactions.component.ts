@@ -14,7 +14,7 @@ import {AccountItem} from '../../shared/model/accountitem.model';
 import {TransactionItem} from '../../shared/model/transaction.model';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { Html5QrcodeResult } from 'html5-qrcode/esm/core';
-import { ActivatedRoute } from '@angular/router';
+import { RouterModule, RouterOutlet } from '@angular/router'; // for 'routerlink is not a property of button'
 
 // WARNING: 'standalone: true' means the component must not be put in app.module and all imports must be duplicated
 // in the imports sections of @Component otherwise many inexplicable errors will occur, eg.
@@ -22,7 +22,7 @@ import { ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'transactions',
   standalone: true,
-  imports: [FormsModule, CommonModule, NgbModule],
+  imports: [FormsModule, CommonModule, NgbModule, RouterModule, RouterOutlet ],
   templateUrl: './transactions.component.html',
   styleUrls: ['../../sass/account-styles.scss', '../app.component.css', './transactions.component.css'],
   providers: [{provide: NgbDateParserFormatter, useClass: isoNgbDateParserFormatter}]
@@ -39,14 +39,14 @@ export class TransactionsComponent implements OnInit {
    // it appears to work including when the refresh button is used.
    @Input() accid!: number;
    
-   activeaccount!: AccountItem; 
-
+  
    @ViewChild('closebutton') closebutton: any;   
    modalReference: NgbModalRef | undefined;
 
-
+   activeaccount!: AccountItem; 
    transactions: TransactionItem[] = [];
-  
+   checkTransaction!: TransactionItem;
+
    public submitted: boolean = false;
    public defaultdate: string = '';
    envName: string = '';
@@ -66,7 +66,8 @@ export class TransactionsComponent implements OnInit {
    updateTxn: TransactionItem = new TransactionItem(); // Edited valeus of transaction beign updated
    origupdTxn:TransactionItem | undefined; // Original values of transaction being updated.
    public txnTypes: string[] = [];
-  
+   pageNumber: number = 0;
+
    constructor(private accountService: AccountService,
       private cd: ChangeDetectorRef,
       private datePipe: DatePipe,
@@ -180,6 +181,7 @@ export class TransactionsComponent implements OnInit {
             else
             {
                this.loadTransactions(res);
+               // this.getCheckedBalance(res);
             }
           },
          error: (err)=>{
@@ -190,14 +192,41 @@ export class TransactionsComponent implements OnInit {
    
      console.log("TransactionsComponent.loadAccount:Finished");
    }
+
+   getCheckedBalance(acc : AccountItem)
+   {
+      console.log("TransactionsComponent.getCheckedBalance: Starting: " + JSON.stringify(acc, null, 2));
+      if(acc.id < 0)
+         return;
+
+      this.accountService.getCheckedBalance(acc).subscribe({
+         next: (res)=>{
+               if(!res)
+               {
+                 console.log("TransactionsComponent.getCheckedBalance: variable is not initialized");
+               }
+               else
+               {
+                 this.checkTransaction = res;
+                 console.log("TransactionsComponent.getCheckedBalance: returned");
+               }
+             },
+         error: (err)=>{
+             console.log("TransactionsComponent.getCheckedBalance: An error occured during getCheckedBalance subscribe: " + JSON.stringify(err, null, 2));
+             } ,
+         complete: ()=>{console.log("TransactionsComponent.getCheckedBalance: getCheckedBalance loading completed");}
+      });
    
-loadTransactions(acc : AccountItem)
+      console.log("TransactionsComponent.getCheckedBalance:Finished");
+   }
+
+loadTransactions(acc : AccountItem, page: number = 0)
 {
    console.log("TransactionsComponent.loadTransactions: Starting: " + JSON.stringify(acc, null, 2));
    if(acc.id < 0)
       return;
       
-   this.accountService.getTransactions(acc).subscribe({
+   this.accountService.getTransactions(acc, page).subscribe({
       next: (res)=>{
             if(!res)
             {
@@ -207,11 +236,12 @@ loadTransactions(acc : AccountItem)
             {
               this.activeaccount = acc;
               this.transactions = res;
+              this.pageNumber = page;
               console.log("TransactionsComponent.loadTransactions: transactions contains " + this.transactions.length + " items.");
             }
           },
       error: (err)=>{
-          console.log("TransactionsComponent.loadTransactions: An error occured during loadTransactions subscribe" + err);
+          console.log("TransactionsComponent.loadTransactions: An error occured during loadTransactions subscribe: " + JSON.stringify(err, null, 2));
           } ,
       complete: ()=>{console.log("TransactionsComponent.loadTransactions: loadTransactions loading completed");}
    });
@@ -219,12 +249,49 @@ loadTransactions(acc : AccountItem)
    console.log("TransactionsComponent.loadTransactions:Finished");
 }
 
+nextPage() 
+{
+   this.loadTransactions(this.activeaccount, this.pageNumber + 1);
+}
+
+prevPage() 
+{
+   let p = this.pageNumber;
+   if(p < 1)
+   {
+      return;
+   }
+   p = p - 1;
+   this.loadTransactions(this.activeaccount, p);
+}
+
+firstPage()
+{
+   this.loadTransactions(this.activeaccount);
+}
+
+calcCheckedBalance()
+{
+   console.log("TransactionsComponent.calcCheckedBalance: Starting");
+   this.accountService.calcChecked(this.activeaccount).subscribe( {
+      next: (res)=>{
+          console.log("TransactionsComponent.calcCheckedBalance: Response: " + res);
+          this.checkTransaction = res;
+          },
+      error: (err)=>{
+          console.log("TransactionsComponent.calcCheckedBalance: An error occured during calcCheckedBalance subscribe:" + JSON.stringify(err));
+          } ,
+      complete: ()=>{console.log("TransactionsComponent.calcCheckedBalance: completed");}
+   });
+   console.log("TransactionsComponent.calcCheckedBalance: Finished");
+}
+
 addTransactionToDB(txn : TransactionItem)
 {
-  console.log("AppComponent.addTransactionToDB: Starting");
+  console.log("TransactionsComponent.addTransactionToDB: Starting");
   this.accountService.addTransaction(txn).subscribe( {
       next: (res)=>{
-          console.log("AppComponent.addTransactionToDB: Response: " + res);
+          console.log("TransactionsComponent.addTransactionToDB: Response: " + res);
           // Must wait for add to complete before loading new transaction list
           this.loadTransactions(this.activeaccount);
           // Reset amount to prevent double entry
@@ -232,12 +299,12 @@ addTransactionToDB(txn : TransactionItem)
           this.txPastearea = '';
           },
       error: (err)=>{
-          console.log("AppComponent.addTransactionToDB: An error occured during addTransactionToDB subscribe:" + JSON.stringify(err));
+          console.log("TransactionsComponent.addTransactionToDB: An error occured during addTransactionToDB subscribe:" + JSON.stringify(err));
           } ,
-      complete: ()=>{console.log("AppComponent.addTransactionToDB: completed");}
+      complete: ()=>{console.log("TransactionsComponent.addTransactionToDB: completed");}
    });
 
-  console.log("AppComponent.addTransactionToDB:Finished");
+  console.log("TransactionsComponent.addTransactionToDB:Finished");
 }
 
 addtransaction()
@@ -277,17 +344,21 @@ lockedChange()
   }
 }
 
-updTransactionToDB(txn : TransactionItem)
+updTransactionToDB(txn : TransactionItem, showcheckedbal: boolean)
 {
   console.log("TransactionsComponent.updTransactionToDB: Starting");
   this.accountService.updateTransaction(txn).subscribe( {
       next: (res)=>{
           console.log("TransactionsComponent.updTransactionToDB: Response: " + res);
           // Must wait for add to complete before loading new transaction list
-          this.loadTransactions(this.activeaccount);
+          this.loadTransactions(this.activeaccount, this.pageNumber);
           // Reset amount to prevent double entry
           this.txAmount = '';
           this.txPastearea = '';
+          if(showcheckedbal)
+          {
+            this.getCheckedBalance(this.activeaccount);
+          }
           },
       error: (err)=>{
           console.log("TransactionsComponent.updTransactionToDB: An error occured during updTransactionToDB subscribe:" + JSON.stringify(err));
@@ -335,10 +406,20 @@ updatetransaction(updtxn : TransactionItem)
    console.log("Comment: new:" + updtxn.comment + " old:" + this.origupdTxn.comment);
    console.log("Amount:  new:" + updtxn.amount + " old:" + this.origupdTxn.amount);  
    console.log("Locked:  new:" + updtxn.locked + " old:" + this.origupdTxn.locked);   
-   console.log("StRef:   new:" + updtxn.statementref + " accref:" + this.activeaccount.statementref);   
-   this.updTransactionToDB(updtxn);
+   console.log("StRef:   new:" + updtxn.statementref + " accref:" + this.activeaccount.statementref); 
+   
+   // Only update the checked balance when it is changed to locked
+   // this is not really correct but it is consistent with what the backend is doing at the moment.
+   // It assumes that an unlock is temporary for adjustment, eg. of the comment, and the txn
+   // will be re-locked immediately.
+   let showcheckedbal: boolean = false;
+   if(!this.origupdTxn.locked && updtxn.locked)
+   {
+      showcheckedbal  = true;
+   }   
+   this.updTransactionToDB(updtxn, showcheckedbal);
 
-   // TODO: If the locked state was changed to locked and the txn statementref is present
+   // If the locked state was changed to locked and the txn statementref is present
    // and different to the account statementref then the account statementref should be updated.
    // This will require an update on the server as the accountitem is loaded each time the 
    // update dialog is displayed.
@@ -346,8 +427,8 @@ updatetransaction(updtxn : TransactionItem)
         && updtxn.statementref 
         && (updtxn.statementref != this.activeaccount.statementref))
    {
-    this.activeaccount.statementref = updtxn.statementref;
-    this.accountService.updateAccountStatementRef(this.activeaccount.id, this.activeaccount.statementref);
+      this.activeaccount.statementref = updtxn.statementref;
+      this.accountService.updateAccountStatementRef(this.activeaccount.id, this.activeaccount.statementref);
    }
 
 
@@ -402,6 +483,61 @@ parseEPC(epc : string) : TransactionItem | undefined
   return trans;
 }
 
+
+cleanSComm( rawval : string) : string | undefined
+{
+   let scomm : string | undefined;
+   console.log("cleanSComm: rawval: " + rawval);
+   const scommre = /(?: *\+){0,3} *(\d) *(\d) *(\d) *\/* *(\d) *(\d) *(\d) *(\d) *\/* *(\d) *(\d) *(\d) *(\d) *(\d)(?: *\+){0,3} */;
+   const replace =   '$1$2$3$4$5$6$7$8$9$10$11$12';
+   if(rawval.match(scommre))
+   {
+      scomm =rawval.replace(scommre, replace);
+      console.log("cleanSComm: clean val: " + scomm);
+   }
+   else
+   {
+      console.log("cleanSComm: scomm NO MATCH");
+   }
+   return scomm;
+}
+
+onPasteUpd(event: ClipboardEvent) {
+   console.log("onPasteUpd: entry");
+   const clipboardData = event.clipboardData; // || window.clipboardData;
+   if(clipboardData !== null)
+   {
+     const clptxt = clipboardData.getData('text');
+     const scomm : string | undefined = this.cleanSComm(clptxt);
+     if(scomm)
+     {
+      console.log("onPasteUpd: replace clipboard content with cleaned scomm: " + scomm); 
+
+      // Can't update the clipboard and do the paste with the new text.
+      // Inst3ead need to cancel the paste and then try to emulate what should
+      // be happening. Forking crazy.
+      // This BS seems to work except for some things don't work properly after, eg. it is not 
+      // possible to revert the change, ie. Ctrl-Z. Still it is better than trying to edit//
+      // the structure communications by hand on the phone!!
+      //clipboardData.setData('text', scomm);
+
+      event.preventDefault();
+   
+      let element = event.target  as HTMLInputElement;;
+      console.log("onPasteUpd: " + JSON.stringify(element, null, 2));
+      let start = element.selectionStart as number;
+      let end = element.selectionEnd as number;
+      console.log("onPasteUpd: start,end:" + start + "," + end);
+
+      const value = element.value;
+      element.value = value.slice(0, start) + scomm + value.slice(end);
+      console.log("onPasteUpd: text: orig: " + value + " new: " + element.value);
+      element.selectionStart = element.selectionEnd = start + scomm.length;
+     }
+   }
+   console.log("onPasteUpd: exit");
+ }
+ 
 // Adapted this so I can paste an EPC code into the memo field and have it parsed
 // This relies on the EPC parser returning undefined if it fails to parse the
 // clipboard content, in which case the normal paste action should take place

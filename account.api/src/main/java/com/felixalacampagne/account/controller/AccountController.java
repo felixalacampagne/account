@@ -1,6 +1,7 @@
 package com.felixalacampagne.account.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,9 +22,12 @@ import com.felixalacampagne.account.model.StandingOrderItem;
 import com.felixalacampagne.account.model.TransactionItem;
 import com.felixalacampagne.account.model.Transactions;
 import com.felixalacampagne.account.model.Version;
+import com.felixalacampagne.account.service.AccountException;
 import com.felixalacampagne.account.service.AccountService;
+import com.felixalacampagne.account.service.BalanceService;
 import com.felixalacampagne.account.service.StandingOrderService;
 import com.felixalacampagne.account.service.TransactionService;
+import com.felixalacampagne.account.service.TransactionService.BalanceType;
 
 @RestController
 @RequestMapping
@@ -33,18 +37,21 @@ public class AccountController {
    private final AccountService accountService;
    private final TransactionService transactionService;
    private final StandingOrderService standingOrderService;
+   private final BalanceService balanceService;
 
    private final Version version;
 
    public AccountController(AccountService accountService,
                            TransactionService transactionService,
                            StandingOrderService standingOrderService,
-                           Version version)
+                           Version version,
+                           BalanceService balanceService)
    {
       this.accountService = accountService;
       this.transactionService = transactionService;
       this.standingOrderService = standingOrderService;
       this.version = version;
+      this.balanceService = balanceService;
    }
 
     @GetMapping("/greeting")
@@ -90,7 +97,7 @@ public class AccountController {
     @PutMapping(value = "/updaccountstref")
     public String updateAccountStatementRef(@RequestBody AccountItem accountItem, Model model)
     {
-       log.info("updateAccountStatementRef:  item to update: {}", accountItem);
+       log.info("updateAccountStatementRef: item to update: {}", accountItem);
        try
        {
           this.accountService.updateStatementRef(accountItem);
@@ -102,13 +109,20 @@ public class AccountController {
        }
 
        return "ok";
-    }    
+    }
 
-//    Could use @RequestParam(name="name", required=false, defaultValue="World" to supply as url ? values
-    @GetMapping("/listtransaction/{accountid}")
-    public Transactions getTransactions(@PathVariable Long accountid) // This needs to receive an account id
+// Could use @RequestParam(name="name", required=false, defaultValue="World" to supply as url ? values
+    @GetMapping(value = {"/listtransaction/{accountid}", "/listtransaction/{accountid}/{page}"})
+    public Transactions getTransactions(
+          @PathVariable Long accountid,
+          @PathVariable Optional<Integer> page)
     {
-       return this.transactionService.getTransactions(accountid);
+       int pageno = 0;
+       if(page.isPresent())
+       {
+          pageno = page.get();
+       }
+       return this.transactionService.getTransactions(accountid, pageno);
     }
 
 
@@ -197,5 +211,37 @@ public class AccountController {
        }
 
        return "ok";
+    }
+
+
+    @GetMapping(value = "/calcchecked/{accountid}")
+    public TransactionItem calcChecked(@PathVariable Long accountid)
+    {
+       // An exception might be a bit extreme for no checked balances
+       TransactionItem ti = this.balanceService.calculateCheckedBalances(accountid, Optional.empty())
+                      .map(t ->this.transactionService.mapToItem(t, BalanceType.CHECKED))
+                      .orElseThrow(() -> new AccountException("Checked balances not found: " + accountid));
+       return ti;
+    }
+
+    @GetMapping(value = "/getchecked/{accountid}")
+    public TransactionItem getLatestChecked(@PathVariable Long accountid)
+    {
+       // An exception might be a bit extreme for no checked balances
+       TransactionItem ti = this.transactionService.getCheckedBalance(accountid);
+       return ti;
+    }
+
+    @GetMapping(value = {"/listchecked/{accountid}", "/listchecked/{accountid}/{page}"})
+    public Transactions getCheckedTransactions(
+          @PathVariable Long accountid,
+          @PathVariable Optional<Integer> page)
+    {
+       int pageno = -1;
+       if(page.isPresent())
+       {
+          pageno = page.get();
+       }
+       return this.transactionService.getCheckedTransactions(accountid, 25, pageno);
     }
 }

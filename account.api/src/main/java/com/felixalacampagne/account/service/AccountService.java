@@ -25,14 +25,14 @@ public class AccountService
 
    private final AccountJpaRepository accountJpaRepository;
    private final ConnectionResurrector<AccountJpaRepository> connectionResurrector;
-   
+
    @Autowired
    public AccountService(AccountJpaRepository accountJpaRepository) {
       this.accountJpaRepository = accountJpaRepository;
       this.connectionResurrector = new ConnectionResurrector<AccountJpaRepository>(accountJpaRepository, AccountJpaRepository.class);
    }
 
-   public List<AccountItem> getAccountList() 
+   public List<AccountItem> getAccountList()
    {
       connectionResurrector.ressurectConnection();
       List<Account> accs = accountJpaRepository.findAccountsExcludeAccOrderSorted(Collections.singletonList(255L));
@@ -42,21 +42,21 @@ public class AccountService
             .collect(Collectors.toList());
       return accitems;
    }
-   
+
    public AccountItem getAccountItem(long id)
    {
       return accountJpaRepository.findById(id)
                           .map(a -> { return new AccountItem(a.getAccId(), a.getAccDesc(), a.getAccSid()); })
                           .orElseThrow(() -> new AccountException("Account not found: " + id));
    }
-   
+
    public Accounts getAccounts() {
       List<AccountItem> accitems = getAccountList();
       Accounts accs = new Accounts(accitems); // For fronted compatibility
       return accs;
    }
-   
-   public List<AccountDetail> getAccountDetailList() 
+
+   public List<AccountDetail> getAccountDetailList()
    {
       return accountJpaRepository.findAll().stream()
                           .map(a -> mapToDetail(a))
@@ -67,9 +67,9 @@ public class AccountService
    {
       return accountJpaRepository.findById(id)
             .map(a -> mapToDetail(a))
-            .orElseThrow(() -> new AccountException("Account not found: " + id));      
+            .orElseThrow(() -> new AccountException("Account not found: " + id));
    }
-   
+
    public Account updateStatementRef(AccountItem accountItem)
    {
       log.info("updateStatementRef: account:{}", accountItem);
@@ -82,8 +82,8 @@ public class AccountService
       acc.setAccSid(accstref);
       acc = accountJpaRepository.saveAndFlush(acc);
       return acc;
-   }   
-   
+   }
+
    private AccountDetail mapToDetail(Account acc)
    {
       String token = Utils.getToken(acc);
@@ -92,12 +92,12 @@ public class AccountService
             acc.getAccAddr(),
             acc.getAccCode(),
             acc.getAccCurr(),
-            acc.getAccFmt(), 
+            acc.getAccFmt(),
             acc.getAccOrder(),
             acc.getAccSid(),
             acc.getAccSwiftbic(),
             acc.getAccTel(),
-            token);      
+            token);
    }
 
 

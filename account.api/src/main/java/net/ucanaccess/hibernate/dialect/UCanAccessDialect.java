@@ -31,9 +31,9 @@ import org.hibernate.type.descriptor.jdbc.JdbcType;
 import org.hibernate.type.descriptor.jdbc.spi.JdbcTypeRegistry;
 
 /**
- * 
+ *
  * Hibernate dialect for UCanAccess
- * 
+ *
  */
 
 // UCanAccess uses Jackcess and HSQLDB so maybe it makes more sense to extend
@@ -59,19 +59,19 @@ public class UCanAccessDialect extends HSQLDialect
       super(info);
       System.err.println("UCanAccessDialect.<init>(DialectResolutionInfo): entry: " + info);
       init();
-   }   
-   
-   protected void init() 
+   }
+
+   protected void init()
    {
       // lets UCanAccess determine if it is working with Hibernate
       System.setProperty(this.getClass().getName() + ".isActive", "true");
-      
+
       // SQLSyntaxErrorException: user lacks privilege or object not found: net.ucanaccess.converters.Functions
       // google says this might cure it... and wow! it does appear to have made it go away
-      System.setProperty("hsqldb.method_class_names", "net.ucanaccess.converters.*"); // see http://hsqldb.org/doc/2.0/guide/sqlroutines-chapt.html#src_jrt_access_control        
-      
+      System.setProperty("hsqldb.method_class_names", "net.ucanaccess.converters.*"); // see http://hsqldb.org/doc/2.0/guide/sqlroutines-chapt.html#src_jrt_access_control
+
    }
-   
+
     @Override
     public JdbcType resolveSqlTypeDescriptor(
           String columnTypeName,
@@ -82,34 +82,34 @@ public class UCanAccessDialect extends HSQLDialect
        System.err.println("UCanAccessDialect.resolveSqlTypeDescriptor: entry");
        // think this replaces the registerColumnType for mapping an Access column type name
        // to a standard JDBC type
-       if("LONG".equalsIgnoreCase(columnTypeName)) 
+       if("LONG".equalsIgnoreCase(columnTypeName))
        {
           jdbcTypeCode = Types.INTEGER;
        }
-       else if("YESNO".equalsIgnoreCase(columnTypeName)) 
+       else if("YESNO".equalsIgnoreCase(columnTypeName))
        {
           jdbcTypeCode = Types.BOOLEAN;
        }
-       else if("MEMO".equalsIgnoreCase(columnTypeName)) 
+       else if("MEMO".equalsIgnoreCase(columnTypeName))
        {
           jdbcTypeCode = Types.CLOB;
        }
-       else if("OLE".equalsIgnoreCase(columnTypeName)) 
+       else if("OLE".equalsIgnoreCase(columnTypeName))
        {
           jdbcTypeCode = Types.BLOB;
        }
        return super.resolveSqlTypeDescriptor( columnTypeName, jdbcTypeCode, precision, scale, jdbcTypeRegistry );
     }
-    
-    
+
+
     @Override
     public void initializeFunctionRegistry(FunctionContributions functionContributions) {
        System.err.println("UCanAccessDialect.initializeFunctionRegistry: entry");
 
       super.initializeFunctionRegistry(functionContributions);
       BasicTypeRegistry basicTypeRegistry = functionContributions.getTypeConfiguration().getBasicTypeRegistry();
-      
-      // registerFunction and/or SQLFunctionTemplate no longer exist. 
+
+      // registerFunction and/or SQLFunctionTemplate no longer exist.
       // I don't really have a clue what this is doing. I'm hoping that there isn't anything in my DB
       // hich requires if
 //      registerFunction("current_date", new StandardSQLFunction("Date", StandardBasicTypes.DATE));
@@ -117,21 +117,21 @@ public class UCanAccessDialect extends HSQLDialect
 //      registerFunction("current_timestamp", new StandardSQLFunction("Now", StandardBasicTypes.TIMESTAMP));
 //      registerFunction("second", new SQLFunctionTemplate(StandardBasicTypes.INTEGER, "Second(?1)"));
 //      registerFunction("minute", new SQLFunctionTemplate(StandardBasicTypes.INTEGER, "Minute(?1)"));
-//      registerFunction("hour", new SQLFunctionTemplate(StandardBasicTypes.INTEGER, "Hour(?1)"));      
-      
+//      registerFunction("hour", new SQLFunctionTemplate(StandardBasicTypes.INTEGER, "Hour(?1)"));
+
       // Google suggests something something like the following is the new, very much continuously improved,
       // much more complex and much more impossible to comprehend,
       // ie. a perfect example of continuous improvment, shirt that has replaced the registerFunction stuff
-      // Got no idea what to do about the SQLFunctionTemplate stuff though 
+      // Got no idea what to do about the SQLFunctionTemplate stuff though
 
       functionContributions.getFunctionRegistry().register("current_date", new StandardSQLFunction("Date", StandardBasicTypes.DATE));
       functionContributions.getFunctionRegistry().register("current_time", new StandardSQLFunction("Time", StandardBasicTypes.TIME));
       functionContributions.getFunctionRegistry().register("current_timestamp", new StandardSQLFunction("Now", StandardBasicTypes.TIMESTAMP));
-      
+
       // Got no idea what to do about the SQLFunctionTemplate stuff though. Found this on Google and adapted it a bit
 //      functionContributions.getFunctionRegistry().registerPattern(
-//          "hstore_find", 
-//          "(?1 -> ?2 = ?3)", 
+//          "hstore_find",
+//          "(?1 -> ?2 = ?3)",
 //          basicTypeRegistry.resolve( StandardBasicTypes.BOOLEAN ));
       functionContributions.getFunctionRegistry()
          .registerPattern("second", "Second(?1)", basicTypeRegistry.resolve( StandardBasicTypes.INTEGER ));
@@ -155,16 +155,16 @@ public class UCanAccessDialect extends HSQLDialect
 //                  true,
 //                  "varbinary(max)"
 //            )
-//      );      
+//      );
       // ...
-    }    
-    
+    }
+
     @Override
     public IdentityColumnSupport getIdentityColumnSupport() {
        System.err.println("UCanAccessDialect.getIdentityColumnSupport: entry");
         return UCanAccessDialectIdentityColumnSupport.IDENTITY_COLUMN_SUPPORT;
     }
-   
+
     @Override
     public UniqueDelegate getUniqueDelegate() {
        System.err.println("UCanAccessDialect.getUniqueDelegate: entry");
@@ -177,7 +177,7 @@ public class UCanAccessDialect extends HSQLDialect
        System.err.println("UCanAccessDialect.getLimitHandler: returning UCanAccessDialectLimitHandler");
        return UCanAccessDialectLimitHandler.LIMIT_HANDLER;
     }
-    
+
     @Override
     protected void registerDefaultKeywords() {
        System.err.println("UCanAccessDialect.registerDefaultKeywords: entry");
@@ -188,12 +188,12 @@ public class UCanAccessDialect extends HSQLDialect
     public char openQuote() {
        return '[';
     }
-    
+
     @Override
     public char closeQuote() {
        return ']';
-    }    
-    
+    }
+
 //    // SQLServerSqlAstTranslator might be responsible for the TOP appearing in select queries but
 //    // it cannot be sub-classed so no point in doing this override
 //    @Override

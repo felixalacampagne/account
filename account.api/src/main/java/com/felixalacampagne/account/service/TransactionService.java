@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,14 +40,25 @@ public class TransactionService
       this.connectionResurrector = new ConnectionResurrector<TransactionJpaRepository>(transactionJpaRepository, TransactionJpaRepository.class);
    }
 
-   public Transactions getTransactions(long accountId)
+   public Transactions getTransactions(long accountId, int page)
    {
-      List<TransactionItem> txnitems = getTransactionPage(0, 25, accountId).stream()
-            .map(t -> mapToItem(t))
+      if(page < 0)
+      {
+         page = 0;
+      }
+      return getTransactions(getTransactionPage(page, 15, accountId), BalanceType.NORMAL);
+   }
+
+   public Transactions getTransactions(List<Transaction> txns, BalanceType balanceType)
+   {
+
+      List<TransactionItem> txnitems = txns.stream()
+            .map(t -> mapToItem(t, balanceType))
             .collect(Collectors.toList());
-      Transactions trns = new Transactions(txnitems); // For fronted compatibility
+      Transactions trns = new Transactions(txnitems);
       return trns;
    }
+
 
    public List<Transaction> getTransactionPage(int page, int rows, long accountId)
    {
@@ -101,18 +113,19 @@ public class TransactionService
          throw new  AccountException("Account id does not match Transaction id " + transactionItem.getId());
       }
 
-      // Not allowing any updates when checked is a bit extreme. The VB app allowed the checked flag to be 
-      // cleared, a value updated, and then checked again which was a behaviour I have used on many occasions. 
+      // Not allowing any updates when checked is a bit extreme. The VB app allowed the checked flag to be
+      // cleared, a value updated, and then checked again which was a behaviour I have used on many occasions.
       // Not so easy to implement the same thing now but I
-      // still want to ability to update checked entries if required. 
+      // still want to ability to update checked entries if required.
       // Thus if the update has the checked flag cleared then allow the update.
       if(txn.getChecked() && updtxn.getChecked())
       {
          log.info("updateTransaction: Locked transaction: id:{}", transactionItem.getId());
 
          throw new  AccountException("Transaction id " + transactionItem.getId() + " is locked");
-      }      
-      
+      }
+      boolean  bRecalcChecked = (!txn.getChecked() && updtxn.getChecked());
+
       // updtxn is possibly not a complete set of Transaction values.
       // Maybe should add checks for presence of values???
       txn.setDate(updtxn.getDate());
@@ -122,7 +135,14 @@ public class TransactionService
       txn.setDebit(updtxn.getDebit());
       txn.setChecked(updtxn.getChecked());
       txn.setStid(updtxn.getStid());
-      return update(txn);
+      Transaction txnupdated = update(txn);
+      
+      if(bRecalcChecked)
+      {
+      	// not sure if I really want this as it could be very time consuming
+      	balanceService.calculateCheckedBalances(txnupdated.getAccountId(), Optional.of(txnupdated));
+      }
+      return txnupdated;
    }
 
    // This must be @Transactional because it recalculates the balances of all following transactions
@@ -153,7 +173,7 @@ public class TransactionService
       tosave.setComment(transactionItem.getComment());
       tosave.setChecked(transactionItem.isLocked());
       tosave.setStid(transactionItem.getStatementref());
-      
+
       BigDecimal amount = new BigDecimal(transactionItem.getAmount());
       amount.setScale(2); // Max. two decimal places for a normal currency transaction
 
@@ -174,7 +194,14 @@ public class TransactionService
       return tosave;
    }
 
-   public TransactionItem mapToItem(Transaction t)
+   public enum BalanceType
+   {
+      NORMAL,
+      CHECKED,
+      SORTED
+   }
+
+   public TransactionItem mapToItem(Transaction t, BalanceType balanceType)
    {
       BigDecimal amount = BigDecimal.ZERO;
 
@@ -187,6 +214,19 @@ public class TransactionService
          amount = t.getCredit().negate();
       }
 
+      String itemBalance;
+      switch(balanceType)
+      {
+      case CHECKED:
+         itemBalance = Utils.formatAmount(t.getCheckedBalance());
+         break;
+      case SORTED:
+         itemBalance = Utils.formatAmount(t.getSortedBalance());
+         break;
+      case NORMAL:
+      default:
+         itemBalance = Utils.formatAmount(t.getBalance());
+      }
       // jackson doesn't handle Java dates [it does now!!] and bigdecimal has too many decimal places so it's
       // simpler just to send the data as Strings with the desired formating.
       String token = Utils.getToken(t);
@@ -195,12 +235,39 @@ public class TransactionService
             Utils.formatAmount(amount),
             t.getType(),
             t.getComment(),
-            t.getChecked(), 
-            t.getSequence(), 
-            token, 
-            Utils.formatAmount(t.getBalance()),
+            t.getChecked(),
+            t.getSequence(),
+            token,
+            itemBalance,
             t.getStid()
             );
+   }
+
+   public Transactions getCheckedTransactions(long accountId, int rows, int pageno)
+   {
+      return getTransactions(getCheckedTransactionPage(accountId, rows, pageno), BalanceType.CHECKED);
+   }
+
+   public List<Transaction> getCheckedTransactionPage(long accountId, int rows, int pageno)
+   {
+      Pageable p = Pageable.unpaged();
+      if(pageno >=0 )
+      {
+         p = PageRequest.of(pageno, rows);
+      }
+      List<Transaction> txns = transactionJpaRepository.
+            findByAccountIdAndCheckedOrderBySequenceDesc(accountId, true, p).stream()
+            .sorted(Comparator.comparingLong(Transaction::getSequence))
+            .collect(Collectors.toList());
+      return txns;
+   }
+
+   public TransactionItem getCheckedBalance(Long accountid)
+   {
+      Transaction t =  this.transactionJpaRepository.findFirstByAccountIdAndCheckedIsTrueAndCheckedBalanceIsNotNullOrderBySequenceDesc(accountid)
+            .orElseThrow(() -> new AccountException("Checked balances not found: " + accountid));
+      TransactionItem ti = mapToItem(t, BalanceType.CHECKED);
+      return ti;
    }
 
 

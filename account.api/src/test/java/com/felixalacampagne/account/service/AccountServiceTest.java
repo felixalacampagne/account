@@ -20,16 +20,16 @@ import com.felixalacampagne.account.AccountTest;
 @AccountTest
 class AccountServiceTest
 {
-	private final Logger log = LoggerFactory.getLogger(this.getClass());
-	
-	@Autowired
-	AccountService accountService;
-	
-//	@Test
-//	void testGetAccounts()
-//	{
-//		String acclistjson = accountService.getAccountsJson();
-//		log.info("testGetAccounts: json accoount list: {}", acclistjson);
-//	}
+   private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+   @Autowired
+   AccountService accountService;
+
+//   @Test
+//   void testGetAccounts()
+//   {
+//      String acclistjson = accountService.getAccountsJson();
+//      log.info("testGetAccounts: json accoount list: {}", acclistjson);
+//   }
 
 }

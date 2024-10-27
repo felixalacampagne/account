@@ -4,11 +4,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 // @Component is needed to get @Value to work. The instance of Version must be autowired by spring for
-// the object to have the @Value values. For spring to autowire the object into the AccountController 
+// the object to have the @Value values. For spring to autowire the object into the AccountController
 // the Version class must be in the same package as AccountController. There may be a different way
 // to do it by explicitly creating a Bean. This might be prefarble since Version really belongs in the model package
 // because it gets send to the client
-@Component 
+@Component
 public class Version
 {
 
@@ -60,6 +60,6 @@ private String db;
    {
       return "Version [name=" + name + ", version=" + version + ", db=" + db + "]";
    }
-   
-   
+
+
 }

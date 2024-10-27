@@ -20,7 +20,7 @@ public class AccountDetail extends AccountItem
 
    public AccountDetail(
          long id, String name,
-         String address, String code, String currency, String format, Long order, 
+         String address, String code, String currency, String format, Long order,
          String statement, String bic, String telephone,
          String token)
    {
@@ -78,8 +78,8 @@ public class AccountDetail extends AccountItem
    @Override
    public String toString()
    {
-      return "AccountDetail [id=" + getId() + ", name=" + getName() + ", code=" + code + ", address=" + address 
-            + ", currency=" + currency + ", format=" + format + ", statement=" + getStatementref() + ", bic=" + bic 
+      return "AccountDetail [id=" + getId() + ", name=" + getName() + ", code=" + code + ", address=" + address
+            + ", currency=" + currency + ", format=" + format + ", statement=" + getStatementref() + ", bic=" + bic
             + ", telephone=" + telephone + ", order="
             + order + ", token=" + token + "]";
    }

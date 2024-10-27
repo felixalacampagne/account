@@ -2,42 +2,42 @@ package com.felixalacampagne.account.model;
 
 public class AccountItem
 {
-	private long id;
-	private String name;
+   private long id;
+   private String name;
    private String statementref;
-	
+
    public AccountItem() 
-	{
-	}
-	
-	public AccountItem(long id, String name, String statementref)
-	{
-		this.id = id;
-		this.name = name;
-		this.statementref = statementref;
-	}
+   {
+   }
 
-	public long getId()
-	{
-		return id;
-	}
+   public AccountItem(long id, String name, String statementref)
+   {
+      this.id = id;
+      this.name = name;
+      this.statementref = statementref;
+   }
 
-//	public void setId(long id)
-//	{
-//		this.id = id;
-//	}
+   public long getId()
+   {
+      return id;
+   }
 
-	public String getName()
-	{
-		return name;
-	}
+//   public void setId(long id)
+//   {
+//      this.id = id;
+//   }
 
-//	public void setName(String name)
-//	{
-//		this.name = name;
-//	}
+   public String getName()
+   {
+      return name;
+   }
 
-	public String getStatementref()
+//   public void setName(String name)
+//   {
+//      this.name = name;
+//   }
+
+   public String getStatementref()
    {
       return statementref;
    }

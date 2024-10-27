@@ -1,0 +1,279 @@
+{
+    "transactions": [
+        {
+            "accid": 1,
+            "comment": "Grocery - GB, Tervuren",
+            "date": "1998-10-06",
+            "amount": "4472.00",
+            "type": "BC",
+            "id": 1308,
+            "locked": true,
+            "balance": "147500.00",
+            "token": "1998-10-06:4472.00:4472.00:BC:Grocery - GB, Tervuren:true"
+        },
+        {
+            "accid": 1,
+            "comment": "05/10/98 Visa BCC(Tfr) On:17 Oct 11:25",
+            "date": "1998-10-17",
+            "amount": "34806.00",
+            "type": "PTFR",
+            "id": 1310,
+            "locked": true,
+            "balance": "112694.00",
+            "token": "1998-10-17:34806.00:34806.00:PTFR:05/10/98 Visa BCC(Tfr) On:17 Oct 11:25:true"
+        },
+        {
+            "accid": 1,
+            "comment": "Grocery - Delhaize, Perwez",
+            "date": "1998-10-13",
+            "amount": "1181.00",
+            "type": "BC",
+            "id": 1311,
+            "locked": true,
+            "balance": "111513.00",
+            "token": "1998-10-13:1181.00:1181.00:BC:Grocery - Delhaize, Perwez:true"
+        },
+        {
+            "accid": 1,
+            "comment": "Escort2, Perwez (70434km 28.68l *)",
+            "date": "1998-10-13",
+            "amount": "1000.00",
+            "type": "BC",
+            "id": 1312,
+            "locked": true,
+            "balance": "110513.00",
+            "token": "1998-10-13:1000.00:1000.00:BC:Escort2, Perwez (70434km 28.68l *):true"
+        },
+        {
+            "accid": 1,
+            "comment": "Pharm.Mouton - 2xOtrivine + 5Bancontact charge",
+            "date": "1998-10-15",
+            "amount": "349.00",
+            "type": "BC",
+            "id": 1313,
+            "locked": true,
+            "balance": "110164.00",
+            "token": "1998-10-15:349.00:349.00:BC:Pharm.Mouton - 2xOtrivine + 5Bancontact charge:true"
+        },
+        {
+            "accid": 1,
+            "comment": "Securex (Dental Feb 98)",
+            "date": "1998-10-01",
+            "amount": "-618.00",
+            "type": "MED",
+            "id": 1314,
+            "locked": true,
+            "balance": "110782.00",
+            "token": "1998-10-01:::MED:Securex (Dental Feb 98):true"
+        },
+        {
+            "accid": 1,
+            "comment": "Securex (Dental Aug L+C)",
+            "date": "1998-11-01",
+            "amount": "-618.00",
+            "type": "MED",
+            "id": 1315,
+            "locked": true,
+            "balance": "111400.00",
+            "token": "1998-11-01:::MED:Securex (Dental Aug L+C):true"
+        },
+        {
+            "accid": 1,
+            "comment": "Nov 98 Escort 96 On:21 Oct 98",
+            "date": "1998-11-01",
+            "amount": "7794.00",
+            "type": "CAR",
+            "id": 1318,
+            "locked": true,
+            "balance": "103606.00",
+            "token": "1998-11-01:7794.00:7794.00:CAR:Nov 98 Escort 96 On:21 Oct 98:true"
+        },
+        {
+            "accid": 1,
+            "comment": "Escort2, Nossegem (69936km 35.15l)",
+            "date": "1998-10-08",
+            "amount": "1096.00",
+            "type": "BC",
+            "id": 1319,
+            "locked": true,
+            "balance": "102510.00",
+            "token": "1998-10-08:1096.00:1096.00:BC:Escort2, Nossegem (69936km 35.15l):true"
+        },
+        {
+            "accid": 1,
+            "comment": "Escort2, Orbais (70902km 41.31l)",
+            "date": "1998-10-20",
+            "amount": "1400.00",
+            "type": "BC",
+            "id": 1320,
+            "locked": true,
+            "balance": "101110.00",
+            "token": "1998-10-20:1400.00:1400.00:BC:Escort2, Orbais (70902km 41.31l):true"
+        },
+        {
+            "accid": 1,
+            "comment": "Grocery - Delhaize, Perwez",
+            "date": "1998-10-20",
+            "amount": "2505.00",
+            "type": "BC",
+            "id": 1321,
+            "locked": true,
+            "balance": "98605.00",
+            "token": "1998-10-20:2505.00:2505.00:BC:Grocery - Delhaize, Perwez:true"
+        },
+        {
+            "accid": 1,
+            "comment": "Escort2, Orbais (71327km 29.50l)",
+            "date": "1998-10-26",
+            "amount": "1000.00",
+            "type": "BC",
+            "id": 1324,
+            "locked": true,
+            "balance": "97605.00",
+            "token": "1998-10-26:1000.00:1000.00:BC:Escort2, Orbais (71327km 29.50l):true"
+        },
+        {
+            "accid": 1,
+            "comment": "Transfer FROM Kreditbank Savings",
+            "date": "1998-10-26",
+            "amount": "-40000.00",
+            "type": "PTFR",
+            "id": 1325,
+            "locked": true,
+            "balance": "137605.00",
+            "token": "1998-10-26:::PTFR:Transfer FROM Kreditbank Savings:true"
+        },
+        {
+            "accid": 1,
+            "comment": "Manual transfer on 26/10/98 to CERA savings",
+            "date": "1998-10-27",
+            "amount": "40000.00",
+            "type": "PFUT",
+            "id": 1327,
+            "locked": true,
+            "balance": "97605.00",
+            "token": "1998-10-27:40000.00:40000.00:PFUT:Manual transfer on 26/10/98 to CERA savings:true"
+        },
+        {
+            "accid": 1,
+            "comment": "KB, Tervuren",
+            "date": "1998-10-27",
+            "amount": "10000.00",
+            "type": "ATM",
+            "id": 1329,
+            "locked": true,
+            "balance": "87605.00",
+            "token": "1998-10-27:10000.00:10000.00:ATM:KB, Tervuren:true"
+        },
+        {
+            "accid": 1,
+            "comment": "Grocery - GB, Tervuren",
+            "date": "1998-10-27",
+            "amount": "4213.00",
+            "type": "BC",
+            "id": 1331,
+            "locked": true,
+            "balance": "83392.00",
+            "token": "1998-10-27:4213.00:4213.00:BC:Grocery - GB, Tervuren:true"
+        },
+        {
+            "accid": 1,
+            "comment": "Escort2, Orbais (71848km 35.4l)",
+            "date": "1998-10-30",
+            "amount": "1200.00",
+            "type": "BC",
+            "id": 1332,
+            "locked": true,
+            "balance": "82192.00",
+            "token": "1998-10-30:1200.00:1200.00:BC:Escort2, Orbais (71848km 35.4l):true"
+        },
+        {
+            "accid": 1,
+            "comment": "Nov 98 On:08 Nov 98",
+            "date": "1998-11-18",
+            "amount": "25000.00",
+            "type": "MORT",
+            "id": 1336,
+            "locked": true,
+            "balance": "57192.00",
+            "token": "1998-11-18:25000.00:25000.00:MORT:Nov 98 On:08 Nov 98:true"
+        },
+        {
+            "accid": 1,
+            "comment": "Grocery - GB, Tervuren",
+            "date": "1998-11-03",
+            "amount": "2794.00",
+            "type": "BC",
+            "id": 1337,
+            "locked": true,
+            "balance": "54398.00",
+            "token": "1998-11-03:2794.00:2794.00:BC:Grocery - GB, Tervuren:true"
+        },
+        {
+            "accid": 1,
+            "comment": "Escort2, Orbais (72345km 38.36l)",
+            "date": "1998-11-06",
+            "amount": "1300.00",
+            "type": "BC",
+            "id": 1338,
+            "locked": true,
+            "balance": "53098.00",
+            "token": "1998-11-06:1300.00:1300.00:BC:Escort2, Orbais (72345km 38.36l):true"
+        },
+        {
+            "accid": 1,
+            "comment": "Escort2, Orbais (72773km 25.50l *)",
+            "date": "1998-11-13",
+            "amount": "1000.00",
+            "type": "BC",
+            "id": 1340,
+            "locked": true,
+            "balance": "52098.00",
+            "token": "1998-11-13:1000.00:1000.00:BC:Escort2, Orbais (72773km 25.50l *):true"
+        },
+        {
+            "accid": 1,
+            "comment": "Grocery - GB, Tervuren",
+            "date": "1998-11-17",
+            "amount": "4515.00",
+            "type": "BC",
+            "id": 1341,
+            "locked": true,
+            "balance": "47583.00",
+            "token": "1998-11-17:4515.00:4515.00:BC:Grocery - GB, Tervuren:true"
+        },
+        {
+            "accid": 1,
+            "comment": "Transfer FROM Kreditbank Savings",
+            "date": "1998-11-19",
+            "amount": "-50000.00",
+            "type": "PNOW",
+            "id": 1343,
+            "locked": true,
+            "balance": "97583.00",
+            "token": "1998-11-19:::PNOW:Transfer FROM Kreditbank Savings:true"
+        },
+        {
+            "accid": 1,
+            "comment": "Transfer TO CERA Savings",
+            "date": "1998-11-19",
+            "amount": "50000.00",
+            "type": "PNOW",
+            "id": 1345,
+            "locked": true,
+            "balance": "47583.00",
+            "token": "1998-11-19:50000.00:50000.00:PNOW:Transfer TO CERA Savings:true"
+        },
+        {
+            "accid": 1,
+            "comment": "Account closed",
+            "date": "1998-11-19",
+            "amount": "47583.00",
+            "type": "PNOW",
+            "id": 1347,
+            "locked": true,
+            "balance": "0.00",
+            "token": "1998-11-19:47583.00:47583.00:PNOW:Account closed:true"
+        }
+    ]
+}

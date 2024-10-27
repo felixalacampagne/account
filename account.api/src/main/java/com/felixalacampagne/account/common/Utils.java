@@ -67,7 +67,7 @@ public class Utils
 
    public static String getToken(Account acc)
    {
-      return "" + acc.getAccId() 
+      return "" + acc.getAccId()
          + ":" + acc.getAccCode()
          + ":" + acc.getAccDesc();
    }
