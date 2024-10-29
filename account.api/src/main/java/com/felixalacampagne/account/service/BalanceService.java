@@ -109,7 +109,7 @@ public class BalanceService
       {
          amt = Utils.getAmount(nxttxn);
          balance = balance.add(amt);
-         if(balance.compareTo(nxttxn.getCheckedBalance()) != 0)
+         if((nxttxn.getCheckedBalance() == null) || balance.compareTo(nxttxn.getCheckedBalance()) != 0)
          {
          	nxttxn.setCheckedBalance(balance);
          	updtxns.add(nxttxn);
