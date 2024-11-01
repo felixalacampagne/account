@@ -256,7 +256,7 @@ public class TransactionService
          p = PageRequest.of(pageno, rows);
       }
       List<Transaction> txns = transactionJpaRepository.
-            findByAccountIdAndCheckedOrderBySequenceDesc(accountId, true, p).stream()
+            findByAccountIdAndCheckedOrderByDateDescSequenceDesc(accountId, true, p).stream()
             .sorted(Comparator.comparingLong(Transaction::getSequence))
             .collect(Collectors.toList());
       return txns;
@@ -264,7 +264,7 @@ public class TransactionService
 
    public TransactionItem getCheckedBalance(Long accountid)
    {
-      Transaction t =  this.transactionJpaRepository.findFirstByAccountIdAndCheckedIsTrueAndCheckedBalanceIsNotNullOrderBySequenceDesc(accountid)
+      Transaction t =  this.transactionJpaRepository.findFirstByAccountIdAndCheckedIsTrueAndCheckedBalanceIsNotNullOrderByDateDescSequenceDesc(accountid)
             .orElseThrow(() -> new AccountException("Checked balances not found: " + accountid));
       TransactionItem ti = mapToItem(t, BalanceType.CHECKED);
       return ti;
