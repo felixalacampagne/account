@@ -58,32 +58,6 @@ class TransactionJpaRepositoryTest
    }
 
    @Test
-   void testFindPrevious()
-   {
-      List<Transaction> txnsforacc = transactionJpaRepository.findByAccountId(1L, PageRequest.of(0, 25, Sort.by("sequence").descending()));
-
-      Transaction txn = txnsforacc.get(5);
-
-      Optional<Transaction> prevtxn = transactionJpaRepository.findFirstByAccountIdAndSequenceLessThanOrderBySequenceDesc(txn.getAccountId(), txn.getSequence());
-      log.info("testFindLatest: found {} for account 1", prevtxn.get());
-      assertEquals(txnsforacc.get(6), prevtxn.get());
-   }
-
-   @Test
-   void testFindFollowing()
-   {
-      List<Transaction> txnsforacc = transactionJpaRepository.findByAccountId(1L, PageRequest.of(0, 25, Sort.by("sequence").descending()));
-
-      Transaction txn = txnsforacc.get(6); // the seventh from last
-
-      List<Transaction> txns = transactionJpaRepository.findByAccountIdAndSequenceGreaterThanOrderBySequenceAsc(txn.getAccountId(), txn.getSequence());
-      log.info("testFindLatest: found {} following txns", txns.size());
-      assertEquals(6, txns.size());
-   }
-
-
-
-   @Test
    void testGetLast()
    {
       int cnt = (int) transactionJpaRepository.countByAccountId(1L);

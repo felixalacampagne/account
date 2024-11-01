@@ -28,40 +28,41 @@ public class BalanceService
       this.transactionJpaRepository = transactionJpaRepository;
    }
 
+//   @Transactional
+//   public Transaction calculateBalancesOld(Transaction startTransaction)
+//   {
+//      log.info("calculateBalances: startTransaction:{}", startTransaction.getSequence());
+//      BigDecimal balance = BigDecimal.ZERO;
+//      BigDecimal amt = Utils.getAmount(startTransaction);
+//
+//      // Get last transaction
+//      Optional<Transaction> prevtxn = getPreviousTransaction(startTransaction);
+//      if(prevtxn.isPresent())
+//      {
+//         balance = Utils.getZeroOrValue(prevtxn.get().getBalance());
+//      }
+//      balance = balance.add(amt);
+//
+//      // Could check if new balance is same as old balance and stop if no change
+//      startTransaction.setBalance(balance);
+//      startTransaction = transactionJpaRepository.save(startTransaction);
+//
+//      // Now need to update the balance for any transactions which occurred AFTER the updated transaction
+//      List<Transaction> txns = getFollowingTransactions(startTransaction);
+//
+//      for(Transaction nxttxn : txns)
+//      {
+//         amt = Utils.getAmount(nxttxn);
+//         balance = balance.add(amt);
+//         nxttxn.setBalance(balance);
+//      }
+//      transactionJpaRepository.saveAll(txns);
+//      transactionJpaRepository.flush();
+//      log.info("calculateBalances: done startTransaction:{}", startTransaction.getSequence());
+//      return txns.get(txns.size()-1);
+//   }
+
    @Transactional
-   public Transaction calculateBalances(Transaction startTransaction)
-   {
-      log.info("calculateBalances: startTransaction:{}", startTransaction.getSequence());
-      BigDecimal balance = BigDecimal.ZERO;
-      BigDecimal amt = Utils.getAmount(startTransaction);
-
-      // Get last transaction
-      Optional<Transaction> prevtxn = getPreviousTransaction(startTransaction);
-      if(prevtxn.isPresent())
-      {
-         balance = Utils.getZeroOrValue(prevtxn.get().getBalance());
-      }
-      balance = balance.add(amt);
-
-      // Could check if new balance is same as old balance and stop if no change
-      startTransaction.setBalance(balance);
-      startTransaction = transactionJpaRepository.save(startTransaction);
-
-      // Now need to update the balance for any transactions which occurred AFTER the updated transaction
-      List<Transaction> txns = getFollowingTransactions(startTransaction);
-
-      for(Transaction nxttxn : txns)
-      {
-         amt = Utils.getAmount(nxttxn);
-         balance = balance.add(amt);
-         nxttxn.setBalance(balance);
-      }
-      transactionJpaRepository.saveAll(txns);
-      transactionJpaRepository.flush();
-      log.info("calculateBalances: done startTransaction:{}", startTransaction.getSequence());
-      return startTransaction;
-   }
-
    public void doBalanceCalculation(List<Transaction> txns, 
                                     Function<Transaction, BigDecimal> balanceGetter,
                                     BiConsumer<Transaction, BigDecimal> balanceSetter,
@@ -126,19 +127,37 @@ public class BalanceService
       
       if(!updtxns.isEmpty())
       {
-        transactionJpaRepository.saveAll(updtxns);
-        transactionJpaRepository.flush();
-      }  
+         log.debug("doBalanceCalculation: saving {} records", updtxns.size());
+         transactionJpaRepository.saveAll(updtxns);
+         transactionJpaRepository.flush();
+         log.debug("doBalanceCalculation: saved {} records", updtxns.size());
+      } 
+      
       log.debug("doBalanceCalculation: finish: first id:{} final id: {} chkd bal: {}",
             txns.get(0).getSequence(),
             txns.get(txns.size()-1).getSequence(),
             balanceGetter.apply(txns.get(txns.size()-1)));      
    }
    
-   @Transactional
+   public Optional<Transaction> calculateBalances(long accountId, Optional<Transaction> startTransaction) 
+   {
+      List<Transaction> txns = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(accountId);
+      if(txns.isEmpty())
+      {
+         return Optional.empty();
+      }
+      
+      doBalanceCalculation(txns,
+            (t) -> t.getBalance(),
+            (t, b) -> t.setBalance(b),
+            startTransaction);
+      return Optional.of(txns.get(txns.size()-1));      
+           
+   }
+   
    public Optional<Transaction> calculateCheckedBalances(long accountId, Optional<Transaction> startTransaction)
    {
-      List<Transaction> chktxns = transactionJpaRepository.findByAccountIdAndCheckedOrderByDateAscSequenceAsc(accountId, true);
+      List<Transaction> chktxns = transactionJpaRepository.findByAccountIdAndCheckedIsTrueOrderByDateAscSequenceAsc(accountId);
       if(chktxns.isEmpty())
       {
          return Optional.empty();
@@ -149,6 +168,22 @@ public class BalanceService
             (t, b) -> t.setCheckedBalance(b),
             startTransaction);
       return Optional.of(chktxns.get(chktxns.size()-1));
+   }
+   
+   public Optional<Transaction> sortedBalances(long accountId, Optional<Transaction> startTransaction) 
+   {
+      List<Transaction> txns = transactionJpaRepository.findByAccountIdOrderByDateAscSequenceAsc(accountId);
+      if(txns.isEmpty())
+      {
+         return Optional.empty();
+      }
+      
+      doBalanceCalculation(txns,
+            (t) -> t.getSortedBalance(),
+            (t, b) -> t.setSortedBalance(b),
+            startTransaction);
+      return Optional.of(txns.get(txns.size()-1));      
+           
    }
    
    
@@ -235,15 +270,6 @@ public class BalanceService
       return transactionJpaRepository.findFirstByAccountIdOrderBySequenceDesc(accountId);
    }
 
-   public Optional<Transaction> getPreviousTransaction(Transaction txn)
-   {
-      return transactionJpaRepository.findFirstByAccountIdAndSequenceLessThanOrderBySequenceDesc(txn.getAccountId(), txn.getSequence());
-   }
-
-   public List<Transaction> getFollowingTransactions(Transaction txn)
-   {
-      return transactionJpaRepository.findByAccountIdAndSequenceGreaterThanOrderBySequenceAsc(txn.getAccountId(), txn.getSequence());
-   }
 
 
 }
