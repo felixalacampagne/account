@@ -67,10 +67,11 @@ public class BalanceService
                                     BiConsumer<Transaction, BigDecimal> balanceSetter,
                                     Optional<Transaction> startTransaction)
    {
-      log.debug("doBalanceCalculation: start: first id:{} final id:{} chkd bal: {}", 
+      log.debug("doBalanceCalculation: start: first id:{} final id:{} chkd bal: {}{}", 
             txns.get(0).getSequence(),
             txns.get(txns.size()-1).getSequence(),
-            balanceGetter.apply(txns.get(txns.size()-1)));
+            balanceGetter.apply(txns.get(txns.size()-1)),
+            startTransaction.map(t -> " start txn id:" + t.getSequence()).orElse(""));
       
       BigDecimal balance = BigDecimal.ZERO;
       BigDecimal amt = BigDecimal.ZERO;
