@@ -28,6 +28,12 @@ import { RouterModule, RouterOutlet } from '@angular/router'; // for 'routerlink
   providers: [{provide: NgbDateParserFormatter, useClass: isoNgbDateParserFormatter}]
 })
 
+// TODO: FIgure out how to properly use the DatePicker and convert between the datepicker format and the normal
+// javascript date... and to use a more 'normal' date format, eg. dd/mm/yyyy or dd-mm-yyyy, for display.
+// Apparently there is 'NgbDateNativeAdapter' which should help with the convert to a Date, but as usual the
+// documentation for how to actually use for something is a load of shirt. It seems to require something like
+// '{ provide: NgbDateAdapter, useClass: NgbDateNativeAdapter },'
+// but I have no clue what effect that will have or where...
 
 export class TransactionsComponent implements OnInit {
 

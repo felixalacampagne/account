@@ -24,7 +24,7 @@ constructor(private datePipe: DatePipe)
       {
          d = new Date(value);
       }
-      let n : NgbDateStruct = {day: d.getDate(), month: d.getMonth(), year: d.getFullYear()};
+      let n : NgbDateStruct = {day: d.getDate(), month: d.getMonth() + 1, year: d.getFullYear()};
       //console.log("isoNgbDateParserFormatter.parse: ret=" + n);
       return n;
    }
@@ -39,7 +39,7 @@ constructor(private datePipe: DatePipe)
       }
       else
       {
-         d = new Date(date.year, (date.month)-1, date.day);
+         d = new Date(date.year, (date.month) - 1, date.day);
       }
       let ret : string;
       ret = this.datePipe.transform(d, 'yyyy-MM-dd') ?? '';
