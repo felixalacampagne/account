@@ -52,12 +52,13 @@ export class TransactionsComponent implements OnInit {
    activeaccount!: AccountItem; 
    transactions: TransactionItem[] = [];
    checkTransaction!: TransactionItem;
-
+   checkLoading: boolean = false;
    public submitted: boolean = false;
    public defaultdate: string = '';
    envName: string = '';
 
    txDate: NgbDateStruct = {year: 1970, month: 12, day: 25};
+   txUpdDate: NgbDateStruct = {year: 1970, month: 12, day: 25};
    txType: string;
    txComment: string = '';
    txAmount: string = '';
@@ -91,20 +92,22 @@ export class TransactionsComponent implements OnInit {
 
    ngOnInit() 
    {
-      // console.log('TransactionsComponent.ngOnInit: start');
+      console.log('TransactionsComponent.ngOnInit: start');
       //this.route.queryParams.subscribe(params => {
       //   // console.log("TransactionsComponent.ngOnInit: params:" + JSON.stringify(params, null, 2));
       //   let account : AccountItem = JSON.parse(params["account"]);
       //   // console.log("TransactionsComponent.ngOnInit: account from json:" + JSON.stringify(account, null, 2));
       //   this.getTransactions(account);
       //});
-      // console.log("TransactionsComponent.ngOnInit: finish");
+      const d: Date = new Date();  
+      this.txDate = {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
+      console.log("TransactionsComponent.ngOnInit: finish");
    }
 
    resetDatepicker()
    {
       const d: Date = new Date();  
-      this.txDate = {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()}; 
+      this.txUpdDate = {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()}; 
    }
 
    // Call this to display the modal. 'content' is the name of the 'template' containing the elements to be displayed in the modal, I think
@@ -118,7 +121,7 @@ export class TransactionsComponent implements OnInit {
       // so must the txn date into the date object... Date seems able to handle the date string in TransactionItem 
       let d : Date = new Date(this.updateTxn.date); // ISO date format, ie. YYYY-MM-DD
       console.log("open: txn orig date:" + d);
-      this.txDate = {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()}; 
+      this.txUpdDate = {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()}; 
       
       this.modalReference = this.modalService.open(content);
       this.modalReference.result.then((result) => {
@@ -149,7 +152,7 @@ export class TransactionsComponent implements OnInit {
          // updtxn contains the new values except for the date
          // since the datepicker sets a value in txDate which needs to be mapped
          // back into the TransactionItem format
-         let updDate : Date = new Date(this.txDate.year, this.txDate.month-1, this.txDate.day);
+         let updDate : Date = new Date(this.txUpdDate.year, this.txUpdDate.month-1, this.txUpdDate.day);
          updtxn.date = this.datePipe.transform(updDate, 'yyyy-MM-dd') ?? '';         
 
          console.log("updmodalCloseAction: updating transaction:  " + JSON.stringify(updtxn, null, 2));
@@ -279,6 +282,7 @@ firstPage()
 calcCheckedBalance()
 {
    console.log("TransactionsComponent.calcCheckedBalance: Starting");
+   this.checkLoading = true;
    this.accountService.calcChecked(this.activeaccount).subscribe( {
       next: (res)=>{
           console.log("TransactionsComponent.calcCheckedBalance: Response: " + res);
@@ -287,7 +291,10 @@ calcCheckedBalance()
       error: (err)=>{
           console.log("TransactionsComponent.calcCheckedBalance: An error occured during calcCheckedBalance subscribe:" + JSON.stringify(err));
           } ,
-      complete: ()=>{console.log("TransactionsComponent.calcCheckedBalance: completed");}
+      complete: ()=>{
+         this.checkLoading = false;
+         console.log("TransactionsComponent.calcCheckedBalance: completed");
+      }
    });
    console.log("TransactionsComponent.calcCheckedBalance: Finished");
 }
@@ -392,13 +399,15 @@ updatetransaction(updtxn : TransactionItem)
    // Problem comparing the dates - the old date has a time value of +1hr but the new one
    // has 0hr. So simpler to compare the strings
    let oldDate: Date = new Date(this.origupdTxn.date);
-   let oldDatestr: string = this.datePipe.transform(oldDate, 'dd/MM/yyyy') ?? '';
+   let oldDatestr: string = this.datePipe.transform(oldDate, 'yyyy-MM-dd') ?? '';
 
    // Could verify that something was changed - will need to keep track of the original TransactionItem
    if((updtxn.amount === this.origupdTxn.amount)
       && (updtxn.comment === this.origupdTxn.comment)
       && (updtxn.type === this.origupdTxn.type)
       && (updtxn.date === oldDatestr)
+      && (updtxn.locked === this.origupdTxn.locked)
+      && (updtxn.statementref === this.origupdTxn.statementref)
    )
    {
       console.log("No values were changed, nothing to update.");
