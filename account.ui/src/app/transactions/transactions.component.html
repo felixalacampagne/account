@@ -32,7 +32,7 @@
       </thead>
       <tbody>
          <tr *ngFor="let txn of transactions" [ngClass]="{'table-success': txn.locked}">
-            <td class="nowrap">{{txn.date.substring(2)}}</td>
+            <td class="nowrap">{{formatDateColumn(txn.date)}}</td>
             <td (swipeleft)="open(content, txn)">{{txn.comment}}</td>
             <td *ngIf="desktopDisplay">{{txn.statementref}}</td>
             <td class="account-amount" [ngClass]="{'account-negamount': txn.amount.startsWith('-')}">{{txn.amount}}</td>

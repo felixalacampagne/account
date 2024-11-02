@@ -15,7 +15,7 @@
          <table mat-table [dataSource]="transactions" class="mat-elevation-z8">
             <ng-container matColumnDef="date">
                <th mat-header-cell *matHeaderCellDef>Date</th>
-               <td mat-cell *matCellDef="let txn">{{txn.date.substring(2)}}</td>
+               <td mat-cell *matCellDef="let txn">{{formatDateColumn(txn.date)}}</td>
             </ng-container>
             <ng-container matColumnDef="memo">
                <th mat-header-cell *matHeaderCellDef>Memo</th>
