@@ -115,7 +115,7 @@ constructor(private datePipe: DatePipe,
       console.log("ddmmyyyyNgbDateParserFormatter.parse: value=" + value);
       if (value) 
       {
-         d = new Date(value);
+         d = this.datfmt.parseDateString(value);
       }
       let n : NgbDateStruct = {day: d.getDate(), month: d.getMonth() + 1, year: d.getFullYear()};
       console.log("ddmmyyyyNgbDateParserFormatter.parse: ret=" + n);
