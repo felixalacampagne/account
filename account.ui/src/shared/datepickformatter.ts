@@ -1,3 +1,4 @@
+// src/shared/datepickformatter.ts
 import { NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { DatePipe } from '@angular/common';
 import { Injectable } from '@angular/core';
@@ -112,20 +113,20 @@ constructor(private datePipe: DatePipe,
    {
       let d : Date = new Date();
       
-      console.log("ddmmyyyyNgbDateParserFormatter.parse: value=" + value);
+      console.log("accountNgbDateParserFormatter.parse: value=" + value);
       if (value) 
       {
          d = this.datfmt.parseDateString(value);
       }
       let n : NgbDateStruct = {day: d.getDate(), month: d.getMonth() + 1, year: d.getFullYear()};
-      console.log("ddmmyyyyNgbDateParserFormatter.parse: ret=" + n);
+      console.log("accountNgbDateParserFormatter.parse: ret=" + JSON.stringify(n, null, 2));
       return n;
    }
 
    format(ngdate: NgbDateStruct): string 
    {
       let d : Date;
-      //console.log("isoNgbDateParserFormatter.format: date=" + date);
+      console.log("accountNgbDateParserFormatter.format: date=" + JSON.stringify(ngdate, null, 2));
       if(ngdate == null)
       {
          d = new Date();
@@ -136,7 +137,7 @@ constructor(private datePipe: DatePipe,
       }
       let ret : string;
       ret = this.datfmt.pickerFormat(d); // this.datePipe.transform(d, 'dd/MM/yyyy') ?? '';
-      //console.log("isoNgbDateParserFormatter.format: ret=" + ret);
+      console.log("accountNgbDateParserFormatter.format: ret=" + ret);
       return ret;
    }
 }
