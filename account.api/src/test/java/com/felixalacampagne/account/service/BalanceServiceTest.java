@@ -33,7 +33,7 @@ public class BalanceServiceTest
    void testCalcBalances()
    {
 
-      Optional<Transaction> optTrans = balanceService.calculateCheckedBalances(22L);
+      Optional<Transaction> optTrans = balanceService.calculateCheckedBalances(22L, Optional.empty());
       assertTrue(optTrans.isPresent());
       Transaction t = optTrans.get();
       log.info("testCalcBalances: id:{} amount:{} balance:{} ref:{} checked:{} checked balance:{}",
@@ -46,8 +46,8 @@ public class BalanceServiceTest
 
       Transaction tupd = ctxns.get(ctxns.size() / 2);
       tupd.setDebit(BigDecimal.valueOf(10000).add(tupd.getDebit()));
-      transactionJpaRepository.save(tupd);
-      optTrans = balanceService.calculateCheckedBalances(22L);
+      tupd = transactionJpaRepository.save(tupd);
+      optTrans = balanceService.calculateCheckedBalances(22L, Optional.of(tupd));
       assertTrue(optTrans.isPresent());
       t = optTrans.get();
       log.info("testCalcBalances: id:{} amount:{} balance:{} ref:{} checked:{} checked balance:{}",

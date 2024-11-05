@@ -181,7 +181,7 @@ export class TransactionsComponent implements OnInit {
             else
             {
                this.loadTransactions(res);
-               this.getCheckedBalance(res);
+               // this.getCheckedBalance(res);
             }
           },
          error: (err)=>{
@@ -344,7 +344,7 @@ lockedChange()
   }
 }
 
-updTransactionToDB(txn : TransactionItem)
+updTransactionToDB(txn : TransactionItem, showcheckedbal: boolean)
 {
   console.log("TransactionsComponent.updTransactionToDB: Starting");
   this.accountService.updateTransaction(txn).subscribe( {
@@ -355,6 +355,10 @@ updTransactionToDB(txn : TransactionItem)
           // Reset amount to prevent double entry
           this.txAmount = '';
           this.txPastearea = '';
+          if(showcheckedbal)
+          {
+            this.getCheckedBalance(this.activeaccount);
+          }
           },
       error: (err)=>{
           console.log("TransactionsComponent.updTransactionToDB: An error occured during updTransactionToDB subscribe:" + JSON.stringify(err));
@@ -402,10 +406,20 @@ updatetransaction(updtxn : TransactionItem)
    console.log("Comment: new:" + updtxn.comment + " old:" + this.origupdTxn.comment);
    console.log("Amount:  new:" + updtxn.amount + " old:" + this.origupdTxn.amount);  
    console.log("Locked:  new:" + updtxn.locked + " old:" + this.origupdTxn.locked);   
-   console.log("StRef:   new:" + updtxn.statementref + " accref:" + this.activeaccount.statementref);   
-   this.updTransactionToDB(updtxn);
+   console.log("StRef:   new:" + updtxn.statementref + " accref:" + this.activeaccount.statementref); 
+   
+   // Only update the checked balance when it is changed to locked
+   // this is not really correct but it is consistent with what the backend is doing at the moment.
+   // It assumes that an unlock is temporary for adjustment, eg. of the comment, and the txn
+   // will be re-locked immediately.
+   let showcheckedbal: boolean = false;
+   if(!this.origupdTxn.locked && updtxn.locked)
+   {
+      showcheckedbal  = true;
+   }   
+   this.updTransactionToDB(updtxn, showcheckedbal);
 
-   // TODO: If the locked state was changed to locked and the txn statementref is present
+   // If the locked state was changed to locked and the txn statementref is present
    // and different to the account statementref then the account statementref should be updated.
    // This will require an update on the server as the accountitem is loaded each time the 
    // update dialog is displayed.
@@ -413,8 +427,8 @@ updatetransaction(updtxn : TransactionItem)
         && updtxn.statementref 
         && (updtxn.statementref != this.activeaccount.statementref))
    {
-    this.activeaccount.statementref = updtxn.statementref;
-    this.accountService.updateAccountStatementRef(this.activeaccount.id, this.activeaccount.statementref);
+      this.activeaccount.statementref = updtxn.statementref;
+      this.accountService.updateAccountStatementRef(this.activeaccount.id, this.activeaccount.statementref);
    }
 
 
@@ -469,6 +483,61 @@ parseEPC(epc : string) : TransactionItem | undefined
   return trans;
 }
 
+
+cleanSComm( rawval : string) : string | undefined
+{
+   let scomm : string | undefined;
+   console.log("cleanSComm: rawval: " + rawval);
+   const scommre = /(?: *\+){0,3} *(\d) *(\d) *(\d) *\/* *(\d) *(\d) *(\d) *(\d) *\/* *(\d) *(\d) *(\d) *(\d) *(\d)(?: *\+){0,3} */;
+   const replace =   '$1$2$3$4$5$6$7$8$9$10$11$12';
+   if(rawval.match(scommre))
+   {
+      scomm =rawval.replace(scommre, replace);
+      console.log("cleanSComm: clean val: " + scomm);
+   }
+   else
+   {
+      console.log("cleanSComm: scomm NO MATCH");
+   }
+   return scomm;
+}
+
+onPasteUpd(event: ClipboardEvent) {
+   console.log("onPasteUpd: entry");
+   const clipboardData = event.clipboardData; // || window.clipboardData;
+   if(clipboardData !== null)
+   {
+     const clptxt = clipboardData.getData('text');
+     const scomm : string | undefined = this.cleanSComm(clptxt);
+     if(scomm)
+     {
+      console.log("onPasteUpd: replace clipboard content with cleaned scomm: " + scomm); 
+
+      // Can't update the clipboard and do the paste with the new text.
+      // Inst3ead need to cancel the paste and then try to emulate what should
+      // be happening. Forking crazy.
+      // This BS seems to work except for some things don't work properly after, eg. it is not 
+      // possible to revert the change, ie. Ctrl-Z. Still it is better than trying to edit//
+      // the structure communications by hand on the phone!!
+      //clipboardData.setData('text', scomm);
+
+      event.preventDefault();
+   
+      let element = event.target  as HTMLInputElement;;
+      console.log("onPasteUpd: " + JSON.stringify(element, null, 2));
+      let start = element.selectionStart as number;
+      let end = element.selectionEnd as number;
+      console.log("onPasteUpd: start,end:" + start + "," + end);
+
+      const value = element.value;
+      element.value = value.slice(0, start) + scomm + value.slice(end);
+      console.log("onPasteUpd: text: orig: " + value + " new: " + element.value);
+      element.selectionStart = element.selectionEnd = start + scomm.length;
+     }
+   }
+   console.log("onPasteUpd: exit");
+ }
+ 
 // Adapted this so I can paste an EPC code into the memo field and have it parsed
 // This relies on the EPC parser returning undefined if it fails to parse the
 // clipboard content, in which case the normal paste action should take place

@@ -2,18 +2,17 @@
 <div class="transactions" *ngIf="isTransactions()">
    <div class="title">
       <span class="title-left">Transactions for {{activeaccount.name}}</span>
-      <span class="title-right">Checked balance: 
-      <span *ngIf="checkTransaction">{{checkTransaction.balance}}</span> 
-      <span *ngIf="!checkTransaction">Calculate</span>
-      &nbsp; 
-      <button class="btn btn-outline-success btn-sm" (click)="calcCheckedBalance()" title="re-calculate">
-         <i class="bi bi-arrow-clockwise"></i>
-      </button>
-      &nbsp;
-      <button class="btn btn-outline-success btn-sm" [routerLink]="['/viewchecked', activeaccount.id]" title="view checked list">
-         <i class="bi bi-list-check"></i>
-      </button>
-   </span>      
+      
+      <span class="title-right">
+         <button  *ngIf="checkTransaction" class="btn btn-outline-success btn-sm" (click)="calcCheckedBalance()" title="checked balance">
+            <span>{{checkTransaction.balance}}&nbsp;</span> 
+            <i class="bi bi-arrow-clockwise"></i>
+         </button>
+         &nbsp;
+         <button class="btn btn-outline-success btn-sm" [routerLink]="['/viewchecked', activeaccount.id]" title="view checked list">
+            <i class="bi bi-list-check"></i>
+         </button>
+      </span>      
    </div>
    <table class="table table-striped table-sm">
       <thead class="thead-inverse">
@@ -179,7 +178,7 @@ related to using angular with the modal
                   <div class="input-group-prepend">
                      <span class="acc-modal-label" id="lbcomment">Memo</span>
                   </div>
-                  <input [(ngModel)]="this.updateTxn.comment" name="txComment" id="txComment" type="text"
+                  <input [(ngModel)]="this.updateTxn.comment" (paste)="onPasteUpd($event)" name="txComment" id="txComment" type="text"
                      class="form-control form-control-sm" placeholder="" aria-label=""  aria-describedby="lbcomment">
 
                   <button *ngIf="this.updateTxn.comment" (click)="this.updateTxn.comment='';" class="btn ps-1 pe-0" type="button" id="button-addon2">
