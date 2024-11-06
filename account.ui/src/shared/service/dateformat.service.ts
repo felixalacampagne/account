@@ -75,44 +75,24 @@ datefmt : string [];
    // Hacky method to map result of regex to Date using the
    // date format in datefmt.
    // NB. If the year value is less than 3 characters it is assumed to
-   // be a year value in 2000. This wont work if the input array is changed
+   // be a year value in 2000. This wont work if the input array 
    // is changed to numbers - conversion will need to be done prior to calling mapArrayToDate.
    // WARNING: assumes index of datevals starts at 1 (ie. result of regex)
    mapArrayToDate(datevals : string []) : Date
    {
-      let m : number = 12;
-      let d : number = 25;
-      let y : number = 1970;    
-      
-      // There must be a better way to do this but I'm not really seeing any better
-      // way at the moment. 
-      // Most important things is it works for me at the moment
-      for(let i = 0; i < 3; i++)
-      {
-         switch (this.datefmt[i]) 
-         {
-            case "DD":
-               d = +datevals[i+1];
-               console.log("mapArrayToDate: i:" + i + " fmt:" + this.datefmt[i] + " d:" + d);
-               break;
-            case "MM":
-               m =  +datevals[i+1];
-               console.log("mapArrayToDate: i:" + i + " fmt:" + this.datefmt[i] + " m:" + m);
-               break;
-            case "YYYY":
-               y = +datevals[i+1];
-               if(datevals[i+1].length < 3)
-               {
-                  y = y + 2000;
-               }
-               console.log("mapArrayToDate: i:" + i + " fmt:" + this.datefmt[i] + " y:" + y);
-               break;
-            default:
-               break;
-         }
-      };
+      const map = new Map();
+      map.set(this.datefmt[0], datevals[1]);     
+      map.set(this.datefmt[1], datevals[2]);     
+      map.set(this.datefmt[2], datevals[3]); 
 
-      return new Date(y, m-1, d);      
+      let m : number = +map.get('month');
+      let d : number = +map.get('day');
+      let y : number = +map.get('year');    
+      if(map.get('year').length < 3)
+      {
+         y = y + 2000;
+      }
+      return new Date(y, m-1, d);   
    }
 
    getDateFormatString(lang = 'default') :string[] {
@@ -130,18 +110,7 @@ datefmt : string [];
                   return false;
             }
          })
-        .map(obj => {
-            switch (obj.type) {
-               case "day":
-               return "DD";
-               case "month":
-               return "MM";
-               case "year":
-               return "YYYY";
-               default:
-               return obj.value;
-            }
-        })
+        .map(obj => obj.type)
         ;
     }   
 }
