@@ -48,6 +48,8 @@ export class AccountService
    "INET",
    "PPAL",
    "CARD",
+   "MED",
+   "P2PM",
    "QRMP",
    "DDBT",
    "INT",
