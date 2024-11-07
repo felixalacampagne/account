@@ -38,20 +38,45 @@ datefmt : string [];
    public parseDateString(datestr : string) : Date
    {
       let date : Date = new Date();
-
-      // Strictly speaking the separator should be the same between d and m and m and y
-      // but don't know how to do that in a regex, yet!  Or maybe I'll find a library instead.
-      // It would be a nice touch to be able to interpret the d and m according to the local
-      // format. Angular has a method which seems to fit the bill... except that it is deprecated!
-      // The adivce is to use Intl.DateTimeFormat - but they provide no link to documentation
-      // and it doesn't return the expected string representation of the date format. Of course
-      // Intl.DateTimeFormat does nothing like what is required, it has nothing which returns
-      // the date format. Eventually I discovered the trick in getDateFormatString on StackOverflow 
-      // which gets a Date as its component parts and use the part name to construct a format.
+      // Wanted to parse the aa/bb/yyyy format date according to local custom, ie. dd/mm/yyyy,
+      // so needed to determine the local date format... yet another trivial, everyday thing, which
+      // Angular/Javascript manages to fork up. Angular has a method which seems to perfect... 
+      // except that it is deprecated! The adivce is to use Intl.DateTimeFormat - but they provide 
+      // no link to documentation and whenyou find it it turns out it doesn't return anything 
+      // like the expected string representation of the date format. Eventually I discovered the 
+      // trick in getDateFormatString on StackOverflow which gets a Date as its component parts and 
+      // uses the part name to derive a format. The format is then used to map the results of the
+      // regex into the appropriate day/month values.
+      //
+      // I thought it would better to only accept a date when the same separator is used. 
+      // Tried using
+      //    /^(\d{1,2})(?<sep>[-.\/])(\d{1,2}?)\k<sep>(\d{4})?$/
+      // which works. Note that using the lookback '\k' forces a capturing group to
+      // be used for the initial separator which means the match array must be filtered to
+      // remove the spurious value - I could not figure out a way around this.
+      //
+      // In the end I decided not to require the separators to be the same because it turns out that
+      // Date will successfully parse such a value but, of course, does it with the wrong value for the month
+      // which is dangerous since I might not notice that 9/11/2021 has become 11/9/2021.
+      //
+      // NB. The regex tester site I used said that the '/' in the separator character classs ('[-./]')
+      // must be escaped however the Javascript reference states:
+      //    The lexical grammar does a very rough parse of regex literals, so that it does not end the regex 
+      //    literal at a / character which appears within a character class. This means /[/]/ is valid without 
+      //    needing to escape the /.
+      // [https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Character_class]
+      // Also, for Javascript, the name of the capture group MUST be surrounded by angle brakets, '<name>',
+      // single quotes are not valid.
       const datePatternA = /^(\d{1,2})[-./](\d{1,2})[-./](\d{4})$/;
       const datePatternB = /^(\d{1,2})[-./](\d{1,2})[-./](\d{2})$/;
+      const datePatternC = /^((?:21|20|19)\d{2})(\d{2})(\d{2})$/; // YYYYMMDD (for my lifespan + a bit)
+      const datePatternD = /^(\d{2})(\d{2})((?:21|20|19)\d{2})$/; // DDMMYYYY (for my lifespan + a bit)
       let ma = datePatternA.exec(datestr);
 
+      // OK so this is not the most elegant way to do it... but more concerned with getting it to work than beautification,
+      // problem is the mapping of the array to the date is not consistent
+      // I guess I could pass the format array into mapArrayToDate,
+      // the regexes could be an array of objects with regex and datefmt, then I could loop...
       if(ma)
       {
          date = this.mapArrayToDate(ma);
@@ -65,8 +90,24 @@ datefmt : string [];
          }
          else
          {
-            // Let Date have a chance at parsing it - it might be one of the accepted long formats
-            date = new Date(datestr);
+            ma = datePatternC.exec(datestr);
+            if(ma)
+            {
+               date = new Date(+ma[1], +ma[2]-1, +ma[3]);
+            }
+            else
+            {
+               ma = datePatternD.exec(datestr);
+               if(ma)
+               {
+                  date = new Date(+ma[3], +ma[2]-1, +ma[1]);
+               }
+               else
+               {
+                  // Let Date have a chance at parsing it - it might be one of the accepted long formats
+                  date = new Date(datestr);
+               }
+            }
          }
       }   
       return date;   
