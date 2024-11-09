@@ -17,8 +17,8 @@
     </thead>
     <tbody>
     <tr *ngFor="let so of standorders">
-       <td class="nowrap">{{so.soentrydate}}</td>
-       <td class="nowrap">{{so.sonextpaydate}}</td>
+       <td class="nowrap">{{formatDateColumn(so.soentrydate)}}</td>
+       <td class="nowrap">{{formatDateColumn(so.sonextpaydate)}}</td>
        <td class="account-amount">{{so.soamount}}</td>
        <td>{{so.sodesc}}</td>
        <td>{{so.accountname}}</td>

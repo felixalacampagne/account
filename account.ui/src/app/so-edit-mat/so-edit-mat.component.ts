@@ -14,6 +14,7 @@ import { DatePipe } from '@angular/common';
 import { AccountService } from 'src/shared/service/account.service';
 import { AccountItem } from 'src/shared/model/accountitem.model';
 import { Observable } from 'rxjs';
+import { DateformatService } from 'src/shared/service/dateformat.service';
 
 @Injectable()
 export class FormatingDateAdapter extends NativeDateAdapter 
@@ -31,32 +32,28 @@ export class FormatingDateAdapter extends NativeDateAdapter
    // first place - yet another fours wasted away for angular and it's shirty inability
    // to provide the very basic of basic functionality such as a correctly formatted date.
 
-   constructor(private datePipe: DatePipe) 
+   constructor(private dateFmt: DateformatService) 
    {
       super();   
    }
 
    override parse(value: any, parseFormat: any): Date {
       //console.log("FormatingDateAdapter.format: value=" + value + " parseFormat=" + parseFormat);
-      return new Date(value);
+      
+      return this.dateFmt.parseDateString(value);
    }
    override format(date: Date, displayFormat: Object): string 
    {
-      let fmt : string = 'yyyy-MM-dd';
-      //console.log("FormatingDateAdapter.format: date=" + date + " displayFormat: " + displayFormat);
-
-      if(displayFormat)
-      {
-         fmt = "" + displayFormat;
-      }
-      
       let ret : string;
-      ret = this.datePipe.transform(date, fmt) ?? '';
+      ret = this.dateFmt.pickerFormat(date) ?? '';
       //console.log("FormatingDateAdapter.format: ret=" + ret);
       return ret;
    }
 }
 
+
+// A MAT_DATE_FORMATS MUST be provided but in fact it isn't used by any
+// of the default angular code and it isn't used by my code either.
 export const ISO_DATE_FORMAT : MatDateFormats = {
    parse: {
      dateInput: 'yyyy-MM-dd',
@@ -73,7 +70,7 @@ export const ISO_DATE_FORMAT : MatDateFormats = {
    selector: 'so-edit-mat',
    standalone: true,
    providers: [
-      {provide: DateAdapter, useClass: FormatingDateAdapter},
+      {provide: DateAdapter, useClass: FormatingDateAdapter}, 
       {provide: MAT_DATE_FORMATS, useValue: ISO_DATE_FORMAT}
    ],
    imports: [MatCardModule,      
