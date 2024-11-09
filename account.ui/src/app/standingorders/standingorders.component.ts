@@ -26,12 +26,12 @@ export class StandingordersComponent implements OnInit {
 
   standorders : StandingOrderItem[] = []; 
     
-  constructor(private accountService: AccountService,
-    private deviceService: DeviceDetectorService,
-    private dateFmt: DateformatService)
-    {
-       
-    }   
+   constructor(private accountService: AccountService,
+      private deviceService: DeviceDetectorService,
+      private dateFmt: DateformatService)
+   {
+    
+   }   
    
     ngOnInit(): void {
         this.getStandingorders();
