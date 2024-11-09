@@ -41,7 +41,7 @@ public class BalanceServiceTest
 
       BigDecimal origCBal = t.getCheckedBalance();
 
-      List<Transaction> ctxns = transactionJpaRepository.findByAccountIdAndCheckedOrderBySequenceAsc(22, true);
+      List<Transaction> ctxns = transactionJpaRepository.findByAccountIdAndCheckedIsTrueOrderByDateAscSequenceAsc(22);
       log.info("testCalcBalances: checked transaction count: {}", ctxns.size());
 
       Transaction tupd = ctxns.get(ctxns.size() / 2);
@@ -56,4 +56,31 @@ public class BalanceServiceTest
       assertEquals(origCBal.subtract(BigDecimal.valueOf(10000)), t.getCheckedBalance());
 
    }
+
+   @Test
+   void testBalances()
+   {
+      List<Transaction> txns = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(22);
+      
+      Transaction lastTxn = txns.get(txns.size()-1);
+      BigDecimal origBal = lastTxn.getBalance();
+
+      log.info("testBalances: id:{} amount:{} initial balance: {}", 
+            lastTxn.getSequence(), Utils.getAmount(lastTxn), origBal);
+      
+      Transaction tupd = txns.get(txns.size() / 2);
+      tupd.setDebit(BigDecimal.valueOf(10000).add(tupd.getDebit()));
+      tupd = transactionJpaRepository.save(tupd);
+      
+      Optional<Transaction> optt = balanceService.calculateBalances(22, Optional.of(tupd));
+      assertTrue(optt.isPresent());
+      
+      Transaction t = optt.get();
+      log.info("testBalances: id:{} amount:{} balance:{}",
+            t.getSequence(), Utils.getAmount(t), t.getBalance());
+
+      assertEquals(origBal.subtract(BigDecimal.valueOf(10000)), t.getBalance());
+
+   }
+
 }

@@ -1,20 +1,23 @@
 // app/transactions/transactions.component.ts
 import { Component, OnInit, ChangeDetectorRef, ViewChild, Input, SimpleChanges } from '@angular/core';
 import { FormsModule} from '@angular/forms';
-import { CommonModule, DatePipe } from '@angular/common';
-import { NgbModal, ModalDismissReasons, NgbModalRef, NgbModule} from '@ng-bootstrap/ng-bootstrap';
+import { CommonModule /*, DatePipe */ } from '@angular/common';
+import { NgbModal, ModalDismissReasons, NgbModalRef, NgbModule, NgbDateAdapter, NgbDateNativeAdapter} from '@ng-bootstrap/ng-bootstrap';
 import { NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { DeviceDetectorService } from 'ngx-device-detector';
 
 import {environment} from '../../environments/environment';
 
-import { isoNgbDateParserFormatter } from '../../shared/datepickformatter';
+import { accountNgbDateParserFormatter, ddmmyyyyNgbDateParserFormatter, isoNgbDateParserFormatter } from '../../shared/datepickformatter';
 import {AccountService} from '../../shared/service/account.service';
+import {DateformatService} from '../../shared/service/dateformat.service';
 import {AccountItem} from '../../shared/model/accountitem.model';
 import {TransactionItem} from '../../shared/model/transaction.model';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { Html5QrcodeResult } from 'html5-qrcode/esm/core';
 import { RouterModule, RouterOutlet } from '@angular/router'; // for 'routerlink is not a property of button'
+
+// const dateFormatJson: string = 'yyyy-MM-dd';
 
 // WARNING: 'standalone: true' means the component must not be put in app.module and all imports must be duplicated
 // in the imports sections of @Component otherwise many inexplicable errors will occur, eg.
@@ -25,9 +28,15 @@ import { RouterModule, RouterOutlet } from '@angular/router'; // for 'routerlink
   imports: [FormsModule, CommonModule, NgbModule, RouterModule, RouterOutlet ],
   templateUrl: './transactions.component.html',
   styleUrls: ['../../sass/account-styles.scss', '../app.component.css', './transactions.component.css'],
-  providers: [{provide: NgbDateParserFormatter, useClass: isoNgbDateParserFormatter}]
+  providers: [{provide: NgbDateParserFormatter, useClass: accountNgbDateParserFormatter},
+              { provide: NgbDateAdapter, useClass: NgbDateNativeAdapter }
+  ]
 })
 
+// BUGS:
+// - changing between accounts leaves the old checked transaction value displayed. 
+//   It should be resethidden until a transaction is verified
+// - manual date entry is interpret as mm/dd/yyyy and then re-displayed as mm/dd/yyyy but no idea how
 
 export class TransactionsComponent implements OnInit {
 
@@ -46,12 +55,13 @@ export class TransactionsComponent implements OnInit {
    activeaccount!: AccountItem; 
    transactions: TransactionItem[] = [];
    checkTransaction!: TransactionItem;
-
+   checkLoading: boolean = false;
    public submitted: boolean = false;
    public defaultdate: string = '';
    envName: string = '';
 
-   txDate: NgbDateStruct = {year: 1970, month: 12, day: 25};
+   txDate: Date = new Date('1970-12-25'); // NgbDateStruct = {year: 1970, month: 12, day: 25};
+   txUpdDate: Date = new Date('1970-12-25'); // NgbDateStruct = {year: 1970, month: 12, day: 25};
    txType: string;
    txComment: string = '';
    txAmount: string = '';
@@ -70,9 +80,10 @@ export class TransactionsComponent implements OnInit {
 
    constructor(private accountService: AccountService,
       private cd: ChangeDetectorRef,
-      private datePipe: DatePipe,
+      // private datePipe: DatePipe,
       private modalService: NgbModal,
-      private deviceService: DeviceDetectorService)
+      private deviceService: DeviceDetectorService,
+      private datfmt : DateformatService)
    {
       this.envName = environment.envName;
       this.txnTypes = this.accountService.txnTypes;
@@ -85,20 +96,22 @@ export class TransactionsComponent implements OnInit {
 
    ngOnInit() 
    {
-      // console.log('TransactionsComponent.ngOnInit: start');
+      console.log('TransactionsComponent.ngOnInit: start');
       //this.route.queryParams.subscribe(params => {
       //   // console.log("TransactionsComponent.ngOnInit: params:" + JSON.stringify(params, null, 2));
       //   let account : AccountItem = JSON.parse(params["account"]);
       //   // console.log("TransactionsComponent.ngOnInit: account from json:" + JSON.stringify(account, null, 2));
       //   this.getTransactions(account);
       //});
-      // console.log("TransactionsComponent.ngOnInit: finish");
+      const d: Date = new Date();  
+      this.txDate = d; //{year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
+      console.log("TransactionsComponent.ngOnInit: finish");
    }
 
    resetDatepicker()
    {
       const d: Date = new Date();  
-      this.txDate = {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()}; 
+      this.txUpdDate = d; // {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()}; 
    }
 
    // Call this to display the modal. 'content' is the name of the 'template' containing the elements to be displayed in the modal, I think
@@ -112,7 +125,7 @@ export class TransactionsComponent implements OnInit {
       // so must the txn date into the date object... Date seems able to handle the date string in TransactionItem 
       let d : Date = new Date(this.updateTxn.date); // ISO date format, ie. YYYY-MM-DD
       console.log("open: txn orig date:" + d);
-      this.txDate = {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()}; 
+      this.txUpdDate = d; // {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()}; 
       
       this.modalReference = this.modalService.open(content);
       this.modalReference.result.then((result) => {
@@ -143,8 +156,8 @@ export class TransactionsComponent implements OnInit {
          // updtxn contains the new values except for the date
          // since the datepicker sets a value in txDate which needs to be mapped
          // back into the TransactionItem format
-         let updDate : Date = new Date(this.txDate.year, this.txDate.month-1, this.txDate.day);
-         updtxn.date = this.datePipe.transform(updDate, 'yyyy-MM-dd') ?? '';         
+         let updDate : Date = this.txUpdDate; //new Date(this.txUpdDate.year, this.txUpdDate.month-1, this.txUpdDate.day);
+         updtxn.date = this.datfmt.jsonFormat(updDate); // this.datePipe.transform(updDate, dateFormatJson) ?? '';         
 
          console.log("updmodalCloseAction: updating transaction:  " + JSON.stringify(updtxn, null, 2));
          this.updatetransaction(updtxn);
@@ -273,6 +286,7 @@ firstPage()
 calcCheckedBalance()
 {
    console.log("TransactionsComponent.calcCheckedBalance: Starting");
+   this.checkLoading = true;
    this.accountService.calcChecked(this.activeaccount).subscribe( {
       next: (res)=>{
           console.log("TransactionsComponent.calcCheckedBalance: Response: " + res);
@@ -281,7 +295,10 @@ calcCheckedBalance()
       error: (err)=>{
           console.log("TransactionsComponent.calcCheckedBalance: An error occured during calcCheckedBalance subscribe:" + JSON.stringify(err));
           } ,
-      complete: ()=>{console.log("TransactionsComponent.calcCheckedBalance: completed");}
+      complete: ()=>{
+         this.checkLoading = false;
+         console.log("TransactionsComponent.calcCheckedBalance: completed");
+      }
    });
    console.log("TransactionsComponent.calcCheckedBalance: Finished");
 }
@@ -316,7 +333,7 @@ addtransaction()
   }
 
   let newent : TransactionItem = new TransactionItem();
-  let d = new Date(this.txDate.year, this.txDate.month-1, this.txDate.day);
+  let d = this.txDate; // new Date(this.txDate.year, this.txDate.month-1, this.txDate.day);
   newent.accid = this.activeaccount.id;
   newent.amount = this.txAmount;
   newent.comment = this.txComment;
@@ -324,7 +341,7 @@ addtransaction()
   // With new Typescript cannot just assign return value to a string!
   // Using ternary operator is too clumsy for dealing with the return from a function
   // Apparently the '??' means use the result unless it's undefined or null and then use the value after the ??
-  newent.date = this.datePipe.transform(d, 'yyyy-MM-dd') ?? '';
+  newent.date = this.datfmt.jsonFormat(d); // this.datePipe.transform(d, dateFormatJson) ?? '';
   newent.type = this.txType;
 
   console.log("Date: " + newent.date);
@@ -386,13 +403,15 @@ updatetransaction(updtxn : TransactionItem)
    // Problem comparing the dates - the old date has a time value of +1hr but the new one
    // has 0hr. So simpler to compare the strings
    let oldDate: Date = new Date(this.origupdTxn.date);
-   let oldDatestr: string = this.datePipe.transform(oldDate, 'dd/MM/yyyy') ?? '';
+   let oldDatestr: string = this.datfmt.jsonFormat(oldDate); // this.datePipe.transform(oldDate, dateFormatJson) ?? '';
 
    // Could verify that something was changed - will need to keep track of the original TransactionItem
    if((updtxn.amount === this.origupdTxn.amount)
       && (updtxn.comment === this.origupdTxn.comment)
       && (updtxn.type === this.origupdTxn.type)
       && (updtxn.date === oldDatestr)
+      && (updtxn.locked === this.origupdTxn.locked)
+      && (updtxn.statementref === this.origupdTxn.statementref)
    )
    {
       console.log("No values were changed, nothing to update.");
@@ -436,6 +455,11 @@ updatetransaction(updtxn : TransactionItem)
    // NB updTransactionToDB refreshes the transaction list when the response is received.
    // Horribly ugly code, I guess there must be a better way of doing it but alas I
    // don't know what it is...
+}
+
+formatDateColumn(jsondate: string) : string
+{
+   return this.datfmt.listFormat(jsondate) ;   
 }
 
 // An EPC looks like this

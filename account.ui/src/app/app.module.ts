@@ -15,6 +15,7 @@ import { provideRouter, RouterLink, RouterLinkActive, RouterOutlet, withComponen
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { CheckedListComponent } from './checked-list/checked-list.component';
+import { DateformatService } from 'src/shared/service/dateformat.service';
 
 
 // Magic required to get normal scrolling to work when swipe left is used.
@@ -89,6 +90,7 @@ export class HammerConfigForNormalScroll extends HammerGestureConfig {
    ], 
     providers: [
       AccountService, 
+      DateformatService,
       //{ provide: APP_INITIALIZER, useFactory: () => appConfigFactory,
       //           deps: [AccountService],
       //           multi: true

@@ -4,9 +4,14 @@
       <span class="title-left">Transactions for {{activeaccount.name}}</span>
       
       <span class="title-right">
-         <button  *ngIf="checkTransaction" class="btn btn-outline-success btn-sm" (click)="calcCheckedBalance()" title="checked balance">
-            <span>{{checkTransaction.balance}}&nbsp;</span> 
-            <i class="bi bi-arrow-clockwise"></i>
+         <button *ngIf="checkTransaction" class="btn btn-outline-success btn-sm" (disabled)="checkLoading" (click)="calcCheckedBalance()" title="checked balance">
+            <div *ngIf="!checkLoading">
+            <span>{{checkTransaction.balance}}&nbsp;</span><i class="bi bi-arrow-clockwise"></i>
+            </div>
+            <div *ngIf="checkLoading">
+               <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+               Loading...
+            </div>
          </button>
          &nbsp;
          <button class="btn btn-outline-success btn-sm" [routerLink]="['/viewchecked', activeaccount.id]" title="view checked list">
@@ -25,9 +30,9 @@
            <th class="account-edit" *ngIf="desktopDisplay"></th>
          </tr>
       </thead>
-      <tbody >
+      <tbody>
          <tr *ngFor="let txn of transactions" [ngClass]="{'table-success': txn.locked}">
-            <td class="nowrap">{{txn.date.substring(2)}}</td>
+            <td class="nowrap">{{formatDateColumn(txn.date)}}</td>
             <td (swipeleft)="open(content, txn)">{{txn.comment}}</td>
             <td *ngIf="desktopDisplay">{{txn.statementref}}</td>
             <td class="account-amount" [ngClass]="{'account-negamount': txn.amount.startsWith('-')}">{{txn.amount}}</td>
@@ -73,7 +78,7 @@
               <!-- ng add @angular/localize was required to enable navigation backwards and forwards   -->
               <input ngbDatepicker #dt="ngbDatepicker" [(ngModel)]="txDate"
                  name="txDate" id="txDate" type="text"
-                 class="form-control-date form-control form-control-sm" placeholder="DD/MM/YYYY">
+                 class="form-control-date form-control form-control-sm" placeholder="YYYY-MM-DD">
                  <div class="input-group-append">
                     <button class="btn btn-outline-secondary" (click)="dt.toggle()" type="button" title="open calendar">
                        <i class="bi bi-calendar3"></i>
@@ -155,9 +160,9 @@ related to using angular with the modal
                      <span class="acc-modal-label" id="lbdate">Date</span>
                   </div>
                   <!-- ng add @angular/localize was required to enable navigation backwards and forwards   -->
-                  <input ngbDatepicker #dt="ngbDatepicker" [(ngModel)]="txDate"
-                     name="txUDate" id="txUDate" type="text"
-                     class="form-control-date form-control form-control-sm" placeholder="DD/MM/YYYY">
+                  <input ngbDatepicker #dt="ngbDatepicker" [(ngModel)]="txUpdDate"
+                     name="txUpdDate" id="txUpdDate" type="text"
+                     class="form-control-date form-control form-control-sm" placeholder="MM/DD/YYYY">
                   <div class="input-group-append">
                      <button class="btn btn-outline-secondary" (click)="dt.toggle()" type="button">
                         <i class="bi bi-calendar3"></i>

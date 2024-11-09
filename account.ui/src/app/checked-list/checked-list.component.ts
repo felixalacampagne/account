@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import {MatIconModule} from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterModule, RouterOutlet } from '@angular/router'; // for 'routerlink is not a property of button'
+import { DateformatService } from 'src/shared/service/dateformat.service';
 
 // import { DataSource } from '@angular/cdk/collections';
 // import { BehaviorSubject, Observable } from 'rxjs';
@@ -36,6 +37,7 @@ export class CheckedListComponent implements OnInit {
    pageNumber: number = 0;
 
    constructor(private accountService: AccountService,
+               private datfmt : DateformatService,
                private modalService: NgbModal)
    {
     
@@ -62,7 +64,12 @@ export class CheckedListComponent implements OnInit {
          }
       }
    }
-
+   
+   formatDateColumn(jsondate: string) : string
+   {
+      return this.datfmt.listFormat(jsondate) ;   
+   }
+   
    loadAccount(id : number)
    {
      console.log("CheckedListComponent.loadAccount: Starting: id " + id);

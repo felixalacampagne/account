@@ -1,13 +1,13 @@
 // standingorders.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
-import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import { StandingOrderItem } from '../../shared/model/standingorderitem.model';
 import { AccountService } from '../../shared/service/account.service';
 import { SoEditMatComponent } from '../so-edit-mat/so-edit-mat.component';
 import { MatDialog } from '@angular/material/dialog';
 import { SoEditMatDialog } from '../so-edit-mat/so-edit-mat.dialog';
+import { DateformatService } from 'src/shared/service/dateformat.service';
 
 export interface DialogData {
    sodata: StandingOrderItem;
@@ -26,20 +26,18 @@ export class StandingordersComponent implements OnInit {
 
   standorders : StandingOrderItem[] = []; 
     
-  constructor(private accountService: AccountService,
-    private modalService: NgbModal,
-    private deviceService: DeviceDetectorService)
-    {
-       
-    }   
+   constructor(private accountService: AccountService,
+      private deviceService: DeviceDetectorService,
+      private dateFmt: DateformatService)
+   {
+    
+   }   
    
     ngOnInit(): void {
         this.getStandingorders();
     }
 
    dialog = inject(MatDialog);
-
-
 
    getStandingorders()
    {
@@ -100,4 +98,10 @@ export class StandingordersComponent implements OnInit {
    {
       return this.standorders.length > 0;
    }
+
+   formatDateColumn(jsondate: string) : string
+   {
+      return this.dateFmt.listFormat(jsondate) ;   
+   }
+
 }
