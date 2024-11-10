@@ -6,7 +6,7 @@ import {map} from 'rxjs/operators';
 import {environment} from '../../environments/environment';
 import { AccountItem } from '../model/accountitem.model';
 import { AccountDetail } from '../model/accountdetail.model';
-import { TransactionItem } from '../model/transaction.model';
+import { AddTransactionItem, TransactionItem } from '../model/transaction.model';
 import { Version } from '../model/version.model';
 import { StandingOrderItem } from '../model/standingorderitem.model';
 
@@ -23,6 +23,7 @@ export class AccountService
    private listtxnsvc : string = "listtransaction/";
    private listchktxn : string = "listchecked/";
    private calcchkbal : string = "calcchecked/";
+   private accsfortfr : string = "accsfortfr/";
    private getchktxn  : string = "getchecked/";
    private addtxnsvc : string = "addtransaction";
    private updtxnsvc : string = "updatetransaction";
@@ -176,6 +177,13 @@ export class AccountService
       return this.http.get(url).pipe( map((res:any) => res));
    }
 
+   getAccountsForTransfer(a : AccountItem) : Observable<AccountItem[]>
+   {
+      let url : string;
+      url = this.apiurl + this.accsfortfr + a.id;
+      return this.http.get(url).pipe( map((res:any) => res));
+   }
+
    getTransactions(a : AccountItem, p: number = 0) : Observable<TransactionItem[]>
    {
       let url : string;
@@ -184,7 +192,7 @@ export class AccountService
       return this.http.get(url).pipe( map((res:any) => res.transactions));
    }
 
-   addTransaction(txn : TransactionItem): Observable<string>
+   addTransaction(txn : AddTransactionItem): Observable<string>
    {
       let json : string;
       let url : string;

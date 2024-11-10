@@ -30,3 +30,18 @@ export class TransactionItem
 
     }
 }
+
+export class AddTransactionItem extends TransactionItem
+{
+   public transferAccount: number | undefined | null;
+   constructor()
+   {
+      super();
+   }
+
+   override copy(item: AddTransactionItem)
+   {
+      super.copy(item);
+      this.transferAccount = item.transferAccount;
+   }
+}

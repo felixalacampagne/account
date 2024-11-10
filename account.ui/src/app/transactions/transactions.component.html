@@ -113,6 +113,19 @@
                     <input [(ngModel)]="txAmount" name="txAmount" id="txAmount" type="number" class="form-control form-control-sm" placeholder="-ve number for Credit" aria-label="-ve number for Credit"  aria-describedby="lbamount">
 
             </div>
+            <div class="form-check  form-check-reverse form-switch">
+               <label class="form-check-label" for="flexSwitchCheckDefault">Between own accounts</label>
+               <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" [checked]="isTransfer" (click)="toggleTransferAccounts()">
+             </div>            
+            <div *ngIf="canShowTransferAccounts()" class="acc-modal-row">
+               <div class="input-group-prepend">
+                  <span class="acc-modal-label" id="lbType">Correspondent account</span>
+               </div>
+               <select class="form-control form-control-sm" [(ngModel)]="txTfrAccount" name="txTfrAccount" id="txTfrAccount" title="Correspondent account">
+                  <option [ngValue]="null"></option>
+                  <option *ngFor="let trnAcc of transferAccounts" [ngValue]="trnAcc">{{trnAcc.name}}</option>
+               </select>               
+            </div>
          </form>
          <button type="button" class="btn btn-default btn-primary" (click)="addtransaction();">Add new transaction</button>&nbsp;
          <button type="button" class="btn btn-default btn-primary" (click)="doScan();">Scan QR code</button>

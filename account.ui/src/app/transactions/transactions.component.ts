@@ -12,7 +12,7 @@ import { accountNgbDateParserFormatter, ddmmyyyyNgbDateParserFormatter, isoNgbDa
 import {AccountService} from '../../shared/service/account.service';
 import {DateformatService} from '../../shared/service/dateformat.service';
 import {AccountItem} from '../../shared/model/accountitem.model';
-import {TransactionItem} from '../../shared/model/transaction.model';
+import {AddTransactionItem, TransactionItem} from '../../shared/model/transaction.model';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { Html5QrcodeResult } from 'html5-qrcode/esm/core';
 import { RouterModule, RouterOutlet } from '@angular/router'; // for 'routerlink is not a property of button'
@@ -53,6 +53,8 @@ export class TransactionsComponent implements OnInit {
    modalReference: NgbModalRef | undefined;
 
    activeaccount!: AccountItem; 
+   transferAccounts!: AccountItem[];
+   isTransfer: boolean = false;
    transactions: TransactionItem[] = [];
    checkTransaction!: TransactionItem;
    checkLoading: boolean = false;
@@ -65,6 +67,7 @@ export class TransactionsComponent implements OnInit {
    txType: string;
    txComment: string = '';
    txAmount: string = '';
+   txTfrAccount: AccountItem | undefined;
    txPastearea: string = '';
    closeResult: string = '';
    html5QrcodeScanner: Html5QrcodeScanner | undefined; // Only defined while a scan is being performed
@@ -206,6 +209,49 @@ export class TransactionsComponent implements OnInit {
      console.log("TransactionsComponent.loadAccount:Finished");
    }
 
+   toggleTransferAccounts() {
+      if(this.isTransfer)
+      {
+         this.isTransfer = false;
+         this.txTfrAccount = undefined;
+      }
+      else
+      {
+         this.isTransfer = true;
+         if(!this.transferAccounts) {
+            this.loadTransferAccounts();
+         }
+
+      }
+      console.log("TransactionsComponent.toggleTransferAccounts: isTransfer: " + this.isTransfer);
+   }
+   canShowTransferAccounts() {
+      return((this.isTransfer == true) && this.transferAccounts);
+   }
+   loadTransferAccounts() {
+      const id : number = this.activeaccount.id;
+      console.log("TransactionsComponent.showTransferAccounts: Starting: id " + id);
+         
+      this.accountService.getAccountsForTransfer(this.activeaccount).subscribe({
+          next: (res)=>{
+             if(!res)
+             {
+               console.log("TransactionsComponent.showTransferAccounts: variable is not initialized");
+             }
+             else
+             {
+                this.transferAccounts = res;
+             }
+           },
+          error: (err)=>{
+              console.log("TransactionsComponent.showTransferAccounts: An error occured during subscribe: " + JSON.stringify(err, null, 2));
+              } ,
+          complete: ()=>{console.log("TransactionsComponent.showTransferAccounts: completed");}
+       });
+    
+      console.log("TransactionsComponent.showTransferAccounts:Finished");      
+   }
+   
    getCheckedBalance(acc : AccountItem)
    {
       console.log("TransactionsComponent.getCheckedBalance: Starting: " + JSON.stringify(acc, null, 2));
@@ -303,7 +349,7 @@ calcCheckedBalance()
    console.log("TransactionsComponent.calcCheckedBalance: Finished");
 }
 
-addTransactionToDB(txn : TransactionItem)
+addTransactionToDB(txn :AddTransactionItem)
 {
   console.log("TransactionsComponent.addTransactionToDB: Starting");
   this.accountService.addTransaction(txn).subscribe( {
@@ -332,7 +378,7 @@ addtransaction()
     return;
   }
 
-  let newent : TransactionItem = new TransactionItem();
+  let newent : AddTransactionItem = new AddTransactionItem();
   let d = this.txDate; // new Date(this.txDate.year, this.txDate.month-1, this.txDate.day);
   newent.accid = this.activeaccount.id;
   newent.amount = this.txAmount;
@@ -343,7 +389,10 @@ addtransaction()
   // Apparently the '??' means use the result unless it's undefined or null and then use the value after the ??
   newent.date = this.datfmt.jsonFormat(d); // this.datePipe.transform(d, dateFormatJson) ?? '';
   newent.type = this.txType;
-
+   if(this.txTfrAccount)
+   {
+      newent.transferAccount = this.txTfrAccount.id;
+   }
   console.log("Date: " + newent.date);
   console.log("Type: " + newent.type);
   console.log("Comment: " + newent.comment);
