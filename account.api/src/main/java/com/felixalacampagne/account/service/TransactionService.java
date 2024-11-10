@@ -1,6 +1,7 @@
 package com.felixalacampagne.account.service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -16,9 +17,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.felixalacampagne.account.common.Utils;
+import com.felixalacampagne.account.model.AddTransactionItem;
 import com.felixalacampagne.account.model.TransactionItem;
 import com.felixalacampagne.account.model.Transactions;
+import com.felixalacampagne.account.persistence.entities.Account;
 import com.felixalacampagne.account.persistence.entities.Transaction;
+import com.felixalacampagne.account.persistence.repository.AccountJpaRepository;
 import com.felixalacampagne.account.persistence.repository.TransactionJpaRepository;
 
 @Service
@@ -27,16 +31,19 @@ public class TransactionService
    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
    private final TransactionJpaRepository transactionJpaRepository;
+   private final AccountJpaRepository accountJpaRepository;
    private final ConnectionResurrector<TransactionJpaRepository> connectionResurrector;
 
    BalanceService balanceService;
 
    @Autowired
    public TransactionService(TransactionJpaRepository transactionJpaRepository,
-                             BalanceService balanceService
+                             BalanceService balanceService,
+                             AccountJpaRepository accountJpaRepository
                              ) {
       this.transactionJpaRepository = transactionJpaRepository;
       this.balanceService = balanceService;
+      this.accountJpaRepository = accountJpaRepository;
       this.connectionResurrector = new ConnectionResurrector<TransactionJpaRepository>(transactionJpaRepository, TransactionJpaRepository.class);
    }
 
@@ -78,11 +85,39 @@ public class TransactionService
       return transactionJpaRepository.findById(id);
    }
 
-   public void addTransaction(TransactionItem transactionItem)
+   @Transactional // potentially two transactions are added so transaction is required
+   public void addTransaction(AddTransactionItem transactionItem)
    {
+      connectionResurrector.ressurectConnection();
       Transaction txn = mapToEntity(transactionItem);
-      txn = add(txn);
-      log.info("addTransaction: added transaction for account id {}: id:{}", txn.getAccountId(), txn.getSequence());
+      Transaction updtxn = add(txn);
+      log.info("addTransaction: added transaction for account id {}: id:{}", updtxn.getAccountId(), updtxn.getSequence());
+      if(transactionItem.getTransferAccount().isPresent())
+      {
+         Long srcaccid = updtxn.getAccountId();
+         Long tfraccid = transactionItem.getTransferAccount().get();
+         Transaction txntfr = mapToEntity(transactionItem);
+         Account srcacc = this.accountJpaRepository.findById(srcaccid)
+               .orElseThrow(() -> new AccountException("Transfer account not found: " + srcaccid));      
+
+         txntfr.setAccountId(tfraccid);
+         if(txntfr.getCredit() == null)
+         {
+            // Debit on src acc -> tfr FROM srcacc
+            txntfr.setCredit(txn.getDebit());
+            txntfr.setDebit(null);
+            txntfr.setComment(txn.getComment() + " [from " + srcacc.getAccDesc() + "]"); 
+         }
+         else
+         {  
+            // Credit on src acc -> tfr TO srcacc
+            txntfr.setDebit(txn.getCredit());
+            txntfr.setCredit(null);
+            txntfr.setComment(txn.getComment() + " [to " + srcacc.getAccDesc() + "]");
+         }  
+         updtxn = add(txntfr);
+         log.info("addTransaction: added transfer transaction for account id {}: id:{}", updtxn.getAccountId(), updtxn.getSequence());
+      }
    }
 
    // This must be @Transactional because it calls 'update()' which is @Transactional and in the same class which
@@ -159,7 +194,8 @@ public class TransactionService
    @Transactional
    public Transaction add(Transaction txn)
    {
-      txn = transactionJpaRepository.save(txn);
+      txn = transactionJpaRepository.saveAndFlush(txn);
+      log.info("add: added transaction: {}", txn);
       balanceService.calculateBalances(txn.getAccountId(), Optional.of(txn));
       return txn;
    }

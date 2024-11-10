@@ -1,5 +1,6 @@
 package com.felixalacampagne.account.service;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,6 +42,17 @@ public class AccountService
             .map(a -> { return new AccountItem(a.getAccId(), a.getAccDesc(), a.getAccSid()); })
             .collect(Collectors.toList());
       return accitems;
+   }
+
+   public List<AccountItem> getTransferAccounts(Long id)
+   {
+      Account srcacc = accountJpaRepository.findById(id)
+         .orElseThrow(() -> new AccountException("Account not found: " + id));      
+
+      return accountJpaRepository.findTransferAccounts(srcacc.getAccId(), srcacc.getAccCurr(), Arrays.asList(254L,255L) )
+            .stream()
+            .map(a -> { return new AccountItem(a.getAccId(), a.getAccDesc(), a.getAccSid()); })
+            .collect(Collectors.toList());
    }
 
    public AccountItem getAccountItem(long id)
