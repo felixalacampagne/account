@@ -27,6 +27,7 @@ export class AccountService
    private getchktxn  : string = "getchecked/";
    private addtxnsvc : string = "addtransaction";
    private updtxnsvc : string = "updatetransaction";
+   private deltxnsvc : string = "deletetransaction";
    private versionsvc : string = "version";
    private listsosvc : string = "liststandingorders";
    private standingorder : string = "standingorder/";
@@ -225,6 +226,22 @@ export class AccountService
         json = JSON.stringify(txn);
         url = this.apiurl + this.updtxnsvc;
         console.log("updateTransaction: PUTing to " + url + ": " + json);
+
+        var headers = new HttpHeaders();
+        headers = headers.set('Content-Type', 'application/json');
+        headers = headers.set("Accept", "text/plain");
+        
+        return this.http.put(url, json, {headers: headers,  responseType: 'text'}); 
+    }
+
+    deleteTransaction(txn : TransactionItem) : Observable<string>
+    {
+        let json : string;
+        let url : string;
+        let res;
+        json = JSON.stringify(txn);
+        url = this.apiurl + this.deltxnsvc;
+        console.log("deleteTransaction: PUTing to " + url + ": " + json);
 
         var headers = new HttpHeaders();
         headers = headers.set('Content-Type', 'application/json');
