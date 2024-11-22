@@ -16,6 +16,7 @@ import {AddTransactionItem, TransactionItem} from '../../shared/model/transactio
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { Html5QrcodeResult } from 'html5-qrcode/esm/core';
 import { RouterModule, RouterOutlet } from '@angular/router'; // for 'routerlink is not a property of button'
+import { TxnDelConfirmDialog } from './txndel-confirm-modal.component';
 
 // const dateFormatJson: string = 'yyyy-MM-dd';
 
@@ -141,15 +142,15 @@ export class TransactionsComponent implements OnInit {
     });
   }
 
-  private getDismissReason(reason: any): string {
-    if (reason === ModalDismissReasons.ESC) {
+   private getDismissReason(reason: any): string {
+      if (reason === ModalDismissReasons.ESC) {
       return 'CANCEL';
-    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
+      } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
       return 'CANCEL';
-    } else {
+      } else {
       return `${reason}`;
-    }
-  }
+      }
+   }
 
    private updmodalCloseAction(reason : string, updtxn : TransactionItem) 
    {
@@ -165,11 +166,37 @@ export class TransactionsComponent implements OnInit {
          console.log("updmodalCloseAction: updating transaction:  " + JSON.stringify(updtxn, null, 2));
          this.updatetransaction(updtxn);
       }
+      else if(reason == "DELETE")
+      {
+         this.delTxnConfirm(updtxn);
+      }
+
       this.resetDatepicker();
    }
 
-
-
+   delTxnConfirm(updtxn : TransactionItem) 
+   {
+      // Need a way to pass a message to be displayed to the confirmation dialog
+      let modalReference: NgbModalRef = this.modalService.open(TxnDelConfirmDialog);
+      modalReference.result.then((result) => {
+         console.log("delTxnConfirm:modalReference:result");
+         this.delTxnConfirmCloseAction(`${result}`, this.updateTxn);
+       }, (reason) => {
+         console.log("delTxnConfirm:modalReference:reason");
+         this.delTxnConfirmCloseAction( `${this.getDismissReason(reason)}`, this.updateTxn);
+       });
+   }
+   
+   private delTxnConfirmCloseAction(reason : string, updtxn : TransactionItem) 
+   {
+      console.log("delTxnConfirmCloseAction: reason: " + reason);
+      if(reason == "OK")
+      {
+         console.log("delTxnConfirmCloseAction: deleting transaction:  " + JSON.stringify(updtxn, null, 2));
+         this.delTransactionToDB(updtxn);
+      }
+   }
+      
    ngOnChanges(changes: SimpleChanges ) 
    {
       console.log("TransactionsComponent.ngOnChanges: enter: " + JSON.stringify(changes, null, 2));
@@ -408,6 +435,27 @@ lockedChange()
     //console.log("TransactionsComponent.lockedChange: set ref:" + this.activeaccount.statementref);
     this.updateTxn.statementref = this.activeaccount.statementref;  
   }
+}
+
+delTransactionToDB(txn : TransactionItem) 
+{
+   console.log("TransactionsComponent.delTransactionToDB: Starting");
+   this.accountService.deleteTransaction(txn).subscribe( {
+       next: (res)=>{
+           console.log("TransactionsComponent.delTransactionToDB: Response: " + res);
+           // Must action for add to complete before loading new transaction list
+           this.loadTransactions(this.activeaccount, this.pageNumber);
+           // Reset amount to prevent double entry
+           this.txAmount = '';
+           this.txPastearea = '';
+           },
+       error: (err)=>{
+           console.log("delTransactionToDB.updTransactionToDB: An error occured during updTransactionToDB subscribe:" + JSON.stringify(err));
+           } ,
+       complete: ()=>{console.log("TransactionsComponent.delTransactionToDB: completed");}
+    });
+ 
+   console.log("TransactionsComponent.delTransactionToDB:Finished");   
 }
 
 updTransactionToDB(txn : TransactionItem, showcheckedbal: boolean)
