@@ -87,7 +87,7 @@ public class AccountController {
     {
        return this.accountService.getTransferAccounts(id);
     }
-    
+
     @GetMapping("/accinf/{id}")
     public AccountDetail getAccountDetail(@PathVariable Long id)
     {
@@ -164,6 +164,23 @@ public class AccountController {
        catch(Exception ex)
        {
           log.info("updateTransaction: Failed to update: {}", transactionItem, ex);
+          return "failed: " + ex.getMessage();
+       }
+
+       return "ok";
+    }
+
+    @PutMapping(value = "/deletetransaction")
+    public String deleteTransaction(@RequestBody TransactionItem transactionItem, Model model)
+    {
+       log.info("deleteTransaction: transaction item to delete: {}", transactionItem);
+       try
+       {
+          this.transactionService.updateTransaction(transactionItem);
+       }
+       catch(Exception ex)
+       {
+          log.info("deleteTransaction: Failed to delete: {}", transactionItem, ex);
           return "failed: " + ex.getMessage();
        }
 
