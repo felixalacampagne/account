@@ -204,6 +204,7 @@ public class TransactionService
          throw new  AccountException("Account id does not match Transaction id " + transactionItem.getId());
       }
 
+      // Must mark txn as unchecked in order to delete it
       if(deltxn.getChecked())
       {
          log.info("deleteTransaction: Locked transaction: id:{}", transactionItem.getId());

@@ -176,7 +176,7 @@ public class AccountController {
        log.info("deleteTransaction: transaction item to delete: {}", transactionItem);
        try
        {
-          this.transactionService.updateTransaction(transactionItem);
+          this.transactionService.deleteTransaction(transactionItem);
        }
        catch(Exception ex)
        {
