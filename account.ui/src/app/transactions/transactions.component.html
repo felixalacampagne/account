@@ -238,13 +238,30 @@ related to using angular with the modal
 
             </form>
          </div>
+         <!-- Once again it has taken hours to get a simple layout where the dangerous delete button is on the left and
+           and the more usual buttons are on the right (and have a gap between them). It seems the trick is to use
+           float-xxxx, the only problem is that this is not mentioned anywhere in the sections related to buttons, grids,
+           columns. If you know about it then it can be found as one of the very last items in the documentation under 'Utilities'
+           which is guarenteed to mean it is overlooked!
+           The docs say that only the float-xxx is required but that is complete rowlocks since they had absolutely no
+           affect without the 'container'. Without the 'd-flex gap-2' the buttons are crammed together.
+         -->
          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="updmodal.dismiss('CANCEL')">Cancel</button>
-            <button type="button" class="btn btn-default btn-primary" (click)="updmodal.close('UPDATE')">Update</button>
+            <div class="container clearfix">
+            <div class="float-start">
+                     <button *ngIf="!this.updateTxn.locked" type="button" class="btn btn-danger" (click)="updmodal.dismiss('DELETE')" title="delete transaction">
+                        <i class="bi bi-trash3-fill" aria-hidden="true"></i>
+                     </button> 
+            </div>
+            <div class="float-end d-flex gap-2">       
+                     <button type="button" class="btn btn-secondary" (click)="updmodal.dismiss('CANCEL')">Cancel</button>
+                     <button type="button" class="btn btn-default btn-primary" (click)="updmodal.close('UPDATE')">Update</button>
+            </div>
+            </div>
          </div>
       </div>
                <!-- modal-content -->
    </div>
          <!-- modal-dialog -->
-
 </ng-template>
+
