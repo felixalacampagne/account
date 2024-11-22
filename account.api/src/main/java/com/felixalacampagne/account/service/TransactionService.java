@@ -1,7 +1,6 @@
 package com.felixalacampagne.account.service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -98,7 +97,7 @@ public class TransactionService
          Long tfraccid = transactionItem.getTransferAccount().get();
          Transaction txntfr = mapToEntity(transactionItem);
          Account srcacc = this.accountJpaRepository.findById(srcaccid)
-               .orElseThrow(() -> new AccountException("Transfer account not found: " + srcaccid));      
+               .orElseThrow(() -> new AccountException("Transfer account not found: " + srcaccid));
 
          txntfr.setAccountId(tfraccid);
          if(txntfr.getCredit() == null)
@@ -106,15 +105,15 @@ public class TransactionService
             // Debit on src acc -> tfr FROM srcacc
             txntfr.setCredit(txn.getDebit());
             txntfr.setDebit(null);
-            txntfr.setComment(txn.getComment() + " [from " + srcacc.getAccDesc() + "]"); 
+            txntfr.setComment(txn.getComment() + " [from " + srcacc.getAccDesc() + "]");
          }
          else
-         {  
+         {
             // Credit on src acc -> tfr TO srcacc
             txntfr.setDebit(txn.getCredit());
             txntfr.setCredit(null);
             txntfr.setComment(txn.getComment() + " [to " + srcacc.getAccDesc() + "]");
-         }  
+         }
          updtxn = add(txntfr);
          log.info("addTransaction: added transfer transaction for account id {}: id:{}", updtxn.getAccountId(), updtxn.getSequence());
       }
@@ -171,7 +170,7 @@ public class TransactionService
       txn.setChecked(updtxn.getChecked());
       txn.setStid(updtxn.getStid());
       Transaction txnupdated = update(txn);
-      
+
       if(bRecalcChecked)
       {
          // not sure if I really want this as it could be very time consuming
@@ -180,6 +179,47 @@ public class TransactionService
       return txnupdated;
    }
 
+   @Transactional
+   public void deleteTransaction(TransactionItem transactionItem)
+   {
+      log.info("deleteTransaction: transactionItem:{}", transactionItem);
+      if(transactionItem == null)
+         return;
+      Transaction txn = getTransaction(transactionItem.getId())
+            .orElseThrow(()->new AccountException("Transaction id " + transactionItem.getId() + " not found"));
+
+      String origToken = Utils.getToken(txn);
+      if(!origToken.equals(transactionItem.getToken()))
+      {
+         log.info("deleteTransaction: Token mismatch for transaction id:{}: original:{} supplied:{}",
+               transactionItem.getId(), origToken, transactionItem.getToken());
+         throw new  AccountException("Token does not match Transaction id " + transactionItem.getId());
+      }
+
+      Transaction deltxn = mapToEntity(transactionItem);
+      if(txn.getAccountId() != deltxn.getAccountId())
+      {
+         log.info("updateTransaction: Account id does not match transaction id:{}: original:{} supplied:{}",
+               transactionItem.getId(), txn.getAccountId(), deltxn.getAccountId());
+         throw new  AccountException("Account id does not match Transaction id " + transactionItem.getId());
+      }
+
+      if(deltxn.getChecked())
+      {
+         log.info("deleteTransaction: Locked transaction: id:{}", transactionItem.getId());
+         throw new  AccountException("Transaction id " + transactionItem.getId() + " is locked");
+      }
+
+      boolean  bRecalcChecked = deltxn.getChecked();
+
+      delete(txn);
+
+      if(bRecalcChecked)
+      {
+         // not sure if I really want this as it could be very time consuming
+         balanceService.calculateCheckedBalances(deltxn.getAccountId(), Optional.empty());
+      }
+   }
    // This must be @Transactional because it recalculates the balances of all following transactions
    // and any failure during this calculation should revert all changes
    @Transactional
@@ -196,8 +236,19 @@ public class TransactionService
    {
       txn = transactionJpaRepository.saveAndFlush(txn);
       log.info("add: added transaction: {}", txn);
+      // TODO: find a way to avoid a full recalculation, can't use the just deleted transaction as the start
       balanceService.calculateBalances(txn.getAccountId(), Optional.of(txn));
       return txn;
+   }
+
+   @Transactional
+   public void delete(Transaction txn)
+   {
+      log.info("delete: deleting transaction: {}", txn);
+      Optional<Transaction> prevtxn = transactionJpaRepository.findFirstByAccountIdAndSequenceIsLessThanOrderBySequenceAsc(txn.getAccountId(), txn.getSequence());
+      transactionJpaRepository.delete(txn);
+      balanceService.calculateBalances(txn.getAccountId(), prevtxn);
+
    }
 
    private Transaction mapToEntity(TransactionItem transactionItem)
