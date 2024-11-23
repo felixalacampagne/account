@@ -69,6 +69,7 @@ export class TransactionsComponent implements OnInit {
    txComment: string = '';
    txAmount: string = '';
    txTfrAccount: AccountItem | undefined;
+   txCommunication : string = '';
    txPastearea: string = '';
    closeResult: string = '';
    html5QrcodeScanner: Html5QrcodeScanner | undefined; // Only defined while a scan is being performed
@@ -236,6 +237,20 @@ export class TransactionsComponent implements OnInit {
      console.log("TransactionsComponent.loadAccount:Finished");
    }
 
+   // radio buttons
+   setTransfer(trans : boolean)
+   {
+      this.isTransfer = trans;
+      console.log("setTransfer: isTransfer=" + this.isTransfer); 
+      if(this.isTransfer)
+      {
+         if(!this.transferAccounts) {
+            this.loadTransferAccounts();
+         }
+      }
+   }
+
+   // switch
    toggleTransferAccounts() {
       if(this.isTransfer)
       {
@@ -635,10 +650,10 @@ onPasteUpd(event: ClipboardEvent) {
       console.log("onPasteUpd: replace clipboard content with cleaned scomm: " + scomm); 
 
       // Can't update the clipboard and do the paste with the new text.
-      // Inst3ead need to cancel the paste and then try to emulate what should
+      // Instead need to cancel the paste and then try to emulate what should
       // be happening. Forking crazy.
       // This BS seems to work except for some things don't work properly after, eg. it is not 
-      // possible to revert the change, ie. Ctrl-Z. Still it is better than trying to edit//
+      // possible to revert the change, ie. Ctrl-Z. Still it is better than trying to edit
       // the structure communications by hand on the phone!!
       //clipboardData.setData('text', scomm);
 
@@ -682,6 +697,12 @@ onPaste(event: ClipboardEvent) {
   console.log("onPaste: exit");
 }
 
+onPasteComm(event: ClipboardEvent)
+{
+   // Maybe want to filter the "+", "/" . " " of the 'structured" communications?
+   // already done for the updated dialog
+   this.onPasteUpd(event);
+}
 
 onScanSuccess(decodedText: string, decodedResult: Html5QrcodeResult) {
   // handle the scanned code as you like, for example:

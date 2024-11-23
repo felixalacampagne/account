@@ -61,16 +61,34 @@
 </div>
 
 <div id="txncontainer" *ngIf="isTransactions()">
-  <div id="qrreadercontainer">
+   <div id="qrreadercontainer">
      <div id="reader" class="reader" width="300px"></div>
-  </div>
-  <!-- QR reader panel. Should overlay the transaciton input form -->
-  <div id="txnform" class="txnform">
+   </div>
+   <!-- QR reader panel. Should overlay the transaciton input form -->
+   <div id="txnform" class="txnform">
 
-     <!-- pt/pb are padding top/bottom -->
-     <div class="container border border-warning rounded pt-3 pb-3">
+      <!-- pt/pb are padding top/bottom -->
+      <div class="container border border-warning rounded pt-3 pb-3">
 
-        <form #newtxnform="ngForm">
+         <!-- 
+            Was going to use 'real radio button horizontally but they just didn't look right, plus the fonts were wrong
+            and the alignment was prtty awful too. So I tried the 'button' radio buttons which look better, although they
+            needed the obligatory hours of wasted time to get them into sensible positions.
+            The "mb-2 d-flex gap-2" is needed to put the radio buttons in a sensible place, without it they
+            are jammed together and sit directly on top of the Date row,  No clue why these buttons are jammed
+            togehter by default but the buttons at the botton are normally spaced (possibly because one is an input and the
+            other is a button).
+
+            NB. There is no need to set the checked state 'manually'. The 'checked' attribute determine the default state at startup/load.
+         -->
+         <div class="mb-2 d-flex gap-2">
+            <input type="radio" class="btn-check" name="paymode-radio" id="paymode-pay" autocomplete="off" checked (click)="setTransfer(false)">
+            <label class="btn btn-outline-info" for="paymode-pay">Payment</label>
+
+            <input type="radio" class="btn-check" name="paymode-radio" id="paymode-tfr" autocomplete="off" (click)="setTransfer(true)">
+            <label class="btn btn-outline-info" for="paymode-tfr">Transfer</label>
+         </div>
+         <form #newtxnform="ngForm">
            <div class="acc-modal-row">
               <div class="input-group-prepend">
                  <span class="acc-modal-label" id="lbdate">Date</span>
@@ -113,22 +131,27 @@
                     <input [(ngModel)]="txAmount" name="txAmount" id="txAmount" type="number" class="form-control form-control-sm" placeholder="-ve number for Credit" aria-label="-ve number for Credit"  aria-describedby="lbamount">
 
             </div>
-            <div class="form-check  form-check-reverse form-switch">
-               <label class="form-check-label" for="flexSwitchCheckDefault">Between own accounts</label>
-               <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" [checked]="isTransfer" (click)="toggleTransferAccounts()">
-             </div>            
-            <div *ngIf="canShowTransferAccounts()" class="acc-modal-row">
-               <div class="input-group-prepend">
-                  <span class="acc-modal-label" id="lbType">Correspondent account</span>
+
+            <div *ngIf="canShowTransferAccounts()">
+               <div class="acc-modal-row">
+                  <div class="input-group-prepend">
+                     <span class="acc-modal-label" id="lbCpty">Counterparty account</span>
+                  </div>
+                  <select class="form-control form-control-sm" [(ngModel)]="txTfrAccount" name="txTfrAccount" id="txTfrAccount" title="Correspondent account">
+                     <option [ngValue]="null"></option>
+                     <option *ngFor="let trnAcc of transferAccounts" [ngValue]="trnAcc">{{trnAcc.name}}</option>
+                  </select>               
                </div>
-               <select class="form-control form-control-sm" [(ngModel)]="txTfrAccount" name="txTfrAccount" id="txTfrAccount" title="Correspondent account">
-                  <option [ngValue]="null"></option>
-                  <option *ngFor="let trnAcc of transferAccounts" [ngValue]="trnAcc">{{trnAcc.name}}</option>
-               </select>               
+               <div class="acc-modal-row">
+                  <div class="input-group-prepend">
+                     <span class="acc-modal-label" id="lbCommunication">Communication</span>
+                  </div>
+                  <input title="Communication" [(ngModel)]="txCommunication" (paste)="onPasteComm($event)" name="txCommunication" id="txCommunication" type="text" class="form-control form-control-sm" placeholder="" aria-label=""  aria-describedby="lbCommunication">
+               </div>               
             </div>
          </form>
          <button type="button" class="btn btn-default btn-primary" (click)="addtransaction();">Add new transaction</button>&nbsp;
-         <button type="button" class="btn btn-default btn-primary" (click)="doScan();">Scan QR code</button>
+         <button type="button" class="btn btn-primary" (click)="doScan();">Scan QR code</button>
       </div>
       <div>
          <!-- this should go in the app page or be done by the app component, I think-->
@@ -177,7 +200,7 @@ related to using angular with the modal
                      name="txUpdDate" id="txUpdDate" type="text"
                      class="form-control-date form-control form-control-sm" placeholder="MM/DD/YYYY">
                   <div class="input-group-append">
-                     <button class="btn btn-outline-secondary" (click)="dt.toggle()" type="button">
+                     <button class="btn btn-outline-secondary" (click)="dt.toggle()" type="button" title="Date">
                         <i class="bi bi-calendar3"></i>
                      </button>
                   </div>
@@ -186,7 +209,7 @@ related to using angular with the modal
                   <div class="input-group-prepend">
                      <span class="acc-modal-label" id="lbType">Type</span>
                   </div>
-                  <select class="form-control form-control-sm" [(ngModel)]="updateTxn.type" name="txType" id="txType">
+                  <select class="form-control form-control-sm" [(ngModel)]="updateTxn.type" name="txTypeUpd" id="txTypeUpd" title="Type">
                      <option *ngIf="!txnTypes.includes(updateTxn.type)" [ngValue]="updateTxn.type">{{updateTxn.type}}</option>
                      <option *ngFor="let txnType of txnTypes" [ngValue]="txnType">{{txnType}}</option>
                   </select>
@@ -196,10 +219,10 @@ related to using angular with the modal
                   <div class="input-group-prepend">
                      <span class="acc-modal-label" id="lbcomment">Memo</span>
                   </div>
-                  <input [(ngModel)]="this.updateTxn.comment" (paste)="onPasteUpd($event)" name="txComment" id="txComment" type="text"
+                  <input [(ngModel)]="this.updateTxn.comment" (paste)="onPasteUpd($event)" name="txCommentUpd" id="txCommentUpd" type="text" title="Memo"
                      class="form-control form-control-sm" placeholder="" aria-label=""  aria-describedby="lbcomment">
 
-                  <button *ngIf="this.updateTxn.comment" (click)="this.updateTxn.comment='';" class="btn ps-1 pe-0" type="button" id="button-addon2">
+                  <button *ngIf="this.updateTxn.comment" (click)="this.updateTxn.comment='';" class="btn ps-1 pe-0" type="button" id="button-addon2Upd" title="Clear memo">
                      <i class="bi bi-x-circle" aria-hidden="true"></i>
                   </button>
                </div>
@@ -209,7 +232,7 @@ related to using angular with the modal
                   <div class="input-group-prepend">
                      <span class="acc-modal-label" id="lbamount">Amount Debited</span>
                   </div>
-                  <input [(ngModel)]="this.updateTxn.amount" name="txAmount" id="txAmount" type="number"
+                  <input [(ngModel)]="this.updateTxn.amount" name="txAmountUpd" id="txAmountUpd" type="number"
                         class="form-control form-control-sm" placeholder="-ve number for Credit" aria-label="-ve number for Credit"  aria-describedby="lbamount">
                </div>
 
