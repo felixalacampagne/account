@@ -139,7 +139,7 @@
                   </div>
                   <select class="form-control form-control-sm" [(ngModel)]="txTfrAccount" name="txTfrAccount" id="txTfrAccount" title="Correspondent account">
                      <option [ngValue]="null"></option>
-                     <option *ngFor="let trnAcc of transferAccounts" [ngValue]="trnAcc">{{trnAcc.name}}</option>
+                     <option *ngFor="let trnAcc of transferAccounts" [ngValue]="trnAcc">{{trnAcc.cptyAccountNumber}} &nbsp; {{trnAcc.cptyAccountName}}      </option>
                   </select>               
                </div>
                <div class="acc-modal-row">
@@ -147,7 +147,19 @@
                      <span class="acc-modal-label" id="lbCommunication">Communication</span>
                   </div>
                   <input title="Communication" [(ngModel)]="txCommunication" (paste)="onPasteComm($event)" name="txCommunication" id="txCommunication" type="text" class="form-control form-control-sm" placeholder="" aria-label=""  aria-describedby="lbCommunication">
-               </div>               
+               </div>
+               <div class="acc-modal-row">
+                  <div class="input-group-prepend">
+                     <span class="acc-modal-label" id="lbCptyName">Counterprty name</span>
+                  </div>
+                  <input title="Counterprty name" [(ngModel)]="txCptyName" name="txCptyName" id="txCptyName" type="text" class="form-control form-control-sm" placeholder="" aria-label=""  aria-describedby="lbCptyName">
+               </div> 
+               <div class="acc-modal-row">
+                  <div class="input-group-prepend">
+                     <span class="acc-modal-label" id="lbCptyNumber">Counterprty IBAN</span>
+                  </div>
+                  <input title="Counterprty IBAN" [(ngModel)]="txCptyNumber" name="txCptyNumber" id="txCptyNumber" type="text" class="form-control form-control-sm" placeholder="" aria-label=""  aria-describedby="lbCptyNumber">
+               </div>                                              
             </div>
          </form>
          <button type="button" class="btn btn-default btn-primary" (click)="addtransaction();">Add new transaction</button>&nbsp;
