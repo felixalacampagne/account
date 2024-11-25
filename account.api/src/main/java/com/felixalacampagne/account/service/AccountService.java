@@ -1,6 +1,5 @@
 package com.felixalacampagne.account.service;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,14 +9,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.felixalacampagne.account.common.Utils;
 import com.felixalacampagne.account.model.AccountDetail;
 import com.felixalacampagne.account.model.AccountItem;
 import com.felixalacampagne.account.model.Accounts;
+import com.felixalacampagne.account.model.TfrAccountItem;
 import com.felixalacampagne.account.persistence.entities.Account;
 import com.felixalacampagne.account.persistence.repository.AccountJpaRepository;
+import com.felixalacampagne.account.persistence.repository.PhoneAccountJpaRepository;
 
 @Service
 public class AccountService
@@ -25,11 +24,13 @@ public class AccountService
    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
    private final AccountJpaRepository accountJpaRepository;
+   private final PhoneAccountJpaRepository phoneAccountJpaRepository;
    private final ConnectionResurrector<AccountJpaRepository> connectionResurrector;
 
    @Autowired
-   public AccountService(AccountJpaRepository accountJpaRepository) {
+   public AccountService(AccountJpaRepository accountJpaRepository, PhoneAccountJpaRepository phoneAccountJpaRepository) {
       this.accountJpaRepository = accountJpaRepository;
+      this.phoneAccountJpaRepository = phoneAccountJpaRepository;
       this.connectionResurrector = new ConnectionResurrector<AccountJpaRepository>(accountJpaRepository, AccountJpaRepository.class);
    }
 
@@ -44,14 +45,15 @@ public class AccountService
       return accitems;
    }
 
-   public List<AccountItem> getTransferAccounts(Long id)
+   public List<TfrAccountItem> getTransferAccounts(Long id)
    {
       Account srcacc = accountJpaRepository.findById(id)
-         .orElseThrow(() -> new AccountException("Account not found: " + id));      
+         .orElseThrow(() -> new AccountException("Account not found: " + id));
 
-      return accountJpaRepository.findTransferAccounts(srcacc.getAccId(), srcacc.getAccCurr(), Arrays.asList(254L,255L) )
+      return phoneAccountJpaRepository.findTransferAccounts(srcacc.getAccId())
             .stream()
-            .map(a -> { return new AccountItem(a.getAccId(), a.getAccDesc(), a.getAccSid()); })
+            // long id, long relatedAccountId, String name, String accountNumber, String lastCommunication
+            .map(a -> { return new TfrAccountItem(a.getId(), a.getAccountId(), a.getDesc(), a.getAccountNumber(), a.getLastComm()); })
             .collect(Collectors.toList());
    }
 
