@@ -15,9 +15,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 import com.felixalacampagne.account.AccountTest;
+import com.felixalacampagne.account.common.Utils;
 import com.felixalacampagne.account.model.AddTransactionItem;
 import com.felixalacampagne.account.model.TransactionItem;
+import com.felixalacampagne.account.persistence.entities.PhoneAccount;
 import com.felixalacampagne.account.persistence.entities.Transaction;
+import com.felixalacampagne.account.persistence.repository.PhoneAccountJpaRepository;
 import com.felixalacampagne.account.persistence.repository.TransactionJpaRepository;
 import com.felixalacampagne.account.service.TransactionService.BalanceType;
 
@@ -33,6 +36,10 @@ class TransactionServiceTest
 
    @Autowired
    private TransactionJpaRepository transactionJpaRepository;
+
+   @Autowired
+   private PhoneAccountJpaRepository phoneAccountJpaRepository;
+
    @AfterEach
    void tearDown() throws Exception
    {
@@ -45,18 +52,64 @@ class TransactionServiceTest
 //      log.info("testGetTransactions: transaction list\n{}", txnjson);
 //   }
 
-   
    @Test
-   void addTransaction()
+   void addTransactionNewPhoneAccTest()
    {
       List<Transaction> txnsforacc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(22L);
       List<Transaction> txnsfortfracc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(34L);
-      
+      List<PhoneAccount> phoneaccs = phoneAccountJpaRepository.findTransferAccounts(22L);
+
+      int origtxncnt = txnsforacc.size();
+      int origtfrtxncnt = txnsfortfracc.size();
+      int origpacnt = phoneaccs.size();
+
+      Transaction origtxn = txnsforacc.get(5);
+      TransactionItem origtxnitm = transactionService.mapToItem(origtxn, BalanceType.NORMAL);
+
+      // tfr 34
+      AddTransactionItem addtxnitm = new AddTransactionItem(
+            origtxnitm.getAccid(), LocalDate.now(), "12345.12", "TEST",
+            "TEST TFR with new PA",
+            Optional.empty(), "communication", "AAAA New Test Phone Account", "BE12 3456 7890 0123");
+
+      transactionService.addTransaction(addtxnitm);
+      txnsforacc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(22L);
+      assertEquals(origtxncnt+1 , txnsforacc.size());
+
+      phoneaccs = phoneAccountJpaRepository.findTransferAccounts(22L);
+      log.info("addTransactionNewPhoneAccTest: active phoneaccounts after addition:\n{}", Utils.listToString(phoneaccs, "\n   "));
+      assertEquals(origpacnt+1, phoneaccs.size(), "new Phone account should be created");
+      origpacnt++;
+      origtxncnt++;
+
+
+      // tfr 34
+      addtxnitm = new AddTransactionItem(
+            origtxnitm.getAccid(), LocalDate.now(), "12345.12", "TEST",
+            "TEST TFR with new PA",
+            Optional.of(Long.valueOf(118L)), "bcc comm test", "accname Ignored", "acc id ignored");
+
+      transactionService.addTransaction(addtxnitm);
+      txnsforacc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(22L);
+      assertEquals(origtxncnt+1 , txnsforacc.size());
+
+      phoneaccs = phoneAccountJpaRepository.findTransferAccounts(22L);
+      log.info("addTransactionNewPhoneAccTest: active phoneaccounts phoneaccount addition:\n{}", Utils.listToString(phoneaccs, "\n   "));
+      assertEquals(origpacnt, phoneaccs.size(), "new Phone account should be created");
+
+   }
+
+   @Test
+   void addTransactionTest()
+   {
+      List<Transaction> txnsforacc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(22L);
+      List<Transaction> txnsfortfracc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(34L);
+
       int origtxncnt = txnsforacc.size();
       int origtfrtxncnt = txnsfortfracc.size();
       Transaction origtxn = txnsforacc.get(5);
       TransactionItem origtxnitm = transactionService.mapToItem(origtxn, BalanceType.NORMAL);
-      
+
       // tfr 34
       AddTransactionItem addtxnitm = new AddTransactionItem(
             origtxnitm.getAccid(), LocalDate.now(), "12345.12", "TEST",
@@ -65,39 +118,39 @@ class TransactionServiceTest
 
       transactionService.addTransaction(addtxnitm);
       txnsforacc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(22L);
-      txnsfortfracc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(34L);      
+      txnsfortfracc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(34L);
       assertEquals(origtxncnt+1 , txnsforacc.size());
       assertEquals(origtfrtxncnt, txnsfortfracc.size());
       origtxncnt = txnsforacc.size();
-      
+
       addtxnitm = new AddTransactionItem(
             origtxnitm.getAccid(), LocalDate.now(), "22345.12", "TEST",
             "TEST with TFR from (debit) src account",
             Optional.of(34L));
       transactionService.addTransaction(addtxnitm);
       txnsforacc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(22L);
-      txnsfortfracc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(34L);      
-      log.info("addTransaction: transfer account credit: {}", txnsfortfracc.get(txnsfortfracc.size()-1));
+      txnsfortfracc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(34L);
+      log.info("addTransactionTest: transfer account credit: {}", txnsfortfracc.get(txnsfortfracc.size()-1));
       assertEquals(origtxncnt+1 , txnsforacc.size());
       assertEquals(origtfrtxncnt+1, txnsfortfracc.size());
       origtxncnt = txnsforacc.size();
       origtfrtxncnt = txnsfortfracc.size();
-      
+
       addtxnitm = new AddTransactionItem(
             origtxnitm.getAccid(), LocalDate.now(), "-32345.12", "TEST",
             "TEST with TFR to (credit) src account",
             Optional.of(34L));
       transactionService.addTransaction(addtxnitm);
       txnsforacc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(22L);
-      txnsfortfracc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(34L);      
-      log.info("addTransaction: transfer account debit: {}", txnsfortfracc.get(txnsfortfracc.size()-1));
+      txnsfortfracc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(34L);
+      log.info("addTransactionTest: transfer account debit: {}", txnsfortfracc.get(txnsfortfracc.size()-1));
       assertEquals(origtxncnt+1 , txnsforacc.size());
       assertEquals(origtfrtxncnt+1, txnsfortfracc.size());
       origtxncnt = txnsforacc.size();
       origtfrtxncnt = txnsfortfracc.size();
-      
-   } 
-   
+
+   }
+
    @Test
    void updateTransaction()
    {
