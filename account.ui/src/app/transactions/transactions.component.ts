@@ -17,7 +17,37 @@ import { Html5QrcodeScanner } from 'html5-qrcode';
 import { Html5QrcodeResult } from 'html5-qrcode/esm/core';
 import { RouterModule, RouterOutlet } from '@angular/router'; // for 'routerlink is not a property of button'
 import { TxnDelConfirmDialog } from './txndel-confirm-modal.component';
+import { TfrAccountItem } from 'src/shared/model/tfraccountitem.model';
 
+
+// Getting the phoneaccount list to look acceptable is going to be tricky. Apparently the select...option can't
+// be formatted so making it into a nicely formatted list of name and number is not going to work. 
+// Bootstrap has a 'dropdown' but inevitably the examples for it really suck and offer no explanation of how
+// to get the app to respond to selection of an item in the list. The examples also use UL/LI and A which
+// doesn't seem to be formattable into columns either. I did find an SO post which sort of displays items 
+// in columns but still no clue how to select one of the items in the list. Plus the list appear in a scrollable
+// window as it is quite long... would be nice to have a box to type into which scrolls to the first matching account.
+// Obviously given how difficult it is to get basic things to work the chances of this happening are remote!
+// This is the html using the BS dropdown:
+// <div class="acc-modal-row">
+// <div ngbDropdown class="d-inline-block">
+//    <button class="btn btn-outline-primary" id="dropdownBasic1" ngbDropdownToggle>Counterparty accounts</button>
+//    <div ngbDropdownMenu aria-labelledby="dropdownBasic1" style="width: 600px;">
+//      <div ngbDropdownItem class="d-flex justify-content-between">
+//        <div></div>
+//        <div></div>
+//      </div>
+//      <div *ngFor="let trnAcc of transferAccounts" class="d-flex justify-content-between">
+//        <div>
+//          {{trnAcc.cptyAccountName}}
+//        </div>
+//        <div>
+//          {{trnAcc.cptyAccountNumber}}
+//        </div>
+//      </div>
+//    </div>
+//  </div>
+// </div>
 // const dateFormatJson: string = 'yyyy-MM-dd';
 
 // WARNING: 'standalone: true' means the component must not be put in app.module and all imports must be duplicated
@@ -54,7 +84,7 @@ export class TransactionsComponent implements OnInit {
    modalReference: NgbModalRef | undefined;
 
    activeaccount!: AccountItem; 
-   transferAccounts!: AccountItem[];
+   transferAccounts!: TfrAccountItem[];
    isTransfer: boolean = false;
    transactions: TransactionItem[] = [];
    checkTransaction!: TransactionItem;
@@ -68,8 +98,10 @@ export class TransactionsComponent implements OnInit {
    txType: string;
    txComment: string = '';
    txAmount: string = '';
-   txTfrAccount: AccountItem | undefined;
+   txTfrAccount: TfrAccountItem | undefined;
    txCommunication : string = '';
+   txCptyName: string = '';
+   txCptyNumber: string = '';
    txPastearea: string = '';
    closeResult: string = '';
    html5QrcodeScanner: Html5QrcodeScanner | undefined; // Only defined while a scan is being performed
