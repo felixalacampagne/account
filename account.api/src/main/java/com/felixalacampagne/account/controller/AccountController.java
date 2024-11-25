@@ -20,6 +20,7 @@ import com.felixalacampagne.account.model.AccountItem;
 import com.felixalacampagne.account.model.Accounts;
 import com.felixalacampagne.account.model.AddTransactionItem;
 import com.felixalacampagne.account.model.StandingOrderItem;
+import com.felixalacampagne.account.model.TfrAccountItem;
 import com.felixalacampagne.account.model.TransactionItem;
 import com.felixalacampagne.account.model.Transactions;
 import com.felixalacampagne.account.model.Version;
@@ -83,7 +84,7 @@ public class AccountController {
     }
 
     @GetMapping("/accsfortfr/{id}")
-    public List<AccountItem> getTransferAccounts(@PathVariable Long id)
+    public List<TfrAccountItem> getTransferAccounts(@PathVariable Long id)
     {
        return this.accountService.getTransferAccounts(id);
     }
