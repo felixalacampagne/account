@@ -9,6 +9,7 @@ import { AccountDetail } from '../model/accountdetail.model';
 import { AddTransactionItem, TransactionItem } from '../model/transaction.model';
 import { Version } from '../model/version.model';
 import { StandingOrderItem } from '../model/standingorderitem.model';
+import { TfrAccountItem } from '../model/tfraccountitem.model';
 
 @Injectable()
 export class AccountService 
@@ -178,7 +179,7 @@ export class AccountService
       return this.http.get(url).pipe( map((res:any) => res));
    }
 
-   getAccountsForTransfer(a : AccountItem) : Observable<AccountItem[]>
+   getAccountsForTransfer(a : AccountItem) : Observable<TfrAccountItem[]>
    {
       let url : string;
       url = this.apiurl + this.accsfortfr + a.id;
