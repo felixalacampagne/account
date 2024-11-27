@@ -4,6 +4,7 @@
       <span class="title-left">Transactions for {{activeaccount.name}}</span>
       
       <span class="title-right">
+         <span *ngIf="inprogress" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
          <button *ngIf="checkTransaction" class="btn btn-outline-success btn-sm" (disabled)="checkLoading" (click)="calcCheckedBalance()" title="checked balance">
             <div *ngIf="!checkLoading">
             <span>{{checkTransaction.balance}}&nbsp;</span><i class="bi bi-arrow-clockwise"></i>
@@ -137,9 +138,9 @@
                   <div class="input-group-prepend">
                      <span class="acc-modal-label" id="lbCpty">Counterparty account</span>
                   </div>
-                  <select class="form-control form-control-sm" [(ngModel)]="txTfrAccount" name="txTfrAccount" id="txTfrAccount" title="Correspondent account">
+                  <select class="form-control form-control-sm" (change)="onChangeCptySelect($event)" [(ngModel)]="txTfrAccount" name="txTfrAccount" id="txTfrAccount" title="Correspondent account">
                      <option [ngValue]="null"></option>
-                     <option *ngFor="let trnAcc of transferAccounts" [ngValue]="trnAcc">{{trnAcc.cptyAccountNumber}} &nbsp; {{trnAcc.cptyAccountName}}      </option>
+                     <option *ngFor="let trnAcc of transferAccounts" [ngValue]="trnAcc">{{trnAcc.cptyAccountNumber}} &nbsp; {{trnAcc.cptyAccountName}}</option>
                   </select>               
                </div>
                <div class="acc-modal-row">
