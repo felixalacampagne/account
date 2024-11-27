@@ -21,6 +21,7 @@ import com.felixalacampagne.account.model.TransactionItem;
 import com.felixalacampagne.account.model.Transactions;
 import com.felixalacampagne.account.persistence.entities.Account;
 import com.felixalacampagne.account.persistence.entities.PhoneAccount;
+import com.felixalacampagne.account.persistence.entities.PhoneWithAccountProjection;
 import com.felixalacampagne.account.persistence.entities.Transaction;
 import com.felixalacampagne.account.persistence.repository.AccountJpaRepository;
 import com.felixalacampagne.account.persistence.repository.PhoneAccountJpaRepository;
@@ -93,13 +94,14 @@ public class TransactionService
    public void addPhoneAccountTransaction(Long phoneAccId, Transaction srcTxn, String communication)
    {
       Long srcaccid = srcTxn.getAccountId();
-
-      PhoneAccount pa = this.phoneAccountJpaRepository.findById(phoneAccId).orElseThrow(() -> new AccountException("Phone account not found: " + phoneAccId));
+      PhoneWithAccountProjection paproj = this.phoneAccountJpaRepository.findPhoneWithAccountById(phoneAccId).orElseThrow(() -> new AccountException("Phone account not found: " + phoneAccId));
+      PhoneAccount pa = paproj.getPhoneAccount();
       if(pa.getAccountId() > 0) // transfer is to a related account so must apply a 'reverse' transaction to it
       {
          Long tfraccid = pa.getAccountId();
+         String srcupdcomm = Utils.prefixNullable(" ref:", communication);
          Account srcacc = this.accountJpaRepository.findById(srcaccid)
-               .orElseThrow(() -> new AccountException("Transfer account not found: " + srcaccid));
+               .orElseThrow(() -> new AccountException("Transfer source account not found: " + srcaccid));
          Transaction txntfr = new Transaction();
          txntfr.setAccountId(tfraccid);
          txntfr.setDate(srcTxn.getDate());
@@ -112,6 +114,7 @@ public class TransactionService
             txntfr.setCredit(srcTxn.getDebit());
             txntfr.setDebit(null);
             txntfr.setComment(txntfr.getComment() + " from:" + srcacc.getAccDesc());
+            srcupdcomm = srcupdcomm + " to:" + paproj.getAccDesc();
          }
          else
          {
@@ -119,9 +122,16 @@ public class TransactionService
             txntfr.setDebit(srcTxn.getCredit());
             txntfr.setCredit(null);
             txntfr.setComment(txntfr.getComment() + " to:" + srcacc.getAccDesc());
+            srcupdcomm = srcupdcomm + " from:" + paproj.getAccDesc();
          }
 
          txntfr = add(txntfr);
+
+         if(!srcupdcomm.isBlank())
+         {
+            srcTxn.setComment(srcTxn.getComment() + srcupdcomm);
+            srcTxn = this.transactionJpaRepository.save(srcTxn);
+         }
          log.info("addTransaction: added transfer transaction for account id {}: id:{}", txntfr.getAccountId(), txntfr.getSequence());
       }
       else
