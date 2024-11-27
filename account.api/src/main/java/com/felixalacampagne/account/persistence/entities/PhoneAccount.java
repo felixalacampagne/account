@@ -1,6 +1,7 @@
 package com.felixalacampagne.account.persistence.entities;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -202,6 +203,26 @@ public class PhoneAccount implements Serializable
    public void setType(String type)
    {
       this.type = type;
+   }
+
+   @Override
+   public int hashCode()
+   {
+      return Objects.hash(Id, accountId, accountNumber, desc, lastComm, order, type);
+   }
+
+   @Override
+   public boolean equals(Object obj)
+   {
+      if (this == obj)
+         return true;
+      if (obj == null)
+         return false;
+      if (getClass() != obj.getClass())
+         return false;
+      PhoneAccount other = (PhoneAccount) obj;
+      return Objects.equals(Id, other.Id) && Objects.equals(accountId, other.accountId) && Objects.equals(accountNumber, other.accountNumber) && Objects.equals(desc, other.desc) && Objects.equals(lastComm, other.lastComm)
+            && Objects.equals(order, other.order) && Objects.equals(type, other.type);
    }
 
 }
