@@ -84,11 +84,12 @@ export class TransactionsComponent implements OnInit {
    modalReference: NgbModalRef | undefined;
 
    activeaccount!: AccountItem; 
-   transferAccounts!: TfrAccountItem[];
+   transferAccounts!: TfrAccountItem[] | undefined;
    isTransfer: boolean = false;
    transactions: TransactionItem[] = [];
    checkTransaction!: TransactionItem;
    checkLoading: boolean = false;
+   inprogress: boolean = false;
    public submitted: boolean = false;
    public defaultdate: string = '';
    envName: string = '';
@@ -134,12 +135,6 @@ export class TransactionsComponent implements OnInit {
    ngOnInit() 
    {
       console.log('TransactionsComponent.ngOnInit: start');
-      //this.route.queryParams.subscribe(params => {
-      //   // console.log("TransactionsComponent.ngOnInit: params:" + JSON.stringify(params, null, 2));
-      //   let account : AccountItem = JSON.parse(params["account"]);
-      //   // console.log("TransactionsComponent.ngOnInit: account from json:" + JSON.stringify(account, null, 2));
-      //   this.getTransactions(account);
-      //});
       const d: Date = new Date();  
       this.txDate = d; //{year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
       console.log("TransactionsComponent.ngOnInit: finish");
@@ -239,6 +234,7 @@ export class TransactionsComponent implements OnInit {
          const chng = changes[propName];
          if(propName === 'accid')
          {
+            this.resetTransfer();  // must reload list to ensure right account is excluded
             this.loadAccount(chng.currentValue);
          }
       }
@@ -305,7 +301,7 @@ export class TransactionsComponent implements OnInit {
    loadTransferAccounts() {
       const id : number = this.activeaccount.id;
       console.log("TransactionsComponent.showTransferAccounts: Starting: id " + id);
-         
+      this.inprogress = true;   
       this.accountService.getAccountsForTransfer(this.activeaccount).subscribe({
           next: (res)=>{
              if(!res)
@@ -320,7 +316,10 @@ export class TransactionsComponent implements OnInit {
           error: (err)=>{
               console.log("TransactionsComponent.showTransferAccounts: An error occured during subscribe: " + JSON.stringify(err, null, 2));
               } ,
-          complete: ()=>{console.log("TransactionsComponent.showTransferAccounts: completed");}
+          complete: ()=>{
+            console.log("TransactionsComponent.showTransferAccounts: completed");
+            this.inprogress = false;
+         }
        });
     
       console.log("TransactionsComponent.showTransferAccounts:Finished");      
@@ -426,6 +425,7 @@ calcCheckedBalance()
 addTransactionToDB(txn :AddTransactionItem)
 {
   console.log("TransactionsComponent.addTransactionToDB: Starting");
+  this.inprogress = true;
   this.accountService.addTransaction(txn).subscribe( {
       next: (res)=>{
           console.log("TransactionsComponent.addTransactionToDB: Response: " + res);
@@ -434,44 +434,71 @@ addTransactionToDB(txn :AddTransactionItem)
           // Reset amount to prevent double entry
           this.txAmount = '';
           this.txPastearea = '';
-          },
+
+         // If a transfer was done then the last communication might have been updated.
+         // Only way to refresh the list at the moment is to reset it...
+         if(this.txTfrAccount)
+         {
+            this.resetTransfer();           
+         }
+      },
       error: (err)=>{
           console.log("TransactionsComponent.addTransactionToDB: An error occured during addTransactionToDB subscribe:" + JSON.stringify(err));
-          } ,
-      complete: ()=>{console.log("TransactionsComponent.addTransactionToDB: completed");}
+      } ,
+      complete: ()=>{
+         console.log("TransactionsComponent.addTransactionToDB: completed");
+         this.inprogress = true;
+      }
    });
 
   console.log("TransactionsComponent.addTransactionToDB:Finished");
 }
 
+resetTransfer()
+{
+   this.isTransfer = false;
+   this.txTfrAccount = undefined; 
+   this.transferAccounts = undefined;   
+   this.txCommunication = '';
+   this.txCptyName = '';
+   this.txCptyNumber = '';
+}
+
 addtransaction()
 {
-  if(this.activeaccount == null)
-  {
-    console.log("Account is not set, unable to add transaction.");
-    return;
-  }
-
-  let newent : AddTransactionItem = new AddTransactionItem();
-  let d = this.txDate; // new Date(this.txDate.year, this.txDate.month-1, this.txDate.day);
-  newent.accid = this.activeaccount.id;
-  newent.amount = this.txAmount;
-  newent.comment = this.txComment;
-  
-  // With new Typescript cannot just assign return value to a string!
-  // Using ternary operator is too clumsy for dealing with the return from a function
-  // Apparently the '??' means use the result unless it's undefined or null and then use the value after the ??
-  newent.date = this.datfmt.jsonFormat(d); // this.datePipe.transform(d, dateFormatJson) ?? '';
-  newent.type = this.txType;
-   if(this.txTfrAccount)
+   if(this.activeaccount == null)
    {
-      newent.transferAccount = this.txTfrAccount.id;
+      console.log("Account is not set, unable to add transaction.");
+      return;
    }
-  console.log("Date: " + newent.date);
-  console.log("Type: " + newent.type);
-  console.log("Comment: " + newent.comment);
-  console.log("Amount: " + newent.amount);  
-  this.addTransactionToDB(newent); 
+
+   let newent : AddTransactionItem = new AddTransactionItem();
+   let d = this.txDate; // new Date(this.txDate.year, this.txDate.month-1, this.txDate.day);
+   newent.accid = this.activeaccount.id;
+   newent.amount = this.txAmount;
+   newent.comment = this.txComment;
+
+   // With new Typescript cannot just assign return value to a string!
+   // Using ternary operator is too clumsy for dealing with the return from a function
+   // Apparently the '??' means use the result unless it's undefined or null and then use the value after the ??
+   newent.date = this.datfmt.jsonFormat(d); // this.datePipe.transform(d, dateFormatJson) ?? '';
+   newent.type = this.txType;
+ 
+   if(this.canShowTransferAccounts()) // Only add these if 'Transfer' mode is enabled
+   {
+      if(this.txTfrAccount)
+      {
+         newent.transferAccount = this.txTfrAccount.id;
+      }
+      newent.communication = this.txCommunication;
+      newent.cptyAccount = this.txCptyName;
+      newent.cptyAccountNumber = this.txCptyNumber;
+   }
+   console.log("Date: " + newent.date);
+   console.log("Type: " + newent.type);
+   console.log("Comment: " + newent.comment);;
+   console.log("Amount: " + newent.amount);  
+   this.addTransactionToDB(newent); 
 }
 
 lockedChange()
@@ -487,6 +514,7 @@ lockedChange()
 delTransactionToDB(txn : TransactionItem) 
 {
    console.log("TransactionsComponent.delTransactionToDB: Starting");
+   this.inprogress = true;
    this.accountService.deleteTransaction(txn).subscribe( {
        next: (res)=>{
            console.log("TransactionsComponent.delTransactionToDB: Response: " + res);
@@ -499,7 +527,10 @@ delTransactionToDB(txn : TransactionItem)
        error: (err)=>{
            console.log("delTransactionToDB.updTransactionToDB: An error occured during updTransactionToDB subscribe:" + JSON.stringify(err));
            } ,
-       complete: ()=>{console.log("TransactionsComponent.delTransactionToDB: completed");}
+       complete: ()=>{
+         console.log("TransactionsComponent.delTransactionToDB: completed");
+         this.inprogress = false;
+         }
     });
  
    console.log("TransactionsComponent.delTransactionToDB:Finished");   
@@ -734,6 +765,25 @@ onPasteComm(event: ClipboardEvent)
    // Maybe want to filter the "+", "/" . " " of the 'structured" communications?
    // already done for the updated dialog
    this.onPasteUpd(event);
+}
+
+onChangeCptySelect(event : any)
+{
+   // event content is not useful
+   // the 'ngModel' fields has been updated with the clicked item
+   console.log("TransactionsComponent.onChangeCptySelect: txTfrAccount:" + JSON.stringify(this.txTfrAccount));
+   if(this.txTfrAccount)
+   {
+      this.txCommunication = this.txTfrAccount.lastCommunication;
+      this.txCptyName = this.txTfrAccount.cptyAccountName;
+      this.txCptyNumber = this.txTfrAccount.cptyAccountNumber;
+   }
+   else
+   {
+      this.txCommunication = "";
+      this.txCptyName = "";
+      this.txCptyNumber = "";
+   }
 }
 
 onScanSuccess(decodedText: string, decodedResult: Html5QrcodeResult) {
