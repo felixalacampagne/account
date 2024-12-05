@@ -19,7 +19,6 @@ import { RouterModule, RouterOutlet } from '@angular/router'; // for 'routerlink
 import { TxnDelConfirmDialog } from './txndel-confirm-modal.component';
 import { TfrAccountItem } from 'src/shared/model/tfraccountitem.model';
 
-
 // Getting the phoneaccount list to look acceptable is going to be tricky. Apparently the select...option can't
 // be formatted so making it into a nicely formatted list of name and number is not going to work. 
 // Bootstrap has a 'dropdown' but inevitably the examples for it really suck and offer no explanation of how
@@ -64,15 +63,10 @@ import { TfrAccountItem } from 'src/shared/model/tfraccountitem.model';
   ]
 })
 
-// BUGS:
-// - changing between accounts leaves the old checked transaction value displayed. 
-//   It should be resethidden until a transaction is verified
-// - manual date entry is interpret as mm/dd/yyyy and then re-displayed as mm/dd/yyyy but no idea how
-
 export class TransactionsComponent implements OnInit {
 
    // accid is set via the route URL which is detected via ngOnChanges. The id is used to load the accountitem from
-   // the server - cannot rely on the list previously loaded by the main app is it is cleared by the refresh button
+   // the server - cannot rely on the list previously loaded by the main app as is it is cleared by the refresh button
    // and there is no way to know when it has been reloaded.
    // The loadaccount method has to trigger the loadtransactions from within its subscribe lambda as that is
    // the only way to know when the accountitem has been loaded. Its mind blowingly clumsy but at least
@@ -87,7 +81,7 @@ export class TransactionsComponent implements OnInit {
    transferAccounts!: TfrAccountItem[] | undefined;
    isTransfer: boolean = false;
    transactions: TransactionItem[] = [];
-   checkTransaction!: TransactionItem;
+   checkTransaction: TransactionItem | undefined;
    checkLoading: boolean = false;
    inprogress: boolean = false;
    public submitted: boolean = false;
@@ -160,14 +154,18 @@ export class TransactionsComponent implements OnInit {
       this.txUpdDate = d; // {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()}; 
       
       this.modalReference = this.modalService.open(content);
-      this.modalReference.result.then((result) => {
-      console.log("open:modalReference:result");
-      // One maybe the updated transaction will come from the modal
-      this.updmodalCloseAction(`${result}`, this.updateTxn);
-    }, (reason) => {
-      console.log("open:modalReference:reason");
-      this.updmodalCloseAction( `${this.getDismissReason(reason)}`, this.updateTxn);
-    });
+
+      this.modalReference.result.then(
+         (result) => {
+            console.log("open:modalReference:result");
+            // One maybe the updated transaction will come from the modal
+            this.updmodalCloseAction(`${result}`, this.updateTxn);
+         }, 
+         (reason) => {
+            console.log("open:modalReference:reason");
+            this.updmodalCloseAction( `${this.getDismissReason(reason)}`, this.updateTxn);
+         }
+      );
   }
 
    private getDismissReason(reason: any): string {
@@ -235,6 +233,8 @@ export class TransactionsComponent implements OnInit {
          if(propName === 'accid')
          {
             this.resetTransfer();  // must reload list to ensure right account is excluded
+            // console.log("TransactionsComponent.ngOnChanges: setting checkTransaction undefined");
+            this.checkTransaction = undefined; // Hide the value until a new one is loaded
             this.loadAccount(chng.currentValue);
          }
       }
@@ -303,20 +303,21 @@ export class TransactionsComponent implements OnInit {
       console.log("TransactionsComponent.showTransferAccounts: Starting: id " + id);
       this.inprogress = true;   
       this.accountService.getAccountsForTransfer(this.activeaccount).subscribe({
-          next: (res)=>{
-             if(!res)
-             {
-               console.log("TransactionsComponent.showTransferAccounts: variable is not initialized");
-             }
-             else
-             {
-                this.transferAccounts = res;
-             }
-           },
-          error: (err)=>{
-              console.log("TransactionsComponent.showTransferAccounts: An error occured during subscribe: " + JSON.stringify(err, null, 2));
-              } ,
-          complete: ()=>{
+         next: (res) => {
+            if(!res)
+            {
+              console.log("TransactionsComponent.showTransferAccounts: variable is not initialized");
+            }
+            else
+            {
+               this.transferAccounts = res;
+            }
+         },
+         error: (err) => {
+            console.log("TransactionsComponent.showTransferAccounts: An error occured during subscribe: " + JSON.stringify(err, null, 2));
+            this.inprogress = false; // error or compete NOT error then complete
+        } ,
+         complete: () => {
             console.log("TransactionsComponent.showTransferAccounts: completed");
             this.inprogress = false;
          }
@@ -332,21 +333,23 @@ export class TransactionsComponent implements OnInit {
          return;
 
       this.accountService.getCheckedBalance(acc).subscribe({
-         next: (res)=>{
-               if(!res)
-               {
-                 console.log("TransactionsComponent.getCheckedBalance: variable is not initialized");
-               }
-               else
-               {
-                 this.checkTransaction = res;
-                 console.log("TransactionsComponent.getCheckedBalance: returned");
-               }
-             },
+         next: (res)=> {
+            if(!res)
+            {
+               console.log("TransactionsComponent.getCheckedBalance: variable is not initialized");
+            }
+            else
+            {
+               this.checkTransaction = res;
+               console.log("TransactionsComponent.getCheckedBalance: returned");
+            }
+         },
          error: (err)=>{
-             console.log("TransactionsComponent.getCheckedBalance: An error occured during getCheckedBalance subscribe: " + JSON.stringify(err, null, 2));
-             } ,
-         complete: ()=>{console.log("TransactionsComponent.getCheckedBalance: getCheckedBalance loading completed");}
+            console.log("TransactionsComponent.getCheckedBalance: An error occured during getCheckedBalance subscribe: " + JSON.stringify(err, null, 2));
+         } ,
+         complete: ()=>{
+            console.log("TransactionsComponent.getCheckedBalance: getCheckedBalance loading completed");
+         }
       });
    
       console.log("TransactionsComponent.getCheckedBalance:Finished");
@@ -375,7 +378,9 @@ loadTransactions(acc : AccountItem, page: number = 0)
       error: (err)=>{
           console.log("TransactionsComponent.loadTransactions: An error occured during loadTransactions subscribe: " + JSON.stringify(err, null, 2));
           } ,
-      complete: ()=>{console.log("TransactionsComponent.loadTransactions: loadTransactions loading completed");}
+      complete: ()=>{
+         console.log("TransactionsComponent.loadTransactions: loadTransactions loading completed");
+      }
    });
 
    console.log("TransactionsComponent.loadTransactions:Finished");
@@ -444,6 +449,7 @@ addTransactionToDB(txn :AddTransactionItem)
       },
       error: (err)=>{
           console.log("TransactionsComponent.addTransactionToDB: An error occured during addTransactionToDB subscribe:" + JSON.stringify(err));
+          this.inprogress = false; // error or compete NOT error then complete
       } ,
       complete: ()=>{
          console.log("TransactionsComponent.addTransactionToDB: completed");
@@ -526,7 +532,8 @@ delTransactionToDB(txn : TransactionItem)
            },
        error: (err)=>{
            console.log("delTransactionToDB.updTransactionToDB: An error occured during updTransactionToDB subscribe:" + JSON.stringify(err));
-           } ,
+           this.inprogress = false; // error or compete NOT error then complete
+         } ,
        complete: ()=>{
          console.log("TransactionsComponent.delTransactionToDB: completed");
          this.inprogress = false;
@@ -539,23 +546,28 @@ delTransactionToDB(txn : TransactionItem)
 updTransactionToDB(txn : TransactionItem, showcheckedbal: boolean)
 {
   console.log("TransactionsComponent.updTransactionToDB: Starting");
+  this.inprogress = true;
   this.accountService.updateTransaction(txn).subscribe( {
       next: (res)=>{
-          console.log("TransactionsComponent.updTransactionToDB: Response: " + res);
-          // Must wait for add to complete before loading new transaction list
-          this.loadTransactions(this.activeaccount, this.pageNumber);
-          // Reset amount to prevent double entry
-          this.txAmount = '';
-          this.txPastearea = '';
-          if(showcheckedbal)
-          {
+         console.log("TransactionsComponent.updTransactionToDB: Response: " + res);
+         // Must wait for add to complete before loading new transaction list
+         this.loadTransactions(this.activeaccount, this.pageNumber);
+         // Reset amount to prevent double entry
+         this.txAmount = '';
+         this.txPastearea = '';
+         if(showcheckedbal)
+         {
             this.getCheckedBalance(this.activeaccount);
-          }
-          },
+         }
+      },
       error: (err)=>{
           console.log("TransactionsComponent.updTransactionToDB: An error occured during updTransactionToDB subscribe:" + JSON.stringify(err));
-          } ,
-      complete: ()=>{console.log("TransactionsComponent.updTransactionToDB: completed");}
+          this.inprogress = false; // error or compete NOT error then complete
+      } ,
+      complete: ()=>{
+         console.log("TransactionsComponent.updTransactionToDB: completed");
+         this.inprogress = false; // error or compete NOT error then complete
+      }
    });
 
   console.log("TransactionsComponent.updTransactionToDB:Finished");
