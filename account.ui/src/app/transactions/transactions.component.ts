@@ -453,7 +453,7 @@ addTransactionToDB(txn :AddTransactionItem)
       } ,
       complete: ()=>{
          console.log("TransactionsComponent.addTransactionToDB: completed");
-         this.inprogress = true;
+         this.inprogress = false;
       }
    });
 
