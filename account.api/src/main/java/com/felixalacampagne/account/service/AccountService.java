@@ -9,14 +9,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.felixalacampagne.account.common.Utils;
 import com.felixalacampagne.account.model.AccountDetail;
 import com.felixalacampagne.account.model.AccountItem;
 import com.felixalacampagne.account.model.Accounts;
+import com.felixalacampagne.account.model.TfrAccountItem;
 import com.felixalacampagne.account.persistence.entities.Account;
 import com.felixalacampagne.account.persistence.repository.AccountJpaRepository;
+import com.felixalacampagne.account.persistence.repository.PhoneAccountJpaRepository;
 
 @Service
 public class AccountService
@@ -24,11 +24,13 @@ public class AccountService
    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
    private final AccountJpaRepository accountJpaRepository;
+   private final PhoneAccountJpaRepository phoneAccountJpaRepository;
    private final ConnectionResurrector<AccountJpaRepository> connectionResurrector;
 
    @Autowired
-   public AccountService(AccountJpaRepository accountJpaRepository) {
+   public AccountService(AccountJpaRepository accountJpaRepository, PhoneAccountJpaRepository phoneAccountJpaRepository) {
       this.accountJpaRepository = accountJpaRepository;
+      this.phoneAccountJpaRepository = phoneAccountJpaRepository;
       this.connectionResurrector = new ConnectionResurrector<AccountJpaRepository>(accountJpaRepository, AccountJpaRepository.class);
    }
 
@@ -43,6 +45,31 @@ public class AccountService
       return accitems;
    }
 
+   public List<TfrAccountItem> getTransferAccounts(Long id)
+   {
+      Account srcacc = accountJpaRepository.findById(id)
+         .orElseThrow(() -> new AccountException("Account not found: " + id));
+
+      return phoneAccountJpaRepository.findTransferAccountsWithAccount(srcacc.getAccId())
+            .stream()
+            .map(a -> { 
+               String desc = AelseB(a.getAccDesc(), a.getPhoneAccount().getDesc());
+               
+               // The Account code appears to be out of date or not suitable for making transfers so don't use it.
+               String code = a.getPhoneAccount().getAccountNumber(); // aElseB(a.getAccCode(), a.getPhoneAccount().getAccountNumber());
+               return new TfrAccountItem(a.getPhoneAccount().getId(), a.getPhoneAccount().getAccountId(), desc, code, a.getPhoneAccount().getLastComm()); 
+               })
+            .collect(Collectors.toList());
+   }
+
+   String AelseB(String a, String b) {
+      return !isNullOrEmpty(a) ? a : b;
+   }
+   
+   boolean isNullOrEmpty(String s) {
+      return (s==null) || (s.isBlank());
+   }
+   
    public AccountItem getAccountItem(long id)
    {
       return accountJpaRepository.findById(id)

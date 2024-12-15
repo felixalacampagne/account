@@ -131,6 +131,57 @@ somewhat more urgent. Luckily I'd already decided that SO execution was the next
 any of the time wasting UI stuff. I guess now the creation/update of SOs has become the next priority or perhaps 
 the balance calculation/display...
 
+## How-Tos
+
+How to get the Eclipse 'JPA Tools -> Generate Entities from Tables' to work
+
+This assumes there is a project with the JPA Facet which shows 'JPA Tools' in the right-click menu.
+
+I somehow managed to get this to work but when I came to do it recently (2024-11-24) no way could I 
+figure it out. So of course the entire day was spent forking around with various settings and getting
+no where after the initial success at getting a 'ping' to work. Eventually I stumbled into a SO answer which
+referred to some arcane JPA setting which ONLY SHOWS UP ON THE PROJECT, ie. not when the normal propeties
+are displayed. Forking around with these hidden settings finally gave me a list of table to be converted
+to entities. The steps, as near as I can remember them were:
+
+-) Create the ucanaccess driver as a modification of the Generic JDBC driver. It requires whole bunch
+of jars to tbe added in addition to the ucanaccess jar. The jars are in the maven repo, just need to find
+them from the pom entries;
+ucanaccess-hibernate-dialect-0.0.1-SNAPSHOT.jar
+commons-lang3-3.14.0.jar
+commons-logging-1.2.jar
+commons-logging-api-1.1.jar
+hsqldb-2.7.3.jar
+jackcess-4.0.5.jar
+ucanaccess-5.1.1.jar
+Note the ucanaccess jar is not in an obvious place at all since it was moved to github.
+-) The properties of the driver must include the DB file:
+Connection URL: jdbc:ucanaccess://E:/Development/workspace/accountREST/acc2003_TEST.mdb;showSchema=true
+Database Name: acc2003_TEST.mdb
+Driver class: net.ucanaccess.jdbc.UcanaccessDriver
+User ID: Admin
+-) From 'Generate Custom Entities' open the 'New Connection Profile', select the previously created 
+ucanaccess driver and repeat the Url, User, and Database (the .mdb filename) entries.
+-) Confirm the settings with the 'Test Conneciton' button and return to 'Generate Custom Entities'
+-) The icon next to "(Note: You must have an active..." shoul dnow be greyed out, ie. there is a connection.
+-) If the 'Schema' list is empty and there are no tables displayed then the problem is probably related to
+the settings in the hidden project JPA properties setting. Cancel the 'Generate Custom Entities', 
+right-click on the JPA project and select properties. Select 'JPA' from the left-hand list.
+-) There shoul dbe a bunch of settings available, unlike when the 'JPA' properties are opened from the
+main 'WIndow' menu.
+-) Select the connection created in the previous steps.
+-) Select 'Override the default catalog from connection' and select 'Catalog' 'PUBLIC'
+-) Select 'Override default schema from connection' and select 'Schema' 'PUBLIC'
+-) Apply and close and return to the 'Generate Custom Entities' configuration. With a bit of luck and
+a favourable wind there should now be a list of tables when 'PUBLIC' is selected from the 'Schema' list.
+
+No clue how I managed to do it the first time - I guess it was with an older version where it made
+sense and now I'm using the latest continuously improved version in which it has been made almost
+impossible to use.
+
+
+
+
 ## Links
 HSQLDB: https://hsqldb.org/
 Jackcess: https://jackcess.sourceforge.io/cookbook.html

@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.felixalacampagne.account.persistence.entities.Account;
 import com.felixalacampagne.account.persistence.entities.StandingOrders;
@@ -92,6 +94,27 @@ public class Utils
       return date;
    }
 
+   public static String listToString(List<?> list, CharSequence delimiter)
+   {
+      return list.stream()
+            .map(a -> "" + a)
+            .collect(Collectors.joining(delimiter));
+   }
+
+   public static String fromNullable(Object obj)
+   {
+      return (obj==null) ? "" : obj.toString();
+   }
+
+   public static String prefixNullable(String prefix, Object obj)
+   {
+      String s = fromNullable(obj);
+      if(!s.isBlank())
+      {
+         s = prefix + s;
+      }
+      return s;
+   }
 
    private Utils()
    {

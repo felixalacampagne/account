@@ -2,8 +2,8 @@ package com.felixalacampagne.account.persistence.entities;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,10 +19,6 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name="Transaction")
-//@NamedQueries({
-//@NamedQuery(name="Transaction.findAll", query="SELECT t FROM Transaction t"),
-//@NamedQuery(name=Transaction.TRANSACTION_ALLFORACCOUNT, query="SELECT t FROM Transaction t where t.accountId=:accId order by t.date desc")
-//})
 public class Transaction implements Serializable
 {
 //   public static final String TRANSACTION_ALLFORACCOUNT="Transaction.findByAccountId";
@@ -189,6 +185,27 @@ public class Transaction implements Serializable
 
    public void setType(String type) {
       this.type = type;
+   }
+
+   @Override
+   public int hashCode()
+   {
+      return Objects.hash(accountId, balance, checked, checkedBalance, comment, credit, date, debit, sequence, sortedBalance, stid, type);
+   }
+
+   @Override
+   public boolean equals(Object obj)
+   {
+      if (this == obj)
+         return true;
+      if (obj == null)
+         return false;
+      if (getClass() != obj.getClass())
+         return false;
+      Transaction other = (Transaction) obj;
+      return Objects.equals(accountId, other.accountId) && Objects.equals(balance, other.balance) && checked == other.checked && Objects.equals(checkedBalance, other.checkedBalance) && Objects.equals(comment, other.comment)
+            && Objects.equals(credit, other.credit) && Objects.equals(date, other.date) && Objects.equals(debit, other.debit) && sequence == other.sequence && Objects.equals(sortedBalance, other.sortedBalance)
+            && Objects.equals(stid, other.stid) && Objects.equals(type, other.type);
    }
 
 }
