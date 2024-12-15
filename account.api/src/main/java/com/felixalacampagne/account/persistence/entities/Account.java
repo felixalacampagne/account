@@ -1,14 +1,13 @@
 package com.felixalacampagne.account.persistence.entities;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.NamedQueries;
-import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 
 
@@ -151,6 +150,24 @@ public class Account implements Serializable {
 
    public void setAccTel(String accTel) {
       this.accTel = accTel;
+   }
+   @Override
+   public int hashCode()
+   {
+      return Objects.hash(accAddr, accCode, accCurr, accDesc, accFmt, accId, accOrder, accSid, accSwiftbic, accTel);
+   }
+   @Override
+   public boolean equals(Object obj)
+   {
+      if (this == obj)
+         return true;
+      if (obj == null)
+         return false;
+      if (getClass() != obj.getClass())
+         return false;
+      Account other = (Account) obj;
+      return Objects.equals(accAddr, other.accAddr) && Objects.equals(accCode, other.accCode) && Objects.equals(accCurr, other.accCurr) && Objects.equals(accDesc, other.accDesc) && Objects.equals(accFmt, other.accFmt)
+            && Objects.equals(accId, other.accId) && Objects.equals(accOrder, other.accOrder) && Objects.equals(accSid, other.accSid) && Objects.equals(accSwiftbic, other.accSwiftbic) && Objects.equals(accTel, other.accTel);
    }
 
 

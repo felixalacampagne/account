@@ -3,6 +3,7 @@ package com.felixalacampagne.account.persistence.entities;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -135,6 +136,28 @@ public class StandingOrders implements Serializable {
    {
       return "StandingOrders [SOid=" + SOid + ", SODesc=" + SODesc + ", SOEntryDate=" + SOEntryDate + ", SOAmount=" + SOAmount + ", SONextPayDate=" + SONextPayDate + ", SOTfrType=" + SOTfrType + ", SOPeriod=" + SOPeriod + ", SOCount="
             + SOCount + ", SOAccId=" + getAccount().getAccId() + "]";
+   }
+
+
+   @Override
+   public int hashCode()
+   {
+      return Objects.hash(SOAmount, SOCount, SODesc, SOEntryDate, SONextPayDate, SOPeriod, SOTfrType, SOid, account);
+   }
+
+
+   @Override
+   public boolean equals(Object obj)
+   {
+      if (this == obj)
+         return true;
+      if (obj == null)
+         return false;
+      if (getClass() != obj.getClass())
+         return false;
+      StandingOrders other = (StandingOrders) obj;
+      return Objects.equals(SOAmount, other.SOAmount) && Objects.equals(SOCount, other.SOCount) && Objects.equals(SODesc, other.SODesc) && Objects.equals(SOEntryDate, other.SOEntryDate) && Objects.equals(SONextPayDate, other.SONextPayDate)
+            && Objects.equals(SOPeriod, other.SOPeriod) && Objects.equals(SOTfrType, other.SOTfrType) && Objects.equals(SOid, other.SOid) && Objects.equals(account, other.account);
    }
 
 

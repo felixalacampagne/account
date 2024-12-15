@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.felixalacampagne.account.model.AccountDetail;
 import com.felixalacampagne.account.model.AccountItem;
 import com.felixalacampagne.account.model.Accounts;
+import com.felixalacampagne.account.model.AddTransactionItem;
 import com.felixalacampagne.account.model.StandingOrderItem;
+import com.felixalacampagne.account.model.TfrAccountItem;
 import com.felixalacampagne.account.model.TransactionItem;
 import com.felixalacampagne.account.model.Transactions;
 import com.felixalacampagne.account.model.Version;
@@ -81,6 +83,12 @@ public class AccountController {
        return this.accountService.getAccountItem(id);
     }
 
+    @GetMapping("/accsfortfr/{id}")
+    public List<TfrAccountItem> getTransferAccounts(@PathVariable Long id)
+    {
+       return this.accountService.getTransferAccounts(id);
+    }
+
     @GetMapping("/accinf/{id}")
     public AccountDetail getAccountDetail(@PathVariable Long id)
     {
@@ -130,13 +138,12 @@ public class AccountController {
     // TransactionItem (haven't got a forking clue what it is expecting). The front-end not surprisingly
     // only provides the TransactionItem json.
     @PostMapping(value = "/addtransaction")
-    public String addTransaction(@RequestBody TransactionItem transactionItem, Model model)
+    public String addTransaction(@RequestBody AddTransactionItem transactionItem, Model model)
     {
        log.info("addTransaction: transaction item to add: {}", transactionItem);
        try
        {
           this.transactionService.addTransaction(transactionItem);
-
        }
        catch(Exception ex)
        {
@@ -158,6 +165,23 @@ public class AccountController {
        catch(Exception ex)
        {
           log.info("updateTransaction: Failed to update: {}", transactionItem, ex);
+          return "failed: " + ex.getMessage();
+       }
+
+       return "ok";
+    }
+
+    @PutMapping(value = "/deletetransaction")
+    public String deleteTransaction(@RequestBody TransactionItem transactionItem, Model model)
+    {
+       log.info("deleteTransaction: transaction item to delete: {}", transactionItem);
+       try
+       {
+          this.transactionService.deleteTransaction(transactionItem);
+       }
+       catch(Exception ex)
+       {
+          log.info("deleteTransaction: Failed to delete: {}", transactionItem, ex);
           return "failed: " + ex.getMessage();
        }
 

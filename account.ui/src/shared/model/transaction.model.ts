@@ -1,3 +1,4 @@
+// src/shared/model/transaction.model.ts
 export class TransactionItem
 {
     public accid : number = -1;
@@ -29,4 +30,26 @@ export class TransactionItem
       this.token = item.token;
 
     }
+}
+
+export class AddTransactionItem extends TransactionItem
+{
+   public transferAccount: number | undefined | null;
+   public communication : string | undefined | null;     // Only used if transferAccount or cptyAccountNumber are present
+   public cptyAccount   : string | undefined | null;       // Only used if transferAccount is missing and communication and cptyAccountNumber are present
+   public cptyAccountNumber: string | undefined | null; // Only used if transferAccount is missing and communication and cptyAccount are present
+
+   constructor()
+   {
+      super();
+   }
+
+   override copy(item: AddTransactionItem)
+   {
+      super.copy(item);
+      this.transferAccount = item.transferAccount;
+      this.communication = item.communication;
+      this.cptyAccount = item.cptyAccount;
+      this.cptyAccountNumber = item.cptyAccountNumber;
+   }
 }

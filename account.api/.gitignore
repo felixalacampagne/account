@@ -1,3 +1,4 @@
 /target/
 .settings/
+jpa-driver-librarires/
 application-dev.properties

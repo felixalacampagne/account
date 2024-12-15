@@ -12,11 +12,41 @@ import { accountNgbDateParserFormatter, ddmmyyyyNgbDateParserFormatter, isoNgbDa
 import {AccountService} from '../../shared/service/account.service';
 import {DateformatService} from '../../shared/service/dateformat.service';
 import {AccountItem} from '../../shared/model/accountitem.model';
-import {TransactionItem} from '../../shared/model/transaction.model';
+import {AddTransactionItem, TransactionItem} from '../../shared/model/transaction.model';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { Html5QrcodeResult } from 'html5-qrcode/esm/core';
 import { RouterModule, RouterOutlet } from '@angular/router'; // for 'routerlink is not a property of button'
+import { TxnDelConfirmDialog } from './txndel-confirm-modal.component';
+import { TfrAccountItem } from 'src/shared/model/tfraccountitem.model';
 
+// Getting the phoneaccount list to look acceptable is going to be tricky. Apparently the select...option can't
+// be formatted so making it into a nicely formatted list of name and number is not going to work. 
+// Bootstrap has a 'dropdown' but inevitably the examples for it really suck and offer no explanation of how
+// to get the app to respond to selection of an item in the list. The examples also use UL/LI and A which
+// doesn't seem to be formattable into columns either. I did find an SO post which sort of displays items 
+// in columns but still no clue how to select one of the items in the list. Plus the list appear in a scrollable
+// window as it is quite long... would be nice to have a box to type into which scrolls to the first matching account.
+// Obviously given how difficult it is to get basic things to work the chances of this happening are remote!
+// This is the html using the BS dropdown:
+// <div class="acc-modal-row">
+// <div ngbDropdown class="d-inline-block">
+//    <button class="btn btn-outline-primary" id="dropdownBasic1" ngbDropdownToggle>Counterparty accounts</button>
+//    <div ngbDropdownMenu aria-labelledby="dropdownBasic1" style="width: 600px;">
+//      <div ngbDropdownItem class="d-flex justify-content-between">
+//        <div></div>
+//        <div></div>
+//      </div>
+//      <div *ngFor="let trnAcc of transferAccounts" class="d-flex justify-content-between">
+//        <div>
+//          {{trnAcc.cptyAccountName}}
+//        </div>
+//        <div>
+//          {{trnAcc.cptyAccountNumber}}
+//        </div>
+//      </div>
+//    </div>
+//  </div>
+// </div>
 // const dateFormatJson: string = 'yyyy-MM-dd';
 
 // WARNING: 'standalone: true' means the component must not be put in app.module and all imports must be duplicated
@@ -33,15 +63,10 @@ import { RouterModule, RouterOutlet } from '@angular/router'; // for 'routerlink
   ]
 })
 
-// BUGS:
-// - changing between accounts leaves the old checked transaction value displayed. 
-//   It should be resethidden until a transaction is verified
-// - manual date entry is interpret as mm/dd/yyyy and then re-displayed as mm/dd/yyyy but no idea how
-
 export class TransactionsComponent implements OnInit {
 
    // accid is set via the route URL which is detected via ngOnChanges. The id is used to load the accountitem from
-   // the server - cannot rely on the list previously loaded by the main app is it is cleared by the refresh button
+   // the server - cannot rely on the list previously loaded by the main app as is it is cleared by the refresh button
    // and there is no way to know when it has been reloaded.
    // The loadaccount method has to trigger the loadtransactions from within its subscribe lambda as that is
    // the only way to know when the accountitem has been loaded. Its mind blowingly clumsy but at least
@@ -53,9 +78,12 @@ export class TransactionsComponent implements OnInit {
    modalReference: NgbModalRef | undefined;
 
    activeaccount!: AccountItem; 
+   transferAccounts!: TfrAccountItem[] | undefined;
+   isTransfer: boolean = false;
    transactions: TransactionItem[] = [];
-   checkTransaction!: TransactionItem;
+   checkTransaction: TransactionItem | undefined;
    checkLoading: boolean = false;
+   inprogress: boolean = false;
    public submitted: boolean = false;
    public defaultdate: string = '';
    envName: string = '';
@@ -65,6 +93,10 @@ export class TransactionsComponent implements OnInit {
    txType: string;
    txComment: string = '';
    txAmount: string = '';
+   txTfrAccount: TfrAccountItem | undefined;
+   txCommunication : string = '';
+   txCptyName: string = '';
+   txCptyNumber: string = '';
    txPastearea: string = '';
    closeResult: string = '';
    html5QrcodeScanner: Html5QrcodeScanner | undefined; // Only defined while a scan is being performed
@@ -97,12 +129,6 @@ export class TransactionsComponent implements OnInit {
    ngOnInit() 
    {
       console.log('TransactionsComponent.ngOnInit: start');
-      //this.route.queryParams.subscribe(params => {
-      //   // console.log("TransactionsComponent.ngOnInit: params:" + JSON.stringify(params, null, 2));
-      //   let account : AccountItem = JSON.parse(params["account"]);
-      //   // console.log("TransactionsComponent.ngOnInit: account from json:" + JSON.stringify(account, null, 2));
-      //   this.getTransactions(account);
-      //});
       const d: Date = new Date();  
       this.txDate = d; //{year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
       console.log("TransactionsComponent.ngOnInit: finish");
@@ -128,25 +154,29 @@ export class TransactionsComponent implements OnInit {
       this.txUpdDate = d; // {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()}; 
       
       this.modalReference = this.modalService.open(content);
-      this.modalReference.result.then((result) => {
-      console.log("open:modalReference:result");
-      // One maybe the updated transaction will come from the modal
-      this.updmodalCloseAction(`${result}`, this.updateTxn);
-    }, (reason) => {
-      console.log("open:modalReference:reason");
-      this.updmodalCloseAction( `${this.getDismissReason(reason)}`, this.updateTxn);
-    });
+
+      this.modalReference.result.then(
+         (result) => {
+            console.log("open:modalReference:result");
+            // One maybe the updated transaction will come from the modal
+            this.updmodalCloseAction(`${result}`, this.updateTxn);
+         }, 
+         (reason) => {
+            console.log("open:modalReference:reason");
+            this.updmodalCloseAction( `${this.getDismissReason(reason)}`, this.updateTxn);
+         }
+      );
   }
 
-  private getDismissReason(reason: any): string {
-    if (reason === ModalDismissReasons.ESC) {
+   private getDismissReason(reason: any): string {
+      if (reason === ModalDismissReasons.ESC) {
       return 'CANCEL';
-    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
+      } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
       return 'CANCEL';
-    } else {
+      } else {
       return `${reason}`;
-    }
-  }
+      }
+   }
 
    private updmodalCloseAction(reason : string, updtxn : TransactionItem) 
    {
@@ -162,11 +192,37 @@ export class TransactionsComponent implements OnInit {
          console.log("updmodalCloseAction: updating transaction:  " + JSON.stringify(updtxn, null, 2));
          this.updatetransaction(updtxn);
       }
+      else if(reason == "DELETE")
+      {
+         this.delTxnConfirm(updtxn);
+      }
+
       this.resetDatepicker();
    }
 
-
-
+   delTxnConfirm(updtxn : TransactionItem) 
+   {
+      // Need a way to pass a message to be displayed to the confirmation dialog
+      let modalReference: NgbModalRef = this.modalService.open(TxnDelConfirmDialog);
+      modalReference.result.then((result) => {
+         console.log("delTxnConfirm:modalReference:result");
+         this.delTxnConfirmCloseAction(`${result}`, this.updateTxn);
+       }, (reason) => {
+         console.log("delTxnConfirm:modalReference:reason");
+         this.delTxnConfirmCloseAction( `${this.getDismissReason(reason)}`, this.updateTxn);
+       });
+   }
+   
+   private delTxnConfirmCloseAction(reason : string, updtxn : TransactionItem) 
+   {
+      console.log("delTxnConfirmCloseAction: reason: " + reason);
+      if(reason == "OK")
+      {
+         console.log("delTxnConfirmCloseAction: deleting transaction:  " + JSON.stringify(updtxn, null, 2));
+         this.delTransactionToDB(updtxn);
+      }
+   }
+      
    ngOnChanges(changes: SimpleChanges ) 
    {
       console.log("TransactionsComponent.ngOnChanges: enter: " + JSON.stringify(changes, null, 2));
@@ -176,6 +232,9 @@ export class TransactionsComponent implements OnInit {
          const chng = changes[propName];
          if(propName === 'accid')
          {
+            this.resetTransfer();  // must reload list to ensure right account is excluded
+            // console.log("TransactionsComponent.ngOnChanges: setting checkTransaction undefined");
+            this.checkTransaction = undefined; // Hide the value until a new one is loaded
             this.loadAccount(chng.currentValue);
          }
       }
@@ -206,6 +265,67 @@ export class TransactionsComponent implements OnInit {
      console.log("TransactionsComponent.loadAccount:Finished");
    }
 
+   // radio buttons
+   setTransfer(trans : boolean)
+   {
+      this.isTransfer = trans;
+      console.log("setTransfer: isTransfer=" + this.isTransfer); 
+      if(this.isTransfer)
+      {
+         if(!this.transferAccounts) {
+            this.loadTransferAccounts();
+         }
+      }
+   }
+
+   // switch
+   toggleTransferAccounts() {
+      if(this.isTransfer)
+      {
+         this.isTransfer = false;
+         this.txTfrAccount = undefined;
+      }
+      else
+      {
+         this.isTransfer = true;
+         if(!this.transferAccounts) {
+            this.loadTransferAccounts();
+         }
+
+      }
+      console.log("TransactionsComponent.toggleTransferAccounts: isTransfer: " + this.isTransfer);
+   }
+   canShowTransferAccounts() {
+      return((this.isTransfer == true) && this.transferAccounts);
+   }
+   loadTransferAccounts() {
+      const id : number = this.activeaccount.id;
+      console.log("TransactionsComponent.showTransferAccounts: Starting: id " + id);
+      this.inprogress = true;   
+      this.accountService.getAccountsForTransfer(this.activeaccount).subscribe({
+         next: (res) => {
+            if(!res)
+            {
+              console.log("TransactionsComponent.showTransferAccounts: variable is not initialized");
+            }
+            else
+            {
+               this.transferAccounts = res;
+            }
+         },
+         error: (err) => {
+            console.log("TransactionsComponent.showTransferAccounts: An error occured during subscribe: " + JSON.stringify(err, null, 2));
+            this.inprogress = false; // error or compete NOT error then complete
+        } ,
+         complete: () => {
+            console.log("TransactionsComponent.showTransferAccounts: completed");
+            this.inprogress = false;
+         }
+       });
+    
+      console.log("TransactionsComponent.showTransferAccounts:Finished");      
+   }
+   
    getCheckedBalance(acc : AccountItem)
    {
       console.log("TransactionsComponent.getCheckedBalance: Starting: " + JSON.stringify(acc, null, 2));
@@ -213,21 +333,23 @@ export class TransactionsComponent implements OnInit {
          return;
 
       this.accountService.getCheckedBalance(acc).subscribe({
-         next: (res)=>{
-               if(!res)
-               {
-                 console.log("TransactionsComponent.getCheckedBalance: variable is not initialized");
-               }
-               else
-               {
-                 this.checkTransaction = res;
-                 console.log("TransactionsComponent.getCheckedBalance: returned");
-               }
-             },
+         next: (res)=> {
+            if(!res)
+            {
+               console.log("TransactionsComponent.getCheckedBalance: variable is not initialized");
+            }
+            else
+            {
+               this.checkTransaction = res;
+               console.log("TransactionsComponent.getCheckedBalance: returned");
+            }
+         },
          error: (err)=>{
-             console.log("TransactionsComponent.getCheckedBalance: An error occured during getCheckedBalance subscribe: " + JSON.stringify(err, null, 2));
-             } ,
-         complete: ()=>{console.log("TransactionsComponent.getCheckedBalance: getCheckedBalance loading completed");}
+            console.log("TransactionsComponent.getCheckedBalance: An error occured during getCheckedBalance subscribe: " + JSON.stringify(err, null, 2));
+         } ,
+         complete: ()=>{
+            console.log("TransactionsComponent.getCheckedBalance: getCheckedBalance loading completed");
+         }
       });
    
       console.log("TransactionsComponent.getCheckedBalance:Finished");
@@ -256,7 +378,9 @@ loadTransactions(acc : AccountItem, page: number = 0)
       error: (err)=>{
           console.log("TransactionsComponent.loadTransactions: An error occured during loadTransactions subscribe: " + JSON.stringify(err, null, 2));
           } ,
-      complete: ()=>{console.log("TransactionsComponent.loadTransactions: loadTransactions loading completed");}
+      complete: ()=>{
+         console.log("TransactionsComponent.loadTransactions: loadTransactions loading completed");
+      }
    });
 
    console.log("TransactionsComponent.loadTransactions:Finished");
@@ -303,9 +427,10 @@ calcCheckedBalance()
    console.log("TransactionsComponent.calcCheckedBalance: Finished");
 }
 
-addTransactionToDB(txn : TransactionItem)
+addTransactionToDB(txn :AddTransactionItem)
 {
   console.log("TransactionsComponent.addTransactionToDB: Starting");
+  this.inprogress = true;
   this.accountService.addTransaction(txn).subscribe( {
       next: (res)=>{
           console.log("TransactionsComponent.addTransactionToDB: Response: " + res);
@@ -314,41 +439,72 @@ addTransactionToDB(txn : TransactionItem)
           // Reset amount to prevent double entry
           this.txAmount = '';
           this.txPastearea = '';
-          },
+
+         // If a transfer was done then the last communication might have been updated.
+         // Only way to refresh the list at the moment is to reset it...
+         if(this.txTfrAccount)
+         {
+            this.resetTransfer();           
+         }
+      },
       error: (err)=>{
           console.log("TransactionsComponent.addTransactionToDB: An error occured during addTransactionToDB subscribe:" + JSON.stringify(err));
-          } ,
-      complete: ()=>{console.log("TransactionsComponent.addTransactionToDB: completed");}
+          this.inprogress = false; // error or compete NOT error then complete
+      } ,
+      complete: ()=>{
+         console.log("TransactionsComponent.addTransactionToDB: completed");
+         this.inprogress = false;
+      }
    });
 
   console.log("TransactionsComponent.addTransactionToDB:Finished");
 }
 
+resetTransfer()
+{
+   this.isTransfer = false;
+   this.txTfrAccount = undefined; 
+   this.transferAccounts = undefined;   
+   this.txCommunication = '';
+   this.txCptyName = '';
+   this.txCptyNumber = '';
+}
+
 addtransaction()
 {
-  if(this.activeaccount == null)
-  {
-    console.log("Account is not set, unable to add transaction.");
-    return;
-  }
+   if(this.activeaccount == null)
+   {
+      console.log("Account is not set, unable to add transaction.");
+      return;
+   }
 
-  let newent : TransactionItem = new TransactionItem();
-  let d = this.txDate; // new Date(this.txDate.year, this.txDate.month-1, this.txDate.day);
-  newent.accid = this.activeaccount.id;
-  newent.amount = this.txAmount;
-  newent.comment = this.txComment;
-  
-  // With new Typescript cannot just assign return value to a string!
-  // Using ternary operator is too clumsy for dealing with the return from a function
-  // Apparently the '??' means use the result unless it's undefined or null and then use the value after the ??
-  newent.date = this.datfmt.jsonFormat(d); // this.datePipe.transform(d, dateFormatJson) ?? '';
-  newent.type = this.txType;
+   let newent : AddTransactionItem = new AddTransactionItem();
+   let d = this.txDate; // new Date(this.txDate.year, this.txDate.month-1, this.txDate.day);
+   newent.accid = this.activeaccount.id;
+   newent.amount = this.txAmount;
+   newent.comment = this.txComment;
 
-  console.log("Date: " + newent.date);
-  console.log("Type: " + newent.type);
-  console.log("Comment: " + newent.comment);
-  console.log("Amount: " + newent.amount);  
-  this.addTransactionToDB(newent); 
+   // With new Typescript cannot just assign return value to a string!
+   // Using ternary operator is too clumsy for dealing with the return from a function
+   // Apparently the '??' means use the result unless it's undefined or null and then use the value after the ??
+   newent.date = this.datfmt.jsonFormat(d); // this.datePipe.transform(d, dateFormatJson) ?? '';
+   newent.type = this.txType;
+ 
+   if(this.canShowTransferAccounts()) // Only add these if 'Transfer' mode is enabled
+   {
+      if(this.txTfrAccount)
+      {
+         newent.transferAccount = this.txTfrAccount.id;
+      }
+      newent.communication = this.txCommunication;
+      newent.cptyAccount = this.txCptyName;
+      newent.cptyAccountNumber = this.txCptyNumber;
+   }
+   console.log("Date: " + newent.date);
+   console.log("Type: " + newent.type);
+   console.log("Comment: " + newent.comment);;
+   console.log("Amount: " + newent.amount);  
+   this.addTransactionToDB(newent); 
 }
 
 lockedChange()
@@ -361,26 +517,57 @@ lockedChange()
   }
 }
 
+delTransactionToDB(txn : TransactionItem) 
+{
+   console.log("TransactionsComponent.delTransactionToDB: Starting");
+   this.inprogress = true;
+   this.accountService.deleteTransaction(txn).subscribe( {
+       next: (res)=>{
+           console.log("TransactionsComponent.delTransactionToDB: Response: " + res);
+           // Must action for add to complete before loading new transaction list
+           this.loadTransactions(this.activeaccount, this.pageNumber);
+           // Reset amount to prevent double entry
+           this.txAmount = '';
+           this.txPastearea = '';
+           },
+       error: (err)=>{
+           console.log("delTransactionToDB.updTransactionToDB: An error occured during updTransactionToDB subscribe:" + JSON.stringify(err));
+           this.inprogress = false; // error or compete NOT error then complete
+         } ,
+       complete: ()=>{
+         console.log("TransactionsComponent.delTransactionToDB: completed");
+         this.inprogress = false;
+         }
+    });
+ 
+   console.log("TransactionsComponent.delTransactionToDB:Finished");   
+}
+
 updTransactionToDB(txn : TransactionItem, showcheckedbal: boolean)
 {
   console.log("TransactionsComponent.updTransactionToDB: Starting");
+  this.inprogress = true;
   this.accountService.updateTransaction(txn).subscribe( {
       next: (res)=>{
-          console.log("TransactionsComponent.updTransactionToDB: Response: " + res);
-          // Must wait for add to complete before loading new transaction list
-          this.loadTransactions(this.activeaccount, this.pageNumber);
-          // Reset amount to prevent double entry
-          this.txAmount = '';
-          this.txPastearea = '';
-          if(showcheckedbal)
-          {
+         console.log("TransactionsComponent.updTransactionToDB: Response: " + res);
+         // Must wait for add to complete before loading new transaction list
+         this.loadTransactions(this.activeaccount, this.pageNumber);
+         // Reset amount to prevent double entry
+         this.txAmount = '';
+         this.txPastearea = '';
+         if(showcheckedbal)
+         {
             this.getCheckedBalance(this.activeaccount);
-          }
-          },
+         }
+      },
       error: (err)=>{
           console.log("TransactionsComponent.updTransactionToDB: An error occured during updTransactionToDB subscribe:" + JSON.stringify(err));
-          } ,
-      complete: ()=>{console.log("TransactionsComponent.updTransactionToDB: completed");}
+          this.inprogress = false; // error or compete NOT error then complete
+      } ,
+      complete: ()=>{
+         console.log("TransactionsComponent.updTransactionToDB: completed");
+         this.inprogress = false; // error or compete NOT error then complete
+      }
    });
 
   console.log("TransactionsComponent.updTransactionToDB:Finished");
@@ -538,10 +725,10 @@ onPasteUpd(event: ClipboardEvent) {
       console.log("onPasteUpd: replace clipboard content with cleaned scomm: " + scomm); 
 
       // Can't update the clipboard and do the paste with the new text.
-      // Inst3ead need to cancel the paste and then try to emulate what should
+      // Instead need to cancel the paste and then try to emulate what should
       // be happening. Forking crazy.
       // This BS seems to work except for some things don't work properly after, eg. it is not 
-      // possible to revert the change, ie. Ctrl-Z. Still it is better than trying to edit//
+      // possible to revert the change, ie. Ctrl-Z. Still it is better than trying to edit
       // the structure communications by hand on the phone!!
       //clipboardData.setData('text', scomm);
 
@@ -585,6 +772,31 @@ onPaste(event: ClipboardEvent) {
   console.log("onPaste: exit");
 }
 
+onPasteComm(event: ClipboardEvent)
+{
+   // Maybe want to filter the "+", "/" . " " of the 'structured" communications?
+   // already done for the updated dialog
+   this.onPasteUpd(event);
+}
+
+onChangeCptySelect(event : any)
+{
+   // event content is not useful
+   // the 'ngModel' fields has been updated with the clicked item
+   console.log("TransactionsComponent.onChangeCptySelect: txTfrAccount:" + JSON.stringify(this.txTfrAccount));
+   if(this.txTfrAccount)
+   {
+      this.txCommunication = this.txTfrAccount.lastCommunication;
+      this.txCptyName = this.txTfrAccount.cptyAccountName;
+      this.txCptyNumber = this.txTfrAccount.cptyAccountNumber;
+   }
+   else
+   {
+      this.txCommunication = "";
+      this.txCptyName = "";
+      this.txCptyNumber = "";
+   }
+}
 
 onScanSuccess(decodedText: string, decodedResult: Html5QrcodeResult) {
   // handle the scanned code as you like, for example:

@@ -5,12 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,23 +61,23 @@ public class BalanceService
 //   }
 
    @Transactional
-   public void doBalanceCalculation(List<Transaction> txns, 
+   public void doBalanceCalculation(List<Transaction> txns,
                                     Function<Transaction, BigDecimal> balanceGetter,
                                     BiConsumer<Transaction, BigDecimal> balanceSetter,
                                     Optional<Transaction> startTransaction)
    {
-      log.debug("doBalanceCalculation: start: first id:{} final id:{} chkd bal: {}{}", 
+      log.debug("doBalanceCalculation: start: first id:{} final id:{} chkd bal: {}{}",
             txns.get(0).getSequence(),
             txns.get(txns.size()-1).getSequence(),
             balanceGetter.apply(txns.get(txns.size()-1)),
             startTransaction.map(t -> " start txn id:" + t.getSequence()).orElse(""));
-      
+
       BigDecimal balance = BigDecimal.ZERO;
       BigDecimal amt = BigDecimal.ZERO;
 
       if(startTransaction.isPresent())
       {
-        // Search backwards for the first transaction before start transaction with a checked balance, 
+        // Search backwards for the first transaction before start transaction with a checked balance,
         // ie. the seed transaction
         // This balance is used as the start balance and the list adjusted to start at the next
         // transaction after the seed transaction - usually it will be the start transaction
@@ -90,9 +88,12 @@ public class BalanceService
         {
             Transaction pt = txns.get(i);
             BigDecimal curbalance = balanceGetter.apply(pt);
-            
-            // Find the starttransaction and then take the first previous
-            // non-null balance from the list
+
+            // Find the starttransaction before it and then take the first previous
+            // non-null balance from the list.
+            // WARNING: starttransaction may have been deleted so will not be in the list. Since this
+            // method is unaware of the sort criteria of the list it cannot 'guess' which
+            // transaction is the previous transaction.
             if(pt.getSequence() == stid)
             {
                startFound = true;
@@ -106,17 +107,17 @@ public class BalanceService
         }
         txns = subchktxns;
       }
-      
-      log.debug("doBalanceCalculation: adjusted for start txn: first id:{} final id:{} chkd bal: {}", 
+
+      log.debug("doBalanceCalculation: adjusted for start txn: first id:{} final id:{} chkd bal: {}",
             txns.get(0).getSequence(),
             txns.get(txns.size()-1).getSequence(),
             balanceGetter.apply(txns.get(txns.size()-1)));
-      
+
       List<Transaction> updtxns = new ArrayList<>();
       for(Transaction nxttxn : txns)
       {
          amt = Utils.getAmount(nxttxn);
-         balance = balance.add(amt); 
+         balance = balance.add(amt);
          BigDecimal curbalance = balanceGetter.apply(nxttxn);
          if((curbalance == null) || balance.compareTo(curbalance) != 0)
          {
@@ -124,37 +125,37 @@ public class BalanceService
             updtxns.add(nxttxn);
          }
       }
-      
+
       if(!updtxns.isEmpty())
       {
          log.debug("doBalanceCalculation: saving {} records", updtxns.size());
          transactionJpaRepository.saveAll(updtxns);
          transactionJpaRepository.flush();
          log.debug("doBalanceCalculation: saved {} records", updtxns.size());
-      } 
-      
+      }
+
       log.debug("doBalanceCalculation: finish: first id:{} final id: {} chkd bal: {}",
             txns.get(0).getSequence(),
             txns.get(txns.size()-1).getSequence(),
-            balanceGetter.apply(txns.get(txns.size()-1)));      
+            balanceGetter.apply(txns.get(txns.size()-1)));
    }
-   
-   public Optional<Transaction> calculateBalances(long accountId, Optional<Transaction> startTransaction) 
+
+   public Optional<Transaction> calculateBalances(long accountId, Optional<Transaction> startTransaction)
    {
       List<Transaction> txns = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(accountId);
       if(txns.isEmpty())
       {
          return Optional.empty();
       }
-      
+
       doBalanceCalculation(txns,
             (t) -> t.getBalance(),
             (t, b) -> t.setBalance(b),
             startTransaction);
-      return Optional.of(txns.get(txns.size()-1));      
-           
+      return Optional.of(txns.get(txns.size()-1));
+
    }
-   
+
    public Optional<Transaction> calculateCheckedBalances(long accountId, Optional<Transaction> startTransaction)
    {
       List<Transaction> chktxns = transactionJpaRepository.findByAccountIdAndCheckedIsTrueOrderByDateAscSequenceAsc(accountId);
@@ -162,31 +163,31 @@ public class BalanceService
       {
          return Optional.empty();
       }
-      
+
       doBalanceCalculation(chktxns,
             (t) -> t.getCheckedBalance(),
             (t, b) -> t.setCheckedBalance(b),
             startTransaction);
       return Optional.of(chktxns.get(chktxns.size()-1));
    }
-   
-   public Optional<Transaction> sortedBalances(long accountId, Optional<Transaction> startTransaction) 
+
+   public Optional<Transaction> sortedBalances(long accountId, Optional<Transaction> startTransaction)
    {
       List<Transaction> txns = transactionJpaRepository.findByAccountIdOrderByDateAscSequenceAsc(accountId);
       if(txns.isEmpty())
       {
          return Optional.empty();
       }
-      
+
       doBalanceCalculation(txns,
             (t) -> t.getSortedBalance(),
             (t, b) -> t.setSortedBalance(b),
             startTransaction);
-      return Optional.of(txns.get(txns.size()-1));      
-           
+      return Optional.of(txns.get(txns.size()-1));
+
    }
-   
-   
+
+
 //   @Transactional
 //   public Optional<Transaction> calculateCheckedBalancesOrig(long accountId, Optional<Transaction> startTransaction)
 //   {
@@ -195,8 +196,8 @@ public class BalanceService
 //      {
 //         return Optional.empty();
 //      }
-//      
-//      log.debug("calculateCheckedBalances: start: first id:{} final id:{} chkd bal: {}", 
+//
+//      log.debug("calculateCheckedBalances: start: first id:{} final id:{} chkd bal: {}",
 //      		chktxns.get(0).getSequence(),
 //      		chktxns.get(chktxns.size()-1).getSequence(),
 //      		chktxns.get(chktxns.size()-1).getCheckedBalance());
@@ -205,7 +206,7 @@ public class BalanceService
 //
 //      if(startTransaction.isPresent())
 //      {
-//      	// Search backwards for the first transaction before start transaction with a checked balance, 
+//      	// Search backwards for the first transaction before start transaction with a checked balance,
 //      	// ie. the seed transaction
 //      	// This balance is used as the start balance and the list adjusted to start at the next
 //      	// transaction after the seed transaction - usually it will be the start transaction
@@ -224,26 +225,26 @@ public class BalanceService
 //      	chktxns = subchktxns;
 //      }
 //
-//      log.debug("calculateCheckedBalances: adjusted for start txn: first id:{} final id:{} chkd bal: {}", 
+//      log.debug("calculateCheckedBalances: adjusted for start txn: first id:{} final id:{} chkd bal: {}",
 //      		chktxns.get(0).getSequence(),
 //      		chktxns.get(chktxns.size()-1).getSequence(),
 //      		chktxns.get(chktxns.size()-1).getCheckedBalance());
-//      
+//
 //      // Calculate the checked balances, only update to DB those balances
 //      // which have changed. Calling saveAll on the entire list causes all
-//      // records to be updated even when they haven't changed, which is quite slow. 
+//      // records to be updated even when they haven't changed, which is quite slow.
 //      List<Transaction> updtxns = new ArrayList<>();
 //      for(Transaction nxttxn : chktxns)
 //      {
 //         amt = Utils.getAmount(nxttxn);
-//         balance = balance.add(amt); 
+//         balance = balance.add(amt);
 //         if((nxttxn.getCheckedBalance() == null) || balance.compareTo(nxttxn.getCheckedBalance()) != 0)
 //         {
 //         	nxttxn.setCheckedBalance(balance);
 //         	updtxns.add(nxttxn);
 //         }
 //      }
-//      
+//
 //      if(!updtxns.isEmpty())
 //      {
 //      	transactionJpaRepository.saveAll(updtxns);

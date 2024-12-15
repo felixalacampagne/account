@@ -6,9 +6,10 @@ import {map} from 'rxjs/operators';
 import {environment} from '../../environments/environment';
 import { AccountItem } from '../model/accountitem.model';
 import { AccountDetail } from '../model/accountdetail.model';
-import { TransactionItem } from '../model/transaction.model';
+import { AddTransactionItem, TransactionItem } from '../model/transaction.model';
 import { Version } from '../model/version.model';
 import { StandingOrderItem } from '../model/standingorderitem.model';
+import { TfrAccountItem } from '../model/tfraccountitem.model';
 
 @Injectable()
 export class AccountService 
@@ -23,9 +24,11 @@ export class AccountService
    private listtxnsvc : string = "listtransaction/";
    private listchktxn : string = "listchecked/";
    private calcchkbal : string = "calcchecked/";
+   private accsfortfr : string = "accsfortfr/";
    private getchktxn  : string = "getchecked/";
    private addtxnsvc : string = "addtransaction";
    private updtxnsvc : string = "updatetransaction";
+   private deltxnsvc : string = "deletetransaction";
    private versionsvc : string = "version";
    private listsosvc : string = "liststandingorders";
    private standingorder : string = "standingorder/";
@@ -176,6 +179,13 @@ export class AccountService
       return this.http.get(url).pipe( map((res:any) => res));
    }
 
+   getAccountsForTransfer(a : AccountItem) : Observable<TfrAccountItem[]>
+   {
+      let url : string;
+      url = this.apiurl + this.accsfortfr + a.id;
+      return this.http.get(url).pipe( map((res:any) => res));
+   }
+
    getTransactions(a : AccountItem, p: number = 0) : Observable<TransactionItem[]>
    {
       let url : string;
@@ -184,7 +194,7 @@ export class AccountService
       return this.http.get(url).pipe( map((res:any) => res.transactions));
    }
 
-   addTransaction(txn : TransactionItem): Observable<string>
+   addTransaction(txn : AddTransactionItem): Observable<string>
    {
       let json : string;
       let url : string;
@@ -217,6 +227,22 @@ export class AccountService
         json = JSON.stringify(txn);
         url = this.apiurl + this.updtxnsvc;
         console.log("updateTransaction: PUTing to " + url + ": " + json);
+
+        var headers = new HttpHeaders();
+        headers = headers.set('Content-Type', 'application/json');
+        headers = headers.set("Accept", "text/plain");
+        
+        return this.http.put(url, json, {headers: headers,  responseType: 'text'}); 
+    }
+
+    deleteTransaction(txn : TransactionItem) : Observable<string>
+    {
+        let json : string;
+        let url : string;
+        let res;
+        json = JSON.stringify(txn);
+        url = this.apiurl + this.deltxnsvc;
+        console.log("deleteTransaction: PUTing to " + url + ": " + json);
 
         var headers = new HttpHeaders();
         headers = headers.set('Content-Type', 'application/json');

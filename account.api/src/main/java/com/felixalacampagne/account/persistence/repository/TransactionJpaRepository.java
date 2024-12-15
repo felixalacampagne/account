@@ -25,9 +25,13 @@ public interface TransactionJpaRepository extends JpaRepository<Transaction, Lon
    Optional<Transaction> findFirstByAccountIdOrderBySequenceDesc(long accountId); // latest
 
    List<Transaction> findByAccountIdOrderBySequenceAsc(long accountId); // sequence (normal) balance
+
+   // transaction previous to the given transaction (for balance calculation post transaction delete
+   Optional<Transaction> findFirstByAccountIdAndSequenceIsLessThanOrderBySequenceAsc(long accountId, long sequence);
+
    List<Transaction> findByAccountIdAndCheckedIsTrueOrderByDateAscSequenceAsc(long accountId); // checked balance calc
    List<Transaction> findByAccountIdOrderByDateAscSequenceAsc(long accountId); // sorted balance
-   
+
    List<Transaction> findByAccountIdAndCheckedIsTrueOrderByDateDescSequenceDesc(long accountId, Pageable pageable);
    Optional<Transaction> findFirstByAccountIdAndCheckedIsTrueAndCheckedBalanceIsNotNullOrderByDateDescSequenceDesc(long accountId);
 }
