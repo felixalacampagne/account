@@ -16,12 +16,15 @@ import com.felixalacampagne.account.persistence.entities.PhoneWithAccountProject
 public interface PhoneAccountJpaRepository extends JpaRepository<PhoneAccount, Long>
 {
 
-   // NB. is accountId is null then 'p.accountId != :exaccid' is false!
+   // NB. if accountId is null then 'p.accountId != :exaccid' is false so nulls are also excluded.
+   // the accountId is 0 for entries without an entry in Accounts
    @Query("SELECT p FROM PhoneAccount p where p.accountId != :exaccid and p.order not in (255) "
         + "order by p.order DESC, p.desc ASC" )
    List<PhoneAccount> findTransferAccounts(@Param("exaccid") Long excludeAccountId);
 
-   @Query("SELECT p as phoneAccount, a.accDesc as accDesc, a.accCode as accCode FROM PhoneAccount p LEFT JOIN Account a ON  p.accountId = a.accId where p.accountId != :exaccid and p.order not in (255) "
+   // This is used so that the Account desc is used instead of the values in PhoneAccount.
+   @Query("SELECT p as phoneAccount, a.accDesc as accDesc, a.accCode as accCode FROM PhoneAccount p LEFT JOIN Account a " 
+         + "ON  p.accountId = a.accId where p.accountId != :exaccid and p.order not in (255) "
          + "order by p.order DESC, p.desc ASC" )
    List<PhoneWithAccountProjection> findTransferAccountsWithAccount(@Param("exaccid") Long excludeAccountId);
 
@@ -29,7 +32,6 @@ public interface PhoneAccountJpaRepository extends JpaRepository<PhoneAccount, L
          + "FROM PhoneAccount p LEFT JOIN Account a ON  p.accountId = a.accId "
          + "where p.Id = :Id")
    Optional<PhoneWithAccountProjection> findPhoneWithAccountById(@Param("Id") Long id);
-
 
    // This does the same as findTransferAccountsWithAccount except the result contains objects with a sensible toString.
    // Since it is a lot harder to maintain, eg. updates in mutliple places and new equals/hashcode for each new field,

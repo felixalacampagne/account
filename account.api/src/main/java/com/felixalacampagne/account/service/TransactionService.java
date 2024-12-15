@@ -85,8 +85,6 @@ public class TransactionService
    public Optional<Transaction> getTransaction(long id)
    {
       connectionResurrector.ressurectConnection();
-
-      // Fingers crossed the magic works and this uses transaction.sequence
       return transactionJpaRepository.findById(id);
    }
 
@@ -94,7 +92,8 @@ public class TransactionService
    public void addPhoneAccountTransaction(Long phoneAccId, Transaction srcTxn, String communication)
    {
       Long srcaccid = srcTxn.getAccountId();
-      PhoneWithAccountProjection paproj = this.phoneAccountJpaRepository.findPhoneWithAccountById(phoneAccId).orElseThrow(() -> new AccountException("Phone account not found: " + phoneAccId));
+      PhoneWithAccountProjection paproj = this.phoneAccountJpaRepository.findPhoneWithAccountById(phoneAccId)
+                                              .orElseThrow(() -> new AccountException("Phone account not found: " + phoneAccId));
       PhoneAccount pa = paproj.getPhoneAccount();
       if(pa.getAccountId() > 0) // transfer is to a related account so must apply a 'reverse' transaction to it
       {

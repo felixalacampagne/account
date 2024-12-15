@@ -1,6 +1,6 @@
 package com.felixalacampagne.account.persistence.entities;
 
-// WARNING: defualt toString is not allowed. There is no way to define a toString
+// WARNING: default toString is not allowed. There is no way to define a toString
 // for the objects returned from a join query using an interface
 
 
