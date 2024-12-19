@@ -140,9 +140,49 @@
                   </div>
                   <select class="form-control form-control-sm" (change)="onChangeCptySelect($event)" [(ngModel)]="txTfrAccount" name="txTfrAccount" id="txTfrAccount" title="Correspondent account">
                      <option [ngValue]="null"></option>
-                     <option *ngFor="let trnAcc of transferAccounts" [ngValue]="trnAcc">{{trnAcc.cptyAccountNumber}} &nbsp; {{trnAcc.cptyAccountName}}</option>
+                     <option *ngFor="let trnAcc of transferAccounts" [ngValue]="trnAcc">{{ this.displayTfrAccountItem(trnAcc) }}</option>
                   </select>               
                </div>
+
+               <!-- dataliast doesn't quite do what I want, specifically it only provides the displayed value and not the
+                    data object which is not helpful unless it can be reparsed back into the object, which is a pain, it also
+                    doesn't limit the choices to those in the list (I think).
+                    It would be useful for the 'Type' which I would like to present a list of previous types or allow a new type
+               <div class="acc-modal-row">
+                  <div class="input-group-prepend">
+                     <span class="acc-modal-label" id="lbCpty">Counterparty account</span>
+                  </div>
+                  <input (change)="onChangeCptySelect($event)" [(ngModel)]="txTfrAccount" class="form-control" list="datalistOptions" name="tfraccDataList" id="tfraccDataList" placeholder="Type to search...">
+                  <datalist name="datalistOptions" id="datalistOptions">
+                     <option [ngValue]="null"></option>
+                     <option *ngFor="let trnAcc of transferAccounts" [ngValue]="trnAcc">{{ this.displayTfrAccountItem(trnAcc) }}</option>
+                  </datalist >               
+               </div>               
+               -->
+
+               <!-- 
+                  This is the start of a search of previous counterparties. 
+                  The idea is that it should display a list which overlays the form like a dropdown list does and selection
+                  from the list should populate the transfer fields.
+                  At the moment the list popsup in response to entered text but it moves everything around.
+                  Tried using 'a href="#"' but that caused the page to go away when the item is clicked.
+                  Tried using button, seemed to work except the colouring didn't work.
+                  UL/LI seems to work OK - could adjust the colour based on whether it is a 'shadow' account or external
+
+                  Still need to find a way to get it to overlay the stuff above and to go away when clicked.
+               -->
+               <div class="acc-modal-row">
+                  <div *ngIf="showTransferAccountSearchList()">
+                     <ul class="list-group">
+                        <li *ngFor="let trnAcc of filteredTfrAccs()" (click)="onSearchCptySelect(trnAcc)" class="list-group-item list-group-item-action list-group-item-primary">{{ this.displayTfrAccountItem(trnAcc) }}</li>
+                     </ul>
+                  </div>
+                  <div class="input-group-prepend">
+                     <span class="acc-modal-label" id="lbCpty">Counterparty account</span>
+                  </div>
+                  <input #searchQuery (input)="onSearchUpdated(searchQuery.value)" title="Counterparty search" name="txCpty" id="txCpty" type="text" class="form-control form-control-sm"  /> 
+               </div>
+
                <div class="acc-modal-row">
                   <div class="input-group-prepend">
                      <span class="acc-modal-label" id="lbCommunication">Communication</span>
