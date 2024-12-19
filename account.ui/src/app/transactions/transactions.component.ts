@@ -1,5 +1,5 @@
 // app/transactions/transactions.component.ts
-import { Component, OnInit, ChangeDetectorRef, ViewChild, Input, SimpleChanges } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, Input, SimpleChanges, computed, signal, WritableSignal } from '@angular/core';
 import { FormsModule} from '@angular/forms';
 import { CommonModule /*, DatePipe */ } from '@angular/common';
 import { NgbModal, ModalDismissReasons, NgbModalRef, NgbModule, NgbDateAdapter, NgbDateNativeAdapter} from '@ng-bootstrap/ng-bootstrap';
@@ -79,6 +79,7 @@ export class TransactionsComponent implements OnInit {
 
    activeaccount!: AccountItem; 
    transferAccounts!: TfrAccountItem[] | undefined;
+   filterTransferAccounts: TfrAccountItem[] | undefined; // filtered based on input in Counterparty?
    isTransfer: boolean = false;
    transactions: TransactionItem[] = [];
    checkTransaction: TransactionItem | undefined;
@@ -311,6 +312,7 @@ export class TransactionsComponent implements OnInit {
             else
             {
                this.transferAccounts = res;
+               this.initTfrAccSignal();            
             }
          },
          error: (err) => {
@@ -783,6 +785,7 @@ onChangeCptySelect(event : any)
 {
    // event content is not useful
    // the 'ngModel' fields has been updated with the clicked item
+   console.log("TransactionsComponent.onChangeCptySelect: event:" + JSON.stringify(event));
    console.log("TransactionsComponent.onChangeCptySelect: txTfrAccount:" + JSON.stringify(this.txTfrAccount));
    if(this.txTfrAccount)
    {
@@ -797,6 +800,29 @@ onChangeCptySelect(event : any)
       this.txCptyNumber = "";
    }
 }
+
+onSearchCptySelect(event : any)
+{
+   // event content is not useful
+   // the 'ngModel' fields has been updated with the clicked item
+   console.log("TransactionsComponent.onChangeCptySelect: event:" + JSON.stringify(event));
+   this.txTfrAccount = event;
+   if(this.txTfrAccount)
+   {
+      this.txCommunication = this.txTfrAccount.lastCommunication;
+      this.txCptyName = this.txTfrAccount.cptyAccountName;
+      this.txCptyNumber = this.txTfrAccount.cptyAccountNumber;
+   }
+   else
+   {
+      this.txCommunication = "";
+      this.txCptyName = "";
+      this.txCptyNumber = "";
+   }
+   return false;
+}
+
+
 
 onScanSuccess(decodedText: string, decodedResult: Html5QrcodeResult) {
   // handle the scanned code as you like, for example:
@@ -876,4 +902,34 @@ clearComment() {
   this.txComment = "";
 }
 
+private itemsS:WritableSignal<TfrAccountItem[]> = signal<TfrAccountItem[]>([]);
+searchQuery:WritableSignal<string> = signal<string>('');
+filteredTfrAccs = computed<TfrAccountItem[]>(() => 
+   {
+      const sq = this.searchQuery();
+      if(sq.length > 0)
+      {
+         return this.itemsS().filter(x => x.cptyAccountName.includes(sq));
+      }
+      return [];
+   });
+
+initTfrAccSignal() {
+   if(this.transferAccounts) {
+      this.itemsS.set(this.transferAccounts);
+   }
+}
+
+onSearchUpdated(sq: string) {
+  this.searchQuery.set(sq);
+}
+
+displayTfrAccountItem(tfracc : TfrAccountItem) : string
+{
+   return tfracc.cptyAccountNumber + "   " + tfracc.cptyAccountName;
+}
+showTransferAccountSearchList() 
+{
+   return (this.filteredTfrAccs().length > 0) && (this.filteredTfrAccs().length < 10) && (this.searchQuery().length > 0);
+}
 }
