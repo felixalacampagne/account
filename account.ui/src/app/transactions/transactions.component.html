@@ -173,7 +173,7 @@
                -->
                <div class="acc-modal-row">
                   <div *ngIf="showTransferAccountSearchList()">
-                     <ul class="list-group">
+                     <ul class="list-group" style="position: absolute; z-index: 999;">
                         <li *ngFor="let trnAcc of filteredTfrAccs()" (click)="onSearchCptySelect(trnAcc)" class="list-group-item list-group-item-action list-group-item-primary">{{ this.displayTfrAccountItem(trnAcc) }}</li>
                      </ul>
                   </div>
