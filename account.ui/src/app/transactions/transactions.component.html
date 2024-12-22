@@ -171,25 +171,20 @@
 
                   Still need to find a way to get it to overlay the stuff above and to go away when clicked.
                -->
+                
                <div class="acc-modal-row">
-                  <div #srchDropDown="ngbDropdown" ngbDropdown>
-                     <div  class="input-group">
-                        <div class="input-group-prepend">
-                           <span class="acc-modal-label" id="lbCpty" >Counterparty account S</span>
-                        </div>
-                        <input #searchQuery (input)="onSearchUpdated(searchQuery.value)" title="Counterparty search" name="txCpty" id="txCpty" type="text" class="form-control form-control-sm"  /> 
-                     </div>                      
-
+                  <div class="input-group-prepend">
+                        <span class="acc-modal-label" id="lbCpty" >Counterparty account S</span>
+                  </div>
+                  <input ngbDropdownAnchor #searchQuery (input)="onSearchUpdated(searchQuery.value)" title="Counterparty search" name="txCpty" id="txCpty" type="text" class="form-control form-control-sm"  /> 
+               </div>
+               <div #srchDropDown="ngbDropdown" ngbDropdown>
                   <div ngbDropdownMenu >
                      <ul class="list-group">
                         <li *ngFor="let trnAcc of filteredTfrAccs()" (click)="onSearchCptySelect(trnAcc)" ngbDropdownItem>{{ this.displayTfrAccountItem(trnAcc) }}</li>
                      </ul>
                   </div>
-                 
-               </div>
-
-            </div>
-
+               </div>  
 
                <div class="acc-modal-row">
                   <div class="input-group-prepend">
