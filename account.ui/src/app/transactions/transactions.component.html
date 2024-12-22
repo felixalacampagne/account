@@ -172,16 +172,24 @@
                   Still need to find a way to get it to overlay the stuff above and to go away when clicked.
                -->
                <div class="acc-modal-row">
-                  <div *ngIf="showTransferAccountSearchList()">
-                     <ul class="list-group" style="position: absolute; z-index: 999;">
-                        <li *ngFor="let trnAcc of filteredTfrAccs()" (click)="onSearchCptySelect(trnAcc)" class="list-group-item list-group-item-action list-group-item-primary">{{ this.displayTfrAccountItem(trnAcc) }}</li>
+                  <div #srchDropDown="ngbDropdown" ngbDropdown>
+                     <div  class="input-group">
+                        <div class="input-group-prepend">
+                           <span class="acc-modal-label" id="lbCpty" >Counterparty account S</span>
+                        </div>
+                        <input #searchQuery (input)="onSearchUpdated(searchQuery.value)" title="Counterparty search" name="txCpty" id="txCpty" type="text" class="form-control form-control-sm"  /> 
+                     </div>                      
+
+                  <div ngbDropdownMenu >
+                     <ul class="list-group">
+                        <li *ngFor="let trnAcc of filteredTfrAccs()" (click)="onSearchCptySelect(trnAcc)" ngbDropdownItem>{{ this.displayTfrAccountItem(trnAcc) }}</li>
                      </ul>
                   </div>
-                  <div class="input-group-prepend">
-                     <span class="acc-modal-label" id="lbCpty">Counterparty account</span>
-                  </div>
-                  <input #searchQuery (input)="onSearchUpdated(searchQuery.value)" title="Counterparty search" name="txCpty" id="txCpty" type="text" class="form-control form-control-sm"  /> 
+                 
                </div>
+
+            </div>
+
 
                <div class="acc-modal-row">
                   <div class="input-group-prepend">

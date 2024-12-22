@@ -2,7 +2,7 @@
 import { Component, OnInit, ChangeDetectorRef, ViewChild, Input, SimpleChanges, computed, signal, WritableSignal } from '@angular/core';
 import { FormsModule} from '@angular/forms';
 import { CommonModule /*, DatePipe */ } from '@angular/common';
-import { NgbModal, ModalDismissReasons, NgbModalRef, NgbModule, NgbDateAdapter, NgbDateNativeAdapter} from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, ModalDismissReasons, NgbModalRef, NgbModule, NgbDateAdapter, NgbDateNativeAdapter, NgbDropdown, NgbDropdownModule} from '@ng-bootstrap/ng-bootstrap';
 import { NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { DeviceDetectorService } from 'ngx-device-detector';
 
@@ -55,11 +55,12 @@ import { TfrAccountItem } from 'src/shared/model/tfraccountitem.model';
 @Component({
   selector: 'transactions',
   standalone: true,
-  imports: [FormsModule, CommonModule, NgbModule, RouterModule, RouterOutlet ],
+  imports: [FormsModule, CommonModule, NgbModule, RouterModule, RouterOutlet, NgbDropdownModule ],
   templateUrl: './transactions.component.html',
   styleUrls: ['../../sass/account-styles.scss', '../app.component.css', './transactions.component.css'],
   providers: [{provide: NgbDateParserFormatter, useClass: accountNgbDateParserFormatter},
-              { provide: NgbDateAdapter, useClass: NgbDateNativeAdapter }
+              { provide: NgbDateAdapter, useClass: NgbDateNativeAdapter },
+              NgbDropdown
   ]
 })
 
@@ -111,12 +112,16 @@ export class TransactionsComponent implements OnInit {
    public txnTypes: string[] = [];
    pageNumber: number = 0;
 
+   @ViewChild('srchDropDown', { read: NgbDropdown })
+   srchDropDown!: NgbDropdown;
    constructor(private accountService: AccountService,
       private cd: ChangeDetectorRef,
       // private datePipe: DatePipe,
       private modalService: NgbModal,
       private deviceService: DeviceDetectorService,
-      private datfmt : DateformatService)
+      private datfmt : DateformatService
+      // ,public srchDropDown: NgbDropdown
+    )
    {
       this.envName = environment.envName;
       this.txnTypes = this.accountService.txnTypes;
@@ -921,15 +926,30 @@ initTfrAccSignal() {
 }
 
 onSearchUpdated(sq: string) {
-  this.searchQuery.set(sq);
+   console.log("onSearchUpdated: sq:" + sq);
+   this.searchQuery.set(sq);
+
+   if(this.showTransferAccountSearchList())
+   {
+      this.displayDropdown();
+   }
 }
 
 displayTfrAccountItem(tfracc : TfrAccountItem) : string
 {
    return tfracc.cptyAccountNumber + "   " + tfracc.cptyAccountName;
 }
+
 showTransferAccountSearchList() 
 {
-   return (this.filteredTfrAccs().length > 0) && (this.filteredTfrAccs().length < 10) && (this.searchQuery().length > 0);
+   let canDisplay : boolean = (this.filteredTfrAccs().length > 0) && (this.filteredTfrAccs().length < 10) && (this.searchQuery().length > 0);
+   console.log("showTransferAccountSearchList: canDisplay:" + canDisplay);
+   return canDisplay
 }
+
+public displayDropdown(): void {
+   console.log("displayDropdown: open");
+   this.srchDropDown.open();
+ }
+ 
 }
