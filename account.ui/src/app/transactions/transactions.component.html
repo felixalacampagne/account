@@ -176,7 +176,13 @@
                   <div class="input-group-prepend">
                         <span class="acc-modal-label" id="lbCpty" >Counterparty account S</span>
                   </div>
-                  <input ngbDropdownAnchor #searchQuery (input)="onSearchUpdated(searchQuery.value)" title="Counterparty search" name="txCpty" id="txCpty" type="text" class="form-control form-control-sm"  /> 
+                  <input #searchQuery (input)="onSearchUpdated(searchQuery.value)" title="Counterparty search" name="txCpty" id="txCpty" type="text" class="form-control form-control-sm"  /> 
+                  <button
+                  type="button"
+                  class="btn btn-outline-primary me-2"
+                  id="dropdownManual"
+                  ngbDropdownAnchor
+                  (click)="this.showFullTfrList();"></button>
                </div>
                <div #srchDropDown="ngbDropdown" ngbDropdown>
                   <div ngbDropdownMenu >

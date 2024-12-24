@@ -914,10 +914,26 @@ filteredTfrAccs = computed<TfrAccountItem[]>(() =>
       const sq = this.searchQuery();
       if(sq.length > 0)
       {
-         return this.itemsS().filter(x => x.cptyAccountName.includes(sq));
+         console.log("compute: sq:" + sq);
+         return this.itemsS().filter(x => this.isTfrAccMatch(x, sq));
       }
       return [];
    });
+
+isTfrAccMatch(tfracc : TfrAccountItem, pattern : string) : boolean
+{
+   let match : boolean = false;
+   if(pattern == "*")
+   {
+      match = true;
+   }
+   else
+   {
+      let matchstr : string = (tfracc.cptyAccountNumber + " " + tfracc.cptyAccountName).toLowerCase();
+      match = matchstr.includes(pattern.toLowerCase());
+   }
+   return match;
+}
 
 initTfrAccSignal() {
    if(this.transferAccounts) {
@@ -929,10 +945,8 @@ onSearchUpdated(sq: string) {
    console.log("onSearchUpdated: sq:" + sq);
    this.searchQuery.set(sq);
 
-   if(this.showTransferAccountSearchList())
-   {
-      this.displayDropdown();
-   }
+   this.displayDropdown(this.showTransferAccountSearchList());
+
 }
 
 displayTfrAccountItem(tfracc : TfrAccountItem) : string
@@ -942,14 +956,31 @@ displayTfrAccountItem(tfracc : TfrAccountItem) : string
 
 showTransferAccountSearchList() 
 {
-   let canDisplay : boolean = (this.filteredTfrAccs().length > 0) && (this.filteredTfrAccs().length < 10) && (this.searchQuery().length > 0);
+   let canDisplay : boolean = (this.filteredTfrAccs().length > 0) 
+                              && ((this.filteredTfrAccs().length < 10) || (this.searchQuery() == "*") )
+                              ;
    console.log("showTransferAccountSearchList: canDisplay:" + canDisplay);
    return canDisplay
 }
 
-public displayDropdown(): void {
-   console.log("displayDropdown: open");
-   this.srchDropDown.open();
- }
- 
+public displayDropdown(open : boolean): void 
+{
+   console.log("displayDropdown: open:" + open);
+   if(open)
+   {
+      this.srchDropDown.open();
+   }
+   else
+   {
+      this.srchDropDown.close();   
+   }
+}
+
+public showFullTfrList(): void 
+{
+   console.log("showFullTfrList: open");
+   this.onSearchUpdated("*");
+}
+
+
 }
