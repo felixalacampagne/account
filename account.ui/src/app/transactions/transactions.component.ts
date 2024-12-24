@@ -18,6 +18,7 @@ import { Html5QrcodeResult } from 'html5-qrcode/esm/core';
 import { RouterModule, RouterOutlet } from '@angular/router'; // for 'routerlink is not a property of button'
 import { TxnDelConfirmDialog } from './txndel-confirm-modal.component';
 import { TfrAccountItem } from 'src/shared/model/tfraccountitem.model';
+import { debounceTime, distinctUntilChanged, map, Observable, OperatorFunction } from 'rxjs';
 
 // Getting the phoneaccount list to look acceptable is going to be tricky. Apparently the select...option can't
 // be formatted so making it into a nicely formatted list of name and number is not going to work. 
@@ -80,6 +81,7 @@ export class TransactionsComponent implements OnInit {
 
    activeaccount!: AccountItem; 
    transferAccounts!: TfrAccountItem[] | undefined;
+   typahtfraccs: TfrAccountItem[] = [];
    filterTransferAccounts: TfrAccountItem[] | undefined; // filtered based on input in Counterparty?
    isTransfer: boolean = false;
    transactions: TransactionItem[] = [];
@@ -317,6 +319,7 @@ export class TransactionsComponent implements OnInit {
             else
             {
                this.transferAccounts = res;
+               this.typahtfraccs = this.transferAccounts; 
                this.initTfrAccSignal();            
             }
          },
@@ -471,7 +474,8 @@ resetTransfer()
 {
    this.isTransfer = false;
    this.txTfrAccount = undefined; 
-   this.transferAccounts = undefined;   
+   this.transferAccounts = undefined; 
+   this.typahtfraccs = [];  
    this.txCommunication = '';
    this.txCptyName = '';
    this.txCptyNumber = '';
@@ -951,7 +955,13 @@ onSearchUpdated(sq: string) {
 
 displayTfrAccountItem(tfracc : TfrAccountItem) : string
 {
-   return tfracc.cptyAccountNumber + "   " + tfracc.cptyAccountName;
+   let s : string = "";
+   if(tfracc)
+   {
+      s = tfracc.cptyAccountNumber + "   " + tfracc.cptyAccountName;
+   }
+   console.log("displayTfrAccountItem: s:" + s);
+   return s;
 }
 
 showTransferAccountSearchList() 
@@ -982,5 +992,19 @@ public showFullTfrList(): void
    this.onSearchUpdated("*");
 }
 
+// Typeahead functions
+search: OperatorFunction<string, readonly TfrAccountItem[]> = (text$: Observable<string>) =>
+   text$.pipe(
+      debounceTime(200),
+      distinctUntilChanged(),
+      map((term) =>
+         term.length < 2 ? [] : this.typahtfraccs.filter((v) => this.isTfrAccMatch(v,term)),
+      ),
+   );
 
-}
+formatter = (x: TfrAccountItem) => // appears to be triggered when item in list is selected
+   {
+      this.onSearchCptySelect(x);
+      return x.cptyAccountName;
+   };   
+} // End class
