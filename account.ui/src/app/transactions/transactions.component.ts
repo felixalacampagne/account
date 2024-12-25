@@ -306,15 +306,16 @@ export class TransactionsComponent implements OnInit {
    canShowTransferAccounts() {
       return((this.isTransfer == true) && this.transferAccounts);
    }
+
    loadTransferAccounts() {
       const id : number = this.activeaccount.id;
-      console.log("TransactionsComponent.showTransferAccounts: Starting: id " + id);
+      // console.log("TransactionsComponent.loadTransferAccounts: Starting: id " + id);
       this.inprogress = true;   
       this.accountService.getAccountsForTransfer(this.activeaccount).subscribe({
          next: (res) => {
             if(!res)
             {
-              console.log("TransactionsComponent.showTransferAccounts: variable is not initialized");
+              console.log("TransactionsComponent.loadTransferAccounts: variable is not initialized");
             }
             else
             {
@@ -324,16 +325,16 @@ export class TransactionsComponent implements OnInit {
             }
          },
          error: (err) => {
-            console.log("TransactionsComponent.showTransferAccounts: An error occured during subscribe: " + JSON.stringify(err, null, 2));
+            console.log("TransactionsComponent.loadTransferAccounts: An error occured during subscribe: " + JSON.stringify(err, null, 2));
             this.inprogress = false; // error or compete NOT error then complete
         } ,
          complete: () => {
-            console.log("TransactionsComponent.showTransferAccounts: completed");
+            // console.log("TransactionsComponent.loadTransferAccounts: completed");
             this.inprogress = false;
          }
        });
     
-      console.log("TransactionsComponent.showTransferAccounts:Finished");      
+      // console.log("TransactionsComponent.loadTransferAccounts:Finished");      
    }
    
    getCheckedBalance(acc : AccountItem)
@@ -367,7 +368,7 @@ export class TransactionsComponent implements OnInit {
 
 loadTransactions(acc : AccountItem, page: number = 0)
 {
-   console.log("TransactionsComponent.loadTransactions: Starting: " + JSON.stringify(acc, null, 2));
+   // console.log("TransactionsComponent.loadTransactions: Starting: " + JSON.stringify(acc, null, 2));
    if(acc.id < 0)
       return;
       
@@ -382,18 +383,18 @@ loadTransactions(acc : AccountItem, page: number = 0)
               this.activeaccount = acc;
               this.transactions = res;
               this.pageNumber = page;
-              console.log("TransactionsComponent.loadTransactions: transactions contains " + this.transactions.length + " items.");
+            //   console.log("TransactionsComponent.loadTransactions: transactions contains " + this.transactions.length + " items.");
             }
           },
       error: (err)=>{
           console.log("TransactionsComponent.loadTransactions: An error occured during loadTransactions subscribe: " + JSON.stringify(err, null, 2));
           } ,
       complete: ()=>{
-         console.log("TransactionsComponent.loadTransactions: loadTransactions loading completed");
+         // console.log("TransactionsComponent.loadTransactions: loadTransactions loading completed");
       }
    });
 
-   console.log("TransactionsComponent.loadTransactions:Finished");
+   // console.log("TransactionsComponent.loadTransactions:Finished");
 }
 
 nextPage() 
@@ -503,9 +504,15 @@ addtransaction()
  
    if(this.canShowTransferAccounts()) // Only add these if 'Transfer' mode is enabled
    {
-      if(this.txTfrAccount)
+      // with 'typeahead' can't detect when no match is selected so must rely on
+      // the cpty account input value matching the value in txTfrAccount 
+      if(this.txTfrAccount && (this.txTfrAccount.cptyAccountName == this.txCptyName))
       {
          newent.transferAccount = this.txTfrAccount.id;
+      }
+      else
+      {
+         this.txTfrAccount = undefined;
       }
       newent.communication = this.txCommunication;
       newent.cptyAccount = this.txCptyName;
@@ -960,7 +967,7 @@ displayTfrAccountItem(tfracc : TfrAccountItem) : string
    {
       s = tfracc.cptyAccountNumber + "   " + tfracc.cptyAccountName;
    }
-   console.log("displayTfrAccountItem: s:" + s);
+   // console.log("displayTfrAccountItem: s:" + s);
    return s;
 }
 

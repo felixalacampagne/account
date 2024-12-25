@@ -152,13 +152,13 @@
                   <div class="input-group-prepend">
                      <span class="acc-modal-label" id="lbCptyTA" >Counterparty name</span>
                   </div>                  
-                  <input  [(ngModel)]="transferAccounts" 
+                  <input  [(ngModel)]="txCptyName" 
                           [ngbTypeahead]="search"
                           [resultTemplate]="rt"
                           [inputFormatter]="formatter"
                           [selectOnExact]="true" 
                           [editable]="true"
-                          id="typeahead-basic" name="typeahead-basic" type="text" class="form-control form-control-sm" />
+                          id="txCptyName" name="txCptyName" type="text" class="form-control form-control-sm" />
 
                </div>
 
