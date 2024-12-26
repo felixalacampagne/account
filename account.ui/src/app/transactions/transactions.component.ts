@@ -68,7 +68,7 @@ export class TransactionsComponent implements OnInit {
    txComment: string = '';
    txAmount: string = '';
    txCommunication : string = '';
-   txCptyName: string = '';   // WARNING: can be TfrAccountItem selected from search list!!
+   txCptyName: string | TfrAccountItem = '';   // WARNING: can be TfrAccountItem selected from search list!!
    txCptyNumber: string = '';
    closeResult: string = '';
    html5QrcodeScanner: Html5QrcodeScanner | undefined; // Only defined while a scan is being performed
@@ -489,24 +489,26 @@ addtransaction()
       // or the object selected from the list.
       // Of course there is no straightforward to check if txCptyName is an instance of TfrAccountItem
       // so must simply hope that it is only set to a TfrAccountItem or a string.
-      // TODO: Might need to allow for undefined txCptyName!
       console.log("addtransaction: type of txCptyName:" + typeof(this.txCptyName)); // gives string or object
-      //if(this.txTfrAccount && this.isMatchAccNumber(this.txTfrAccount, this.txCptyName))
-      if(typeof(this.txCptyName) != 'string')
+      console.log("addtransaction: instanceof txCptyName:" + (this.txCptyName instanceof TfrAccountItem)); // gives false when TfrAccountItem
+      if(this.txCptyName)
       {
-         let tfracc: TfrAccountItem = this.txCptyName as TfrAccountItem;
-         newent.cptyAccount = tfracc.cptyAccountName;
-
-         // Only use the transferaccount if the account number entered in the field matches the tfraccount number
-         // otherwise ignore the transfer account 
-         if(this.isMatchAccNumber(tfracc, this.txCptyNumber))
+         if(typeof(this.txCptyName) != 'string')
          {
-            newent.transferAccount = tfracc.id;
+            let tfracc: TfrAccountItem = this.txCptyName as TfrAccountItem;
+            newent.cptyAccount = tfracc.cptyAccountName;
+
+            // Only use the transferaccount if the account number entered in the field matches the tfraccount number
+            // otherwise ignore the transfer account 
+            if(this.isMatchAccNumber(tfracc, this.txCptyNumber))
+            {
+               newent.transferAccount = tfracc.id;
+            }
          }
-      }
-      else
-      {
-         newent.cptyAccount = this.txCptyName;
+         else
+         {
+            newent.cptyAccount = this.txCptyName;
+         }
       }
       newent.communication = this.txCommunication;
       newent.cptyAccountNumber = this.txCptyNumber;
