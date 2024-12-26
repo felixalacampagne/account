@@ -20,43 +20,13 @@ import { TxnDelConfirmDialog } from './txndel-confirm-modal.component';
 import { TfrAccountItem } from 'src/shared/model/tfraccountitem.model';
 import { debounceTime, distinctUntilChanged, map, Observable, OperatorFunction } from 'rxjs';
 
-// Getting the phoneaccount list to look acceptable is going to be tricky. Apparently the select...option can't
-// be formatted so making it into a nicely formatted list of name and number is not going to work. 
-// Bootstrap has a 'dropdown' but inevitably the examples for it really suck and offer no explanation of how
-// to get the app to respond to selection of an item in the list. The examples also use UL/LI and A which
-// doesn't seem to be formattable into columns either. I did find an SO post which sort of displays items 
-// in columns but still no clue how to select one of the items in the list. Plus the list appear in a scrollable
-// window as it is quite long... would be nice to have a box to type into which scrolls to the first matching account.
-// Obviously given how difficult it is to get basic things to work the chances of this happening are remote!
-// This is the html using the BS dropdown:
-// <div class="acc-modal-row">
-// <div ngbDropdown class="d-inline-block">
-//    <button class="btn btn-outline-primary" id="dropdownBasic1" ngbDropdownToggle>Counterparty accounts</button>
-//    <div ngbDropdownMenu aria-labelledby="dropdownBasic1" style="width: 600px;">
-//      <div ngbDropdownItem class="d-flex justify-content-between">
-//        <div></div>
-//        <div></div>
-//      </div>
-//      <div *ngFor="let trnAcc of transferAccounts" class="d-flex justify-content-between">
-//        <div>
-//          {{trnAcc.cptyAccountName}}
-//        </div>
-//        <div>
-//          {{trnAcc.cptyAccountNumber}}
-//        </div>
-//      </div>
-//    </div>
-//  </div>
-// </div>
-// const dateFormatJson: string = 'yyyy-MM-dd';
-
 // WARNING: 'standalone: true' means the component must not be put in app.module and all imports must be duplicated
 // in the imports sections of @Component otherwise many inexplicable errors will occur, eg.
 // NG8002: Can't bind to 'ngModel' since it isn't a known property of 'select'
 @Component({
   selector: 'transactions',
   standalone: true,
-  imports: [FormsModule, CommonModule, NgbModule, RouterModule, RouterOutlet, NgbDropdownModule ],
+  imports: [FormsModule, CommonModule, NgbModule, RouterModule, NgbDropdownModule ],
   templateUrl: './transactions.component.html',
   styleUrls: ['../../sass/account-styles.scss', '../app.component.css', './transactions.component.css'],
   providers: [{provide: NgbDateParserFormatter, useClass: accountNgbDateParserFormatter},
@@ -97,11 +67,9 @@ export class TransactionsComponent implements OnInit {
    txType: string;
    txComment: string = '';
    txAmount: string = '';
-   txTfrAccount: TfrAccountItem | undefined;
    txCommunication : string = '';
-   txCptyName: string = '';
+   txCptyName: string = '';   // WARNING: can be TfrAccountItem selected from search list!!
    txCptyNumber: string = '';
-   txPastearea: string = '';
    closeResult: string = '';
    html5QrcodeScanner: Html5QrcodeScanner | undefined; // Only defined while a scan is being performed
    desktopDisplay: boolean = false;
@@ -291,7 +259,7 @@ export class TransactionsComponent implements OnInit {
       if(this.isTransfer)
       {
          this.isTransfer = false;
-         this.txTfrAccount = undefined;
+         // this.txTfrAccount = undefined;
       }
       else
       {
@@ -444,42 +412,54 @@ addTransactionToDB(txn :AddTransactionItem)
   this.inprogress = true;
   this.accountService.addTransaction(txn).subscribe( {
       next: (res)=>{
-          console.log("TransactionsComponent.addTransactionToDB: Response: " + res);
+         //  console.log("TransactionsComponent.addTransactionToDB: Response: " + res);
           // Must wait for add to complete before loading new transaction list
           this.loadTransactions(this.activeaccount);
           // Reset amount to prevent double entry
           this.txAmount = '';
-          this.txPastearea = '';
 
-         // If a transfer was done then the last communication might have been updated.
+          // If a transfer was done then the last communication might have been updated.
          // Only way to refresh the list at the moment is to reset it...
-         if(this.txTfrAccount)
-         {
-            this.resetTransfer();           
-         }
+         this.resetTransfer();           
       },
       error: (err)=>{
           console.log("TransactionsComponent.addTransactionToDB: An error occured during addTransactionToDB subscribe:" + JSON.stringify(err));
           this.inprogress = false; // error or compete NOT error then complete
       } ,
       complete: ()=>{
-         console.log("TransactionsComponent.addTransactionToDB: completed");
+         // console.log("TransactionsComponent.addTransactionToDB: completed");
          this.inprogress = false;
       }
    });
 
-  console.log("TransactionsComponent.addTransactionToDB:Finished");
+//   console.log("TransactionsComponent.addTransactionToDB:Finished");
 }
 
 resetTransfer()
 {
    this.isTransfer = false;
-   this.txTfrAccount = undefined; 
    this.transferAccounts = undefined; 
    this.typahtfraccs = [];  
    this.txCommunication = '';
    this.txCptyName = '';
    this.txCptyNumber = '';
+}
+
+isMatchAccNumber(tfracc: TfrAccountItem, accnum: string) : boolean
+{
+   // JSON.stringify(accnum)
+   // console.log("isMatchAccNumber: tfracc:" + JSON.stringify(tfracc) + " accnum:" + JSON.stringify(accnum));
+   let match: boolean = false;
+   if(accnum && tfracc && tfracc.cptyAccountNumber)
+   {
+      let canonpattern = /\s/g;
+      let canonstr = accnum.replace(canonpattern, "");
+      let canontfrnum = tfracc.cptyAccountNumber.replace(canonpattern,"");
+      match = (canontfrnum == canonstr);
+      // console.log("isMatchAccNumber: canontfrnum:" + canontfrnum + " canonstr:" + canonstr + " match:" + match);
+   }
+   // console.log("isMatchAccNumber: tfraccnum:" + tfracc.cptyAccountNumber + " accnum:" + accnum + " match:" + match);
+   return match
 }
 
 addtransaction()
@@ -504,24 +484,34 @@ addtransaction()
  
    if(this.canShowTransferAccounts()) // Only add these if 'Transfer' mode is enabled
    {
-      // with 'typeahead' can't detect when no match is selected so must rely on
-      // the cpty account input value matching the value in txTfrAccount 
-      if(this.txTfrAccount && (this.txTfrAccount.cptyAccountName == this.txCptyName))
+      // WARNING: with 'typeahead' the 'model' value completly ignores the 'type' assigned to the 
+      // model variable (txCptyName) and sets it to the string entered into the input field 
+      // or the object selected from the list.
+      // Of course there is no straightforward to check if txCptyName is an instance of TfrAccountItem
+      // so must simply hope that it is only set to a TfrAccountItem or a string.
+      // TODO: Might need to allow for undefined txCptyName!
+      console.log("addtransaction: type of txCptyName:" + typeof(this.txCptyName)); // gives string or object
+      //if(this.txTfrAccount && this.isMatchAccNumber(this.txTfrAccount, this.txCptyName))
+      if(typeof(this.txCptyName) != 'string')
       {
-         newent.transferAccount = this.txTfrAccount.id;
+         let tfracc: TfrAccountItem = this.txCptyName as TfrAccountItem;
+         newent.cptyAccount = tfracc.cptyAccountName;
+
+         // Only use the transferaccount if the account number entered in the field matches the tfraccount number
+         // otherwise ignore the transfer account 
+         if(this.isMatchAccNumber(tfracc, this.txCptyNumber))
+         {
+            newent.transferAccount = tfracc.id;
+         }
       }
       else
       {
-         this.txTfrAccount = undefined;
+         newent.cptyAccount = this.txCptyName;
       }
       newent.communication = this.txCommunication;
-      newent.cptyAccount = this.txCptyName;
       newent.cptyAccountNumber = this.txCptyNumber;
    }
-   console.log("Date: " + newent.date);
-   console.log("Type: " + newent.type);
-   console.log("Comment: " + newent.comment);;
-   console.log("Amount: " + newent.amount);  
+   // console.log("Date: " + newent.date + "Type: " + newent.type + "Comment: " + newent.comment + "Amount: " + newent.amount);  
    this.addTransactionToDB(newent); 
 }
 
@@ -546,7 +536,6 @@ delTransactionToDB(txn : TransactionItem)
            this.loadTransactions(this.activeaccount, this.pageNumber);
            // Reset amount to prevent double entry
            this.txAmount = '';
-           this.txPastearea = '';
            },
        error: (err)=>{
            console.log("delTransactionToDB.updTransactionToDB: An error occured during updTransactionToDB subscribe:" + JSON.stringify(err));
@@ -572,7 +561,7 @@ updTransactionToDB(txn : TransactionItem, showcheckedbal: boolean)
          this.loadTransactions(this.activeaccount, this.pageNumber);
          // Reset amount to prevent double entry
          this.txAmount = '';
-         this.txPastearea = '';
+
          if(showcheckedbal)
          {
             this.getCheckedBalance(this.activeaccount);
@@ -797,37 +786,17 @@ onPasteComm(event: ClipboardEvent)
    this.onPasteUpd(event);
 }
 
-onChangeCptySelect(event : any)
+onSearchCptySelect(item : TfrAccountItem)
 {
    // event content is not useful
    // the 'ngModel' fields has been updated with the clicked item
-   console.log("TransactionsComponent.onChangeCptySelect: event:" + JSON.stringify(event));
-   console.log("TransactionsComponent.onChangeCptySelect: txTfrAccount:" + JSON.stringify(this.txTfrAccount));
-   if(this.txTfrAccount)
-   {
-      this.txCommunication = this.txTfrAccount.lastCommunication;
-      this.txCptyName = this.txTfrAccount.cptyAccountName;
-      this.txCptyNumber = this.txTfrAccount.cptyAccountNumber;
-   }
-   else
-   {
-      this.txCommunication = "";
-      this.txCptyName = "";
-      this.txCptyNumber = "";
-   }
-}
+   console.log("TransactionsComponent.onChangeCptySelect: event:" + JSON.stringify(item));
 
-onSearchCptySelect(event : any)
-{
-   // event content is not useful
-   // the 'ngModel' fields has been updated with the clicked item
-   console.log("TransactionsComponent.onChangeCptySelect: event:" + JSON.stringify(event));
-   this.txTfrAccount = event;
-   if(this.txTfrAccount)
+   if(item)
    {
-      this.txCommunication = this.txTfrAccount.lastCommunication;
-      this.txCptyName = this.txTfrAccount.cptyAccountName;
-      this.txCptyNumber = this.txTfrAccount.cptyAccountNumber;
+      this.txCommunication = item.lastCommunication;
+      this.txCptyName = item.cptyAccountName;
+      this.txCptyNumber = item.cptyAccountNumber;
    }
    else
    {
@@ -1013,5 +982,5 @@ formatter = (x: TfrAccountItem) => // appears to be triggered when item in list 
    {
       this.onSearchCptySelect(x);
       return x.cptyAccountName;
-   };   
+   };    
 } // End class
