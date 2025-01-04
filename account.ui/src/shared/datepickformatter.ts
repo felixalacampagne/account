@@ -113,20 +113,20 @@ constructor(private datePipe: DatePipe,
    {
       let d : Date = new Date();
       
-      console.log("accountNgbDateParserFormatter.parse: value=" + value);
+      // console.log("accountNgbDateParserFormatter.parse: value=" + value);
       if (value) 
       {
          d = this.datfmt.parseDateString(value);
       }
       let n : NgbDateStruct = {day: d.getDate(), month: d.getMonth() + 1, year: d.getFullYear()};
-      console.log("accountNgbDateParserFormatter.parse: ret=" + JSON.stringify(n, null, 2));
+      // console.log("accountNgbDateParserFormatter.parse: ret=" + JSON.stringify(n, null, 2));
       return n;
    }
 
    format(ngdate: NgbDateStruct): string 
    {
       let d : Date;
-      console.log("accountNgbDateParserFormatter.format: date=" + JSON.stringify(ngdate, null, 2));
+      // console.log("accountNgbDateParserFormatter.format: date=" + JSON.stringify(ngdate, null, 2));
       if(ngdate == null)
       {
          d = new Date();
@@ -136,8 +136,8 @@ constructor(private datePipe: DatePipe,
          d = new Date(ngdate.year, (ngdate.month) - 1, ngdate.day);
       }
       let ret : string;
-      ret = this.datfmt.pickerFormat(d); // this.datePipe.transform(d, 'dd/MM/yyyy') ?? '';
-      console.log("accountNgbDateParserFormatter.format: ret=" + ret);
+      ret = this.datfmt.pickerFormat(d);
+      // console.log("accountNgbDateParserFormatter.format: ret=" + ret);
       return ret;
    }
 }

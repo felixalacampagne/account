@@ -138,7 +138,7 @@ datefmt : string [];
 
    getDateFormatString(lang = 'default') :string[] {
       const formatObj : Intl.DateTimeFormatPart [] = new Intl.DateTimeFormat(lang).formatToParts(new Date());
-      console.log("getDateFormatString: formatObj:" + JSON.stringify(formatObj, null, 2));
+      // console.log("getDateFormatString: formatObj:" + JSON.stringify(formatObj, null, 2));
       return formatObj
         .filter(o => {
             switch (o.type) 

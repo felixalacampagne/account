@@ -1,8 +1,8 @@
 // app/transactions/transactions.component.ts
-import { Component, OnInit, ChangeDetectorRef, ViewChild, Input, SimpleChanges } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, Input, SimpleChanges, computed, signal, WritableSignal } from '@angular/core';
 import { FormsModule} from '@angular/forms';
 import { CommonModule /*, DatePipe */ } from '@angular/common';
-import { NgbModal, ModalDismissReasons, NgbModalRef, NgbModule, NgbDateAdapter, NgbDateNativeAdapter} from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, ModalDismissReasons, NgbModalRef, NgbModule, NgbDateAdapter, NgbDateNativeAdapter, NgbDropdown, NgbDropdownModule} from '@ng-bootstrap/ng-bootstrap';
 import { NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { DeviceDetectorService } from 'ngx-device-detector';
 
@@ -18,36 +18,7 @@ import { Html5QrcodeResult } from 'html5-qrcode/esm/core';
 import { RouterModule, RouterOutlet } from '@angular/router'; // for 'routerlink is not a property of button'
 import { TxnDelConfirmDialog } from './txndel-confirm-modal.component';
 import { TfrAccountItem } from 'src/shared/model/tfraccountitem.model';
-
-// Getting the phoneaccount list to look acceptable is going to be tricky. Apparently the select...option can't
-// be formatted so making it into a nicely formatted list of name and number is not going to work. 
-// Bootstrap has a 'dropdown' but inevitably the examples for it really suck and offer no explanation of how
-// to get the app to respond to selection of an item in the list. The examples also use UL/LI and A which
-// doesn't seem to be formattable into columns either. I did find an SO post which sort of displays items 
-// in columns but still no clue how to select one of the items in the list. Plus the list appear in a scrollable
-// window as it is quite long... would be nice to have a box to type into which scrolls to the first matching account.
-// Obviously given how difficult it is to get basic things to work the chances of this happening are remote!
-// This is the html using the BS dropdown:
-// <div class="acc-modal-row">
-// <div ngbDropdown class="d-inline-block">
-//    <button class="btn btn-outline-primary" id="dropdownBasic1" ngbDropdownToggle>Counterparty accounts</button>
-//    <div ngbDropdownMenu aria-labelledby="dropdownBasic1" style="width: 600px;">
-//      <div ngbDropdownItem class="d-flex justify-content-between">
-//        <div></div>
-//        <div></div>
-//      </div>
-//      <div *ngFor="let trnAcc of transferAccounts" class="d-flex justify-content-between">
-//        <div>
-//          {{trnAcc.cptyAccountName}}
-//        </div>
-//        <div>
-//          {{trnAcc.cptyAccountNumber}}
-//        </div>
-//      </div>
-//    </div>
-//  </div>
-// </div>
-// const dateFormatJson: string = 'yyyy-MM-dd';
+import { debounceTime, distinctUntilChanged, map, Observable, OperatorFunction } from 'rxjs';
 
 // WARNING: 'standalone: true' means the component must not be put in app.module and all imports must be duplicated
 // in the imports sections of @Component otherwise many inexplicable errors will occur, eg.
@@ -55,11 +26,12 @@ import { TfrAccountItem } from 'src/shared/model/tfraccountitem.model';
 @Component({
   selector: 'transactions',
   standalone: true,
-  imports: [FormsModule, CommonModule, NgbModule, RouterModule, RouterOutlet ],
+  imports: [FormsModule, CommonModule, NgbModule, RouterModule, NgbDropdownModule ],
   templateUrl: './transactions.component.html',
   styleUrls: ['../../sass/account-styles.scss', '../app.component.css', './transactions.component.css'],
   providers: [{provide: NgbDateParserFormatter, useClass: accountNgbDateParserFormatter},
-              { provide: NgbDateAdapter, useClass: NgbDateNativeAdapter }
+              { provide: NgbDateAdapter, useClass: NgbDateNativeAdapter },
+              NgbDropdown
   ]
 })
 
@@ -79,6 +51,8 @@ export class TransactionsComponent implements OnInit {
 
    activeaccount!: AccountItem; 
    transferAccounts!: TfrAccountItem[] | undefined;
+   typahtfraccs: TfrAccountItem[] = [];
+   filterTransferAccounts: TfrAccountItem[] | undefined; // filtered based on input in Counterparty?
    isTransfer: boolean = false;
    transactions: TransactionItem[] = [];
    checkTransaction: TransactionItem | undefined;
@@ -93,11 +67,9 @@ export class TransactionsComponent implements OnInit {
    txType: string;
    txComment: string = '';
    txAmount: string = '';
-   txTfrAccount: TfrAccountItem | undefined;
    txCommunication : string = '';
-   txCptyName: string = '';
+   txCptyName: string | TfrAccountItem = '';   // WARNING: can be TfrAccountItem selected from search list!!
    txCptyNumber: string = '';
-   txPastearea: string = '';
    closeResult: string = '';
    html5QrcodeScanner: Html5QrcodeScanner | undefined; // Only defined while a scan is being performed
    desktopDisplay: boolean = false;
@@ -110,12 +82,16 @@ export class TransactionsComponent implements OnInit {
    public txnTypes: string[] = [];
    pageNumber: number = 0;
 
+   @ViewChild('srchDropDown', { read: NgbDropdown })
+   srchDropDown!: NgbDropdown;
    constructor(private accountService: AccountService,
       private cd: ChangeDetectorRef,
       // private datePipe: DatePipe,
       private modalService: NgbModal,
       private deviceService: DeviceDetectorService,
-      private datfmt : DateformatService)
+      private datfmt : DateformatService
+      // ,public srchDropDown: NgbDropdown
+    )
    {
       this.envName = environment.envName;
       this.txnTypes = this.accountService.txnTypes;
@@ -283,7 +259,7 @@ export class TransactionsComponent implements OnInit {
       if(this.isTransfer)
       {
          this.isTransfer = false;
-         this.txTfrAccount = undefined;
+         // this.txTfrAccount = undefined;
       }
       else
       {
@@ -298,32 +274,35 @@ export class TransactionsComponent implements OnInit {
    canShowTransferAccounts() {
       return((this.isTransfer == true) && this.transferAccounts);
    }
+
    loadTransferAccounts() {
       const id : number = this.activeaccount.id;
-      console.log("TransactionsComponent.showTransferAccounts: Starting: id " + id);
+      // console.log("TransactionsComponent.loadTransferAccounts: Starting: id " + id);
       this.inprogress = true;   
       this.accountService.getAccountsForTransfer(this.activeaccount).subscribe({
          next: (res) => {
             if(!res)
             {
-              console.log("TransactionsComponent.showTransferAccounts: variable is not initialized");
+              console.log("TransactionsComponent.loadTransferAccounts: variable is not initialized");
             }
             else
             {
                this.transferAccounts = res;
+               this.typahtfraccs = this.transferAccounts; 
+               this.initTfrAccSignal();            
             }
          },
          error: (err) => {
-            console.log("TransactionsComponent.showTransferAccounts: An error occured during subscribe: " + JSON.stringify(err, null, 2));
+            console.log("TransactionsComponent.loadTransferAccounts: An error occured during subscribe: " + JSON.stringify(err, null, 2));
             this.inprogress = false; // error or compete NOT error then complete
         } ,
          complete: () => {
-            console.log("TransactionsComponent.showTransferAccounts: completed");
+            // console.log("TransactionsComponent.loadTransferAccounts: completed");
             this.inprogress = false;
          }
        });
     
-      console.log("TransactionsComponent.showTransferAccounts:Finished");      
+      // console.log("TransactionsComponent.loadTransferAccounts:Finished");      
    }
    
    getCheckedBalance(acc : AccountItem)
@@ -357,7 +336,7 @@ export class TransactionsComponent implements OnInit {
 
 loadTransactions(acc : AccountItem, page: number = 0)
 {
-   console.log("TransactionsComponent.loadTransactions: Starting: " + JSON.stringify(acc, null, 2));
+   // console.log("TransactionsComponent.loadTransactions: Starting: " + JSON.stringify(acc, null, 2));
    if(acc.id < 0)
       return;
       
@@ -372,18 +351,18 @@ loadTransactions(acc : AccountItem, page: number = 0)
               this.activeaccount = acc;
               this.transactions = res;
               this.pageNumber = page;
-              console.log("TransactionsComponent.loadTransactions: transactions contains " + this.transactions.length + " items.");
+            //   console.log("TransactionsComponent.loadTransactions: transactions contains " + this.transactions.length + " items.");
             }
           },
       error: (err)=>{
           console.log("TransactionsComponent.loadTransactions: An error occured during loadTransactions subscribe: " + JSON.stringify(err, null, 2));
           } ,
       complete: ()=>{
-         console.log("TransactionsComponent.loadTransactions: loadTransactions loading completed");
+         // console.log("TransactionsComponent.loadTransactions: loadTransactions loading completed");
       }
    });
 
-   console.log("TransactionsComponent.loadTransactions:Finished");
+   // console.log("TransactionsComponent.loadTransactions:Finished");
 }
 
 nextPage() 
@@ -433,41 +412,54 @@ addTransactionToDB(txn :AddTransactionItem)
   this.inprogress = true;
   this.accountService.addTransaction(txn).subscribe( {
       next: (res)=>{
-          console.log("TransactionsComponent.addTransactionToDB: Response: " + res);
+         //  console.log("TransactionsComponent.addTransactionToDB: Response: " + res);
           // Must wait for add to complete before loading new transaction list
           this.loadTransactions(this.activeaccount);
           // Reset amount to prevent double entry
           this.txAmount = '';
-          this.txPastearea = '';
 
-         // If a transfer was done then the last communication might have been updated.
+          // If a transfer was done then the last communication might have been updated.
          // Only way to refresh the list at the moment is to reset it...
-         if(this.txTfrAccount)
-         {
-            this.resetTransfer();           
-         }
+         this.resetTransfer();           
       },
       error: (err)=>{
           console.log("TransactionsComponent.addTransactionToDB: An error occured during addTransactionToDB subscribe:" + JSON.stringify(err));
           this.inprogress = false; // error or compete NOT error then complete
       } ,
       complete: ()=>{
-         console.log("TransactionsComponent.addTransactionToDB: completed");
+         // console.log("TransactionsComponent.addTransactionToDB: completed");
          this.inprogress = false;
       }
    });
 
-  console.log("TransactionsComponent.addTransactionToDB:Finished");
+//   console.log("TransactionsComponent.addTransactionToDB:Finished");
 }
 
 resetTransfer()
 {
    this.isTransfer = false;
-   this.txTfrAccount = undefined; 
-   this.transferAccounts = undefined;   
+   this.transferAccounts = undefined; 
+   this.typahtfraccs = [];  
    this.txCommunication = '';
    this.txCptyName = '';
    this.txCptyNumber = '';
+}
+
+isMatchAccNumber(tfracc: TfrAccountItem, accnum: string) : boolean
+{
+   // JSON.stringify(accnum)
+   // console.log("isMatchAccNumber: tfracc:" + JSON.stringify(tfracc) + " accnum:" + JSON.stringify(accnum));
+   let match: boolean = false;
+   if(accnum && tfracc && tfracc.cptyAccountNumber)
+   {
+      let canonpattern = /\s/g;
+      let canonstr = accnum.replace(canonpattern, "");
+      let canontfrnum = tfracc.cptyAccountNumber.replace(canonpattern,"");
+      match = (canontfrnum == canonstr);
+      // console.log("isMatchAccNumber: canontfrnum:" + canontfrnum + " canonstr:" + canonstr + " match:" + match);
+   }
+   // console.log("isMatchAccNumber: tfraccnum:" + tfracc.cptyAccountNumber + " accnum:" + accnum + " match:" + match);
+   return match
 }
 
 addtransaction()
@@ -492,18 +484,36 @@ addtransaction()
  
    if(this.canShowTransferAccounts()) // Only add these if 'Transfer' mode is enabled
    {
-      if(this.txTfrAccount)
+      // WARNING: with 'typeahead' the 'model' value completly ignores the 'type' assigned to the 
+      // model variable (txCptyName) and sets it to the string entered into the input field 
+      // or the object selected from the list.
+      // Of course there is no straightforward to check if txCptyName is an instance of TfrAccountItem
+      // so must simply hope that it is only set to a TfrAccountItem or a string.
+      console.log("addtransaction: type of txCptyName:" + typeof(this.txCptyName)); // gives string or object
+      console.log("addtransaction: instanceof txCptyName:" + (this.txCptyName instanceof TfrAccountItem)); // gives false when TfrAccountItem
+      if(this.txCptyName)
       {
-         newent.transferAccount = this.txTfrAccount.id;
+         if(typeof(this.txCptyName) != 'string')
+         {
+            let tfracc: TfrAccountItem = this.txCptyName as TfrAccountItem;
+            newent.cptyAccount = tfracc.cptyAccountName;
+
+            // Only use the transferaccount if the account number entered in the field matches the tfraccount number
+            // otherwise ignore the transfer account 
+            if(this.isMatchAccNumber(tfracc, this.txCptyNumber))
+            {
+               newent.transferAccount = tfracc.id;
+            }
+         }
+         else
+         {
+            newent.cptyAccount = this.txCptyName;
+         }
       }
       newent.communication = this.txCommunication;
-      newent.cptyAccount = this.txCptyName;
       newent.cptyAccountNumber = this.txCptyNumber;
    }
-   console.log("Date: " + newent.date);
-   console.log("Type: " + newent.type);
-   console.log("Comment: " + newent.comment);;
-   console.log("Amount: " + newent.amount);  
+   // console.log("Date: " + newent.date + "Type: " + newent.type + "Comment: " + newent.comment + "Amount: " + newent.amount);  
    this.addTransactionToDB(newent); 
 }
 
@@ -528,7 +538,6 @@ delTransactionToDB(txn : TransactionItem)
            this.loadTransactions(this.activeaccount, this.pageNumber);
            // Reset amount to prevent double entry
            this.txAmount = '';
-           this.txPastearea = '';
            },
        error: (err)=>{
            console.log("delTransactionToDB.updTransactionToDB: An error occured during updTransactionToDB subscribe:" + JSON.stringify(err));
@@ -554,7 +563,7 @@ updTransactionToDB(txn : TransactionItem, showcheckedbal: boolean)
          this.loadTransactions(this.activeaccount, this.pageNumber);
          // Reset amount to prevent double entry
          this.txAmount = '';
-         this.txPastearea = '';
+
          if(showcheckedbal)
          {
             this.getCheckedBalance(this.activeaccount);
@@ -779,16 +788,17 @@ onPasteComm(event: ClipboardEvent)
    this.onPasteUpd(event);
 }
 
-onChangeCptySelect(event : any)
+onSearchCptySelect(item : TfrAccountItem)
 {
    // event content is not useful
    // the 'ngModel' fields has been updated with the clicked item
-   console.log("TransactionsComponent.onChangeCptySelect: txTfrAccount:" + JSON.stringify(this.txTfrAccount));
-   if(this.txTfrAccount)
+   console.log("TransactionsComponent.onChangeCptySelect: event:" + JSON.stringify(item));
+
+   if(item)
    {
-      this.txCommunication = this.txTfrAccount.lastCommunication;
-      this.txCptyName = this.txTfrAccount.cptyAccountName;
-      this.txCptyNumber = this.txTfrAccount.cptyAccountNumber;
+      this.txCommunication = item.lastCommunication;
+      this.txCptyName = item.cptyAccountName;
+      this.txCptyNumber = item.cptyAccountNumber;
    }
    else
    {
@@ -796,7 +806,10 @@ onChangeCptySelect(event : any)
       this.txCptyName = "";
       this.txCptyNumber = "";
    }
+   return false;
 }
+
+
 
 onScanSuccess(decodedText: string, decodedResult: Html5QrcodeResult) {
   // handle the scanned code as you like, for example:
@@ -876,4 +889,100 @@ clearComment() {
   this.txComment = "";
 }
 
+private itemsS:WritableSignal<TfrAccountItem[]> = signal<TfrAccountItem[]>([]);
+searchQuery:WritableSignal<string> = signal<string>('');
+filteredTfrAccs = computed<TfrAccountItem[]>(() => 
+   {
+      const sq = this.searchQuery();
+      if(sq.length > 0)
+      {
+         console.log("compute: sq:" + sq);
+         return this.itemsS().filter(x => this.isTfrAccMatch(x, sq));
+      }
+      return [];
+   });
+
+isTfrAccMatch(tfracc : TfrAccountItem, pattern : string) : boolean
+{
+   let match : boolean = false;
+   if(pattern == "*")
+   {
+      match = true;
+   }
+   else
+   {
+      let matchstr : string = (tfracc.cptyAccountNumber + " " + tfracc.cptyAccountName).toLowerCase();
+      match = matchstr.includes(pattern.toLowerCase());
+   }
+   return match;
 }
+
+initTfrAccSignal() {
+   if(this.transferAccounts) {
+      this.itemsS.set(this.transferAccounts);
+   }
+}
+
+onSearchUpdated(sq: string) {
+   console.log("onSearchUpdated: sq:" + sq);
+   this.searchQuery.set(sq);
+
+   this.displayDropdown(this.showTransferAccountSearchList());
+
+}
+
+displayTfrAccountItem(tfracc : TfrAccountItem) : string
+{
+   let s : string = "";
+   if(tfracc)
+   {
+      s = tfracc.cptyAccountNumber + "   " + tfracc.cptyAccountName;
+   }
+   // console.log("displayTfrAccountItem: s:" + s);
+   return s;
+}
+
+showTransferAccountSearchList() 
+{
+   let canDisplay : boolean = (this.filteredTfrAccs().length > 0) 
+                              && ((this.filteredTfrAccs().length < 10) || (this.searchQuery() == "*") )
+                              ;
+   console.log("showTransferAccountSearchList: canDisplay:" + canDisplay);
+   return canDisplay
+}
+
+public displayDropdown(open : boolean): void 
+{
+   console.log("displayDropdown: open:" + open);
+   if(open)
+   {
+      this.srchDropDown.open();
+   }
+   else
+   {
+      this.srchDropDown.close();   
+   }
+}
+
+public showFullTfrList(): void 
+{
+   console.log("showFullTfrList: open");
+   this.onSearchUpdated("*");
+}
+
+// Typeahead functions
+search: OperatorFunction<string, readonly TfrAccountItem[]> = (text$: Observable<string>) =>
+   text$.pipe(
+      debounceTime(200),
+      distinctUntilChanged(),
+      map((term) =>
+         term.length < 2 ? [] : this.typahtfraccs.filter((v) => this.isTfrAccMatch(v,term)),
+      ),
+   );
+
+formatter = (x: TfrAccountItem) => // appears to be triggered when item in list is selected
+   {
+      this.onSearchCptySelect(x);
+      return x.cptyAccountName;
+   };    
+} // End class

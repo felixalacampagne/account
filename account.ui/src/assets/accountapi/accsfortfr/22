@@ -1,0 +1,611 @@
+[
+    {
+        "id": 86,
+        "relatedAccountId": 23,
+        "cptyAccountName": "CBC Savings (EUR)",
+        "cptyAccountNumber": "BE72 7420 0080 3216",
+        "lastCommunication": "for savings test 3"
+    },
+    {
+        "id": 118,
+        "relatedAccountId": 25,
+        "cptyAccountName": "BCC MC (EUR)",
+        "cptyAccountNumber": "BE72 0012 1222 0316",
+        "lastCommunication": "mnop 847 2332 44948"
+    },
+    {
+        "id": 234,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Scarlet Belgium sa,Rue Carli 2,1140,Evere",
+        "cptyAccountNumber": "BE43 0013 6602 2001",
+        "lastCommunication": "1-173145295848"
+    },
+    {
+        "id": 15,
+        "relatedAccountId": 0,
+        "cptyAccountName": "SWDE,Rue de la Concorde 18,4800,Verviers",
+        "cptyAccountNumber": "BE08 0969 6900 0113",
+        "lastCommunication": "1-420 4849 81011"
+    },
+    {
+        "id": 202,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Admin.Communale Hannut",
+        "cptyAccountNumber": "BE24 0971 6273 1038",
+        "lastCommunication": "1-102 6002 41951"
+    },
+    {
+        "id": 230,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Alain Adam,Rue de Houtain 17,4280,Grand Hallet",
+        "cptyAccountNumber": "BE92 1430 8232 5823",
+        "lastCommunication": "2-Fact 239/2015"
+    },
+    {
+        "id": 231,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Allianz beln,Rue de Laeken 35,1000,Bruxelles",
+        "cptyAccountNumber": "BE74 3100 1407 6507",
+        "lastCommunication": "1-000 6216 86639"
+    },
+    {
+        "id": 143,
+        "relatedAccountId": 30,
+        "cptyAccountName": "American Express",
+        "cptyAccountNumber": "BE39 2100 0821 2619",
+        "lastCommunication": "28-3741 923188 53002"
+    },
+    {
+        "id": 232,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Animal Success,Rue de Huy 73c,4280,Hannut",
+        "cptyAccountNumber": "BE75 3400 8524 4951",
+        "lastCommunication": "28-FVAS 40 20.02.2018"
+    },
+    {
+        "id": 226,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Avocat Stevart,Rue Vasset 2,4280,Hannut",
+        "cptyAccountNumber": "BE34 1030 3288 5290",
+        "lastCommunication": "28-ARMSTRONG-VAN DER ZWALMEN/MAES-BUDIMILIC"
+    },
+    {
+        "id": 229,
+        "relatedAccountId": 0,
+        "cptyAccountName": "AXA Belgium, Troonplein 1,1000,Brussel",
+        "cptyAccountNumber": "BE09 7000 2177 7857",
+        "lastCommunication": "1-622 4376 41094"
+    },
+    {
+        "id": 206,
+        "relatedAccountId": 0,
+        "cptyAccountName": "AZ Diest,Statiestraat 65,3290,Diest",
+        "cptyAccountNumber": "BE57 7995 5033 2835",
+        "lastCommunication": "1-212 0077 94766"
+    },
+    {
+        "id": 242,
+        "relatedAccountId": 35,
+        "cptyAccountName": "KeyTrade Current",
+        "cptyAccountNumber": "BE72 6511 4575 3216",
+        "lastCommunication": "test 06"
+    },
+    {
+        "id": 83,
+        "relatedAccountId": 0,
+        "cptyAccountName": "CBC Assurances,Rue de Bruxelles 120,5000,Namur",
+        "cptyAccountNumber": "BE37 1910 1734 0128",
+        "lastCommunication": "1-470 5944 90792"
+    },
+    {
+        "id": 135,
+        "relatedAccountId": 0,
+        "cptyAccountName": "CHC Clinic St. Joseph",
+        "cptyAccountNumber": "792 587 0979 09",
+        "lastCommunication": "1-122 8446 06224"
+    },
+    {
+        "id": 214,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Christophe Godfrint,Rue de la Melee 31,1367,Autre-Eglise",
+        "cptyAccountNumber": "BE07 7320 1328 0866",
+        "lastCommunication": "28-Fact 6 21.11.2013"
+    },
+    {
+        "id": 203,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Contributions Autos Bruxelles,,1030,Bruxelles",
+        "cptyAccountNumber": "BE46 6792 0023 1036",
+        "lastCommunication": "1-130 7438 94497"
+    },
+    {
+        "id": 236,
+        "relatedAccountId": 0,
+        "cptyAccountName": "DGO Fiscalite (Car Tax)",
+        "cptyAccountNumber": "BE36 0912 1503 4881",
+        "lastCommunication": "1-010 7217 65664"
+    },
+    {
+        "id": 221,
+        "relatedAccountId": 0,
+        "cptyAccountName": "DGO Fiscalite (TV TAX),Ave.Gov.Bovesse 29,5100,Namur",
+        "cptyAccountNumber": "BE60 0912 1503 3770",
+        "lastCommunication": "1-020 3482 35220"
+    },
+    {
+        "id": 241,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Eloy Water sa,Rue des Spinettes 7,4140,Spimont",
+        "cptyAccountNumber": "BE96 3630 3454 7905",
+        "lastCommunication": "28-73/2017/3120 Client 132938"
+    },
+    {
+        "id": 211,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Faber Vins OLD,Chausee de Charleroi 97,6060,Gilly",
+        "cptyAccountNumber": "BE26 0013 3283 1429",
+        "lastCommunication": "28-410-3-1697"
+    },
+    {
+        "id": 227,
+        "relatedAccountId": 0,
+        "cptyAccountName": "FDVins,Rue de Charleroi 11,6180,Courcelles",
+        "cptyAccountNumber": "BE58 0689 0158 1479",
+        "lastCommunication": "2-Cli 4960 NdEnv 611-1-13267 "
+    },
+    {
+        "id": 198,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Felix a la Campagne, Rue de la Chapelle 18, 4280, Merdorp",
+        "cptyAccountNumber": "732 009 6718 60",
+        "lastCommunication": "-"
+    },
+    {
+        "id": 212,
+        "relatedAccountId": 0,
+        "cptyAccountName": "FFE (Hipponews),Rue Nanon 98, 5000, Namur",
+        "cptyAccountNumber": "BE12 3100 0495 7392",
+        "lastCommunication": "28-Membre 14316, Linda Van der Zwalmen"
+    },
+    {
+        "id": 132,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Generali Belgium, Ave.Louise 149 Bte 1,1050,Bruxelles",
+        "cptyAccountNumber": "BE13 6451 0079 3139",
+        "lastCommunication": "1-113 4764 03327"
+    },
+    {
+        "id": 223,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Green Machine,Rue de Wansin 5,4280,Hannut",
+        "cptyAccountNumber": "BE04 0682 0375 8631",
+        "lastCommunication": "28-Fact. 1402582 13.11.2014"
+    },
+    {
+        "id": 220,
+        "relatedAccountId": 0,
+        "cptyAccountName": "HaLuTec,Rue de l'Etat 65,4682,Oupeye",
+        "cptyAccountNumber": "BE36 3400 2733 8981",
+        "lastCommunication": "1-000 0032 35251"
+    },
+    {
+        "id": 63,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Hansard Pension Account",
+        "cptyAccountNumber": "439 796 8701 50",
+        "lastCommunication": "11-84570"
+    },
+    {
+        "id": 199,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Heysecom Andre sprl, Rue du Straux 31,4280,Merdorp",
+        "cptyAccountNumber": "001 329 1487 62",
+        "lastCommunication": "28-Fact 13/12 03.02.2012"
+    },
+    {
+        "id": 215,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Ingrid Merlevede, Rue d'Autre-Eglise 49,1367,Huppaye",
+        "cptyAccountNumber": "BE70 8805 3562 2125",
+        "lastCommunication": "28-Fact 1564/2013 21.11.2013"
+    },
+    {
+        "id": 224,
+        "relatedAccountId": 0,
+        "cptyAccountName": "J Smeets",
+        "cptyAccountNumber": "BE96 9730 1330 5505",
+        "lastCommunication": "28-Apt.verhuur-Cadzand 04.04.2015"
+    },
+    {
+        "id": 217,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Jan Vanderschoot",
+        "cptyAccountNumber": "BE09 6465 5611 5057",
+        "lastCommunication": "28-Neutral x 8"
+    },
+    {
+        "id": 114,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Jeune Aero Club 2004",
+        "cptyAccountNumber": "BE16 0682 0285 1174",
+        "lastCommunication": "2-Ann.Cot.2015"
+    },
+    {
+        "id": 218,
+        "relatedAccountId": 0,
+        "cptyAccountName": "KHStJ,Moorselstraat 362,3080,Tervuren",
+        "cptyAccountNumber": "BE77 0011 2692 1142",
+        "lastCommunication": "28-Armstrong, Christopher KH St-Jozef 2014"
+    },
+    {
+        "id": 209,
+        "relatedAccountId": 0,
+        "cptyAccountName": "La Fiduciaire, Pl. S. Denis 30/2,4500,Huy",
+        "cptyAccountNumber": "BE91 2400 0366 4176",
+        "lastCommunication": "28-L Van der Zwalmen:Fact 17/660"
+    },
+    {
+        "id": 180,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Labo Dr J.Collard,Bld de Froidmont 14,4020,Liege",
+        "cptyAccountNumber": "340 130 1036 13",
+        "lastCommunication": "1-019 0006 14119"
+    },
+    {
+        "id": 130,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Labo Dr J.Collard,Rue du Palais 14,4800,Verviers",
+        "cptyAccountNumber": "BE34 3401 3039 2690",
+        "lastCommunication": "1-716004547174"
+    },
+    {
+        "id": 181,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Labo Luc Olivier,Rue Leopold Genicot 16,5380,Fernelmont",
+        "cptyAccountNumber": "BE50 3400 2450 0218",
+        "lastCommunication": "1-019 3903 13235"
+    },
+    {
+        "id": 99,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Linda's Savings Account",
+        "cptyAccountNumber": "742 004 5815 66",
+        "lastCommunication": "-"
+    },
+    {
+        "id": 145,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Luminus SPE SA",
+        "cptyAccountNumber": "BE76 3350 5545 9895",
+        "lastCommunication": "1-860 1086 26743"
+    },
+    {
+        "id": 210,
+        "relatedAccountId": 0,
+        "cptyAccountName": "May van Boxel",
+        "cptyAccountNumber": "BE24 9791 5468 9238",
+        "lastCommunication": "28-Lotto 2018 vanderzwalmen"
+    },
+    {
+        "id": 235,
+        "relatedAccountId": 0,
+        "cptyAccountName": "MGS Construction sprl,Rue de Bettincourt,4300,Waremme",
+        "cptyAccountNumber": "BE98 3630 2164 6093",
+        "lastCommunication": "28-FA 69/2016"
+    },
+    {
+        "id": 82,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Mutualite Securex, Ave. de Tervuren 43,1040,Etterbeek",
+        "cptyAccountNumber": "BE06 1910 4305 4222",
+        "lastCommunication": "1-160205324581"
+    },
+    {
+        "id": 187,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Nouveau Lavoir Hannutois,Ch.de Wavre 11,3280,Hannut",
+        "cptyAccountNumber": "BE86 2400 2595 2150",
+        "lastCommunication": "28-17466/1251"
+    },
+    {
+        "id": 240,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Partenamut,Bd.Louis Mettewie 74-76,1080,Bruxelles",
+        "cptyAccountNumber": "BE40 3100 8300 0663",
+        "lastCommunication": "1-171084404344"
+    },
+    {
+        "id": 225,
+        "relatedAccountId": 0,
+        "cptyAccountName": "ProxiFuel, Rue du Commerce 113,1040, Bruxelles",
+        "cptyAccountNumber": "BE26 2700 1830 1529",
+        "lastCommunication": "28-100085376909"
+    },
+    {
+        "id": 205,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Proximus,Blvd. du Roi Albert II 27,1030,Bruxelles",
+        "cptyAccountNumber": "BE31 4354 1116 1155",
+        "lastCommunication": "1-085297579587"
+    },
+    {
+        "id": 159,
+        "relatedAccountId": 32,
+        "cptyAccountName": "Rabobank Savings",
+        "cptyAccountNumber": "BE34 8440 3103 6690",
+        "lastCommunication": "28-TFR 2011-04"
+    },
+    {
+        "id": 219,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Radermecker",
+        "cptyAccountNumber": "BE94 7320 3092 9614",
+        "lastCommunication": "28-Avance location Aout Felix a la Campagne pt.2"
+    },
+    {
+        "id": 213,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Radio-Television Redevance,Ave. Gouverneur Bovesse 29,5100,Namur",
+        "cptyAccountNumber": "BE48 0960 0002 0027",
+        "lastCommunication": "1-941 0889 62161"
+    },
+    {
+        "id": 194,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Reynaerts Martine,Wijngaardstraat 38,3400,Laar",
+        "cptyAccountNumber": "BE79 4346 2522 6133",
+        "lastCommunication": "28-Klantnr 633:FACTNR 110525"
+    },
+    {
+        "id": 238,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Schafranski",
+        "cptyAccountNumber": "BE48 4574 5386 5127",
+        "lastCommunication": "28-Magnus 06-2017"
+    },
+    {
+        "id": 228,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Securex Integrity (Soc.Sec.Tax-Linda)",
+        "cptyAccountNumber": "BE78 3101 1397 5086",
+        "lastCommunication": "1-203 2964 04319"
+    },
+    {
+        "id": 171,
+        "relatedAccountId": 0,
+        "cptyAccountName": "SODEXHO,Rue Charles Lemaire 1,1160,Brussels",
+        "cptyAccountNumber": "BE85 7320 1619 4506",
+        "lastCommunication": "1-190003520477"
+    },
+    {
+        "id": 70,
+        "relatedAccountId": 0,
+        "cptyAccountName": "SWIFT Squash Club 2000",
+        "cptyAccountNumber": "BE30 7765 9542 5911",
+        "lastCommunication": "2-Chris Armstrong Ann.Fee 2015"
+    },
+    {
+        "id": 56,
+        "relatedAccountId": 0,
+        "cptyAccountName": "TAX Waremme,Ave.Albert 1er 8-10,4500,Huy",
+        "cptyAccountNumber": "BE20 6792 0026 2156",
+        "lastCommunication": "1-017 5631 47372"
+    },
+    {
+        "id": 207,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Taxe Actions Provinciales, Provice de Liege,4000,Liege",
+        "cptyAccountNumber": "BE68 0972 6100 1334",
+        "lastCommunication": "1-136 2100 08185"
+    },
+    {
+        "id": 102,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Total Belgium, Rue du Commerce 93, 1040, Bruxelles",
+        "cptyAccountNumber": "BE62 2100 4700 7161",
+        "lastCommunication": "1-005 0010 91240"
+    },
+    {
+        "id": 204,
+        "relatedAccountId": 0,
+        "cptyAccountName": "TVA Recettes",
+        "cptyAccountNumber": "BE22 6792 0030 0047",
+        "lastCommunication": "1-087 4452 22841"
+    },
+    {
+        "id": 237,
+        "relatedAccountId": 0,
+        "cptyAccountName": "UZ Leuven (2016-12),Herestraat 49,3000,Leuven",
+        "cptyAccountNumber": "BE43 4320 0172 2101",
+        "lastCommunication": "1-174515675169"
+    },
+    {
+        "id": 208,
+        "relatedAccountId": 0,
+        "cptyAccountName": "UZ Leuven,Herestraat 49,3000,Leuven",
+        "cptyAccountNumber": "BE78 3300 0057 5586",
+        "lastCommunication": "1-154 6949 43127"
+    },
+    {
+        "id": 148,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Vets Ghys, Rt.de Gembloux, 5310, Eghezee",
+        "cptyAccountNumber": "BE47 1450 5618 4580",
+        "lastCommunication": "28-HON0 &MDTCS Blanche Siamese 18.09.2017"
+    },
+    {
+        "id": 201,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Volters Y.",
+        "cptyAccountNumber": "BE40 8637 7772 1663",
+        "lastCommunication": "28-location mobilhome:Felix a la campagne (Linda Van der Zwalmen)"
+    },
+    {
+        "id": 222,
+        "relatedAccountId": 0,
+        "cptyAccountName": "WindSunGreen,Blvd. de la Meuse 38,5100,Jambes",
+        "cptyAccountNumber": "BE14 0688 9628 5683",
+        "lastCommunication": "-"
+    },
+    {
+        "id": 239,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Yvan Robert,Rue de la Poste 26,1350,Jauche",
+        "cptyAccountNumber": "BE37 0016 3960 3528",
+        "lastCommunication": "1-647 2090 31757"
+    },
+    {
+        "id": 216,
+        "relatedAccountId": 0,
+        "cptyAccountName": "AXA Belgium,Vorstlaan 25,1170,Brussel",
+        "cptyAccountNumber": "BE55 2100 0007 6844",
+        "lastCommunication": "1-622 4376 41094"
+    },
+    {
+        "id": 185,
+        "relatedAccountId": 0,
+        "cptyAccountName": "B.Vershuwen,Doornstraat 31,3370,Willbringen-Boutersem",
+        "cptyAccountNumber": "422 616 6761 48",
+        "lastCommunication": "28-Linda Van der Zwalmen deelname:cursus A.Muller"
+    },
+    {
+        "id": 192,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Belisol St.Truiden,Houtmarkt 37,3800,Sint Truiden",
+        "cptyAccountNumber": "363 044 6599 51",
+        "lastCommunication": "1-108 0300 80871"
+    },
+    {
+        "id": 155,
+        "relatedAccountId": 0,
+        "cptyAccountName": "BIO.BE, Av.Georges Le Maitre 25",
+        "cptyAccountNumber": "732 014 1882 22",
+        "lastCommunication": "1-040 0018 44851"
+    },
+    {
+        "id": 75,
+        "relatedAccountId": 0,
+        "cptyAccountName": "C.J.B. DE HUY",
+        "cptyAccountNumber": "776 590 3706 92",
+        "lastCommunication": "1-107 0211 62148"
+    },
+    {
+        "id": 129,
+        "relatedAccountId": 20,
+        "cptyAccountName": "CBC Mortgage (EUR)",
+        "cptyAccountNumber": "732 622 4762 32",
+        "lastCommunication": ""
+    },
+    {
+        "id": 124,
+        "relatedAccountId": 0,
+        "cptyAccountName": "DDG Fireplaces",
+        "cptyAccountNumber": "431 471 0881 46",
+        "lastCommunication": "28-Fact.-614 Code client-003802 Date-14.05.2009"
+    },
+    {
+        "id": 55,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Dir Gen Fiscalite (TV TAX),Av GV Bovesse 29,5100,Namur",
+        "cptyAccountNumber": "096 000 0200 27",
+        "lastCommunication": "1-941 0889  61151"
+    },
+    {
+        "id": 184,
+        "relatedAccountId": 0,
+        "cptyAccountName": "EuroFlorist,A.Rodenbachstraat 19-GV,9100,Sint-Niklaas",
+        "cptyAccountNumber": "363 032 5370 72",
+        "lastCommunication": "28-Linda Van der Zwalmen 31.03.2010:51344984"
+    },
+    {
+        "id": 193,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Ferme Leonard, Rue de la Waloppe 6, 4219, Wasseiges",
+        "cptyAccountNumber": "340 150 5210 02",
+        "lastCommunication": "28-Fact. 155-2010:27-11-2010"
+    },
+    {
+        "id": 195,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Garage Bernard,Rue de Tirlemont 84,4280,Hannut",
+        "cptyAccountNumber": "340 085 1240 06",
+        "lastCommunication": "28-1671 07131"
+    },
+    {
+        "id": 189,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Garage Dominique Jacquemyn,Rue Longue 48,1370,Pietrain",
+        "cptyAccountNumber": "191 353 9552 85",
+        "lastCommunication": "28-Facture no. 78 18.03.2010 Nissan Xtrail"
+    },
+    {
+        "id": 196,
+        "relatedAccountId": 36,
+        "cptyAccountName": "KeyTrade Savings",
+        "cptyAccountNumber": "BE59 6512 4558 6626",
+        "lastCommunication": "test comm 4"
+    },
+    {
+        "id": 190,
+        "relatedAccountId": 0,
+        "cptyAccountName": "MCH,Maria Theresiastraat 63a,3000,Leuven",
+        "cptyAccountNumber": "230 0047 988 90",
+        "lastCommunication": "1-010 0007 01818"
+    },
+    {
+        "id": 172,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Notre Atelier ASBL",
+        "cptyAccountNumber": "751 203 4984 61",
+        "lastCommunication": "1-282 0004 51952"
+    },
+    {
+        "id": 177,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Polycar Carrosserie, Rue du Warichet 5 , 4287, Lincent",
+        "cptyAccountNumber": "732 622 4363 21",
+        "lastCommunication": "28-Facture 10076"
+    },
+    {
+        "id": 96,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Recette Contribs Namur Etranger TAX payment",
+        "cptyAccountNumber": "679 200 2401 30",
+        "lastCommunication": "1-077 6600 64420"
+    },
+    {
+        "id": 200,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Sos Langues,Rte de Landen 57,4280,Hannut",
+        "cptyAccountNumber": "363 048 3111 91",
+        "lastCommunication": "28-Cours italian 01.04.2012 VANDERZWALMEN"
+    },
+    {
+        "id": 191,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Truvo Antwerp Tower,De Keyserlei 5 bus 7, 2018,Antwerpen",
+        "cptyAccountNumber": "320 0296 100 29",
+        "lastCommunication": "1-100 0263 79889"
+    },
+    {
+        "id": 182,
+        "relatedAccountId": 0,
+        "cptyAccountName": "U.Z.Antwerp,Wilrijkstraat 10,2650,Edegem",
+        "cptyAccountNumber": "001 165 1449 03",
+        "lastCommunication": "1-503 4361 13121"
+    },
+    {
+        "id": 178,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Uitgeverij VIPMEDIA, Bredabaan 852, 2170, Merksem",
+        "cptyAccountNumber": "414 121 2951 02",
+        "lastCommunication": "28-10000000365572 Nrs 201003:t/m 201102"
+    },
+    {
+        "id": 179,
+        "relatedAccountId": 0,
+        "cptyAccountName": "Unimedia Ed. sa, Av.Georges Truffaut 42, 4020, Liege",
+        "cptyAccountNumber": "363 065 6781 34",
+        "lastCommunication": "28-Client L2647:Num Doc 20100933 22.03.2010"
+    }
+]
