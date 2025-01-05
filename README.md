@@ -10,13 +10,17 @@ especially when it comes to all the prefix symbols that are sprinkled around. Th
 used for the counterparty name was actually being populated with a transfer account object! Knowing this that the variable type
 is completely meaningless made life a lot easier.
 So now Account has the most used features: 
-   - transaction display with paging,
+   - transaction display with paging (goto page is imminent),
    - transaction update 
    - standing order application and editing,
    - transfer between accounts,
    - checked balances
  
  To come:
+  - better handling for transaction page size, count and gooing to far back. First page should be displayed
+    as 1 instead of zero.
+  - a way to trigger checked balance recalc (updates via Excel cause inconsistencies in the list
+    (although the final balance appears to be correct)
   - account creation and details update
   - date sorted balance display (instead of entry/id sorted)
   - transaction search (maybe)
