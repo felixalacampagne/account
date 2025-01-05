@@ -41,8 +41,8 @@ datefmt : string [];
       // Wanted to parse the aa/bb/yyyy format date according to local custom, ie. dd/mm/yyyy,
       // so needed to determine the local date format... yet another trivial, everyday thing, which
       // Angular/Javascript manages to fork up. Angular has a method which seems to perfect... 
-      // except that it is deprecated! The adivce is to use Intl.DateTimeFormat - but they provide 
-      // no link to documentation and whenyou find it it turns out it doesn't return anything 
+      // except that it is deprecated! The advice is to use Intl.DateTimeFormat - but they provide 
+      // no link to documentation and when you find it it turns out it doesn't return anything 
       // like the expected string representation of the date format. Eventually I discovered the 
       // trick in getDateFormatString on StackOverflow which gets a Date as its component parts and 
       // uses the part name to derive a format. The format is then used to map the results of the

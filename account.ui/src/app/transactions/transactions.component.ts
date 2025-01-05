@@ -386,6 +386,15 @@ firstPage()
    this.loadTransactions(this.activeaccount);
 }
 
+selectPage(page: string) {
+   let p : number = parseInt(page, 10) || 0;
+   this.loadTransactions(this.activeaccount, p);
+}
+
+formatInput(input: HTMLInputElement) {
+   input.value = input.value.replace(/[^0-9]/g, '');
+}
+
 calcCheckedBalance()
 {
    console.log("TransactionsComponent.calcCheckedBalance: Starting");
