@@ -80,7 +80,7 @@ export class TransactionsComponent implements OnInit {
    updateTxn: TransactionItem = new TransactionItem(); // Edited valeus of transaction beign updated
    origupdTxn:TransactionItem | undefined; // Original values of transaction being updated.
    public txnTypes: string[] = [];
-   pageNumber: number = 0;
+   pageNumber: number = 1;
 
    @ViewChild('srchDropDown', { read: NgbDropdown })
    srchDropDown!: NgbDropdown;
@@ -334,12 +334,12 @@ export class TransactionsComponent implements OnInit {
       console.log("TransactionsComponent.getCheckedBalance:Finished");
    }
 
-loadTransactions(acc : AccountItem, page: number = 0)
+loadTransactions(acc : AccountItem, page: number = 1)
 {
    // console.log("TransactionsComponent.loadTransactions: Starting: " + JSON.stringify(acc, null, 2));
    if(acc.id < 0)
       return;
-   let pagesize: number = this.desktopDisplay ? 35 : 15;
+   let pagesize: number = this.desktopDisplay ? 30 : 15;
    this.accountService.getTransactions(acc, page, pagesize).subscribe({
       next: (res)=>{
             if(!res)
@@ -373,7 +373,7 @@ nextPage()
 prevPage() 
 {
    let p = this.pageNumber;
-   if(p < 1)
+   if(p < 2)
    {
       return;
    }

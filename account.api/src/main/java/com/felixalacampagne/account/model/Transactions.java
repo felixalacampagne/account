@@ -6,6 +6,13 @@ import java.util.List;
 public class Transactions
 {
 private final List<TransactionItem> transactions;
+private final Long rowcount;
+private final Long currentpage;
+
+   public Long getCurrentpage()
+{
+   return currentpage;
+}
 
    public List<TransactionItem> getTransactions()
    {
@@ -17,8 +24,15 @@ private final List<TransactionItem> transactions;
 //      this.transactions = transactions;
 //   }
 
-   public Transactions(List<TransactionItem> transactions)
+   public Transactions(List<TransactionItem> transactions, Long rowcount, Long currentpage)
    {
       this.transactions = transactions;
+      this.rowcount = rowcount;
+      this.currentpage = currentpage;
+   }
+
+   public Long getRowcount()
+   {
+      return rowcount;
    }
 }

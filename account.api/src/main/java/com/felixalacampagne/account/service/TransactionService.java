@@ -52,42 +52,57 @@ public class TransactionService
       this.connectionResurrector = new ConnectionResurrector<TransactionJpaRepository>(transactionJpaRepository, TransactionJpaRepository.class);
    }
 
-   public Transactions getTransactions(long accountId, int page)
+   // Page uses 1 based index
+   public Transactions getTransactions(long accountId, int pageOneBased)
    {
-      if(page < 0)
-      {
-         page = 0;
-      }
-      return getTransactions(accountId, page, 15);
+      return getTransactions(accountId, pageOneBased, 15);
    }
 
-   public Transactions getTransactions(long accountId, int page, int rowsize) 
+   // Page uses 1 based index
+   public Transactions getTransactions(long accountId, int pageOneBased, int rowsize) 
    {
-      if(page < 0)
+      if(pageOneBased < 1)
       {
-         page = 0;
+         pageOneBased = 1;
       }
       if(rowsize < 10)
       {
          rowsize = 10;
       }
-      return getTransactions(getTransactionPage(page, rowsize, accountId), BalanceType.NORMAL);      
+      return getTransactions(getTransactionPage(pageOneBased-1, rowsize, accountId), BalanceType.NORMAL);      
    }
    
    public Transactions getTransactions(List<Transaction> txns, BalanceType balanceType)
    {
-
+      // TODO: return the total rowcount for paging. To avoid multiple queries should use
+      // count determine in getTransactionPage when checking maxpage, but then it can't
+      // return a simple list. It could fill a list and return the count, which is ugly
+      // but will do the job, or could return a class like the Transactions which is even
+      // uglier to me!
+      // TODO: return the actual page number used otherwise the UI doesn't know the max.
+      // has been reached and will keep incrementing or continuing to display an invalid value.
+      long rowcount = -1L;
+      if( !txns.isEmpty())
+      {
+         rowcount = transactionJpaRepository.countByAccountId(txns.get(0).getAccountId());
+      }
       List<TransactionItem> txnitems = txns.stream()
             .map(t -> mapToItem(t, balanceType))
             .collect(Collectors.toList());
-      Transactions trns = new Transactions(txnitems);
+      Transactions trns = new Transactions(txnitems, rowcount, -1L);
       return trns;
    }
 
-
+   // Page uses the native, 0 based, index
    public List<Transaction> getTransactionPage(int page, int rows, long accountId)
    {
       connectionResurrector.ressurectConnection();
+      long rowcount = transactionJpaRepository.countByAccountId(accountId);
+      long maxpage = (rowcount / rows); // No +1 as 0 based index
+      
+      log.info("getTransactionPage: requested page:{}, page size:{}, rowcount:{}, maxpage:{}", page, rows, rowcount, maxpage);
+      page = (int) Long.min(page, maxpage);
+
       List<Transaction> txns = transactionJpaRepository.
             findByAccountId(accountId,  PageRequest.of(page, rows, Sort.by("sequence").descending())).stream()
             .sorted(Comparator.comparingLong(Transaction::getSequence))
