@@ -58,9 +58,22 @@ public class TransactionService
       {
          page = 0;
       }
-      return getTransactions(getTransactionPage(page, 15, accountId), BalanceType.NORMAL);
+      return getTransactions(accountId, page, 15);
    }
 
+   public Transactions getTransactions(long accountId, int page, int rowsize) 
+   {
+      if(page < 0)
+      {
+         page = 0;
+      }
+      if(rowsize < 10)
+      {
+         rowsize = 10;
+      }
+      return getTransactions(getTransactionPage(page, rowsize, accountId), BalanceType.NORMAL);      
+   }
+   
    public Transactions getTransactions(List<Transaction> txns, BalanceType balanceType)
    {
 

@@ -186,10 +186,10 @@ export class AccountService
       return this.http.get(url).pipe( map((res:any) => res));
    }
 
-   getTransactions(a : AccountItem, p: number = 0) : Observable<TransactionItem[]>
+   getTransactions(a : AccountItem, p: number = 0, r: number = 15) : Observable<TransactionItem[]>
    {
       let url : string;
-      url = this.apiurl + this.listtxnsvc + a.id + '/' + p;
+      url = this.apiurl + this.listtxnsvc + a.id + '/' + p + "?rows=" + r;
       // The items are returned wrapped in an array named transactions
       return this.http.get(url).pipe( map((res:any) => res.transactions));
    }

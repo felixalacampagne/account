@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.felixalacampagne.account.model.AccountDetail;
@@ -123,14 +124,21 @@ public class AccountController {
     @GetMapping(value = {"/listtransaction/{accountid}", "/listtransaction/{accountid}/{page}"})
     public Transactions getTransactions(
           @PathVariable Long accountid,
-          @PathVariable Optional<Integer> page)
+          @PathVariable Optional<Integer> page,
+          @RequestParam Optional<Integer> rows)
     {
        int pageno = 0;
+       int pagesize = 20;
        if(page.isPresent())
        {
           pageno = page.get();
+          if(rows.isPresent())
+          {
+             pagesize = rows.get();
+          }
+          
        }
-       return this.transactionService.getTransactions(accountid, pageno);
+       return this.transactionService.getTransactions(accountid, pageno, pagesize);
     }
 
 

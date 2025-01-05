@@ -339,8 +339,8 @@ loadTransactions(acc : AccountItem, page: number = 0)
    // console.log("TransactionsComponent.loadTransactions: Starting: " + JSON.stringify(acc, null, 2));
    if(acc.id < 0)
       return;
-      
-   this.accountService.getTransactions(acc, page).subscribe({
+   let pagesize: number = this.desktopDisplay ? 35 : 15;
+   this.accountService.getTransactions(acc, page, pagesize).subscribe({
       next: (res)=>{
             if(!res)
             {
