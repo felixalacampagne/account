@@ -83,7 +83,7 @@ public class TransactionService
       int pageZeroBased = (int) Long.min(pageOneBased, maxPageOneBased)-1;
 
 
-      log.debug("getTransactions: page:{}, page size:{}, rowcount:{}, maxpage:{}", pageZeroBased, pagesize, rowcount, maxPageOneBased);
+      log.debug("getTransactions: page size:{}, rowcount:{}, page:{}, maxpage:{}", pagesize, rowcount, pageZeroBased, maxPageOneBased-1);
 
       return getTransactions(getTransactionPage(pageZeroBased, pagesize, accountId), pageZeroBased+1, rowcount, BalanceType.NORMAL);
    }
