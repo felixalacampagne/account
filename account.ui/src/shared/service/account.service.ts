@@ -6,7 +6,7 @@ import {map} from 'rxjs/operators';
 import {environment} from '../../environments/environment';
 import { AccountItem } from '../model/accountitem.model';
 import { AccountDetail } from '../model/accountdetail.model';
-import { AddTransactionItem, TransactionItem } from '../model/transaction.model';
+import { AddTransactionItem, TransactionItem, Transactions } from '../model/transaction.model';
 import { Version } from '../model/version.model';
 import { StandingOrderItem } from '../model/standingorderitem.model';
 import { TfrAccountItem } from '../model/tfraccountitem.model';
@@ -136,8 +136,9 @@ export class AccountService
          console.log("updateAccountStatementRef: An error occured:" + JSON.stringify(err));
          } ,
       complete: ()=>{console.log("updateAccountStatementRef: completed");}
-  });      
+      });      
    }
+
    putUpdateAccountStatementRef(id: number, statementref: string) : Observable<string>
    {
       let url : string;
@@ -186,12 +187,12 @@ export class AccountService
       return this.http.get(url).pipe( map((res:any) => res));
    }
 
-   getTransactions(a : AccountItem, p: number = 0, r: number = 15) : Observable<TransactionItem[]>
+   getTransactions(a : AccountItem, p: number = 0, r: number = 15) : Observable<Transactions>
    {
       let url : string;
       url = this.apiurl + this.listtxnsvc + a.id + '/' + p + "?rows=" + r;
       // The items are returned wrapped in an array named transactions
-      return this.http.get(url).pipe( map((res:any) => res.transactions));
+      return this.http.get(url).pipe( map((res:any) => res));
    }
 
    addTransaction(txn : AddTransactionItem): Observable<string>
