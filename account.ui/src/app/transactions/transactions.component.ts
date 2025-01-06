@@ -81,7 +81,7 @@ export class TransactionsComponent implements OnInit {
    origupdTxn:TransactionItem | undefined; // Original values of transaction being updated.
    public txnTypes: string[] = [];
    pageNumber: number = 1;
-
+   maxPage: number = -1;
    @ViewChild('srchDropDown', { read: NgbDropdown })
    srchDropDown!: NgbDropdown;
    constructor(private accountService: AccountService,
@@ -349,8 +349,9 @@ loadTransactions(acc : AccountItem, page: number = 1)
             else
             {
               this.activeaccount = acc;
-              this.transactions = res;
-              this.pageNumber = page;
+              this.transactions = res.transactions;
+              this.pageNumber = res.currentpage;
+              this.maxPage = Math.trunc(res.rowcount / pagesize)+1;
             //   console.log("TransactionsComponent.loadTransactions: transactions contains " + this.transactions.length + " items.");
             }
           },
@@ -384,6 +385,11 @@ prevPage()
 firstPage()
 {
    this.loadTransactions(this.activeaccount);
+}
+
+lastPage()
+{
+   this.loadTransactions(this.activeaccount, this.maxPage);
 }
 
 selectPage(page: string) {
