@@ -37,7 +37,7 @@
 
 <div class="transactions" *ngIf="isTransactions()">
    <div class="text-center d-flex w-100 title">
-      <div class="d-flex flex1">Transactions for {{activeaccount.name}}</div>
+      <div class="d-flex flex1">{{activeaccount.name}}</div>
       <div *ngIf="desktopDisplay" class="d-flex flex1 justify-content-center title-center">
          <ng-container *ngTemplateOutlet="pageingTemplate"></ng-container>
       </div>
