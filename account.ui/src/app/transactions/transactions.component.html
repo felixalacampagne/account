@@ -10,16 +10,18 @@
       </button>
 
       <input
-         #i
+         #userpage
          type="text"
          inputmode="numeric"
          pattern="[0-9]*"
          class="form-control form-control-sm text-center"
          id="paginationInput"
          [value]="pageNumber"
-         (keyup.enter)="selectPage(i.value)"
-         (blur)="selectPage(i.value)"
+         (keyup.enter)="selectPage(userpage.value)"
+         (blur)="selectPage(userpage.value)"
          (input)="formatInput($any($event).target)"
+         (debounceInput)="selectPage(userpage.value)"
+         [debounceInputTime]="1000"
          aria-labelledby="paginationInputLabel paginationDescription"
          style="width: 2.8rem"
       />
@@ -37,7 +39,7 @@
    <div class="text-center d-flex w-100 title">
       <div class="d-flex flex1">Transactions for {{activeaccount.name}}</div>
       <div *ngIf="desktopDisplay" class="d-flex flex1 justify-content-center title-center">
-         <ng-template *ngTemplateOutlet="pageingTemplate"></ng-template>
+         <ng-container *ngTemplateOutlet="pageingTemplate"></ng-container>
       </div>
       <div class="d-flex flex1 justify-content-right title-right">
          <span *ngIf="inprogress" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -83,7 +85,7 @@
       </tbody>
    </table>
    <div class="text-center text-md-left pb-2">
-      <ng-template *ngTemplateOutlet="pageingTemplate"></ng-template>
+      <ng-container *ngTemplateOutlet="pageingTemplate"></ng-container>
    </div>  
 </div>
 
