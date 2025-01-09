@@ -37,11 +37,16 @@
 
 <div class="transactions" *ngIf="isTransactions()">
    <div class="text-center d-flex w-100 title">
-      <div class="d-flex flex1">{{activeaccount.name}}</div>
-      <div *ngIf="desktopDisplay" class="d-flex flex1 justify-content-center title-center">
+      <div class="d-flex flex1 title-left">
+         <div class="d-flex flex-column">
+            <div class="title-label">Transactions for</div>
+            <div class="title-text">{{activeaccount.name}}</div>
+         </div>
+      </div>
+      <div *ngIf="desktopDisplay" class="d-flex flex1 align-self-center justify-content-center title-center">
          <ng-container *ngTemplateOutlet="pageingTemplate"></ng-container>
       </div>
-      <div class="d-flex flex1 justify-content-right title-right">
+      <div class="d-flex flex1 justify-content-right align-self-center title-right">
          <span *ngIf="inprogress" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
          <button *ngIf="checkTransaction" class="btn btn-outline-success btn-sm" (disabled)="checkLoading" (click)="calcCheckedBalance()" title="checked balance">
             <div *ngIf="!checkLoading">
