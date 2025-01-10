@@ -25,7 +25,8 @@ Next thing I tried was adding 'maximum-scale=1' to the existing 'meta viewport' 
 to have worked - no more annying auto-zoom and I can still zoom if I want to (since I use Safari, but maybe not with Chrome). 
 Still haven't managed to get pinch to zoom on the list to work with the slide gesture - should try to figure it out as it is kind
 of irritating having to find a non-list part of the screen to reset the zoom - but not so important now the zoom is not
-happening all the time.
+happening all the time. (see https://webkit.org/blog/7367/new-interaction-behaviors-in-ios-10/ for potentially interesting stuff
+about how to workaround annoying iPhone Safari behaviours!!)
 
 09-Jan-2025 Added pageination controls which are visisble above (desktop only) and below the list. This demonstrates how to
 use 'ng-template' to re-use bits of html and 'flex' to get a left,centre,right aligned layout (ie. a pretty basic layout which is
