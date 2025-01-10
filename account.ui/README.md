@@ -1,4 +1,18 @@
 # Accountui
+10-Jan-2025 The 'auto-zoom' when entering transactions on the phone is starting to really
+annoy me. Alas it is something which is not going to go away, and it's been around a very long time judging by the number of SO requests for how to stop it.
+The general idea appears to be that it happens when the input font size is less than 16 which is probably the case for '.input-group-sm'. This bit of magic is what is suggested to work around it:
+
+input, textarea {
+    font-size: 1rem !important;
+}
+@media (min-width: 768px) {
+    input, textarea {
+        font-size: inherit !important;
+    }
+}
+
+Not sure about the min-width, or exctly what the @media thing is but I guess it's worth a try.
 
 24-Oct-2024 Really rockin' 'n rollin' now with working versions of transaction update, standing order
 processing and editing and now 'checked balance' calculation and display and even paging to show 
