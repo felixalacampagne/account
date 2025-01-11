@@ -1,7 +1,7 @@
 # Accountui
 10-Jan-2025 The 'auto-zoom' when entering transactions on the phone is starting to really
-annoy me. Alas it is something which is not going to go away, and it's been around a very long time judging by the number of SO requests for how to stop it.
-The general idea appears to be that it happens when the input font size is less than 16 which is probably the case for '.input-group-sm'. This bit of magic is what is suggested to work around it:
+piddle me off. Alas it is something which is not going to go away, and it's been around a very long time judging by the number of SO requests for how to stop it.
+The general idea appears to be that it happens when the input font size is less than 16 which is probably the case for '.form-control-sm'. This bit of magic is what is suggested to work around it:
 
 input, textarea {
     font-size: 1rem !important;
@@ -12,7 +12,26 @@ input, textarea {
     }
 }
 
-Not sure about the min-width, or exctly what the @media thing is but I guess it's worth a try.
+The @media directive (or query) is used to conditionally do css depending on device charactersitics, eg. screen width.
+(see https://css-tricks.com/a-complete-guide-to-css-media-queries/ )
+The example font size changes above is probably incorrect, my guess is what it is trying to do is set the input/textarea
+font size to 16px and if screen is wider than an iphone then override this with the default parent size. Since the 'screen' media-type 
+is missing both have !important it is not likely to work well unless later definitions override earlier ones however the font size of the 
+input fields was larger (and uglier).
+
+Needless to say it the larger font had no impact on the annoying auto-zooming of the input fields.
+
+Next thing I tried was adding 'maximum-scale=1' to the existing 'meta viewport' line in index.html. This actually seems
+to have worked - no more annying auto-zoom and I can still zoom if I want to (since I use Safari, but maybe not with Chrome). 
+Still haven't managed to get pinch to zoom on the list to work with the slide gesture - should try to figure it out as it is kind
+of irritating having to find a non-list part of the screen to reset the zoom - but not so important now the zoom is not
+happening all the time. (see https://webkit.org/blog/7367/new-interaction-behaviors-in-ios-10/ for potentially interesting stuff
+about how to workaround annoying iPhone Safari behaviours!!)
+
+09-Jan-2025 Added pageination controls which are visisble above (desktop only) and below the list. This demonstrates how to
+use 'ng-template' to re-use bits of html and 'flex' to get a left,centre,right aligned layout (ie. a pretty basic layout which is
+once again difficult to achieve with angular/bootstrap/whatever thanks to the complete lack of useful examples of how to use the
+features).
 
 24-Oct-2024 Really rockin' 'n rollin' now with working versions of transaction update, standing order
 processing and editing and now 'checked balance' calculation and display and even paging to show 

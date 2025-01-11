@@ -1,19 +1,41 @@
 .title
 {
-   padding-top: 16px;
-   font-size: 16px;
-   font-weight:bold;
+   padding-top: 5px;
+
 }
+
+.title-label
+{
+   text-align:left;
+   font-size: 10px; 
+}
+.title-text
+{
+   text-align:left;
+   font-size: 14px;
+   font-weight:bold; 
+}
+
 .title-left
 {
    display: inline;
 }
 
-.title-right
+.title-center
 {
    font-size: 12px;
-   display: inline;
-   float: right;
    font-weight:normal;
 }
 
+.title-right
+{
+   font-size: 12px;
+   font-weight:normal;
+   text-align:right;
+   justify-content: right;
+}
+
+.flex1 {
+   flex: 1;
+ }
+ 

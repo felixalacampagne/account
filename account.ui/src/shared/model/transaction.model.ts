@@ -53,3 +53,10 @@ export class AddTransactionItem extends TransactionItem
       this.cptyAccountNumber = item.cptyAccountNumber;
    }
 }
+
+export class Transactions
+{
+   public transactions: TransactionItem[] = [];
+   public currentpage: number = -1;
+   public rowcount: number = -1;
+}

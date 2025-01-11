@@ -1,9 +1,52 @@
 <!-- account.ui/src/app/transactions/transactions.component.html -->
+<ng-template #pageingTemplate>
+   <div class="btn-group" role="group">
+      <button class="btn btn-outline-dark btn-sm" (click)="lastPage()" title="last">
+         <i class="bi bi-chevron-bar-left"></i>
+      </button>
+
+      <button class="btn btn-outline-dark btn-sm" (click)="nextPage()" title="prev">
+         <i class="bi bi-chevron-left"></i>
+      </button>
+
+      <input
+         #userpage
+         type="text"
+         inputmode="numeric"
+         pattern="[0-9]*"
+         class="form-control form-control-sm text-center"
+         id="paginationInput"
+         [value]="pageNumber"
+         (keyup.enter)="selectPage(userpage.value)"
+         (blur)="selectPage(userpage.value)"
+         (input)="formatInput($any($event).target)"
+         (debounceInput)="selectPage(userpage.value)"
+         [debounceInputTime]="1000"
+         aria-labelledby="paginationInputLabel paginationDescription"
+         style="width: 2.8rem"
+      />
+
+      <button class="btn btn-outline-dark btn-sm" type="button" (click)="prevPage()" title="next">
+         <i class="bi bi-chevron-right"></i>
+      </button>  
+      <button class="btn btn-outline-dark btn-sm" type="button" (click)="firstPage()" title="latest">
+         <i class="bi bi-chevron-bar-right"></i>
+      </button>          
+   </div>
+</ng-template>   
+
 <div class="transactions" *ngIf="isTransactions()">
-   <div class="title">
-      <span class="title-left">Transactions for {{activeaccount.name}}</span>
-      
-      <span class="title-right">
+   <div class="text-center d-flex w-100 title">
+      <div class="d-flex flex1 title-left">
+         <div class="d-flex flex-column">
+            <div class="title-label">Transactions for</div>
+            <div class="title-text">{{activeaccount.name}}</div>
+         </div>
+      </div>
+      <div *ngIf="desktopDisplay" class="d-flex flex1 align-self-center justify-content-center title-center">
+         <ng-container *ngTemplateOutlet="pageingTemplate"></ng-container>
+      </div>
+      <div class="d-flex flex1 justify-content-right align-self-center title-right">
          <span *ngIf="inprogress" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
          <button *ngIf="checkTransaction" class="btn btn-outline-success btn-sm" (disabled)="checkLoading" (click)="calcCheckedBalance()" title="checked balance">
             <div *ngIf="!checkLoading">
@@ -18,7 +61,7 @@
          <button class="btn btn-outline-success btn-sm" [routerLink]="['/viewchecked', activeaccount.id]" title="view checked list">
             <i class="bi bi-list-check"></i>
          </button>
-      </span>      
+      </div>      
    </div>
    <table class="table table-striped table-sm">
       <thead class="thead-inverse">
@@ -47,33 +90,7 @@
       </tbody>
    </table>
    <div class="text-center text-md-left pb-2">
-      <div  class="btn-group" role="group">
-         <button class="btn btn-outline-dark btn-sm" (click)="nextPage()" title="prev">
-            <i class="bi bi-chevron-left"></i>
-         </button>
-
-         <input
-            #i
-            type="text"
-            inputmode="numeric"
-            pattern="[0-9]*"
-            class="form-control form-control-sm text-center"
-            id="paginationInput"
-            [value]="pageNumber"
-            (keyup.enter)="selectPage(i.value)"
-            (blur)="selectPage(i.value)"
-            (input)="formatInput($any($event).target)"
-            aria-labelledby="paginationInputLabel paginationDescription"
-            style="width: 2.8rem"
-         />
-
-         <button class="btn btn-outline-dark btn-sm" type="button" (click)="prevPage()" title="next">
-            <i class="bi bi-chevron-right"></i>
-         </button>  
-         <button class="btn btn-outline-dark btn-sm" type="button" (click)="firstPage()" title="latest">
-            <i class="bi bi-chevron-bar-right"></i>
-         </button>          
-      </div>
+      <ng-container *ngTemplateOutlet="pageingTemplate"></ng-container>
    </div>  
 </div>
 
@@ -150,17 +167,6 @@
             </div>
 
             <div *ngIf="canShowTransferAccounts()">
-
-               <!-- Took a while to get account lookup to work in an almost reasonable way.
-                    As soon as I got it to work I discovered the ngBootstrap 'Typeahead' component which 
-                    on the face of it looks like it would do what I want it to, except for the display of the
-                    complete list. Of course nothing ever works quite the way it needs to and I have no
-                    idea if the pseudo-fuzzy search based on number and name fields is possible or whether
-                    the selected object is returned and not just a string - this was the problem with datalist...
-                    CHeckout the 'Template for results' example using an 'object for the model'
-                    Still it might be interesting to try it so I don't have to rely on luck which seems to be
-                    the case for the way it is at the moment!
-                 -->
                <ng-template #rt let-r="result" let-t="term">
                   <ngb-highlight [result]="displayTfrAccountItem(r)" [term]="t"></ngb-highlight>
                </ng-template>
@@ -177,28 +183,6 @@
                           id="txCptyName" name="txCptyName" type="text" class="form-control form-control-sm" />
 
                </div>
-
-               <!-- 
-               <div class="acc-modal-row">
-                  <div class="input-group-prepend">
-                        <span class="acc-modal-label" id="lbCpty" >Counterparty name</span>
-                  </div>
-                  <input #searchQuery (input)="onSearchUpdated(searchQuery.value)" [(ngModel)]="txCptyName" title="Counterparty with search" name="txCptyName" id="txCptyName" type="text" class="form-control form-control-sm" autoComplete="off" /> 
-                  <button
-                  type="button"
-                  class="btn btn-outline-primary me-2"
-                  id="dropdownManual"
-                  ngbDropdownAnchor
-                  (click)="this.showFullTfrList();"></button>
-               </div>
-               <div #srchDropDown="ngbDropdown" ngbDropdown>
-                  <div ngbDropdownMenu >
-                     <ul class="list-group">
-                        <li *ngFor="let trnAcc of filteredTfrAccs()" (click)="onSearchCptySelect(trnAcc)" ngbDropdownItem>{{ this.displayTfrAccountItem(trnAcc) }}</li>
-                     </ul>
-                  </div>
-               </div>  
-               -->
                <div class="acc-modal-row">
                   <div class="input-group-prepend">
                      <span class="acc-modal-label" id="lbCommunication">Communication</span>

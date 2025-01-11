@@ -1,24 +1,75 @@
 // app/transactions/transactions.component.ts
-import { Component, OnInit, ChangeDetectorRef, ViewChild, Input, SimpleChanges, computed, signal, WritableSignal } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, Input, SimpleChanges, Directive, EventEmitter, HostListener, OnDestroy, Output } from '@angular/core';
 import { FormsModule} from '@angular/forms';
 import { CommonModule /*, DatePipe */ } from '@angular/common';
-import { NgbModal, ModalDismissReasons, NgbModalRef, NgbModule, NgbDateAdapter, NgbDateNativeAdapter, NgbDropdown, NgbDropdownModule} from '@ng-bootstrap/ng-bootstrap';
-import { NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, ModalDismissReasons, NgbModalRef, NgbModule, NgbDateAdapter, NgbDateNativeAdapter} from '@ng-bootstrap/ng-bootstrap';
+import { NgbDateParserFormatter } from '@ng-bootstrap/ng-bootstrap';
 import { DeviceDetectorService } from 'ngx-device-detector';
 
 import {environment} from '../../environments/environment';
 
-import { accountNgbDateParserFormatter, ddmmyyyyNgbDateParserFormatter, isoNgbDateParserFormatter } from '../../shared/datepickformatter';
+import { accountNgbDateParserFormatter } from '../../shared/datepickformatter';
 import {AccountService} from '../../shared/service/account.service';
 import {DateformatService} from '../../shared/service/dateformat.service';
 import {AccountItem} from '../../shared/model/accountitem.model';
 import {AddTransactionItem, TransactionItem} from '../../shared/model/transaction.model';
 import { Html5QrcodeScanner } from 'html5-qrcode';
 import { Html5QrcodeResult } from 'html5-qrcode/esm/core';
-import { RouterModule, RouterOutlet } from '@angular/router'; // for 'routerlink is not a property of button'
+import { RouterModule } from '@angular/router'; // for 'routerlink is not a property of button'
 import { TxnDelConfirmDialog } from './txndel-confirm-modal.component';
 import { TfrAccountItem } from 'src/shared/model/tfraccountitem.model';
-import { debounceTime, distinctUntilChanged, map, Observable, OperatorFunction } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map, Observable, OperatorFunction, Subject, Subscription } from 'rxjs';
+
+// Tried to add a 'fromEvent' with debouncing to the input field in the pageination template with no success - the @ViewChild
+// variable which was supposed to be the thing to reference in the fromEvent was always undefined 
+// (except after the second loadtransactions, ie. after the pageination had been used).
+// Eventually I stumbled across a version of DebounceDirective on SO. Obviously for a different Angular version
+// so it needed a bit of fiddling with to get it to compile and it was for clicks so again more searching 
+// to determine how to see changes (no, not using the change event but using 'input') but the perseverance
+// paid off as pageination now happens without needing a return, tab or click elsewhere, all of which are
+// difficult on the phone. 
+// TODO: put it in a seperate file.
+
+@Directive({
+   standalone: true,
+   selector: '[debounceInput]'
+})
+export class DebounceInputDirective implements OnInit, OnDestroy {
+
+   @Input()
+   public debounceInputTime = 500;
+
+   @Output()
+   public debounceInput = new EventEmitter();
+
+   private changes = new Subject();
+   private subscription!: Subscription;
+
+   constructor() { }
+
+   public ngOnInit() {
+       this.subscription = this.changes
+         .pipe(debounceTime(this.debounceInputTime))
+         .subscribe(
+             (e) => { 
+               this.debounceInput.emit(e);
+            }
+         );
+   }
+
+   public ngOnDestroy() {
+       this.subscription.unsubscribe();
+   }
+
+   @HostListener('input', ['$event']) // 'change' didn't work
+   public changeEvent(event: Event) {
+       event.preventDefault();
+       event.stopPropagation();
+
+       this.changes.next(event);
+   }
+
+} // End DebounceInputDirective class
 
 // WARNING: 'standalone: true' means the component must not be put in app.module and all imports must be duplicated
 // in the imports sections of @Component otherwise many inexplicable errors will occur, eg.
@@ -26,16 +77,15 @@ import { debounceTime, distinctUntilChanged, map, Observable, OperatorFunction }
 @Component({
   selector: 'transactions',
   standalone: true,
-  imports: [FormsModule, CommonModule, NgbModule, RouterModule, NgbDropdownModule ],
+  imports: [FormsModule, CommonModule, NgbModule, RouterModule, DebounceInputDirective ],
   templateUrl: './transactions.component.html',
   styleUrls: ['../../sass/account-styles.scss', '../app.component.css', './transactions.component.css'],
   providers: [{provide: NgbDateParserFormatter, useClass: accountNgbDateParserFormatter},
-              { provide: NgbDateAdapter, useClass: NgbDateNativeAdapter },
-              NgbDropdown
+              { provide: NgbDateAdapter, useClass: NgbDateNativeAdapter }
   ]
 })
 
-export class TransactionsComponent implements OnInit {
+export class TransactionsComponent implements OnInit  {
 
    // accid is set via the route URL which is detected via ngOnChanges. The id is used to load the accountitem from
    // the server - cannot rely on the list previously loaded by the main app as is it is cleared by the refresh button
@@ -45,10 +95,8 @@ export class TransactionsComponent implements OnInit {
    // it appears to work including when the refresh button is used.
    @Input() accid!: number;
    
-  
-   @ViewChild('closebutton') closebutton: any;   
    modalReference: NgbModalRef | undefined;
-
+ 
    activeaccount!: AccountItem; 
    transferAccounts!: TfrAccountItem[] | undefined;
    typahtfraccs: TfrAccountItem[] = [];
@@ -77,20 +125,17 @@ export class TransactionsComponent implements OnInit {
    // references 'this.updateTxn'. Obviously it should only consider the value when it is displayed
    // however I have no idea how to get it to do this. Thus 'origupdTxn' is the value to check to
    // determine whether an edit is really in progress.
-   updateTxn: TransactionItem = new TransactionItem(); // Edited valeus of transaction beign updated
+   updateTxn: TransactionItem = new TransactionItem(); // Edited values of transaction beign updated
    origupdTxn:TransactionItem | undefined; // Original values of transaction being updated.
    public txnTypes: string[] = [];
    pageNumber: number = 1;
-
-   @ViewChild('srchDropDown', { read: NgbDropdown })
-   srchDropDown!: NgbDropdown;
+   maxPage: number = -1;
+   
    constructor(private accountService: AccountService,
       private cd: ChangeDetectorRef,
-      // private datePipe: DatePipe,
       private modalService: NgbModal,
       private deviceService: DeviceDetectorService,
       private datfmt : DateformatService
-      // ,public srchDropDown: NgbDropdown
     )
    {
       this.envName = environment.envName;
@@ -101,13 +146,29 @@ export class TransactionsComponent implements OnInit {
       this.desktopDisplay = this.deviceService.isDesktop();
    }
 
-
    ngOnInit() 
    {
-      console.log('TransactionsComponent.ngOnInit: start');
+      console.log('ngOnInit: start');
       const d: Date = new Date();  
       this.txDate = d; //{year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
-      console.log("TransactionsComponent.ngOnInit: finish");
+      console.log("ngOnInit: finish");
+   }
+      
+   ngOnChanges(changes: SimpleChanges ) 
+   {
+      console.log("ngOnChanges: enter: " + JSON.stringify(changes, null, 2));
+      for (const propName in changes) 
+      {
+         console.log("ngOnChanges: propName:" + propName);
+         const chng = changes[propName];
+         if(propName === 'accid')
+         {
+            this.resetTransfer();  // must reload list to ensure right account is excluded
+            // console.log("TransactionsComponent.ngOnChanges: setting checkTransaction undefined");
+            this.checkTransaction = undefined; // Hide the value until a new one is loaded
+            this.loadAccount(chng.currentValue);
+         }
+      }
    }
 
    resetDatepicker()
@@ -145,12 +206,17 @@ export class TransactionsComponent implements OnInit {
   }
 
    private getDismissReason(reason: any): string {
-      if (reason === ModalDismissReasons.ESC) {
-      return 'CANCEL';
-      } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
-      return 'CANCEL';
-      } else {
-      return `${reason}`;
+      if (reason === ModalDismissReasons.ESC) 
+      {
+         return 'CANCEL';
+      } 
+      else if (reason === ModalDismissReasons.BACKDROP_CLICK) 
+      {
+         return 'CANCEL';
+      } 
+      else 
+      {
+         return `${reason}`;
       }
    }
 
@@ -198,33 +264,16 @@ export class TransactionsComponent implements OnInit {
          this.delTransactionToDB(updtxn);
       }
    }
-      
-   ngOnChanges(changes: SimpleChanges ) 
-   {
-      console.log("TransactionsComponent.ngOnChanges: enter: " + JSON.stringify(changes, null, 2));
-      for (const propName in changes) 
-      {
-         console.log("TransactionsComponent.ngOnChanges: propName:" + propName);
-         const chng = changes[propName];
-         if(propName === 'accid')
-         {
-            this.resetTransfer();  // must reload list to ensure right account is excluded
-            // console.log("TransactionsComponent.ngOnChanges: setting checkTransaction undefined");
-            this.checkTransaction = undefined; // Hide the value until a new one is loaded
-            this.loadAccount(chng.currentValue);
-         }
-      }
-   }
 
    loadAccount(id : number)
    {
-     console.log("TransactionsComponent.loadAccount: Starting: id " + id);
+     console.log("loadAccount: Starting: id " + id);
          
      this.accountService.getAccount(id).subscribe({
          next: (res)=>{
             if(!res)
             {
-              console.log("TransactionsComponent.loadAccount: variable is not initialized");
+              console.log("loadAccount[next]: variable is not initialized");
             }
             else
             {
@@ -233,12 +282,12 @@ export class TransactionsComponent implements OnInit {
             }
           },
          error: (err)=>{
-             console.log("TransactionsComponent.loadAccount: An error occured during subscribe: " + JSON.stringify(err, null, 2));
+             console.log("loadAccount[error]: An error occured during subscribe: " + JSON.stringify(err, null, 2));
              } ,
-         complete: ()=>{console.log("TransactionsComponent.loadAccount: completed");}
+         complete: ()=>{console.log("loadAccount[complete]: completed");}
       });
    
-     console.log("TransactionsComponent.loadAccount:Finished");
+     console.log("loadAccount:Finished");
    }
 
    // radio buttons
@@ -269,7 +318,7 @@ export class TransactionsComponent implements OnInit {
          }
 
       }
-      console.log("TransactionsComponent.toggleTransferAccounts: isTransfer: " + this.isTransfer);
+      console.log("toggleTransferAccounts: isTransfer: " + this.isTransfer);
    }
    canShowTransferAccounts() {
       return((this.isTransfer == true) && this.transferAccounts);
@@ -277,37 +326,36 @@ export class TransactionsComponent implements OnInit {
 
    loadTransferAccounts() {
       const id : number = this.activeaccount.id;
-      // console.log("TransactionsComponent.loadTransferAccounts: Starting: id " + id);
+      // console.log("loadTransferAccounts: Starting: id " + id);
       this.inprogress = true;   
       this.accountService.getAccountsForTransfer(this.activeaccount).subscribe({
          next: (res) => {
             if(!res)
             {
-              console.log("TransactionsComponent.loadTransferAccounts: variable is not initialized");
+              console.log("loadTransferAccounts[next]: variable is not initialized");
             }
             else
             {
                this.transferAccounts = res;
                this.typahtfraccs = this.transferAccounts; 
-               this.initTfrAccSignal();            
             }
          },
          error: (err) => {
-            console.log("TransactionsComponent.loadTransferAccounts: An error occured during subscribe: " + JSON.stringify(err, null, 2));
+            console.log("loadTransferAccounts[error]: An error occured during subscribe: " + JSON.stringify(err, null, 2));
             this.inprogress = false; // error or compete NOT error then complete
         } ,
          complete: () => {
-            // console.log("TransactionsComponent.loadTransferAccounts: completed");
+            // console.log("loadTransferAccounts[complete]: completed");
             this.inprogress = false;
          }
        });
     
-      // console.log("TransactionsComponent.loadTransferAccounts:Finished");      
+      // console.log("loadTransferAccounts:Finished");      
    }
    
    getCheckedBalance(acc : AccountItem)
    {
-      console.log("TransactionsComponent.getCheckedBalance: Starting: " + JSON.stringify(acc, null, 2));
+      console.log("getCheckedBalance: Starting: " + JSON.stringify(acc, null, 2));
       if(acc.id < 0)
          return;
 
@@ -315,28 +363,28 @@ export class TransactionsComponent implements OnInit {
          next: (res)=> {
             if(!res)
             {
-               console.log("TransactionsComponent.getCheckedBalance: variable is not initialized");
+               console.log("getCheckedBalance[next]: variable is not initialized");
             }
             else
             {
                this.checkTransaction = res;
-               console.log("TransactionsComponent.getCheckedBalance: returned");
+               console.log("getCheckedBalance[next]: returned");
             }
          },
          error: (err)=>{
-            console.log("TransactionsComponent.getCheckedBalance: An error occured during getCheckedBalance subscribe: " + JSON.stringify(err, null, 2));
+            console.log("getCheckedBalance[error]: An error occured during getCheckedBalance subscribe: " + JSON.stringify(err, null, 2));
          } ,
          complete: ()=>{
-            console.log("TransactionsComponent.getCheckedBalance: getCheckedBalance loading completed");
+            console.log("getCheckedBalance[error]: getCheckedBalance loading completed");
          }
       });
    
-      console.log("TransactionsComponent.getCheckedBalance:Finished");
+      console.log("getCheckedBalance: Finished");
    }
 
 loadTransactions(acc : AccountItem, page: number = 1)
 {
-   // console.log("TransactionsComponent.loadTransactions: Starting: " + JSON.stringify(acc, null, 2));
+   // console.log("loadTransactions: Starting: " + JSON.stringify(acc, null, 2));
    if(acc.id < 0)
       return;
    let pagesize: number = this.desktopDisplay ? 30 : 15;
@@ -344,25 +392,26 @@ loadTransactions(acc : AccountItem, page: number = 1)
       next: (res)=>{
             if(!res)
             {
-              console.log("TransactionsComponent.loadTransactions: variable is not initialized");
+              console.log("loadTransactions[next]: variable is not initialized");
             }
             else
             {
-              this.activeaccount = acc;
-              this.transactions = res;
-              this.pageNumber = page;
-            //   console.log("TransactionsComponent.loadTransactions: transactions contains " + this.transactions.length + " items.");
+               this.activeaccount = acc;
+               this.transactions = res.transactions;
+               this.pageNumber = res.currentpage;
+               this.maxPage = Math.trunc(res.rowcount / pagesize)+1;
+               // console.log("loadTransactions[next]: transactions contains " + this.transactions.length + " items.");
             }
           },
       error: (err)=>{
-          console.log("TransactionsComponent.loadTransactions: An error occured during loadTransactions subscribe: " + JSON.stringify(err, null, 2));
+          console.log("loadTransactions[error]: An error occured during loadTransactions subscribe: " + JSON.stringify(err, null, 2));
           } ,
       complete: ()=>{
-         // console.log("TransactionsComponent.loadTransactions: loadTransactions loading completed");
+         // console.log("loadTransactions[complete]: loadTransactions loading completed");
       }
    });
 
-   // console.log("TransactionsComponent.loadTransactions:Finished");
+   // console.log("loadTransactions:Finished");
 }
 
 nextPage() 
@@ -386,7 +435,13 @@ firstPage()
    this.loadTransactions(this.activeaccount);
 }
 
+lastPage()
+{
+   this.loadTransactions(this.activeaccount, this.maxPage);
+}
+
 selectPage(page: string) {
+   console.log("selectPage: page:" + page);
    let p : number = parseInt(page, 10) || 0;
    this.loadTransactions(this.activeaccount, p);
 }
@@ -421,7 +476,7 @@ addTransactionToDB(txn :AddTransactionItem)
   this.inprogress = true;
   this.accountService.addTransaction(txn).subscribe( {
       next: (res)=>{
-         //  console.log("TransactionsComponent.addTransactionToDB: Response: " + res);
+         //  console.log("addTransactionToDB: Response: " + res);
           // Must wait for add to complete before loading new transaction list
           this.loadTransactions(this.activeaccount);
           // Reset amount to prevent double entry
@@ -432,16 +487,16 @@ addTransactionToDB(txn :AddTransactionItem)
          this.resetTransfer();           
       },
       error: (err)=>{
-          console.log("TransactionsComponent.addTransactionToDB: An error occured during addTransactionToDB subscribe:" + JSON.stringify(err));
+          console.log("addTransactionToDB[error]: An error occured during addTransactionToDB subscribe:" + JSON.stringify(err));
           this.inprogress = false; // error or compete NOT error then complete
       } ,
       complete: ()=>{
-         // console.log("TransactionsComponent.addTransactionToDB: completed");
+         // console.log("addTransactionToDB: completed");
          this.inprogress = false;
       }
    });
 
-//   console.log("TransactionsComponent.addTransactionToDB:Finished");
+//   console.log("addTransactionToDB:Finished");
 }
 
 resetTransfer()
@@ -898,19 +953,6 @@ clearComment() {
   this.txComment = "";
 }
 
-private itemsS:WritableSignal<TfrAccountItem[]> = signal<TfrAccountItem[]>([]);
-searchQuery:WritableSignal<string> = signal<string>('');
-filteredTfrAccs = computed<TfrAccountItem[]>(() => 
-   {
-      const sq = this.searchQuery();
-      if(sq.length > 0)
-      {
-         console.log("compute: sq:" + sq);
-         return this.itemsS().filter(x => this.isTfrAccMatch(x, sq));
-      }
-      return [];
-   });
-
 isTfrAccMatch(tfracc : TfrAccountItem, pattern : string) : boolean
 {
    let match : boolean = false;
@@ -926,20 +968,6 @@ isTfrAccMatch(tfracc : TfrAccountItem, pattern : string) : boolean
    return match;
 }
 
-initTfrAccSignal() {
-   if(this.transferAccounts) {
-      this.itemsS.set(this.transferAccounts);
-   }
-}
-
-onSearchUpdated(sq: string) {
-   console.log("onSearchUpdated: sq:" + sq);
-   this.searchQuery.set(sq);
-
-   this.displayDropdown(this.showTransferAccountSearchList());
-
-}
-
 displayTfrAccountItem(tfracc : TfrAccountItem) : string
 {
    let s : string = "";
@@ -951,33 +979,6 @@ displayTfrAccountItem(tfracc : TfrAccountItem) : string
    return s;
 }
 
-showTransferAccountSearchList() 
-{
-   let canDisplay : boolean = (this.filteredTfrAccs().length > 0) 
-                              && ((this.filteredTfrAccs().length < 10) || (this.searchQuery() == "*") )
-                              ;
-   console.log("showTransferAccountSearchList: canDisplay:" + canDisplay);
-   return canDisplay
-}
-
-public displayDropdown(open : boolean): void 
-{
-   console.log("displayDropdown: open:" + open);
-   if(open)
-   {
-      this.srchDropDown.open();
-   }
-   else
-   {
-      this.srchDropDown.close();   
-   }
-}
-
-public showFullTfrList(): void 
-{
-   console.log("showFullTfrList: open");
-   this.onSearchUpdated("*");
-}
 
 // Typeahead functions
 search: OperatorFunction<string, readonly TfrAccountItem[]> = (text$: Observable<string>) =>
@@ -995,3 +996,4 @@ formatter = (x: TfrAccountItem) => // appears to be triggered when item in list 
       return x.cptyAccountName;
    };    
 } // End class
+
