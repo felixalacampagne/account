@@ -160,7 +160,7 @@ public class TransactionService
             srcTxn.setComment(srcTxn.getComment() + srcupdcomm);
             srcTxn = this.transactionJpaRepository.save(srcTxn);
          }
-         log.info("addTransaction: added transfer transaction for account id {}: id:{}", txntfr.getAccountId(), txntfr.getSequence());
+         log.info("addPhoneAccountTransaction: added transfer transaction for account id {}: id:{}", txntfr.getAccountId(), txntfr.getSequence());
       }
       else
       {

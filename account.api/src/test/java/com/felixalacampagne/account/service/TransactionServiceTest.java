@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
@@ -102,47 +103,61 @@ class TransactionServiceTest
    @Test
    void addTransactionTest()
    {
-      List<Transaction> txnsforacc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(22L);
-      List<Transaction> txnsfortfracc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(34L);
+      long accid=22L;
+      long cptyaccid=35L;
+      List<Transaction> txnsforacc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(accid);
+      List<Transaction> txnsfortfracc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(cptyaccid);
 
       int origtxncnt = txnsforacc.size();
       int origtfrtxncnt = txnsfortfracc.size();
       Transaction origtxn = txnsforacc.get(5);
       TransactionItem origtxnitm = transactionService.mapToItem(origtxn, BalanceType.NORMAL);
 
-      // tfr 34
       AddTransactionItem addtxnitm = new AddTransactionItem(
             origtxnitm.getAccid(), LocalDate.now(), "12345.12", "TEST",
             "TEST no TFR",
             Optional.empty());
 
       transactionService.addTransaction(addtxnitm);
-      txnsforacc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(22L);
-      txnsfortfracc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(34L);
+      txnsforacc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(accid);
+      txnsfortfracc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(cptyaccid);
       assertEquals(origtxncnt+1 , txnsforacc.size());
       assertEquals(origtfrtxncnt, txnsfortfracc.size());
       origtxncnt = txnsforacc.size();
 
+      // last param must be PhoneAccount.ID, not Account.ID (which happens to be 242 for Account.ID=35)  
+      // Example didn't work and no way to know why. Brute force filter works just fine!!
+//      PhoneAccount phoneAccount = new PhoneAccount();
+//      phoneAccount.setAccountId(cptyaccid);
+//      Example<PhoneAccount> example = Example.of(phoneAccount);
+//      phoneAccount = phoneAccountJpaRepository.findOne(example).orElseThrow(()-> new RuntimeException("no PhoneAccount for Account.ID:" + cptyaccid));
+      PhoneAccount phoneAccount = phoneAccountJpaRepository.findAll().stream()
+            .filter(p-> p.getAccountId()==cptyaccid)
+            .findAny()
+            .orElseThrow(()-> new RuntimeException("no PhoneAccount for Account.ID:" + cptyaccid));
+      
+      
       addtxnitm = new AddTransactionItem(
             origtxnitm.getAccid(), LocalDate.now(), "22345.12", "TEST",
             "TEST with TFR from (debit) src account",
-            Optional.of(34L));
+            Optional.of(phoneAccount.getId()));
       transactionService.addTransaction(addtxnitm);
-      txnsforacc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(22L);
-      txnsfortfracc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(34L);
+      txnsforacc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(accid);
+      txnsfortfracc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(cptyaccid);
       log.info("addTransactionTest: transfer account credit: {}", txnsfortfracc.get(txnsfortfracc.size()-1));
       assertEquals(origtxncnt+1 , txnsforacc.size());
       assertEquals(origtfrtxncnt+1, txnsfortfracc.size());
       origtxncnt = txnsforacc.size();
       origtfrtxncnt = txnsfortfracc.size();
 
+      // last param must be PhoneAccount.ID, not Account.ID (which happens to be 242 for Account.ID=35)
       addtxnitm = new AddTransactionItem(
             origtxnitm.getAccid(), LocalDate.now(), "-32345.12", "TEST",
             "TEST with TFR to (credit) src account",
-            Optional.of(34L));
+            Optional.of(phoneAccount.getId()));
       transactionService.addTransaction(addtxnitm);
-      txnsforacc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(22L);
-      txnsfortfracc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(34L);
+      txnsforacc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(accid);
+      txnsfortfracc = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(cptyaccid);
       log.info("addTransactionTest: transfer account debit: {}", txnsfortfracc.get(txnsfortfracc.size()-1));
       assertEquals(origtxncnt+1 , txnsforacc.size());
       assertEquals(origtfrtxncnt+1, txnsfortfracc.size());
