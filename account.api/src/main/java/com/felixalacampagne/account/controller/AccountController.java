@@ -20,6 +20,7 @@ import com.felixalacampagne.account.model.AccountDetail;
 import com.felixalacampagne.account.model.AccountItem;
 import com.felixalacampagne.account.model.Accounts;
 import com.felixalacampagne.account.model.AddTransactionItem;
+import com.felixalacampagne.account.model.EPCTransaction;
 import com.felixalacampagne.account.model.StandingOrderItem;
 import com.felixalacampagne.account.model.TfrAccountItem;
 import com.felixalacampagne.account.model.TransactionItem;
@@ -28,6 +29,7 @@ import com.felixalacampagne.account.model.Version;
 import com.felixalacampagne.account.service.AccountException;
 import com.felixalacampagne.account.service.AccountService;
 import com.felixalacampagne.account.service.BalanceService;
+import com.felixalacampagne.account.service.EPCTransactionService;
 import com.felixalacampagne.account.service.StandingOrderService;
 import com.felixalacampagne.account.service.TransactionService;
 import com.felixalacampagne.account.service.TransactionService.BalanceType;
@@ -41,20 +43,22 @@ public class AccountController {
    private final TransactionService transactionService;
    private final StandingOrderService standingOrderService;
    private final BalanceService balanceService;
-
+   private final EPCTransactionService epcTransactionService;
    private final Version version;
 
    public AccountController(AccountService accountService,
                            TransactionService transactionService,
                            StandingOrderService standingOrderService,
                            Version version,
-                           BalanceService balanceService)
+                           BalanceService balanceService,
+                           EPCTransactionService epcTransactionService)
    {
       this.accountService = accountService;
       this.transactionService = transactionService;
       this.standingOrderService = standingOrderService;
       this.version = version;
       this.balanceService = balanceService;
+      this.epcTransactionService = epcTransactionService;
    }
 
     @GetMapping("/greeting")
@@ -276,4 +280,24 @@ public class AccountController {
        }
        return this.transactionService.getCheckedTransactions(accountid, 25, pageno);
     }
+
+    // TODO: needs to return an image, eg. PNG
+    @PutMapping(value = "/qrcodepayer")
+    public String getQREPCImage(@RequestBody EPCTransaction epcTransaction, Model model)
+    {
+       log.info("getQREPCImage: epc: {}", epcTransaction);
+       try
+       {
+          this.epcTransactionService.makeEPCFromTransaction(epcTransaction);
+
+       }
+       catch(Exception ex)
+       {
+          log.info("getQREPCImage: Failed to create QR code: {}", epcTransaction, ex);
+          return "failed: " + ex.getMessage();
+       }
+
+       return "ok";
+    }
+    
 }
