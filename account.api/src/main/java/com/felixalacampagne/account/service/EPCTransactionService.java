@@ -1,5 +1,6 @@
 package com.felixalacampagne.account.service;
 
+import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -7,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.felixalacampagne.account.common.QRCodeTools;
 import com.felixalacampagne.account.model.EPCTransaction;
 
 @Service
@@ -50,4 +52,8 @@ public class EPCTransactionService
       return epc;
    }
 
+   public byte[] getQRImagePNG(EPCTransaction txn) throws IOException {
+      String epc = makeEPCFromTransaction(txn);
+      return QRCodeTools.createQRPNG(epc);
+   }
 }

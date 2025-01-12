@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.felixalacampagne.account.model.AccountDetail;
@@ -293,22 +295,21 @@ public class AccountController {
    //     return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(bytearray);
 
    
-    @PutMapping(value = "/qrcodepayer")
-    public String getQREPCImage(@RequestBody EPCTransaction epcTransaction, Model model)
+    @PutMapping(value = "/qrcodepayer", produces = MediaType.IMAGE_PNG_VALUE)
+    public @ResponseBody byte[] getQREPCImage(@RequestBody EPCTransaction epcTransaction, Model model)
     {
        log.info("getQREPCImage: epc: {}", epcTransaction);
        try
        {
-          this.epcTransactionService.makeEPCFromTransaction(epcTransaction);
-
+          byte[] png = this.epcTransactionService.getQRImagePNG(epcTransaction);
+          return png;
        }
        catch(Exception ex)
        {
           log.info("getQREPCImage: Failed to create QR code: {}", epcTransaction, ex);
-          return "failed: " + ex.getMessage();
        }
 
-       return "ok";
+       return null;
     }
     
 }
