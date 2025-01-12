@@ -282,6 +282,17 @@ public class AccountController {
     }
 
     // TODO: needs to return an image, eg. PNG
+// @RequestMapping(value = "/image-byte-array", method = RequestMethod.GET, produces = MediaType.IMAGE_PNG)
+// public @ResponseBody byte[] getImageAsByteArray() throws IOException {
+//    // get byte array and simply return it;
+// }
+   // if the simple way doesn't work then  the hyper complex spring way could be used which requires a
+   // ByteArrayHttpMessageConverter and some way to call 'configureMessageConverters' to add the bean,
+   // according to https://www.baeldung.com/spring-mvc-image-media-data
+   // or returning a ResponseEntity might work:
+   //     return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(bytearray);
+
+   
     @PutMapping(value = "/qrcodepayer")
     public String getQREPCImage(@RequestBody EPCTransaction epcTransaction, Model model)
     {
