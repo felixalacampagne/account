@@ -102,7 +102,7 @@
    <div id="txnform" class="txnform">
 
       <!-- pt/pb are padding top/bottom -->
-      <div class="container border border-warning rounded pt-3 pb-3">
+      <div class="container border border-warning rounded pt-2 pb-2">
 
          <!-- 
             Was going to use 'real radio button horizontally but they just didn't look right, plus the fonts were wrong
@@ -197,9 +197,13 @@
                </div>                                              
             </div>
          </form>
-         <button type="button" class="btn btn-default btn-primary" (click)="addtransaction();">Add new transaction</button>&nbsp;
-         <button type="button" class="btn btn-primary" (click)="doScan();">Scan QR code</button>&nbsp;
+         <div class=" clearfix">
+            <div class="float-end d-flex gap-2">
+         <button type="button" class="btn btn-default btn-primary" (click)="addtransaction();">Add new transaction</button>
+         <button type="button" class="btn btn-primary" (click)="doScan();">Scan QR code</button>
          <button *ngIf="canShowTransferAccounts()" type="button" class="btn btn-primary" (click)="showQR(qrpayermodal);">Show QR code</button>
+            </div>
+         </div>
       </div>
       <div>
          <!-- this should go in the app page or be done by the app component, I think-->
