@@ -7,6 +7,7 @@ export class EPCtransaction
     public communication : string = '';
 
     constructor();
+    constructor(iban: string, name: string, amount: string, communication: string);
     constructor(iban?: string, name?: string, amount?: string, communication?: string)
     {
        this.iban = iban ?? '';
