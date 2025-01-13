@@ -19,6 +19,8 @@ import { RouterModule } from '@angular/router'; // for 'routerlink is not a prop
 import { TxnDelConfirmDialog } from './txndel-confirm-modal.component';
 import { TfrAccountItem } from 'src/shared/model/tfraccountitem.model';
 import { debounceTime, distinctUntilChanged, map, Observable, OperatorFunction, Subject, Subscription } from 'rxjs';
+import { EPCtransaction } from 'src/shared/model/epctransaction.model';
+import { QrcodepayerComponent } from '../qrcodepayer/qrcodepayer.component';
 
 // Tried to add a 'fromEvent' with debouncing to the input field in the pageination template with no success - the @ViewChild
 // variable which was supposed to be the thing to reference in the fromEvent was always undefined 
@@ -77,7 +79,7 @@ export class DebounceInputDirective implements OnInit, OnDestroy {
 @Component({
   selector: 'transactions',
   standalone: true,
-  imports: [FormsModule, CommonModule, NgbModule, RouterModule, DebounceInputDirective ],
+  imports: [FormsModule, CommonModule, NgbModule, RouterModule, DebounceInputDirective, QrcodepayerComponent ],
   templateUrl: './transactions.component.html',
   styleUrls: ['../../sass/account-styles.scss', '../app.component.css', './transactions.component.css'],
   providers: [{provide: NgbDateParserFormatter, useClass: accountNgbDateParserFormatter},
@@ -131,6 +133,8 @@ export class TransactionsComponent implements OnInit  {
    pageNumber: number = 1;
    maxPage: number = -1;
    
+   public epctxn : EPCtransaction | undefined; // value read by qrcode component
+
    constructor(private accountService: AccountService,
       private cd: ChangeDetectorRef,
       private modalService: NgbModal,
@@ -169,6 +173,30 @@ export class TransactionsComponent implements OnInit  {
             this.loadAccount(chng.currentValue);
          }
       }
+   }
+
+   showQR(qrpayermodal: any) // qrpayermodal is the '#' name of the ng-template containing the qr display
+   {
+      // Somehow need to pas the epc
+      let cptyname : string = ''
+      if(typeof(this.txCptyName) != 'string')
+      {
+         cptyname = this.txCptyName.cptyAccountName;
+      }      
+      else
+      {
+         cptyname = this.txCptyName;  
+      }
+      this.epctxn = new EPCtransaction(this.txCptyNumber, cptyname, this.txAmount, this.txCommunication);
+      this.modalReference = this.modalService.open(qrpayermodal);
+      this.modalReference.result.then(
+         (result) => {
+            console.log("showQR:modalReference:result");
+         }, 
+         (reason) => {
+            console.log("showQR:modalReference:reason");
+         }
+      );      
    }
 
    resetDatepicker()
