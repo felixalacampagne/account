@@ -1,10 +1,10 @@
 // epctransaction.model
 export class EPCtransaction
 {
-    public iban : string = '';
-    public name : string = '';
-    public amount : string = '';
-    public communication : string = '';
+    readonly iban : string = '';
+    readonly name : string = '';
+    readonly amount : string = '';
+    readonly communication : string = '';
 
     constructor();
     constructor(iban: string, name: string, amount: string, communication: string);
@@ -12,7 +12,9 @@ export class EPCtransaction
     {
        this.iban = iban ?? '';
        this.name = name ?? '';
-       this.amount = amount ?? '';
+
+       let amt: number = parseFloat(amount ?? '0.0');
+       this.amount = amt.toFixed(2);
        this.communication = communication ?? '';
     }
 }

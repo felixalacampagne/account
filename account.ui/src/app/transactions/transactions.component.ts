@@ -133,7 +133,7 @@ export class TransactionsComponent implements OnInit  {
    pageNumber: number = 1;
    maxPage: number = -1;
    
-   public epctxn : EPCtransaction | undefined; // value read by qrcode component
+   public epctxn : EPCtransaction = new EPCtransaction(); // value read by qrcode component
 
    constructor(private accountService: AccountService,
       private cd: ChangeDetectorRef,

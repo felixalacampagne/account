@@ -13,7 +13,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 })
 export class QrcodepayerComponent {
 
-@Input() epctrans: EPCtransaction | undefined;
+@Input() epctrans: EPCtransaction = new EPCtransaction();
 @ViewChild('qrcodeimg') qrcodeimg: ElementRef<any> | undefined;
 
 public qrcodeimage: SafeUrl | undefined; 
@@ -77,4 +77,6 @@ public qrcodeimage: SafeUrl | undefined;
          this.qrcodeimg.nativeElement.src = objectURL;      
       }
    }
+
+
 }
