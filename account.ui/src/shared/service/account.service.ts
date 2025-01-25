@@ -10,6 +10,7 @@ import { AddTransactionItem, TransactionItem, Transactions } from '../model/tran
 import { Version } from '../model/version.model';
 import { StandingOrderItem } from '../model/standingorderitem.model';
 import { TfrAccountItem } from '../model/tfraccountitem.model';
+import { EPCtransaction } from '../model/epctransaction.model';
 
 @Injectable()
 export class AccountService 
@@ -34,6 +35,7 @@ export class AccountService
    private standingorder : string = "standingorder/";
    private addsosvc : string = "addstandingorder";
    private updsosvc : string = "updatestandingorder";
+   private getqrcodepayer : string = 'qrcodepayer';
    private listaccinf : string = "listaccinf";
    private accinf : string = "accinf/";
    
@@ -297,19 +299,34 @@ export class AccountService
       return this.http.post(url, json, {headers: headers,  responseType: 'text'});      
     }
     
-    updateStandingOrder(soi : StandingOrderItem) : Observable<string>
-    {
-        let json : string;
-        let url : string;
-        let res;
-        json = JSON.stringify(soi);
-        url = this.apiurl + this.updsosvc;
-        console.log("updateStandingOrder: PUTing to " + url + ": " + json);
+   updateStandingOrder(soi : StandingOrderItem) : Observable<string>
+   {
+      let json : string;
+      let url : string;
+      let res;
+      json = JSON.stringify(soi);
+      url = this.apiurl + this.updsosvc;
+      console.log("updateStandingOrder: PUTing to " + url + ": " + json);
 
-        var headers = new HttpHeaders();
-        headers = headers.set('Content-Type', 'application/json');
-        headers = headers.set("Accept", "text/plain");
-        
-        return this.http.put(url, json, {headers: headers,  responseType: 'text'}); 
-    }
+      var headers = new HttpHeaders();
+      headers = headers.set('Content-Type', 'application/json');
+      headers = headers.set("Accept", "text/plain");
+      
+      return this.http.put(url, json, {headers: headers,  responseType: 'text'}); 
+   }
+ 
+   getQRCode(epc: EPCtransaction) : Observable<any>
+   {
+      let json : string;
+      let url : string;
+      let res;
+      json = JSON.stringify(epc);
+      url = this.apiurl + this.getqrcodepayer;
+      console.log("getQRCode: PUTing to " + url + ": " + json);
+
+      var headers = new HttpHeaders();
+      headers = headers.set('Content-Type', 'application/json');      
+      return this.http.put(url, json, {headers: headers,  responseType: 'blob'}); 
+   }
+
 }

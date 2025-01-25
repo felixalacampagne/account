@@ -1,0 +1,43 @@
+<!-- app/qrcodepayer/qrcodepayer.component.html -->
+<!-- TODO: Use a table. No way to get the first column width just enough to fit the
+     longest value, ie. communication, and give the rest of the width to the second column.
+     How come this angular stuff never seems to cater for the most basic of use cases?
+-->
+<div class="container">
+   <div class="row align-items-start">
+      <div class="col-4">
+         <label>Name:</label>
+      </div>
+      <div class="col-8">
+         {{epctrans.name}}
+      </div>
+   </div>
+   <div class="row align-items-start">
+      <div class="col-4">
+         <label class="">Account:</label>
+      </div>
+      <div class="col-8">
+         {{epctrans.iban}}
+      </div>
+   </div>
+   <div class="row align-items-start">
+      <div class="col-4">
+         <label class="">Amount:</label>
+      </div>
+      <div class="col-8">
+         {{epctrans.amount}}
+      </div>    
+   </div>
+   <div class="row align-items-start">
+      <div class="col-4">
+         <label class="">Communication:</label>
+      </div>
+      <div class="col-8">
+         {{epctrans.communication}}
+      </div>    
+   </div>
+</div>
+
+<div class="imgcenter">
+   <img class="img-thumbnail  mx-auto d-block" width="200" #qrcodeimg />
+</div>

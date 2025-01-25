@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,12 +15,14 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.felixalacampagne.account.model.AccountDetail;
 import com.felixalacampagne.account.model.AccountItem;
 import com.felixalacampagne.account.model.Accounts;
 import com.felixalacampagne.account.model.AddTransactionItem;
+import com.felixalacampagne.account.model.EPCTransaction;
 import com.felixalacampagne.account.model.StandingOrderItem;
 import com.felixalacampagne.account.model.TfrAccountItem;
 import com.felixalacampagne.account.model.TransactionItem;
@@ -28,6 +31,7 @@ import com.felixalacampagne.account.model.Version;
 import com.felixalacampagne.account.service.AccountException;
 import com.felixalacampagne.account.service.AccountService;
 import com.felixalacampagne.account.service.BalanceService;
+import com.felixalacampagne.account.service.EPCTransactionService;
 import com.felixalacampagne.account.service.StandingOrderService;
 import com.felixalacampagne.account.service.TransactionService;
 import com.felixalacampagne.account.service.TransactionService.BalanceType;
@@ -41,20 +45,22 @@ public class AccountController {
    private final TransactionService transactionService;
    private final StandingOrderService standingOrderService;
    private final BalanceService balanceService;
-
+   private final EPCTransactionService epcTransactionService;
    private final Version version;
 
    public AccountController(AccountService accountService,
                            TransactionService transactionService,
                            StandingOrderService standingOrderService,
                            Version version,
-                           BalanceService balanceService)
+                           BalanceService balanceService,
+                           EPCTransactionService epcTransactionService)
    {
       this.accountService = accountService;
       this.transactionService = transactionService;
       this.standingOrderService = standingOrderService;
       this.version = version;
       this.balanceService = balanceService;
+      this.epcTransactionService = epcTransactionService;
    }
 
     @GetMapping("/greeting")
@@ -276,4 +282,34 @@ public class AccountController {
        }
        return this.transactionService.getCheckedTransactions(accountid, 25, pageno);
     }
+
+    // TODO: needs to return an image, eg. PNG
+// @RequestMapping(value = "/image-byte-array", method = RequestMethod.GET, produces = MediaType.IMAGE_PNG)
+// public @ResponseBody byte[] getImageAsByteArray() throws IOException {
+//    // get byte array and simply return it;
+// }
+   // if the simple way doesn't work then  the hyper complex spring way could be used which requires a
+   // ByteArrayHttpMessageConverter and some way to call 'configureMessageConverters' to add the bean,
+   // according to https://www.baeldung.com/spring-mvc-image-media-data
+   // or returning a ResponseEntity might work:
+   //     return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(bytearray);
+
+   
+    @PutMapping(value = "/qrcodepayer", produces = MediaType.IMAGE_PNG_VALUE)
+    public @ResponseBody byte[] getQREPCImage(@RequestBody EPCTransaction epcTransaction, Model model)
+    {
+       log.info("getQREPCImage: epc: {}", epcTransaction);
+       try
+       {
+          byte[] png = this.epcTransactionService.getQRImagePNG(epcTransaction);
+          return png;
+       }
+       catch(Exception ex)
+       {
+          log.info("getQREPCImage: Failed to create QR code: {}", epcTransaction, ex);
+       }
+
+       return null;
+    }
+    
 }
