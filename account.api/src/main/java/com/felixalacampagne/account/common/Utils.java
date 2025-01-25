@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.felixalacampagne.account.persistence.entities.Account;
+import com.felixalacampagne.account.persistence.entities.PhoneAccount;
 import com.felixalacampagne.account.persistence.entities.StandingOrders;
 import com.felixalacampagne.account.persistence.entities.Transaction;
 
@@ -74,6 +75,13 @@ public class Utils
          + ":" + acc.getAccDesc();
    }
 
+   public static String getToken(PhoneAccount acc)
+   {
+      return "" + acc.getId()
+         + ":" + acc.getAccountNumber()
+         + ":" + acc.getDesc();
+   }
+   
    public static String formatAmount(BigDecimal bigdec)
    {
    String amt = "";
