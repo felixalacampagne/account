@@ -11,6 +11,7 @@ import { Version } from '../model/version.model';
 import { StandingOrderItem } from '../model/standingorderitem.model';
 import { TfrAccountItem } from '../model/tfraccountitem.model';
 import { EPCtransaction } from '../model/epctransaction.model';
+import { TransferAccountItem } from '../model/transferaccountitem.model';
 
 @Injectable()
 export class AccountService 
@@ -35,8 +36,13 @@ export class AccountService
    private standingorder : string = "standingorder/";
    private addsosvc : string = "addstandingorder";
    private updsosvc : string = "updatestandingorder";
+   private delsosvc : string = "deletestandingorder";
    private getqrcodepayer : string = 'qrcodepayer';
    private listaccinf : string = "listaccinf";
+   private listtfraccs : string = "listtransferaccounts";
+   private addtfracc  : string = "addtransferaccount";
+   private updtfracc : string = "updatetransferaccount";
+   private deltfracc   : string = "deletetransferaccount"; 
    private accinf : string = "accinf/";
    
    public periodTypes = [
@@ -328,5 +334,63 @@ export class AccountService
       headers = headers.set('Content-Type', 'application/json');      
       return this.http.post(url, json, {headers: headers,  responseType: 'blob'}); 
    }
+
+   getTransferAccounts() : Observable<TransferAccountItem[]>
+   {
+       let url : string;
+       url = this.apiurl + this.listtfraccs ;
+       console.log("getTransferAccounts API URL: " + url);
+       return this.http.get(url).pipe( map((res:any) => res) );    
+   }
+
+   addTransferAccount(item : TransferAccountItem) : Observable<string>
+   {
+      let json : string;
+      let url : string;
+      let res;
+      json = JSON.stringify(item);
+      url = this.apiurl + this.addtfracc ;
+      console.log("addTransferAccount: POSTing to " + url + ": " + json);
+
+      // Spring gives exception saying text/plain not supported so need to set content type to JSON
+      var headers = new HttpHeaders();
+      headers = headers.set('Content-Type', 'application/json');
+      headers = headers.set("Accept", "text/plain");
+        
+      return this.http.post(url, json, {headers: headers,  responseType: 'text'});        
+   }
+
+   updateTransferAccount(item : TransferAccountItem) : Observable<string>
+   {
+      let json : string;
+      let url : string;
+      let res;
+      json = JSON.stringify(item);
+      url = this.apiurl + this.updtfracc ;
+      console.log("updateTransferAccount: POSTing to " + url + ": " + json);
+
+      var headers = new HttpHeaders();
+      headers = headers.set('Content-Type', 'application/json');
+      headers = headers.set("Accept", "text/plain");
+      
+      return this.http.post(url, json, {headers: headers,  responseType: 'text'});       
+   }
+
+   deleteTransferAccount(item : TransferAccountItem) : Observable<string>
+   {
+       let json : string;
+       let url : string;
+       let res;
+       json = JSON.stringify(item);
+       url = this.apiurl + this.deltfracc;
+       console.log("deleteTransferAccount: POSTing to " + url + ": " + json);
+
+       var headers = new HttpHeaders();
+       headers = headers.set('Content-Type', 'application/json');
+       headers = headers.set("Accept", "text/plain");
+       
+       return this.http.post(url, json, {headers: headers,  responseType: 'text'}); 
+   }
+
 
 }
