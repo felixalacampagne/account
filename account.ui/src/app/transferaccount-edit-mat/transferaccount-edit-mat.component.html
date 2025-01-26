@@ -53,7 +53,18 @@
       </mat-card-content>
       <mat-card-actions>
          <div class="actions-card-left">
-         <button mat-flat-button color="error" type="reset" (click)="onDelete()">Delete</button>
+         <!-- 
+            More wasted hours trying to get the delete button to show red.
+            Nothing works, it's always blue.
+            No clue in any of the Material docs as to how you are supposed to set anything other
+            than the primary or disabled colours. Google gives the color attribute but it
+            just shows as a primary coloured button.
+            Eventually came across a commented line in the generated 'custom-theme.scss' about
+            needing to uncomment the line to use the 'deprecated' color attribute. For FORKs sake
+            why put it in a generated file and NEVER EVER EVER mention it in any of the forking
+            shirty documentation. And what the fork has it been replaced with?
+          -->
+         <button mat-flat-button color="warn" type="reset" (click)="onDelete()">Delete</button>
          </div>
          <div class="actions-card-right">
          <button mat-stroked-button type="reset" (click)="onCancel()">Cancel</button>

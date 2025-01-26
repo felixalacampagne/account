@@ -33,4 +33,6 @@ $accountui-theme: mat.define-theme((
 // @include mat.typography-hierarchy($accountui-theme);
 
 // Comment out the line below if you want to use the deprecated `color` inputs.
-// @include mat.color-variants-backwards-compatibility($accountui-theme);
+// Of course I forking want to use them - there is no documented (in anywhere useful, like 
+// in the reference to buttons etc.) alternative.
+@include mat.color-variants-backwards-compatibility($accountui-theme);
