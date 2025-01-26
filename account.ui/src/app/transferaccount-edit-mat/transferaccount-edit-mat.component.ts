@@ -31,9 +31,10 @@ import { AccountService } from "src/shared/service/account.service";
       ReactiveFormsModule],
    changeDetection: ChangeDetectionStrategy.OnPush,
    templateUrl: './transferaccount-edit-mat.component.html',
-   styleUrls: [
-      './transferaccount-edit-mat.component.css'
-   ]
+   styleUrls: ['./transferaccount-edit-mat.component.css'
+   //    , '../../sass/account-styles.scss'
+   // , '../app.component.css'
+]
 })
 
 export class TransferAccountEditMatComponent 
@@ -41,9 +42,9 @@ export class TransferAccountEditMatComponent
    @Input() origItem: TransferAccountItem | undefined;
    @Output() public submittedEvent = new EventEmitter();
 
-  taForm : FormGroup;
+   taForm : FormGroup;
 
-  accounts: AccountItem[] = [];
+   accounts: AccountItem[] = [];
 
    constructor(private accountService: AccountService)
    {
@@ -54,7 +55,6 @@ export class TransferAccountEditMatComponent
          cptyAccountNumber: new FormControl('', Validators.required), 
          lastCommunication: new FormControl('', Validators.nullValidator), 
          relatedAccount: new FormControl(null as unknown as AccountItem, Validators.nullValidator), // select from dropdown of accounts
-    //      soperiod: new FormControl('', Validators.required), // select from dropdown of period string
          order: new FormControl(1, 
             [
                Validators.required,

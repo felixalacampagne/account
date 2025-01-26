@@ -51,12 +51,14 @@
             </div>
          </div>
       </mat-card-content>
-      <mat-card-actions align='start'>
-         <button mat-stroked-button type="reset" (click)="onDelete()">delete</button>
-      </mat-card-actions>      
-      <mat-card-actions align='end'>
+      <mat-card-actions>
+         <div class="actions-card-left">
+         <button mat-flat-button color="error" type="reset" (click)="onDelete()">Delete</button>
+         </div>
+         <div class="actions-card-right">
          <button mat-stroked-button type="reset" (click)="onCancel()">Cancel</button>
          <button mat-flat-button type="submit" [disabled]="!taForm.valid">Submit</button>
+         </div>
       </mat-card-actions>
    </form>
 </mat-card>

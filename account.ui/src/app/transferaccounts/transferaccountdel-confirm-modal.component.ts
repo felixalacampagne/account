@@ -1,5 +1,6 @@
 // app/transactions/txndel-confirm-modal.component.ts
 import { Component, inject, Type } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -7,18 +8,27 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 @Component({
    selector: 'tfraccdel-confirm',
    standalone: true,
-   imports:  [MatCardModule ],
+   imports:  [
+      MatCardModule,
+      MatButtonModule
+   ],
    template: `
-   <mat-card class="so-card" appearance="outlined">
-      <mat-card-header class="so-card-head">
-         <mat-card-title>Transfer Account Delete</mat-card-title>
+   <mat-card appearance="outlined">
+      <mat-card-header> 
+         <mat-card-title>
+         <div class="title-card-left">
+         Transfer Account Delete
+         </div>
+         <div class="title-card-right">
          <button
             type="button"
             class="btn-close"
             aria-label="Close button"
             aria-describedby="modal-title"
             (click)="dialogRef.close('CANCEL')"
-         ></button>      
+         ></button>
+         </div>
+         </mat-card-title>      
       </mat-card-header>
 
       <mat-card-content>
@@ -36,10 +46,14 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
          </p>         
       </mat-card-content>
       <mat-card-actions align='end'>
-         <button type="button" ngbAutofocus class="btn btn-outline-secondary" (click)="dialogRef.close('CANCEL')">Cancel</button>
-         <button type="button" class="btn btn-danger" (click)="dialogRef.close('DELETE_OK')">Ok</button>
+         <button mat-stroked-button type="reset" (click)="dialogRef.close('CANCEL')">Cancel</button>
+         <button mat-flat-button type="submit" (click)="dialogRef.close('DELETE_OK')">Ok</button>
       </mat-card-actions>
    `,
+  styleUrls: ['./transferaccounts.component.css'
+//    , '../../sass/account-styles.scss'
+// , '../app.component.css'
+]   
 })
 export class TransferAccountDeleteConfirmDialog {
      data = inject(MAT_DIALOG_DATA);

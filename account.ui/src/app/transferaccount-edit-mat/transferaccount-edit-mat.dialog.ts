@@ -7,7 +7,10 @@ import { TransferAccountEditMatComponent } from './transferaccount-edit-mat.comp
   standalone: true,
   imports: [TransferAccountEditMatComponent, MatDialogContent],
   templateUrl: './transferaccount-edit-mat.dialog.html',
-  styleUrl: './transferaccount-edit-mat.component.css'
+  styleUrls: ['./transferaccount-edit-mat.component.css'
+            //    , '../../sass/account-styles.scss'
+            // , '../app.component.css'
+  ]
 })
 export class TransferaccountEditMatDialog {
 

@@ -4,9 +4,11 @@ import { StandingordersComponent } from './standingorders/standingorders.compone
 import { TransactionsComponent } from './transactions/transactions.component';
 import { AccountsComponent } from './accounts/accounts.component';
 import { TransferaccountsComponent } from './transferaccounts/transferaccounts.component';
+import { CheckedListComponent } from './checked-list/checked-list.component';
 
 export const routes = [
    {path: 'transactions/:accid', title: "Transactions", component: TransactionsComponent},
+   {path: 'viewchecked/:accid', title: "Checked Transactions", component: CheckedListComponent},
    {path: 'transferaccounts', title: "Transfer Accounts", component: TransferaccountsComponent},
    {path: 'standingorders', title: "Standing Orders", component: StandingordersComponent},
    {path: 'accounts', title: "Accounts", component: AccountsComponent}
