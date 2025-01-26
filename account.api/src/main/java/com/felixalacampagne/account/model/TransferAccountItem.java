@@ -10,12 +10,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TransferAccountItem extends TfrAccountItem
 {
-   private int order;
+   private Integer order;
    private String type;
    private String token;
-   public TransferAccountItem(long id, long relatedAccountId, String cptyAccountName, 
+   public TransferAccountItem(Long id, Long relatedAccountId, String cptyAccountName, 
          String cptyAccountNumber, String lastCommunication,
-         int order, String type,
+         Integer order, String type,
          String token)
    {
       super(id, relatedAccountId, cptyAccountName, cptyAccountNumber, lastCommunication);
@@ -24,7 +24,7 @@ public class TransferAccountItem extends TfrAccountItem
       this.token = token;
    }
 
-   public int getOrder()
+   public Integer getOrder()
    {
       return order;
    }
@@ -36,7 +36,7 @@ public class TransferAccountItem extends TfrAccountItem
    
    public String toString()
    {
-      return "PhoneAccountItem [id=" + getId()
+      return "TransferAccountItem [id=" + getId()
             + ", relatedAccountId=" + getRelatedAccountId()
             + ", order=" + order
             + ", type=" + type

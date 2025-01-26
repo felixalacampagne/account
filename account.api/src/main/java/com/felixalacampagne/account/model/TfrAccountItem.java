@@ -2,8 +2,8 @@ package com.felixalacampagne.account.model;
 
 public class TfrAccountItem
 {
-   private long id;
-   private long relatedAccountId;
+   private Long id;
+   private Long relatedAccountId;
    private String cptyAccountName;
    private String cptyAccountNumber;
    private String lastCommunication;
@@ -13,7 +13,7 @@ public class TfrAccountItem
    {
    }
 
-   public TfrAccountItem(long id, long relatedAccountId, String cptyAccountName, String cptyAccountNumber, String lastCommunication)
+   public TfrAccountItem(Long id, Long relatedAccountId, String cptyAccountName, String cptyAccountNumber, String lastCommunication)
    {
       super();
       this.id = id;
@@ -23,7 +23,7 @@ public class TfrAccountItem
       this.lastCommunication = lastCommunication;
    }
 
-   public long getId()
+   public Long getId()
    {
       return id;
    }
@@ -33,7 +33,7 @@ public class TfrAccountItem
       this.id = id;
    }
 
-   public long getRelatedAccountId()
+   public Long getRelatedAccountId()
    {
       return relatedAccountId;
    }

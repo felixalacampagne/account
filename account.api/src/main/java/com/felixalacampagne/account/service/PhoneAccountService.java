@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.felixalacampagne.account.common.Utils;
@@ -29,7 +30,8 @@ private final PhoneAccountJpaRepository phoneAccountJpaRepository;
 
    public List<TransferAccountItem> getPhoneAccounts()
    {
-      return phoneAccountJpaRepository.findAll()
+      Sort sort = Sort.by(Sort.Direction.DESC, "order");
+      return phoneAccountJpaRepository.findAll(sort)
             .stream()
             .map(a -> { 
                return new TransferAccountItem(a.getId(), 

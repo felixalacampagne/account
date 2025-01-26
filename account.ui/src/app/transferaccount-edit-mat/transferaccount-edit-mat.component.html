@@ -1,0 +1,72 @@
+<!-- src/app/transferaccount-edit-mat/transferaccount-edit-mat.component.html -->
+
+
+
+
+
+
+lastCommunication 
+relatedAccountId 
+order
+type
+<mat-card class="so-card" appearance="outlined">
+    <mat-card-header class="so-card-head">
+      <mat-card-title>Transfer Account</mat-card-title>
+    </mat-card-header>
+    <form [formGroup]="taForm" novalidate (ngSubmit)="onSubmit()">
+      <mat-card-content>
+         <div class="row">
+            <mat-form-field  appearance="outline" class="full-width">
+               <mat-label>Name</mat-label>
+               <input matInput placeholder="" formControlName="cptyAccountName">
+            </mat-form-field>
+         </div>
+         <div class="row">
+            <div class="col">
+               <mat-form-field  appearance="outline" class="full-width">
+                  <mat-label>Number</mat-label>
+                  <input matInput placeholder="" formControlName="cptyAccountNumber">
+               </mat-form-field>
+            </div>
+            <div class="col">
+               <mat-form-field  appearance="outline" class="full-width">
+                  <mat-label>Memo</mat-label>
+                  <input matInput placeholder="" formControlName="lastCommunication">
+               </mat-form-field>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col">
+               <mat-form-field  appearance="outline" class="full-width">
+                  <mat-label>Related Account</mat-label>
+                  <mat-select formControlName="relatedAccount">
+                     @for (acc of accounts; track acc) 
+                     {
+                        <mat-option [value]="acc">{{ acc.name }}</mat-option>
+                     }
+                  </mat-select>             
+               </mat-form-field>
+            </div>
+            <div class="col">
+               <mat-form-field  appearance="outline" class="full-width">
+                  <mat-label>Order</mat-label>
+                  <input type="number" matInput placeholder="" formControlName="order">
+               </mat-form-field>                
+            </div>
+            <div class="col">
+               <mat-form-field  appearance="outline" class="full-width">
+                  <mat-label>Type</mat-label>
+                  <input matInput placeholder="" formControlName="type">
+               </mat-form-field>                
+            </div>
+         </div>
+      </mat-card-content>
+      <mat-card-actions align='start'>
+         <button mat-stroked-button type="delete" (click)="onDelete()">delete</button>
+      </mat-card-actions>      
+      <mat-card-actions align='end'>
+         <button mat-stroked-button type="reset" (click)="onCancel()">Cancel</button>
+         <button mat-flat-button type="submit" [disabled]="!taForm.valid">Submit</button>
+      </mat-card-actions>
+   </form>
+</mat-card>

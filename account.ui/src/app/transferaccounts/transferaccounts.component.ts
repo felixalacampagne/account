@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { DeviceDetectorService } from 'ngx-device-detector';
 import { TransferAccountItem } from 'src/shared/model/transferaccountitem.model';
 import { AccountService } from 'src/shared/service/account.service';
+import { TransferaccountEditMatDialog } from '../transferaccount-edit-mat/transferaccount-edit-mat.dialog';
 
 @Component({
   selector: 'transferaccounts',
@@ -15,8 +18,10 @@ import { AccountService } from 'src/shared/service/account.service';
 export class TransferaccountsComponent implements OnInit {
 
   transferAccounts : TransferAccountItem[] = [];
+  dialog = inject(MatDialog);
 
-  constructor(private accountService: AccountService)
+  constructor(private accountService: AccountService,
+        private deviceService: DeviceDetectorService)
   {
   }
 
@@ -61,9 +66,27 @@ export class TransferaccountsComponent implements OnInit {
 
   addTransferAccount() 
   {
+   let newItem = new TransferAccountItem();
+   this.editTransferAccount(newItem);
   }
 
   editTransferAccount(ta : TransferAccountItem) : void
   {
+    const position = this.deviceService.isMobile()? { top:'60px', left: '15px'} : {} ;
+
+    // these have no effect on the height of the dialog
+    //   ,height: '1000px',
+    //   minHeight: '1000px'
+    this.dialog.open(TransferaccountEditMatDialog, { 
+        data: ta,
+        position: position
+    } ) //;     // returns MatDialogRef  
+    .afterClosed().subscribe(result => {
+        console.log("editTransferAccount: dialog closed: " + JSON.stringify(result, null, 2));
+        if(result == 'SUBMIT_COMPLETED')
+        {
+          this.getTransferAccounts();
+        }
+      });
   }
 }

@@ -16,7 +16,7 @@ export interface DialogData {
 @Component({
   selector: 'standingorders',
   standalone: true,
-  imports: [CommonModule, SoEditMatComponent],
+  imports: [CommonModule],
   templateUrl: './standingorders.component.html',
   styleUrls: ['../../sass/account-styles.scss'
             , '../app.component.css'

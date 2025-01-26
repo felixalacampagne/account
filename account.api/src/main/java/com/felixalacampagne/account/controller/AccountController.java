@@ -324,7 +324,7 @@ public class AccountController {
     }
     
     @PostMapping(value = "/updatetransferaccount")
-    public String updateTransferAccount(TransferAccountItem phoneAccountItem, Model model)
+    public String updateTransferAccount(@RequestBody TransferAccountItem phoneAccountItem, Model model)
     {
        log.info("updateTransferAccount: item to update: {}", phoneAccountItem);
        try
@@ -342,7 +342,7 @@ public class AccountController {
     }
     
     @PostMapping(value = "/addtransferaccount")
-    public String addTransferAccount(TransferAccountItem phoneAccountItem, Model model)
+    public String addTransferAccount(@RequestBody TransferAccountItem phoneAccountItem, Model model)
     {
        log.info("addTransferAccount: item to add: {}", phoneAccountItem);
        try
@@ -360,7 +360,7 @@ public class AccountController {
     }
     
     @PostMapping(value = "/deletetransferaccount")
-    public String deleteTransferAccount(TransferAccountItem phoneAccountItem, Model model)
+    public String deleteTransferAccount(@RequestBody TransferAccountItem phoneAccountItem, Model model)
     {
        log.info("deleteTransferAccount: item to delete: {}", phoneAccountItem);
        try
