@@ -5,6 +5,9 @@ import { DeviceDetectorService } from 'ngx-device-detector';
 import { TransferAccountItem } from 'src/shared/model/transferaccountitem.model';
 import { AccountService } from 'src/shared/service/account.service';
 import { TransferaccountEditMatDialog } from '../transferaccount-edit-mat/transferaccount-edit-mat.dialog';
+import { NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+import { TransactionItem } from 'src/shared/model/transaction.model';
+import { TransferAccountDeleteConfirmDialog } from './transferaccountdel-confirm-modal.component';
 
 @Component({
   selector: 'transferaccounts',
@@ -16,22 +19,21 @@ import { TransferaccountEditMatDialog } from '../transferaccount-edit-mat/transf
             , '../app.component.css']  
 })
 export class TransferaccountsComponent implements OnInit {
+   transferAccounts : TransferAccountItem[] = [];
+   dialog = inject(MatDialog);
 
-  transferAccounts : TransferAccountItem[] = [];
-  dialog = inject(MatDialog);
-
-  constructor(private accountService: AccountService,
+   constructor(private accountService: AccountService,
         private deviceService: DeviceDetectorService)
-  {
-  }
+   {
+   }
 
-  ngOnInit(): void 
-  {
-    this.getTransferAccounts();
-  }
+   ngOnInit(): void 
+   {
+      this.getTransferAccounts();
+   }
 
-  getTransferAccounts()
-  {
+   getTransferAccounts()
+   {
       console.log("getTransferAccounts: Starting");
           
       this.accountService.getTransferAccounts().subscribe({
@@ -57,36 +59,69 @@ export class TransferaccountsComponent implements OnInit {
     
       console.log("getTransferAccounts: Finished");
 
-  }
+   }
 
-  isTransferAccounts() : boolean
-  {
-    return this.transferAccounts.length > 0;
-  }
+   isTransferAccounts() : boolean
+   {
+      return this.transferAccounts.length > 0;
+   }
 
-  addTransferAccount() 
-  {
-   let newItem = new TransferAccountItem();
-   this.editTransferAccount(newItem);
-  }
+   addTransferAccount() 
+   {
+      let newItem = new TransferAccountItem();
+      this.editTransferAccount(newItem);
+   }
 
-  editTransferAccount(ta : TransferAccountItem) : void
-  {
-    const position = this.deviceService.isMobile()? { top:'60px', left: '15px'} : {} ;
+   editTransferAccount(ta : TransferAccountItem) : void
+   {
+      const position = this.deviceService.isMobile()? { top:'60px', left: '15px'} : {} ;
 
-    // these have no effect on the height of the dialog
-    //   ,height: '1000px',
-    //   minHeight: '1000px'
-    this.dialog.open(TransferaccountEditMatDialog, { 
-        data: ta,
-        position: position
-    } ) //;     // returns MatDialogRef  
-    .afterClosed().subscribe(result => {
-        console.log("editTransferAccount: dialog closed: " + JSON.stringify(result, null, 2));
-        if(result == 'SUBMIT_COMPLETED')
-        {
-          this.getTransferAccounts();
-        }
-      });
-  }
+      // these have no effect on the height of the dialog
+      //   ,height: '1000px',
+      //   minHeight: '1000px'
+      this.dialog.open(TransferaccountEditMatDialog, { data: ta, position: position} )  
+         .afterClosed().subscribe(result => 
+         {
+            console.log("editTransferAccount: dialog closed: " + JSON.stringify(result));
+            if(result == 'SUBMIT_COMPLETED')
+            {
+               this.getTransferAccounts();
+            }
+            else if(result == 'SUBMIT_DELETE')
+            {
+               this.delTxnConfirm(ta);
+            }
+         });
+   }
+
+   delTxnConfirm(ta : TransferAccountItem) 
+   {
+      this.dialog.open(TransferAccountDeleteConfirmDialog, {data :ta} )
+         .afterClosed().subscribe(result => 
+         {
+            console.log("delTxnConfirm: dialog closed: " + JSON.stringify(result, null, 2));
+            if(result == 'DELETE_OK')
+            {
+               this.delTransferAccount(ta);      
+            }
+         });
+
+   }
+   
+   delTransferAccount(ta : TransferAccountItem) 
+   {
+      console.log("delTransferAccount: start: transfer account:" + JSON.stringify(ta));
+      this.accountService.deleteTransferAccount(ta).subscribe(
+      {
+         next: (result)=>
+         {
+            console.log("delTransferAccount: result:" + JSON.stringify(result));
+            this.getTransferAccounts();
+         },
+         error: (err)=>{
+             console.log("delTransferAccount: An error occured during subscribe" + JSON.stringify(err));
+             } ,
+         complete: ()=>{console.log("delTransferAccount: complete");}
+       });      
+   }
 }

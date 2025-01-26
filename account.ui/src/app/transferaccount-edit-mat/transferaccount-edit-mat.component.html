@@ -1,14 +1,4 @@
 <!-- src/app/transferaccount-edit-mat/transferaccount-edit-mat.component.html -->
-
-
-
-
-
-
-lastCommunication 
-relatedAccountId 
-order
-type
 <mat-card class="so-card" appearance="outlined">
     <mat-card-header class="so-card-head">
       <mat-card-title>Transfer Account</mat-card-title>
@@ -62,7 +52,7 @@ type
          </div>
       </mat-card-content>
       <mat-card-actions align='start'>
-         <button mat-stroked-button type="delete" (click)="onDelete()">delete</button>
+         <button mat-stroked-button type="reset" (click)="onDelete()">delete</button>
       </mat-card-actions>      
       <mat-card-actions align='end'>
          <button mat-stroked-button type="reset" (click)="onCancel()">Cancel</button>

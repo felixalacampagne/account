@@ -88,7 +88,7 @@ export class TransferAccountEditMatComponent
             }
             },
          error: (err)=>{
-            console.log("ngOnInit: An error occured during getAccounts subscribe: " + JSON.stringify(err, null, 2));
+            console.log("ngOnInit: An error occured during getAccounts subscribe: " + JSON.stringify(err));
             } ,
          complete: ()=>{console.log("ngOnInit: getAccounts loading completed");}
       });
@@ -108,7 +108,7 @@ export class TransferAccountEditMatComponent
          if(propName == "origItem")
          {
             // origItem is already initialised with the new value
-            console.log("ngOnChanges: propName: origItem: " + JSON.stringify(this.origItem, null, 2));
+            console.log("ngOnChanges: propName: origItem: " + JSON.stringify(this.origItem));
             if(this.accounts.length > 0 )
             {
                // Angular/typescript sucks when it comes to getting values initialized.
@@ -134,7 +134,7 @@ export class TransferAccountEditMatComponent
 
    onSubmit(): void 
    {
-      console.log("onSubmit: form values: " + JSON.stringify(this.taForm.value, null, 2));
+      console.log("onSubmit: form values: " + JSON.stringify(this.taForm.value));
       
       let ta : TransferAccountItem = new TransferAccountItem();
       ta.id = this.origItem?.id ?? -1;
@@ -145,7 +145,7 @@ export class TransferAccountEditMatComponent
       ta.order = this.taForm.value.order;
       ta.type = "" + this.taForm.value.type;
       ta.relatedAccountId = this.taForm.value.relatedAccount.id ?? -1;
-      console.log("onSubmit: orig: " + JSON.stringify(this.origItem, null, 2) + " updated: " + JSON.stringify(takeUntil, null, 2));
+      console.log("onSubmit: orig: " + JSON.stringify(this.origItem) + " updated: " + JSON.stringify(takeUntil));
 
       let put : Observable<string>;
       if(ta.id < 1)
@@ -159,10 +159,10 @@ export class TransferAccountEditMatComponent
 
       put.subscribe({
          next: (res)=>{
-               console.log("onSubmit: response: " + JSON.stringify(res, null, 2) );
+               console.log("onSubmit: response: " + JSON.stringify(res) );
             },
          error: (err)=>{
-            console.log("onSubmit: error: " + JSON.stringify(err, null, 2) );
+            console.log("onSubmit: error: " + JSON.stringify(err) );
             } ,
          complete: ()=>{
             console.log("onSubmit: complete " );
@@ -176,18 +176,12 @@ export class TransferAccountEditMatComponent
    onDelete()
    {
       console.log("onDelete: start");
-      // TODO: must display confirmation dialog like for transaction delete
+      this.submittedEvent.emit('SUBMIT_DELETE');
       console.log("onDelete: finish");
    }
 
    populateForm(ta : TransferAccountItem)
    {
-      // TODO: populate form from item
-      // let ed : Date = so.soentrydate ? new Date(so.soentrydate) : new Date();
-      // let pd : Date = so.sonextpaydate ? new Date(so.sonextpaydate) : new Date();
-      // let acc = this.accounts.find(a => (a.id == so.accountid));
-      // // console.log("SoEditMatComponent.populateFormFromSO: accountid:" + so.accountid + " account:" + JSON.stringify(acc, null, 2)) 
-      // let amt = so.soamount ? parseFloat(so.soamount) : null;
       let acc : AccountItem = this.accounts.find(a => a.id==ta.relatedAccountId) ?? new AccountItem();
 
       this.taForm.setValue({

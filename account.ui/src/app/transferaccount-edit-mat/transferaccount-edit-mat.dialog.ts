@@ -12,13 +12,11 @@ import { TransferAccountEditMatComponent } from './transferaccount-edit-mat.comp
 export class TransferaccountEditMatDialog {
 
      data = inject(MAT_DIALOG_DATA);
-     constructor(public dialogRef: MatDialogRef<TransferaccountEditMatDialog>
-        
-     ) { }
+     constructor(public dialogRef: MatDialogRef<TransferaccountEditMatDialog>) { }
 
      closeDialog(event: any)
      {
-        console.log("TransferaccountEditMatDialog: request to close received: " + JSON.stringify(event, null, 2));
+        console.log("closeDialog: request to close received: " + JSON.stringify(event, null, 2));
         this.dialogRef.close(event);      
      }  
 }
