@@ -23,10 +23,16 @@ public interface PhoneAccountJpaRepository extends JpaRepository<PhoneAccount, L
    List<PhoneAccount> findTransferAccounts(@Param("exaccid") Long excludeAccountId);
 
    // This is used so that the Account desc is used instead of the values in PhoneAccount.
-   @Query("SELECT p as phoneAccount, a.accDesc as accDesc, a.accCode as accCode FROM PhoneAccount p LEFT JOIN Account a " 
+   @Query("SELECT p as phoneAccount, a.accDesc as accDesc, a.accCode as accCode FROM PhoneAccount p LEFT JOIN Account a "
          + "ON  p.accountId = a.accId where p.accountId != :exaccid and p.order not in (255) "
          + "order by p.order DESC, p.desc ASC" )
    List<PhoneWithAccountProjection> findTransferAccountsWithAccount(@Param("exaccid") Long excludeAccountId);
+
+   @Query("SELECT p as phoneAccount, a.accDesc as accDesc, a.accCode as accCode FROM PhoneAccount p LEFT JOIN Account a "
+         + "ON  p.accountId = a.accId "
+         + "order by p.order DESC, p.desc ASC" )
+   List<PhoneWithAccountProjection> findAllWithRelatedDetails();
+
 
    @Query("SELECT p as phoneAccount, a.accDesc as accDesc, a.accCode as accCode "
          + "FROM PhoneAccount p LEFT JOIN Account a ON  p.accountId = a.accId "
