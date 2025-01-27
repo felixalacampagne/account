@@ -1,3 +1,4 @@
+/* src/app/transferaccount-edit-mat/transferaccount-edit-mat.component.css */
 .mat-mdc-button-base 
 {
    margin-left: 8px;
@@ -36,4 +37,11 @@
 {
    display: inline;
    margin-bottom: 10px;
+}
+
+.deleteicon {
+   font-size: 30px;
+   height: 30px ;
+   width: 30px ;
+   padding-top:3px;
 }
