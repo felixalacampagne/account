@@ -1,3 +1,4 @@
+// src/app/transferaccounts/transferaccounts.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -14,9 +15,9 @@ import { TransferAccountDeleteConfirmDialog } from './transferaccountdel-confirm
   standalone: true,
   imports: [CommonModule],
   templateUrl: './transferaccounts.component.html',
-  styleUrls: ['./transferaccounts.component.css'
-            , '../../sass/account-styles.scss'
-            , '../app.component.css']  
+  styleUrls: ['../../sass/account-styles.scss'
+            , '../app.component.css'
+            , './transferaccounts.component.css' ]  
 })
 export class TransferaccountsComponent implements OnInit {
    transferAccounts : TransferAccountItem[] = [];
