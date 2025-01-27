@@ -1,3 +1,4 @@
+/* src/sass/account-styles.scss */
 @use "bootstrap";
 
 .acc-modal-label
@@ -23,4 +24,5 @@
    --bs-btn-line-height: 16px;
    --bs-btn-border-width: 0;
    border-bottom-width: 0;
+   padding-inline: 1px;
 }
