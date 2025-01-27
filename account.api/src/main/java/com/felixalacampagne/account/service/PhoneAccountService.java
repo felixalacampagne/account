@@ -1,7 +1,6 @@
 package com.felixalacampagne.account.service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -12,8 +11,6 @@ import org.springframework.stereotype.Service;
 import com.felixalacampagne.account.common.Utils;
 import com.felixalacampagne.account.model.TransferAccountItem;
 import com.felixalacampagne.account.persistence.entities.PhoneAccount;
-import com.felixalacampagne.account.persistence.entities.StandingOrders;
-import com.felixalacampagne.account.persistence.entities.Transaction;
 import com.felixalacampagne.account.persistence.repository.PhoneAccountJpaRepository;
 
 @Service
@@ -26,22 +23,22 @@ private final PhoneAccountJpaRepository phoneAccountJpaRepository;
    {
       this.phoneAccountJpaRepository = phoneAccountJpaRepository;
    }
-   
 
    public List<TransferAccountItem> getPhoneAccounts()
    {
       Sort sort = Sort.by(Sort.Direction.DESC, "order");
-      return phoneAccountJpaRepository.findAll(sort)
+      return phoneAccountJpaRepository.findAllWithRelatedDetails()
             .stream()
-            .map(a -> { 
-               return new TransferAccountItem(a.getId(), 
-                     a.getAccountId(), 
-                     a.getDesc(), 
-                     a.getAccountNumber(), 
-                     a.getLastComm(),
-                     a.getOrder(), 
-                     a.getType(),
-                     Utils.getToken(a)); 
+            .map(a -> {
+               return new TransferAccountItem(a.getPhoneAccount().getId(),
+                     a.getPhoneAccount().getAccountId(),
+                     a.getPhoneAccount().getDesc(),
+                     a.getPhoneAccount().getAccountNumber(),
+                     a.getPhoneAccount().getLastComm(),
+                     a.getPhoneAccount().getOrder(),
+                     a.getPhoneAccount().getType(),
+                     a.getAccDesc(),
+                     Utils.getToken(a.getPhoneAccount()));
             })
             .collect(Collectors.toList());
    }
@@ -81,7 +78,7 @@ private final PhoneAccountJpaRepository phoneAccountJpaRepository;
                phoneAccountItem.getId(), origToken, phoneAccountItem.getToken());
          throw new  AccountException("Token does not match PhoneAccount id " + phoneAccountItem.getId());
       }
-      
+
       phoneAccount = mapToEntity(phoneAccountItem, phoneAccount);
       this.phoneAccountJpaRepository.saveAndFlush(phoneAccount);
    }
@@ -99,7 +96,7 @@ private final PhoneAccountJpaRepository phoneAccountJpaRepository;
       PhoneAccount pa = new PhoneAccount();
       return mapToEntity(phoneAccountItem, pa);
    }
-   
+
    // Use this for updates as still not sure whether saving 'new' object with existing id is 'recommended'
    // If the id of the entity is already set then it will NOT be overridden by a value in item
    private PhoneAccount mapToEntity(TransferAccountItem phoneAccountItem, PhoneAccount pa)
