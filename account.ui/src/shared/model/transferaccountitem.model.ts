@@ -4,6 +4,7 @@ import { TfrAccountItem } from "./tfraccountitem.model";
 export class TransferAccountItem extends TfrAccountItem
 {
 public order : number = 0;
+public relatedAccountName : string = '';
 public type : string = '';
 public token : string = '';
     constructor()
