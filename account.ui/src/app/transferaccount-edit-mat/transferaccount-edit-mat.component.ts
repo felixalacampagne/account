@@ -1,8 +1,10 @@
+// src/app/transferaccount-edit-mat/transferaccount-edit-mat.component.ts
 import { Component, ChangeDetectionStrategy, Output, EventEmitter, SimpleChanges, Input } from "@angular/core";
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
 import { MatDatepickerModule } from "@angular/material/datepicker";
+import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
 import { Observable, takeUntil } from "rxjs";
@@ -27,12 +29,16 @@ import { AccountService } from "src/shared/service/account.service";
       MatInputModule,
       MatButtonModule,
       MatSelectModule,
-      ReactiveFormsModule],
+      MatIconModule,
+      ReactiveFormsModule
+      // , CommonModule // for *ngIf etc.
+   ],
    changeDetection: ChangeDetectionStrategy.OnPush,
    templateUrl: './transferaccount-edit-mat.component.html',
-   styleUrls: ['./transferaccount-edit-mat.component.css'
+   styleUrls: [ './transferaccount-edit-mat.component.css'
+      // , '../../styles.css'
    //    , '../../sass/account-styles.scss'
-   // , '../app.component.css'
+   
 ]
 })
 
@@ -59,10 +65,24 @@ export class TransferAccountEditMatComponent
                Validators.required,
                Validators.pattern(/^\d+$/)  // integer only
             ] ),  
-         type: new FormControl('', Validators.nullValidator)       
-    //      sotfrtype: new FormControl(this.txnTypes[0], Validators.required)  // dowpdown list of types as shown in transaction
         });
    }
+
+   relatedAccountChange(value : AccountItem) 
+   {
+      console.log("relatedAccountChange: value:" + JSON.stringify(value));
+      if(this.origItem)
+      {
+         if(this.origItem.id < 1)
+         {
+            console.log("relatedAccountChange: set cptyAccountName:" + value.name);
+            this.taForm.patchValue({
+               cptyAccountName : value.name
+            });            
+         }
+      }
+   }
+
 
    ngOnInit()
    {
@@ -142,8 +162,8 @@ export class TransferAccountEditMatComponent
       ta.cptyAccountNumber = "" + this.taForm.value.cptyAccountNumber;
       ta.lastCommunication = "" + this.taForm.value.lastCommunication;
       ta.order = this.taForm.value.order;
-      ta.type = "" + this.taForm.value.type;
-      ta.relatedAccountId = this.taForm.value.relatedAccount.id ?? -1;
+      ta.relatedAccountId = this.taForm.value.relatedAccount.id ?? 0;
+      ta.type = (ta.relatedAccountId < 1) ? "O" : "R"; // rel accs are now either 'O' or 'R' (O=Other, R=related account)
       console.log("onSubmit: orig: " + JSON.stringify(this.origItem) + " updated: " + JSON.stringify(takeUntil));
 
       let put : Observable<string>;
@@ -172,6 +192,18 @@ export class TransferAccountEditMatComponent
    
    }
 
+   canDelete() : boolean
+   {
+      if(this.origItem)
+      {
+         if(this.origItem.id > 0)
+         {
+            return true;
+         }
+      }
+      return false;
+   }
+
    onDelete()
    {
       console.log("onDelete: start");
@@ -179,16 +211,16 @@ export class TransferAccountEditMatComponent
       console.log("onDelete: finish");
    }
 
+
    populateForm(ta : TransferAccountItem)
    {
-      let acc : AccountItem = this.accounts.find(a => a.id==ta.relatedAccountId) ?? new AccountItem();
-
+      let acc : AccountItem = this.accounts.find(a => a.id==ta.relatedAccountId) ?? this.accounts[0]; // Assumes '3rd party' is always first
+      console.log("populateForm: relatedAccountId:" + ta.relatedAccountId + " relatedAccount:"  + JSON.stringify(acc));
       this.taForm.setValue({
          cptyAccountName : ta.cptyAccountName,
          cptyAccountNumber : ta.cptyAccountNumber,
          lastCommunication : ta.lastCommunication,
          order : ta.order,
-         type : ta.type,
          relatedAccount : acc
       });
   }  
