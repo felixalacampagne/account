@@ -50,6 +50,7 @@ So.... here goes
    Repeated for off-site and it seemed to work aswell.
 
    So now the 'fun' starts because my nice red warning button is once again back to being the same blue as the other safe buttons - forking hell!
+   Gave up trying to find the 'Material way' to set the button to warning colour and defined my own class which actually to uses the bootstrap warning colour which makes it consistent with the infinitely more pleasing bootstrap dialog used for transactions. I think Materials days in my code are numbered as whoever develops it appears to have a continuously-fork-the-idiots-who-use-this-shirt policy which does not exactly fill me full of joy.
 
 
 10-Jan-2025 The 'auto-zoom' when entering transactions on the phone is starting to really
