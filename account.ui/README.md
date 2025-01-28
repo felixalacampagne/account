@@ -1,8 +1,8 @@
 # Accountui
 28-Jan-2025 Sick and tired of trying to use Angular Material docs and being taken to v19 pages
 which seem vaugely relevant only to find there is no equivalent at all for v18.
-Thus going to bit the bullet and upgrade to Angular 19.
-according to https://angular.dev/update-guide?v=18.0-19.0&l=1 it should be easy-peasy so will
+Thus going to bite the bullet and upgrade to Angular 19.
+According to https://angular.dev/update-guide?v=18.0-19.0&l=1 it should be easy-peasy so will
 almost certainly entail hours of wasted effort trying to decipher incomprehensible error messages
 into whatever actions are required to workaround the inevitable random changes. But hey! ho!,
 that's what continuous improvement is all about.
@@ -14,11 +14,9 @@ that's what continuous improvement is all about.
          provide-initializer: selected: enter
 
 - Update to Typescript 5.5: obviously docs give no clue how to do this, fingers crossed it is automatic
-- Replace usages of BrowserModule.withServerTransition() with injection of the APP_ID token to set the application id     instead. No forking clue what this means, fingers crossed I don't need to do anything.
+- Replace usages of BrowserModule.withServerTransition() with injection of the APP_ID token to set the application id instead. No forking clue what this means, fingers crossed I don't need to do anything.
 
-- Migrate from using Router.errorHandler to withNavigationErrorHandler from provideRouter or errorHandler from RouterModule.forRoot. Equally no idea what this refers to, although I do use Routing and did have to fork around with it
-to get the browser refresh and back buttons to work as expected - fingers crossed this has not been broken by
-the continuous improvement grassholes.
+- Migrate from using Router.errorHandler to withNavigationErrorHandler from provideRouter or errorHandler from RouterModule.forRoot. Equally no idea what this refers to, although I do use Routing and did have to fork around with it to get the browser refresh and back buttons to work as expected - fingers crossed this has not been broken by the continuous improvement grassholes.
 
 So.... here goes
 
@@ -33,7 +31,7 @@ So.... here goes
 
    Tried to run 'ng serve' and was hit with a mass of deprecation warnings about 'Sass @import rules are deprecated'.
    Since these are required for Material and the link to some sort of workaround is blocked the only choice
-   is to ignore or disable them. I found instruction to disable here: https://www.angulararchitects.io/en/blog/how-to-disable-the-angular-v19s-sass-compiler-deprecation-warnings/ - it requires a change in angular.json.
+   is to ignore or disable them. I found instructions to disable here: https://www.angulararchitects.io/en/blog/how-to-disable-the-angular-v19s-sass-compiler-deprecation-warnings/ - it requires a change in angular.json.
    That left 'WARNING RouterOutlet is not used within the template of CheckedListComponent' which was referring to
    an unused item in the @Component import list.
 
@@ -41,8 +39,7 @@ So.... here goes
 
    Repeated the upgrade for on site installation. 
 
-   Realised that all the 'npm update' bullshirt had not actually done a thing to update Angular Material - it was still at 18.2
-   in package.json. More wasted effort to discover that it should be 'ng update', ie.
+   Realised that all the 'npm update' bullshirt had not actually done a thing to update Angular Material - it was still at 18.2 in package.json. More wasted effort to discover that it should be 'ng update', ie.
 
    ng update @angular/material @angular/cdk
 
@@ -50,8 +47,7 @@ So.... here goes
    Repeated for off-site and it seemed to work aswell.
 
    So now the 'fun' starts because my nice red warning button is once again back to being the same blue as the other safe buttons - forking hell!
-   Gave up trying to find the 'Material way' to set the button to warning colour and defined my own class which actually to uses the bootstrap warning colour which makes it consistent with the infinitely more pleasing bootstrap dialog used for transactions. I think Materials days in my code are numbered as whoever develops it appears to have a continuously-fork-the-idiots-who-use-this-shirt policy which does not exactly fill me full of joy.
-
+   Gave up trying to find the 'Material way' to set the button to warning colour and defined my own class which actually to uses the bootstrap warning colour which makes it consistent with the infinitely more pleasing bootstrap dialog used for transactions. I think Material's days in my code are numbered as whoever develops it appears to have a continuously-fork-the-idiots-who-use-this-shirt policy which does not exactly fill me full of joy.
 
 10-Jan-2025 The 'auto-zoom' when entering transactions on the phone is starting to really
 piddle me off. Alas it is something which is not going to go away, and it's been around a very long time judging by the number of SO requests for how to stop it.
