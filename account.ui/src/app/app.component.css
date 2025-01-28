@@ -139,8 +139,3 @@ td.nowrap  {
 .remove-caret::after {
     display: none !important;
 }
-
-.mdc-button ~ .mdc-button {
-   margin-left: 10px;
-}
- 
