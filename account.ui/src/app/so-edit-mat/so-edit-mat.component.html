@@ -81,11 +81,21 @@
               </mat-form-field>
               </div>
            </div>   
-        </mat-card-content>
-        <mat-card-actions align='end'>
-           <button mat-stroked-button type="reset" (click)="onCancel()">Cancel</button>
-           <button mat-flat-button type="submit" [disabled]="!soForm.valid">Submit</button>
-        </mat-card-actions>
+         </mat-card-content>
+         <mat-card-actions>
+            <div class="actions-card-left">
+               @if(canDelete())
+               {
+                  <button mat-flat-button class="warning" type="reset" (click)="onDelete()">
+                     <span><mat-icon class="deleteicon" fontSet="material-symbols-rounded">delete</mat-icon></span>
+                  </button>
+               }
+            </div>
+            <div class="actions-card-right">
+               <button mat-stroked-button type="reset" (click)="onCancel()">Cancel</button>
+               <button mat-flat-button type="submit" [disabled]="!soForm.valid">Submit</button>
+            </div>           
+         </mat-card-actions>
      </form>
   </mat-card>
   
