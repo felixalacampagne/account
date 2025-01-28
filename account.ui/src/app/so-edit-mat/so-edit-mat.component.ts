@@ -15,6 +15,7 @@ import { AccountService } from 'src/shared/service/account.service';
 import { AccountItem } from 'src/shared/model/accountitem.model';
 import { Observable } from 'rxjs';
 import { DateformatService } from 'src/shared/service/dateformat.service';
+import { MatIconModule } from '@angular/material/icon';
 
 @Injectable()
 export class FormatingDateAdapter extends NativeDateAdapter 
@@ -77,6 +78,7 @@ export const ISO_DATE_FORMAT : MatDateFormats = {
         MatButtonModule,
         MatSelectModule,
         MatDatepickerModule,
+        MatIconModule,
         ReactiveFormsModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './so-edit-mat.component.html',
@@ -232,6 +234,16 @@ export class SoEditMatComponent
    });
    
   }
+
+
+   canDelete() : boolean
+   {
+      return false;
+   }
+
+   onDelete()
+   {
+   }
 
    populateFormFromSO(so : StandingOrderItem)
    {
