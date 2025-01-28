@@ -1,7 +1,7 @@
 // so-edit-mat/so-edit-mat.component.ts
-import { Component, EventEmitter, inject, Injectable, Input, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Injectable, Input, Output, SimpleChanges } from '@angular/core';
 
-import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
@@ -81,8 +81,10 @@ export const ISO_DATE_FORMAT : MatDateFormats = {
       ReactiveFormsModule],
    changeDetection: ChangeDetectionStrategy.OnPush,
    templateUrl: './so-edit-mat.component.html',
-   styleUrls: [
-      './so-edit-mat.component.css'
+   styleUrls: 
+   [
+      './so-edit-mat.component.css',
+      '../app-material.css',
    ]
 })
 

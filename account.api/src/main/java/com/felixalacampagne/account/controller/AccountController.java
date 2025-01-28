@@ -23,6 +23,7 @@ import com.felixalacampagne.account.model.AccountItem;
 import com.felixalacampagne.account.model.Accounts;
 import com.felixalacampagne.account.model.AddTransactionItem;
 import com.felixalacampagne.account.model.EPCTransaction;
+import com.felixalacampagne.account.model.TransferAccountItem;
 import com.felixalacampagne.account.model.StandingOrderItem;
 import com.felixalacampagne.account.model.TfrAccountItem;
 import com.felixalacampagne.account.model.TransactionItem;
@@ -32,6 +33,7 @@ import com.felixalacampagne.account.service.AccountException;
 import com.felixalacampagne.account.service.AccountService;
 import com.felixalacampagne.account.service.BalanceService;
 import com.felixalacampagne.account.service.EPCTransactionService;
+import com.felixalacampagne.account.service.PhoneAccountService;
 import com.felixalacampagne.account.service.StandingOrderService;
 import com.felixalacampagne.account.service.TransactionService;
 import com.felixalacampagne.account.service.TransactionService.BalanceType;
@@ -46,6 +48,7 @@ public class AccountController {
    private final StandingOrderService standingOrderService;
    private final BalanceService balanceService;
    private final EPCTransactionService epcTransactionService;
+   private final PhoneAccountService phoneAccountService;
    private final Version version;
 
    public AccountController(AccountService accountService,
@@ -53,7 +56,8 @@ public class AccountController {
                            StandingOrderService standingOrderService,
                            Version version,
                            BalanceService balanceService,
-                           EPCTransactionService epcTransactionService)
+                           EPCTransactionService epcTransactionService, 
+                           PhoneAccountService phoneAccountService)
    {
       this.accountService = accountService;
       this.transactionService = transactionService;
@@ -61,6 +65,7 @@ public class AccountController {
       this.version = version;
       this.balanceService = balanceService;
       this.epcTransactionService = epcTransactionService;
+      this.phoneAccountService = phoneAccountService;
    }
 
     @GetMapping("/greeting")
@@ -109,7 +114,7 @@ public class AccountController {
     }
 
 
-    @PutMapping(value = "/updaccountstref")
+    @PostMapping(value = "/updaccountstref")
     public String updateAccountStatementRef(@RequestBody AccountItem accountItem, Model model)
     {
        log.info("updateAccountStatementRef: item to update: {}", accountItem);
@@ -168,7 +173,7 @@ public class AccountController {
        return "ok";
     }
 
-    @PutMapping(value = "/updatetransaction")
+    @PostMapping(value = "/updatetransaction")
     public String updateTransaction(@RequestBody TransactionItem transactionItem, Model model)
     {
        log.info("updateTransaction: transaction item to add: {}", transactionItem);
@@ -185,7 +190,7 @@ public class AccountController {
        return "ok";
     }
 
-    @PutMapping(value = "/deletetransaction")
+    @PostMapping(value = "/deletetransaction")
     public String deleteTransaction(@RequestBody TransactionItem transactionItem, Model model)
     {
        log.info("deleteTransaction: transaction item to delete: {}", transactionItem);
@@ -233,7 +238,7 @@ public class AccountController {
        return "ok";
     }
 
-    @PutMapping(value = "/updatestandingorder")
+    @PostMapping(value = "/updatestandingorder")
     public String updateStandingOrder(@RequestBody StandingOrderItem standingOrderItem, Model model)
     {
        log.info("updateStandingOrder: item to update: {}", standingOrderItem);
@@ -295,7 +300,7 @@ public class AccountController {
    //     return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(bytearray);
 
    
-    @PutMapping(value = "/qrcodepayer", produces = MediaType.IMAGE_PNG_VALUE)
+    @PostMapping(value = "/qrcodepayer", produces = MediaType.IMAGE_PNG_VALUE)
     public @ResponseBody byte[] getQREPCImage(@RequestBody EPCTransaction epcTransaction, Model model)
     {
        log.info("getQREPCImage: epc: {}", epcTransaction);
@@ -311,5 +316,65 @@ public class AccountController {
 
        return null;
     }
+
+    @GetMapping("/listtransferaccounts")
+    public List<TransferAccountItem> getTransferAccounts()
+    {
+       return this.phoneAccountService.getPhoneAccounts();
+    }
+    
+    @PostMapping(value = "/updatetransferaccount")
+    public String updateTransferAccount(@RequestBody TransferAccountItem phoneAccountItem, Model model)
+    {
+       log.info("updateTransferAccount: item to update: {}", phoneAccountItem);
+       try
+       {
+          this.phoneAccountService.updateTransferAccount(phoneAccountItem);
+
+       }
+       catch(Exception ex)
+       {
+          log.info("updateTransferAccount: Failed to update: {}", phoneAccountItem, ex);
+          return "failed: " + ex.getMessage();
+       }
+
+       return "ok";
+    }
+    
+    @PostMapping(value = "/addtransferaccount")
+    public String addTransferAccount(@RequestBody TransferAccountItem phoneAccountItem, Model model)
+    {
+       log.info("addTransferAccount: item to add: {}", phoneAccountItem);
+       try
+       {
+          this.phoneAccountService.addTransferAccount(phoneAccountItem);
+
+       }
+       catch(Exception ex)
+       {
+          log.info("addTransferAccount: Failed to add: {}", phoneAccountItem, ex);
+          return "failed: " + ex.getMessage();
+       }
+
+       return "ok";
+    }
+    
+    @PostMapping(value = "/deletetransferaccount")
+    public String deleteTransferAccount(@RequestBody TransferAccountItem phoneAccountItem, Model model)
+    {
+       log.info("deleteTransferAccount: item to delete: {}", phoneAccountItem);
+       try
+       {
+          this.phoneAccountService.deleteTransferAccount(phoneAccountItem);
+       }
+       catch(Exception ex)
+       {
+          log.info("deleteTransferAccount: Failed to delete: {}", phoneAccountItem, ex);
+          return "failed: " + ex.getMessage();
+       }
+
+       return "ok";
+    }
+
     
 }

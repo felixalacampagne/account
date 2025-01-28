@@ -1,36 +1,33 @@
+// src/sass/custom-theme.scss
+
+// I finally managed to figure out how to revert to a standard Material theme
+// instead of this theme which is lacking the ability to give buttons color.
+// The standard themes are only able to give buttons colour using the 
+// supposedly deprecated 'color' attribute - I have found no alternative
+// in the Material 3 way of doing things - but at least 'color' is enabled
+// without needing to go hunting through generated code to find something 
+// to uncomment - no clue why it forced me to have a generated theme in the first
+// place, presumably because they know it will cause all sorts of headaches and
+// hours of wasted time.
+// Would really like to decrease the 'density' but no clue how to do it when
+// overriding a value in a standard theme.
+
+// NB. To use it again (why on earth would I????) put the path in the 'styles' section of angular.json
 
 // Custom Theming for Angular Material
 // For more information: https://material.angular.io/guide/theming
 @use '@angular/material' as mat;
 // Plus imports for other components in your app.
 
-// Include the common styles for Angular Material. We include this here so that you only
-// have to load a single css file for Angular Material in your app.
-// Be sure that you only ever include this mixin once!
-@include mat.core();
+html {
+   @include mat.all-component-densities(-1);
+   // @include mat.input-density(-4);
+   @include mat.form-field-density(-3);
 
-// Define the theme object.
-$accountui-theme: mat.define-theme((
-  color: (
-    theme-type: light,
-    primary: mat.$azure-palette,
-    tertiary: mat.$blue-palette,
-  ),
-  density: (
-    scale: -1,
-  )
-));
-
-// Include theme styles for core and each component used in your app.
-// Alternatively, you can import and @include the theme mixins for each component
-// that you are using.
-:root {
-  @include mat.all-component-themes($accountui-theme);
-}
-
-// Comment out the line below if you want to use the pre-defined typography utility classes.
-// For more information: https://material.angular.io/guide/typography#using-typography-styles-in-your-application.
-// @include mat.typography-hierarchy($accountui-theme);
-
-// Comment out the line below if you want to use the deprecated `color` inputs.
-// @include mat.color-variants-backwards-compatibility($accountui-theme);
+// Has no effect with Angular 18. Docs only present for Angular 19   
+   // @include mat.dialog-overrides((
+   //    supporting-text-size: 9px,
+   //    supporting-text-line-height: 60px,
+   //    content-padding: 0px
+   //  ));   
+ }

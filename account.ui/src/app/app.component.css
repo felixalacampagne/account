@@ -92,9 +92,10 @@ td.account-amount, th.account-amount
 }
 td.account-edit, th.account-edit
 {
-   width:0.1%;
+   width:0px;
    white-space: nowrap;
-   padding: 0px;
+   padding: 0px !important;
+
    margin: 0px;
 }
 /*
