@@ -12,16 +12,14 @@ import {
 import { SoEditMatComponent } from './so-edit-mat.component';
 
 @Component({
-   selector: 'so-edit-mat-dialog',
-   standalone: true,
-   providers: [
-   ],
-   imports: [MatDialogContent, SoEditMatComponent],
-   changeDetection: ChangeDetectionStrategy.OnPush,
-   templateUrl: './so-edit-mat.dialog.html',
-   styleUrls: [
-      './so-edit-mat.component.css'
-   ]
+    selector: 'so-edit-mat-dialog',
+    providers: [],
+    imports: [MatDialogContent, SoEditMatComponent],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    templateUrl: './so-edit-mat.dialog.html',
+    styleUrls: [
+        './so-edit-mat.component.css'
+    ]
 })
 
 export class SoEditMatDialog 

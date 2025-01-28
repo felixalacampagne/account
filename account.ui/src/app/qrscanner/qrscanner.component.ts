@@ -3,9 +3,10 @@ import { Html5QrcodeScanner } from 'html5-qrcode';
 import { Html5QrcodeResult } from 'html5-qrcode/esm/core';
 
 @Component({
-  selector: 'app-qrscanner',
-  templateUrl: './qrscanner.component.html',
-  styleUrls: ['./qrscanner.component.css']
+    selector: 'app-qrscanner',
+    templateUrl: './qrscanner.component.html',
+    styleUrls: ['./qrscanner.component.css'],
+    standalone: false
 })
 export class QrscannerComponent implements OnInit {
   html5QrcodeScanner: Html5QrcodeScanner | undefined; // Only defined while a scan is being performed

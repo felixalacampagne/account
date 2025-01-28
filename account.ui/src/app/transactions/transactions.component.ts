@@ -77,14 +77,13 @@ export class DebounceInputDirective implements OnInit, OnDestroy {
 // in the imports sections of @Component otherwise many inexplicable errors will occur, eg.
 // NG8002: Can't bind to 'ngModel' since it isn't a known property of 'select'
 @Component({
-  selector: 'transactions',
-  standalone: true,
-  imports: [FormsModule, CommonModule, NgbModule, RouterModule, DebounceInputDirective, QrcodepayerComponent ],
-  templateUrl: './transactions.component.html',
-  styleUrls: ['../../sass/account-styles.scss', '../app.component.css', './transactions.component.css'],
-  providers: [{provide: NgbDateParserFormatter, useClass: accountNgbDateParserFormatter},
-              { provide: NgbDateAdapter, useClass: NgbDateNativeAdapter }
-  ]
+    selector: 'transactions',
+    imports: [FormsModule, CommonModule, NgbModule, RouterModule, DebounceInputDirective, QrcodepayerComponent],
+    templateUrl: './transactions.component.html',
+    styleUrls: ['../../sass/account-styles.scss', '../app.component.css', './transactions.component.css'],
+    providers: [{ provide: NgbDateParserFormatter, useClass: accountNgbDateParserFormatter },
+        { provide: NgbDateAdapter, useClass: NgbDateNativeAdapter }
+    ]
 })
 
 export class TransactionsComponent implements OnInit  {

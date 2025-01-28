@@ -16,11 +16,10 @@ import { DateformatService } from 'src/shared/service/dateformat.service';
 // import { BehaviorSubject, Observable } from 'rxjs';
 
 @Component({
-  selector: 'checked-list',
-  standalone: true,
-  imports: [MatTableModule, MatCardModule, MatIconModule, MatButtonModule, CommonModule, RouterModule],
-  templateUrl: './checked-list.component.html',
-  styleUrls: ['../app.component.css', './checked-list.component.css']
+    selector: 'checked-list',
+    imports: [MatTableModule, MatCardModule, MatIconModule, MatButtonModule, CommonModule, RouterModule],
+    templateUrl: './checked-list.component.html',
+    styleUrls: ['../app.component.css', './checked-list.component.css']
 })
 export class CheckedListComponent implements OnInit {
    @Input() accid!: number;  

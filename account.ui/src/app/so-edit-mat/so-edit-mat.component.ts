@@ -67,25 +67,23 @@ export const ISO_DATE_FORMAT : MatDateFormats = {
  };
 
 @Component({
-   selector: 'so-edit-mat',
-   standalone: true,
-   providers: [
-      {provide: DateAdapter, useClass: FormatingDateAdapter}, 
-      {provide: MAT_DATE_FORMATS, useValue: ISO_DATE_FORMAT}
-   ],
-   imports: [MatCardModule,      
-      MatInputModule,
-      MatButtonModule,
-      MatSelectModule,
-      MatDatepickerModule, 
-      ReactiveFormsModule],
-   changeDetection: ChangeDetectionStrategy.OnPush,
-   templateUrl: './so-edit-mat.component.html',
-   styleUrls: 
-   [
-      './so-edit-mat.component.css',
-      '../app-material.css',
-   ]
+    selector: 'so-edit-mat',
+    providers: [
+        { provide: DateAdapter, useClass: FormatingDateAdapter },
+        { provide: MAT_DATE_FORMATS, useValue: ISO_DATE_FORMAT }
+    ],
+    imports: [MatCardModule,
+        MatInputModule,
+        MatButtonModule,
+        MatSelectModule,
+        MatDatepickerModule,
+        ReactiveFormsModule],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    templateUrl: './so-edit-mat.component.html',
+    styleUrls: [
+        './so-edit-mat.component.css',
+        '../app-material.css',
+    ]
 })
 
 export class SoEditMatComponent 
