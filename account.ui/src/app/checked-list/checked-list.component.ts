@@ -9,7 +9,7 @@ import { AccountItem } from 'src/shared/model/accountitem.model';
 import { CommonModule } from '@angular/common';
 import {MatIconModule} from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { RouterModule, RouterOutlet } from '@angular/router'; // for 'routerlink is not a property of button'
+import { RouterModule } from '@angular/router'; // for 'routerlink is not a property of button'
 import { DateformatService } from 'src/shared/service/dateformat.service';
 
 // import { DataSource } from '@angular/cdk/collections';
@@ -18,7 +18,7 @@ import { DateformatService } from 'src/shared/service/dateformat.service';
 @Component({
   selector: 'checked-list',
   standalone: true,
-  imports: [MatTableModule, MatCardModule, MatIconModule, MatButtonModule, CommonModule, RouterModule, RouterOutlet],
+  imports: [MatTableModule, MatCardModule, MatIconModule, MatButtonModule, CommonModule, RouterModule],
   templateUrl: './checked-list.component.html',
   styleUrls: ['../app.component.css', './checked-list.component.css']
 })
