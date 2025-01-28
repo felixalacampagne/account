@@ -29,6 +29,18 @@ that's what continuous improvement is all about.
 
    Seems to be working OK. Now maybe I'll be able to figure out from the POS Angular material docs how to make it look more sensible!
 
+   Repeated the upgrade for on site installation. 
+
+   Realised that all the 'npm update' budshirt had not actually done a thing to update Angular Material - it was still at 18.2
+   in package.json. More wasted effort to dicover that it should be 'ng update', ie.
+
+   ng update @angular/material @angular/cdk
+
+   Now package.json is updated with '"@angular/material": "^19.1.1"'
+   Repeated for off-site and it seemed to work aswell.
+
+   So now the 'fun' starts because my nice red warning button is once again back to being the blue as the other safe buttons - forking hell!
+
 - Update to Typescript 5.5: obviously docs give no clue how to do this, fingers crossed it is automatic
 - Replace usages of BrowserModule.withServerTransition() with injection of the APP_ID token to set the application id     instead. No forking clue what this means, fingers crossed I don't need to do anything.
 
