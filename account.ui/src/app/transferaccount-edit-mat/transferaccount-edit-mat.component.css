@@ -1,8 +1,4 @@
 /* src/app/transferaccount-edit-mat/transferaccount-edit-mat.component.css */
-.mat-mdc-button-base 
-{
-   margin-left: 8px;
-}
 .mat-mdc-card-header
 {
    display:inline;
@@ -25,6 +21,16 @@
    margin-top: 0px; 
       
 }
+
+.mat-mdc-dialog-content /* does not work when in app-material.css */
+{
+   height:100%;
+   max-height: 100%;
+   padding: 0px 0px 0px 0px !important;
+   overflow: auto !important;   
+   background-color:  rgba(0, 0, 0, 0.32);
+}
+   
 .actions-card-right
 {
    display: inline;
@@ -46,11 +52,3 @@
    padding-top:3px;
 }
 
-.mat-mdc-dialog-content
-{
-   height:100%;
-   max-height: 100%;
-   padding: 0px 0px 0px 0px !important;
-   overflow: auto !important;   
-   background-color:  rgba(0, 0, 0, 0.32);
-}
