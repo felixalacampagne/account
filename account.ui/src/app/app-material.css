@@ -1,0 +1,35 @@
+/* src/app/app-material.css : attempts to make Material components look more reasonable */
+
+.mat-mdc-dialog-content /* must be copied to a css file in the component directory to work!!! */
+{
+   height:100%;
+   max-height: 100%;
+   padding: 0px 0px 0px 0px !important;
+   overflow: auto !important;   
+   background-color:  rgba(0, 0, 0, 0.32);
+}
+   
+.mdc-button ~ .mdc-button {
+   margin-left: 10px;
+}
+
+.mat-mdc-button-base 
+{
+   margin-left: 8px;
+}
+
+
+.mat-mdc-form-field, .mat-mdc-select, .mat-mdc-option
+{
+   font-size: 14px;  /* default 16px is just too much. Making it smaller does not reduce the box height so no point */
+   min-height: 24px; /* line spacing in the select dropdown */
+}
+
+/* This is supposed to be the cause of the excessive input box height
+   but changing any of the height properties has no effect
+
+.mat-mdc-text-field-wrapper
+{
+   max-height: 20px !important;
+}
+*/
