@@ -3,7 +3,6 @@ import { Component, ChangeDetectionStrategy, Output, EventEmitter, SimpleChanges
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
-import { MatDatepickerModule } from "@angular/material/datepicker";
 import { MatIconModule } from "@angular/material/icon";
 import { MatInputModule } from "@angular/material/input";
 import { MatSelectModule } from "@angular/material/select";
@@ -35,11 +34,11 @@ import { AccountService } from "src/shared/service/account.service";
    ],
    changeDetection: ChangeDetectionStrategy.OnPush,
    templateUrl: './transferaccount-edit-mat.component.html',
-   styleUrls: [ './transferaccount-edit-mat.component.css'
-      // , '../../styles.css'
-   //    , '../../sass/account-styles.scss'
-   
-]
+   styleUrls: 
+   [ 
+      './transferaccount-edit-mat.component.css',
+      '../app-material.css'
+   ]
 })
 
 export class TransferAccountEditMatComponent 
