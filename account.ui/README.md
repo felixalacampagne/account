@@ -12,6 +12,16 @@ that's what continuous improvement is all about.
       optional migration: 
          new build system: selected: enter
          provide-initializer: selected: enter
+
+- Update to Typescript 5.5: obviously docs give no clue how to do this, fingers crossed it is automatic
+- Replace usages of BrowserModule.withServerTransition() with injection of the APP_ID token to set the application id     instead. No forking clue what this means, fingers crossed I don't need to do anything.
+
+- Migrate from using Router.errorHandler to withNavigationErrorHandler from provideRouter or errorHandler from RouterModule.forRoot. Equally no idea what this refers to, although I do use Routing and did have to fork around with it
+to get the browser refresh and back buttons to work as expected - fingers crossed this has not been broken by
+the continuous improvement grassholes.
+
+So.... here goes
+
    Forking Hell! It doesn't update Material: still says 18.2.7 in package.json. No Angular documentation
    for this, of course. Google suggests:
       npm update @angular/material @angular/cdk
@@ -22,33 +32,24 @@ that's what continuous improvement is all about.
    it completed with lots of meaningless warn messages about packages numbers.
 
    Tried to run 'ng serve' and was hit with a mass of deprecation warnings about 'Sass @import rules are deprecated'.
-   Since these are required for Material and there link to some sort of workaround is blocked the only choice
+   Since these are required for Material and the link to some sort of workaround is blocked the only choice
    is to ignore or disable them. I found instruction to disable here: https://www.angulararchitects.io/en/blog/how-to-disable-the-angular-v19s-sass-compiler-deprecation-warnings/ - it requires a change in angular.json.
    That left 'WARNING RouterOutlet is not used within the template of CheckedListComponent' which was referring to
-   and unused item in the @Component import list.
+   an unused item in the @Component import list.
 
    Seems to be working OK. Now maybe I'll be able to figure out from the POS Angular material docs how to make it look more sensible!
 
    Repeated the upgrade for on site installation. 
 
-   Realised that all the 'npm update' budshirt had not actually done a thing to update Angular Material - it was still at 18.2
-   in package.json. More wasted effort to dicover that it should be 'ng update', ie.
+   Realised that all the 'npm update' bullshirt had not actually done a thing to update Angular Material - it was still at 18.2
+   in package.json. More wasted effort to discover that it should be 'ng update', ie.
 
    ng update @angular/material @angular/cdk
 
    Now package.json is updated with '"@angular/material": "^19.1.1"'
    Repeated for off-site and it seemed to work aswell.
 
-   So now the 'fun' starts because my nice red warning button is once again back to being the blue as the other safe buttons - forking hell!
-
-- Update to Typescript 5.5: obviously docs give no clue how to do this, fingers crossed it is automatic
-- Replace usages of BrowserModule.withServerTransition() with injection of the APP_ID token to set the application id     instead. No forking clue what this means, fingers crossed I don't need to do anything.
-
-- Migrate from using Router.errorHandler to withNavigationErrorHandler from provideRouter or errorHandler from RouterModule.forRoot. Equally no idea what this refers to, although I do use Routing and did have to fork around with it
-to get the browser refresh and back buttons to work as expected - fingers crossed this has not been broken by
-the continuous improvement grassholes.
-
-So.... here goes
+   So now the 'fun' starts because my nice red warning button is once again back to being the same blue as the other safe buttons - forking hell!
 
 
 10-Jan-2025 The 'auto-zoom' when entering transactions on the phone is starting to really
