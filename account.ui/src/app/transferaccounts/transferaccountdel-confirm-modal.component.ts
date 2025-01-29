@@ -46,10 +46,11 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
       </mat-card-content>
       <mat-card-actions align='end'>
          <button mat-stroked-button type="reset" (click)="dialogRef.close('CANCEL')">Cancel</button>
-         <button mat-flat-button color="warn" type="submit" (click)="dialogRef.close('DELETE_OK')">Ok</button>
+         <button mat-flat-button class="warning" type="submit" (click)="dialogRef.close('DELETE_OK')">Ok</button>
       </mat-card-actions>
    `,
-    styleUrls: ['./transferaccounts.component.css'
+    styleUrls: ['./transferaccounts.component.css',
+        '../app-material.css'
         //    , '../../sass/account-styles.scss'
         // , '../app.component.css'
     ]
