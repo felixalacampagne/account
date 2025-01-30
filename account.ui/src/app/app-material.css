@@ -25,21 +25,6 @@
    min-height: 24px; /* line spacing in the select dropdown */
 }
 
-
-/* Gave up trying to find the 'correct' Material 3 way to change button color
-   and resorted to using the bootstap variable, which at least makes it consistent
-   with the bootstrap dialog. I'm really strongly feeling like it would be wise to
-   abandon Material - seems to be developed with the sole intent of giving a bunch
-   of grassholes something to do with no regard or concern for those trying to use it.
-
-   Can't even give a button a class to set the back colour without having it 
-   overridden but the forking material shirt, eg. .mat-mdc-unelevated-button:not(:disabled)
-   which can't be changed without affecting all buttons.
- */
-.warning {
-   background-color:  var(--bs-danger) !important;
-}
-
 .mat-mdc-card-actions
 {
    display:inline;
