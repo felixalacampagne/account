@@ -21,7 +21,9 @@ Tried
 ng update @ng-bootstrap/ng-bootstrap
 
 This gave 'Package "@ng-bootstrap/ng-bootstrap" has a missing peer dependency of "@angular/localize" @ "^19.0.0".' so why the fork did it say it wasn't a dependency before? It then said it was installing packages, no idea which packages and finished with a green tick!
+Then it wanted
 
+ng update ngx-device-detector
 
 28-Jan-2025 Sick and tired of trying to use Angular Material docs and being taken to v19 pages
 which seem vaugely relevant only to find there is no equivalent at all for v18.
