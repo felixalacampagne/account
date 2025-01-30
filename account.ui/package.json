@@ -28,7 +28,7 @@
     "html5-qrcode": "^2.2.1",
     "material-symbols": "^0.25.1",
     "ng-bootstrap": "^1.6.3",
-    "ngx-device-detector": "^8.0.0",
+    "ngx-device-detector": "^9.0.0",
     "rxjs": "~7.5.0",
     "sass": "^1.79.3",
     "tslib": "^2.3.0",
