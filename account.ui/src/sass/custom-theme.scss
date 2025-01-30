@@ -1,18 +1,5 @@
 // src/sass/custom-theme.scss
-
-// I finally managed to figure out how to revert to a standard Material theme
-// instead of this theme which is lacking the ability to give buttons color.
-// The standard themes are only able to give buttons colour using the 
-// supposedly deprecated 'color' attribute - I have found no alternative
-// in the Material 3 way of doing things - but at least 'color' is enabled
-// without needing to go hunting through generated code to find something 
-// to uncomment - no clue why it forced me to have a generated theme in the first
-// place, presumably because they know it will cause all sorts of headaches and
-// hours of wasted time.
-// Would really like to decrease the 'density' but no clue how to do it when
-// overriding a value in a standard theme.
-//
-// Been going around in circle trying to figure out to apply the standard 'color variants'
+// Been going around in circles trying to figure out to apply the standard 'color variants'
 // to a specific button using material 19 (aka M3). There is not a single example of real 
 // HTML code displaying a warning button using anything other than the old, deprecated and no
 // longer usable 'color' attribute.
@@ -26,27 +13,24 @@
 // Custom Theming for Angular Material
 // For more information: https://material.angular.io/guide/theming
 @use '@angular/material' as mat;
-
-//                      "@angular/material/prebuilt-themes/azure-blue.css",
+@import 'material-symbols';
 
 html {
    color-scheme: light dark;
    @include mat.theme((
      color: mat.$azure-palette,
-     typography: 'Roboto Flex' Roboto 'Open Sans',
+     typography: 'Roboto Flex Variable',
      density: -1
    ));
-
-
    //@include mat.all-component-densities(-1);
    // @include mat.input-density(-4);
-   //@include mat.form-field-density(-3);
-
+   @include mat.form-field-density(-3);
 
  }
 
  body
  {
+   font-family: 'Roboto Flex Variable', Roboto, 'Open Sans', sans-serif;
    background: var(--mat-sys-surface);
    color: var(--mat-sys-on-surface);   
    // Apparently there are no standard classes for the standard color variants anymore.
