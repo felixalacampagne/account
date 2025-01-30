@@ -11,23 +11,46 @@
 // hours of wasted time.
 // Would really like to decrease the 'density' but no clue how to do it when
 // overriding a value in a standard theme.
+//
+// Been going around in circle trying to figure out to apply the standard 'color variants'
+// to a specific button using material 19 (aka M3). There is not a single example of real 
+// HTML code displaying a warning button using anything other than the old, deprecated and no
+// longer usable 'color' attribute.
+// I can't even find anything that describes what is required to use a pre-built theme - everything
+// points to needing to define a custom theme even to use a standard, un-modified theme.
+// So I guess that's what Ihave to do.
+// The azure-blue them suits me well enough so that's the standard that this so-called custom
+// theme will be emulating.
 
-// NB. To use it again (why on earth would I????) put the path in the 'styles' section of angular.json
 
 // Custom Theming for Angular Material
 // For more information: https://material.angular.io/guide/theming
 @use '@angular/material' as mat;
-// Plus imports for other components in your app.
+
+//                      "@angular/material/prebuilt-themes/azure-blue.css",
 
 html {
-   @include mat.all-component-densities(-1);
-   // @include mat.input-density(-4);
-   @include mat.form-field-density(-3);
+   color-scheme: light dark;
+   @include mat.theme((
+     color: mat.$azure-palette,
+     typography: 'Roboto Flex' Roboto 'Open Sans',
+     density: -1
+   ));
 
-// Has no effect with Angular 18. Docs only present for Angular 19   
-   // @include mat.dialog-overrides((
-   //    supporting-text-size: 9px,
-   //    supporting-text-line-height: 60px,
-   //    content-padding: 0px
-   //  ));   
+
+   //@include mat.all-component-densities(-1);
+   // @include mat.input-density(-4);
+   //@include mat.form-field-density(-3);
+
+
  }
+
+ body
+ {
+   background: var(--mat-sys-surface);
+   color: var(--mat-sys-on-surface);   
+   // Apparently there are no standard classes for the standard color variants anymore.
+   .mat-error {
+      background-color: var(--mat-sys-error) !important;
+     }   
+}
