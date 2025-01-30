@@ -11,16 +11,5 @@
    no longer part of bootstrap (this has wasted a few hours)
  */
 
-
-/* Material overrides the 'normal' font of the list tables (bootstrap) with a rather ugly
-   font. This seems to restore the normal settings: values copied from the developer tools
-   element properties.
- */
-.mat-body-large, .mat-typography .mat-body-large, .mat-typography {
-   font-family: system-ui, -apple-system, "Segoe UI",  "Helvetica Neue", sans-serif;
-   font: 400 1rem / 1.5rem system-ui, -apple-system, "Segoe UI",  "Helvetica Neue", sans-serif;
-   letter-spacing: .031rem;
-}
-
 html, body { height: 100%; }
-body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI""Helvetica Neue", sans-serif; }
+body { margin: 0;  }
