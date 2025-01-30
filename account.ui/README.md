@@ -1,4 +1,28 @@
 # Accountui
+
+30-Jan-2025 wanted to install the 'Roboto Flex' using:
+
+npm i @fontsource-variable/roboto-flex
+
+but got loads of errors related to old version of stuff, I think. The chief culprit appeared to be
+@angular/localize. Tried 
+
+ng update @angular/localize
+
+which gave a message about Angular CLI being outdated, did something and then said 'Package '@angular/localize' is not a dependency.' which is pretty stupid since it obviously is!
+
+Then tried
+
+npm update -g @angular/cli
+
+to avoid the 'Installing a temporary Angular CLI' message when installing. It didn't work, still get the message!
+Tried
+
+ng update @ng-bootstrap/ng-bootstrap
+
+This gave 'Package "@ng-bootstrap/ng-bootstrap" has a missing peer dependency of "@angular/localize" @ "^19.0.0".' so why the fork did it say it wasn't a dependency before? It then said it was installing packages, no idea which packages and finished with a green tick!
+
+
 28-Jan-2025 Sick and tired of trying to use Angular Material docs and being taken to v19 pages
 which seem vaugely relevant only to find there is no equivalent at all for v18.
 Thus going to bite the bullet and upgrade to Angular 19.
