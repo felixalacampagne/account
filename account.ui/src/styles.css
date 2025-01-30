@@ -1,15 +1,5 @@
 /* To make material icons (aka. symbols) work! @imports must be first in the file!!! */
-@import 'material-symbols';
-
-/* NB Bootstrap also needs jquery.js, popper.min.js, and bootstrap.js entries in .angular-cli.json */
-/* might need to do 
-   npm i bootstrap-icons
-   
-   NB The import has been replaced by an entry in angular.json under 'styles'
-   
-   WARNING Google is full of references to 'glyphicons' however these are apparently
-   no longer part of bootstrap (this has wasted a few hours)
- */
+@import "@fontsource-variable/roboto-flex/wght.css";
 
 html, body { height: 100%; }
 body { margin: 0;  }
