@@ -25,6 +25,31 @@ Then it wanted
 
 ng update ngx-device-detector
 
+Had the same problems for the on-site installation even after doing and 'npm install'. The forking dependencies are in the forking package.json file so why the fork doesn't the forking compiler fetch them when required? Good forking job that I documented all the forking ridiculous hoops that must be jumped through just to build with a new version! The update of ng-bootstrap has the nerve to say it is updating package.json with 18.0.0 - it was forking weill already at 18.0.0 since it was updated for the off-site installation!
+
+What The Fork. Off-site update gives 'Cannot find module '@angular-devkit/schematics/tools' for the ngx-device-detector update.
+Ignoring that (what the fork else can I do??) and trying the 'roboto-flex' install gives yet another bunch of non-sensical dependency erros like '@angular/compiler-cli@19.1.4' which is what should have been installed by the update to angular 19. Aaaagggghhhhh this shirt 
+drive me forking wild.
+
+Ran the suggested
+
+npm audit fix --force
+
+On the off chance this would do something useful. Did it fork?!?
+
+In desperation tried a random command
+
+npm update
+
+Weirdly the 
+
+npm i @fontsource-variable/roboto-flex
+
+then ran and claim 'up to date' but no clue if the fonts are actually installed or not! Good new! I t seems they are.
+So expect a world of forking pain when trying to get any of this to work on an alternative system!
+
+Yay! After all that I still have my red button. Let's see if the fonts on the production build are back to being something more normal isntead of the times new roman that appeared with the last build put into production!
+
 28-Jan-2025 Sick and tired of trying to use Angular Material docs and being taken to v19 pages
 which seem vaugely relevant only to find there is no equivalent at all for v18.
 Thus going to bite the bullet and upgrade to Angular 19.
