@@ -127,5 +127,23 @@ public class AccountService
             token);
    }
 
+   public void addAccount(AccountDetail accountDetail)
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   public void updateAccount(AccountDetail accountDetail)
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
+   public void deleteAccount(AccountDetail accountDetail)
+   {
+      // TODO Auto-generated method stub
+      
+   }
+
 
 }

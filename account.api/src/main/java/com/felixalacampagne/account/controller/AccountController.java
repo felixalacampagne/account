@@ -113,7 +113,59 @@ public class AccountController {
        return this.accountService.getAccountDetailList();
     }
 
+    @PostMapping(value = "/addaccount")
+    public String addAccountDetail(@RequestBody AccountDetail accountDetail, Model model)
+    {
+       log.info("addAccountDetail: item to add: {}", accountDetail);
+       try
+       {
+          this.accountService.addAccount(accountDetail);
 
+       }
+       catch(Exception ex)
+       {
+          log.info("addAccountDetail: Failed to add: {}", accountDetail, ex);
+          return "failed: " + ex.getMessage();
+       }
+
+       return "ok";
+    }
+    
+    @PostMapping(value = "/updaccount")
+    public String updAccountDetail(@RequestBody AccountDetail accountDetail, Model model)
+    {
+       log.info("updAccountDetail: item to update: {}", accountDetail);
+       try
+       {
+          this.accountService.updateAccount(accountDetail);
+       }
+       catch(Exception ex)
+       {
+          log.info("updAccountDetail: Failed to update: {}", accountDetail, ex);
+          return "failed: " + ex.getMessage();
+       }
+
+       return "ok";       
+    }
+    
+    @PostMapping(value = "/deleteaccount")
+    public String deleteAccountDetail(@RequestBody AccountDetail accountDetail, Model model)
+    {
+       log.info("deleteAccountDetail: item to delete: {}", accountDetail);
+       try
+       {
+          this.accountService.deleteAccount(accountDetail);
+       }
+       catch(Exception ex)
+       {
+          log.info("deleteAccountDetail: Failed to delete: {}", accountDetail, ex);
+          return "failed: " + ex.getMessage();
+       }
+
+       return "ok";       
+    }
+    
+    
     @PostMapping(value = "/updaccountstref")
     public String updateAccountStatementRef(@RequestBody AccountItem accountItem, Model model)
     {
@@ -288,18 +340,6 @@ public class AccountController {
        return this.transactionService.getCheckedTransactions(accountid, 25, pageno);
     }
 
-    // TODO: needs to return an image, eg. PNG
-// @RequestMapping(value = "/image-byte-array", method = RequestMethod.GET, produces = MediaType.IMAGE_PNG)
-// public @ResponseBody byte[] getImageAsByteArray() throws IOException {
-//    // get byte array and simply return it;
-// }
-   // if the simple way doesn't work then  the hyper complex spring way could be used which requires a
-   // ByteArrayHttpMessageConverter and some way to call 'configureMessageConverters' to add the bean,
-   // according to https://www.baeldung.com/spring-mvc-image-media-data
-   // or returning a ResponseEntity might work:
-   //     return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(bytearray);
-
-   
     @PostMapping(value = "/qrcodepayer", produces = MediaType.IMAGE_PNG_VALUE)
     public @ResponseBody byte[] getQREPCImage(@RequestBody EPCTransaction epcTransaction, Model model)
     {
