@@ -33,19 +33,19 @@ drive me forking wild.
 
 Ran the suggested
 
-npm audit fix --force
+    npm audit fix --force
 
 On the off chance this would do something useful. Did it fork?!?
 
 In desperation tried a random command
 
-npm update
+    npm update
 
 Weirdly the 
 
-npm i @fontsource-variable/roboto-flex
+    npm i @fontsource-variable/roboto-flex
 
-then ran and claim 'up to date' but no clue if the fonts are actually installed or not! Good new! I t seems they are.
+then ran and claimed 'up to date' but no clue if the fonts are actually installed or not! Good new! I t seems they are.
 So expect a world of forking pain when trying to get any of this to work on an alternative system!
 
 Yay! After all that I still have my red button. Let's see if the fonts on the production build are back to being something more normal isntead of the times new roman that appeared with the last build put into production!
@@ -59,10 +59,12 @@ into whatever actions are required to workaround the inevitable random changes. 
 that's what continuous improvement is all about.
 
 - Upgrade to Angular19
+
       ng update @angular/core@19 @angular/cli@19
-      optional migration: 
-         new build system: selected: enter
-         provide-initializer: selected: enter
+
+   optional migration: 
+      new build system: selected: enter
+      provide-initializer: selected: enter
 
 - Update to Typescript 5.5: obviously docs give no clue how to do this, fingers crossed it is automatic
 - Replace usages of BrowserModule.withServerTransition() with injection of the APP_ID token to set the application id instead. No forking clue what this means, fingers crossed I don't need to do anything.
@@ -76,8 +78,10 @@ So.... here goes
       npm update @angular/material @angular/cdk
    it didn't work but suggests using '--force'.
    First I tried to update some of the packages referenced in the error message but they all gave similar
-   error messages so in the end I did 
-      npm update --force @ng-bootstrap/ng-bootstrap @angular/localize @ng-bootstrap/ng-bootstrap @angular/material @angular/cdk
+   error messages so in the end I did
+
+    npm update --force @ng-bootstrap/ng-bootstrap @angular/localize @ng-bootstrap/ng-bootstrap @angular/material @angular/cdk
+   
    it completed with lots of meaningless warn messages about packages numbers.
 
    Tried to run 'ng serve' and was hit with a mass of deprecation warnings about 'Sass @import rules are deprecated'.
@@ -92,13 +96,16 @@ So.... here goes
 
    Realised that all the 'npm update' bullshirt had not actually done a thing to update Angular Material - it was still at 18.2 in package.json. More wasted effort to discover that it should be 'ng update', ie.
 
-   ng update @angular/material @angular/cdk
+    ng update @angular/material @angular/cdk
 
    Now package.json is updated with '"@angular/material": "^19.1.1"'
    Repeated for off-site and it seemed to work aswell.
 
    So now the 'fun' starts because my nice red warning button is once again back to being the same blue as the other safe buttons - forking hell!
-   Gave up trying to find the 'Material way' to set the button to warning colour and defined my own class which actually to uses the bootstrap warning colour which makes it consistent with the infinitely more pleasing bootstrap dialog used for transactions. I think Material's days in my code are numbered as whoever develops it appears to have a continuously-fork-the-idiots-who-use-this-shirt policy which does not exactly fill me full of joy.
+
+   Gave up trying to find the 'Material way' to set the button to warning colour and defined my own class using the Material variable for the warning colour so theoretically it should respond to changes in the theme should I ever be bothered to do this. 
+   
+   I think Material's days in my code are numbered as whoever develops it appears to have a continuously-fork-the-idiots-who-use-this-shirt policy which does not exactly fill me full of joy.
 
 10-Jan-2025 The 'auto-zoom' when entering transactions on the phone is starting to really
 piddle me off. Alas it is something which is not going to go away, and it's been around a very long time judging by the number of SO requests for how to stop it.

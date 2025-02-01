@@ -36,9 +36,12 @@ export class AccountService
    private standingorder : string = "standingorder/";
    private addsosvc : string = "addstandingorder";
    private updsosvc : string = "updatestandingorder";
-   private delsosvc : string = "deletestandingorder";
+   private delsosvc : string = "delstandingorder";
    private getqrcodepayer : string = 'qrcodepayer';
    private listaccinf : string = "listaccinf";
+   private addaccount: string = "addaccount";
+   private updaccount: string = "updaccount";
+   private delaccount: string = "delaccount";
    private listtfraccs : string = "listtransferaccounts";
    private addtfracc  : string = "addtransferaccount";
    private updtfracc : string = "updatetransferaccount";
@@ -125,6 +128,55 @@ export class AccountService
       console.log("getAccountDetails API URL: " + url);
       return this.http.get(url).pipe( map((res:any) => res.accounts) );    
    } 
+
+   addAccount(item : AccountDetail) : Observable<string>
+   {
+      let json : string;
+      let url : string;
+      let res;
+      json = JSON.stringify(item);
+      url = this.apiurl + this.addaccount ;
+      console.log("addAccount: POSTing to " + url + ": " + json);
+
+      // Spring gives exception saying text/plain not supported so need to set content type to JSON
+      var headers = new HttpHeaders();
+      headers = headers.set('Content-Type', 'application/json');
+      headers = headers.set("Accept", "text/plain");
+        
+      return this.http.post(url, json, {headers: headers,  responseType: 'text'});        
+   }
+
+   updateAccount(item : AccountDetail) : Observable<string>
+   {
+      let json : string;
+      let url : string;
+      let res;
+      json = JSON.stringify(item);
+      url = this.apiurl + this.updaccount ;
+      console.log("updateAccount: POSTing to " + url + ": " + json);
+
+      var headers = new HttpHeaders();
+      headers = headers.set('Content-Type', 'application/json');
+      headers = headers.set("Accept", "text/plain");
+      
+      return this.http.post(url, json, {headers: headers,  responseType: 'text'});       
+   }
+
+   deleteAccount(item : AccountDetail) : Observable<string>
+   {
+       let json : string;
+       let url : string;
+       let res;
+       json = JSON.stringify(item);
+       url = this.apiurl + this.delaccount;
+       console.log("deleteAccount: POSTing to " + url + ": " + json);
+
+       var headers = new HttpHeaders();
+       headers = headers.set('Content-Type', 'application/json');
+       headers = headers.set("Accept", "text/plain");
+       
+       return this.http.post(url, json, {headers: headers,  responseType: 'text'}); 
+   }
 
    getAccountDetail(id : number) : Observable<AccountDetail>
    {

@@ -1,12 +1,11 @@
-// app/transactions/txndel-confirm-modal.component.ts
+// src/app/accounts/accountdel-confirm-modal.component.ts
 import { Component, inject, Type } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-    selector: 'tfraccdel-confirm',
+    selector: 'accountdel-confirm',
     imports: [
         MatCardModule,
         MatButtonModule
@@ -16,7 +15,7 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
       <mat-card-header> 
          <mat-card-title>
          <div class="title-card-left">
-         Transfer Account Delete
+          Account Delete
          </div>
          <div class="title-card-right">
          <button
@@ -32,16 +31,18 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
       <mat-card-content>
          <p>
-            <strong>Deleting transfer account:<br />
-            <span style="text-align: center">{{data.name}}</span>
+            <strong>Deleting account:<br />
+            <span style="text-align: center">{{data.cptyAccountName}}</span>
          </strong>
          </p>
          <p>
-            The transfer account will be permanently deleted.<br />
+            The account will be permanently deleted.<br />
+            ALL transactions associated with the account will also be deleted.<br />
+
             <span class="text-danger">This operation can not be undone.</span>
          </p>
          <p>
-            Are you sure you want to delete this transfer account?
+            Are you sure you want to delete this account and all of its transactions?
          </p>         
       </mat-card-content>
       <mat-card-actions align='end'>
@@ -49,15 +50,15 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
          <button mat-flat-button class="mat-error" type="submit" (click)="dialogRef.close('DELETE_OK')">Ok</button>
       </mat-card-actions>
    `,
-    styleUrls: ['./transferaccounts.component.css',
+    styleUrls: ['./accounts.component.css',
         '../app-material.css'
         //    , '../../sass/account-styles.scss'
         // , '../app.component.css'
     ]
 })
-export class TransferAccountDeleteConfirmDialog {
+export class AccountDeleteConfirmDialog {
      data = inject(MAT_DIALOG_DATA);
-     constructor(public dialogRef: MatDialogRef<TransferAccountDeleteConfirmDialog>
+     constructor(public dialogRef: MatDialogRef<AccountDeleteConfirmDialog>
         
      ) { }
 }
