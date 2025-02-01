@@ -14,13 +14,12 @@ export interface DialogData {
  }
 
 @Component({
-  selector: 'standingorders',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './standingorders.component.html',
-  styleUrls: ['../../sass/account-styles.scss'
-            , '../app.component.css'
-            , './standingorders.component.css'],
+    selector: 'standingorders',
+    imports: [CommonModule],
+    templateUrl: './standingorders.component.html',
+    styleUrls: ['../../sass/account-styles.scss',
+        '../app.component.css',
+        './standingorders.component.css']
 })
 export class StandingordersComponent implements OnInit {
 

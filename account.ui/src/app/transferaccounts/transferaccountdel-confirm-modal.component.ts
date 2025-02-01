@@ -6,13 +6,12 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
-   selector: 'tfraccdel-confirm',
-   standalone: true,
-   imports:  [
-      MatCardModule,
-      MatButtonModule
-   ],
-   template: `
+    selector: 'tfraccdel-confirm',
+    imports: [
+        MatCardModule,
+        MatButtonModule
+    ],
+    template: `
    <mat-card appearance="outlined">
       <mat-card-header> 
          <mat-card-title>
@@ -47,13 +46,14 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
       </mat-card-content>
       <mat-card-actions align='end'>
          <button mat-stroked-button type="reset" (click)="dialogRef.close('CANCEL')">Cancel</button>
-         <button mat-flat-button color="warn" type="submit" (click)="dialogRef.close('DELETE_OK')">Ok</button>
+         <button mat-flat-button class="mat-error" type="submit" (click)="dialogRef.close('DELETE_OK')">Ok</button>
       </mat-card-actions>
    `,
-  styleUrls: ['./transferaccounts.component.css'
-//    , '../../sass/account-styles.scss'
-// , '../app.component.css'
-]   
+    styleUrls: ['./transferaccounts.component.css',
+        '../app-material.css'
+        //    , '../../sass/account-styles.scss'
+        // , '../app.component.css'
+    ]
 })
 export class TransferAccountDeleteConfirmDialog {
      data = inject(MAT_DIALOG_DATA);

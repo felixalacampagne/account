@@ -7,9 +7,10 @@ import {AccountItem} from '../shared/model/accountitem.model';
 import { Version } from 'src/shared/model/version.model';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css', '../sass/account-styles.scss']
+    selector: 'app-root',
+    templateUrl: './app.component.html',
+    styleUrls: ['./app.component.css', '../sass/account-styles.scss'],
+    standalone: false
 })
 
 export class AppComponent {

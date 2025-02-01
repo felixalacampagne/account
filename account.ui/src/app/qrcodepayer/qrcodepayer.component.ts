@@ -5,11 +5,10 @@ import { AccountService } from 'src/shared/service/account.service';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Component({
-   selector: 'qrcodepayer',
-   standalone: true,
-   imports: [CommonModule],
-   templateUrl: './qrcodepayer.component.html',
-   styleUrl: './qrcodepayer.component.css'
+    selector: 'qrcodepayer',
+    imports: [CommonModule],
+    templateUrl: './qrcodepayer.component.html',
+    styleUrl: './qrcodepayer.component.css'
 })
 export class QrcodepayerComponent {
 

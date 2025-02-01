@@ -11,13 +11,12 @@ import { TransactionItem } from 'src/shared/model/transaction.model';
 import { TransferAccountDeleteConfirmDialog } from './transferaccountdel-confirm-modal.component';
 
 @Component({
-  selector: 'transferaccounts',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './transferaccounts.component.html',
-  styleUrls: ['../../sass/account-styles.scss'
-            , '../app.component.css'
-            , './transferaccounts.component.css' ]  
+    selector: 'transferaccounts',
+    imports: [CommonModule],
+    templateUrl: './transferaccounts.component.html',
+    styleUrls: ['../../sass/account-styles.scss',
+        '../app.component.css',
+        './transferaccounts.component.css']
 })
 export class TransferaccountsComponent implements OnInit {
    transferAccounts : TransferAccountItem[] = [];

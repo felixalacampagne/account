@@ -1,26 +1,5 @@
 /* To make material icons (aka. symbols) work! @imports must be first in the file!!! */
-@import 'material-symbols';
-
-/* NB Bootstrap also needs jquery.js, popper.min.js, and bootstrap.js entries in .angular-cli.json */
-/* might need to do 
-   npm i bootstrap-icons
-   
-   NB The import has been replaced by an entry in angular.json under 'styles'
-   
-   WARNING Google is full of references to 'glyphicons' however these are apparently
-   no longer part of bootstrap (this has wasted a few hours)
- */
-
-
-/* Material overrides the 'normal' font of the list tables (bootstrap) with a rather ugly
-   font. This seems to restore the normal settings: values copied from the developer tools
-   element properties.
- */
-.mat-body-large, .mat-typography .mat-body-large, .mat-typography {
-   font-family: system-ui, -apple-system, "Segoe UI",  "Helvetica Neue", sans-serif;
-   font: 400 1rem / 1.5rem system-ui, -apple-system, "Segoe UI",  "Helvetica Neue", sans-serif;
-   letter-spacing: .031rem;
-}
+@import "@fontsource-variable/roboto-flex/wght.css";
 
 html, body { height: 100%; }
-body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI""Helvetica Neue", sans-serif; }
+body { margin: 0;  }

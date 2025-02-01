@@ -19,26 +19,22 @@ import { AccountService } from "src/shared/service/account.service";
 // really fully grasp what is going on with the dialog and data going from one
 // place to another etc....
 @Component({
-   selector: 'transferaccount-edit-mat',
-   standalone: true,
-   providers: [
-
-   ],
-   imports: [MatCardModule,      
-      MatInputModule,
-      MatButtonModule,
-      MatSelectModule,
-      MatIconModule,
-      ReactiveFormsModule
-      // , CommonModule // for *ngIf etc.
-   ],
-   changeDetection: ChangeDetectionStrategy.OnPush,
-   templateUrl: './transferaccount-edit-mat.component.html',
-   styleUrls: 
-   [ 
-      './transferaccount-edit-mat.component.css',
-      '../app-material.css'
-   ]
+    selector: 'transferaccount-edit-mat',
+    providers: [],
+    imports: [MatCardModule,
+        MatInputModule,
+        MatButtonModule,
+        MatSelectModule,
+        MatIconModule,
+        ReactiveFormsModule
+        // , CommonModule // for *ngIf etc.
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    templateUrl: './transferaccount-edit-mat.component.html',
+    styleUrls: [
+        './transferaccount-edit-mat.component.css',
+        '../app-material.css'
+    ]
 })
 
 export class TransferAccountEditMatComponent 

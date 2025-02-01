@@ -3,14 +3,13 @@ import { MAT_DIALOG_DATA, MatDialogContent, MatDialogRef } from '@angular/materi
 import { TransferAccountEditMatComponent } from './transferaccount-edit-mat.component';
 
 @Component({
-  selector: 'transferaccount-edit-mat-dialog',
-  standalone: true,
-  imports: [TransferAccountEditMatComponent, MatDialogContent],
-  templateUrl: './transferaccount-edit-mat.dialog.html',
-  styleUrls: ['./transferaccount-edit-mat.component.css'
-            //    , '../../sass/account-styles.scss'
-            // , '../app.component.css'
-  ]
+    selector: 'transferaccount-edit-mat-dialog',
+    imports: [TransferAccountEditMatComponent, MatDialogContent],
+    templateUrl: './transferaccount-edit-mat.dialog.html',
+    styleUrls: ['./transferaccount-edit-mat.component.css'
+        //    , '../../sass/account-styles.scss'
+        // , '../app.component.css'
+    ]
 })
 export class TransferaccountEditMatDialog {
 

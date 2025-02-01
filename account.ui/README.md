@@ -1,4 +1,105 @@
 # Accountui
+
+30-Jan-2025 wanted to install the 'Roboto Flex' using:
+
+npm i @fontsource-variable/roboto-flex
+
+but got loads of errors related to old version of stuff, I think. The chief culprit appeared to be
+@angular/localize. Tried 
+
+ng update @angular/localize
+
+which gave a message about Angular CLI being outdated, did something and then said 'Package '@angular/localize' is not a dependency.' which is pretty stupid since it obviously is!
+
+Then tried
+
+npm update -g @angular/cli
+
+to avoid the 'Installing a temporary Angular CLI' message when installing. It didn't work, still get the message!
+Tried
+
+ng update @ng-bootstrap/ng-bootstrap
+
+This gave 'Package "@ng-bootstrap/ng-bootstrap" has a missing peer dependency of "@angular/localize" @ "^19.0.0".' so why the fork did it say it wasn't a dependency before? It then said it was installing packages, no idea which packages and finished with a green tick!
+Then it wanted
+
+ng update ngx-device-detector
+
+Had the same problems for the on-site installation even after doing and 'npm install'. The forking dependencies are in the forking package.json file so why the fork doesn't the forking compiler fetch them when required? Good forking job that I documented all the forking ridiculous hoops that must be jumped through just to build with a new version! The update of ng-bootstrap has the nerve to say it is updating package.json with 18.0.0 - it was forking weill already at 18.0.0 since it was updated for the off-site installation!
+
+What The Fork. Off-site update gives 'Cannot find module '@angular-devkit/schematics/tools' for the ngx-device-detector update.
+Ignoring that (what the fork else can I do??) and trying the 'roboto-flex' install gives yet another bunch of non-sensical dependency erros like '@angular/compiler-cli@19.1.4' which is what should have been installed by the update to angular 19. Aaaagggghhhhh this shirt 
+drive me forking wild.
+
+Ran the suggested
+
+npm audit fix --force
+
+On the off chance this would do something useful. Did it fork?!?
+
+In desperation tried a random command
+
+npm update
+
+Weirdly the 
+
+npm i @fontsource-variable/roboto-flex
+
+then ran and claim 'up to date' but no clue if the fonts are actually installed or not! Good new! I t seems they are.
+So expect a world of forking pain when trying to get any of this to work on an alternative system!
+
+Yay! After all that I still have my red button. Let's see if the fonts on the production build are back to being something more normal isntead of the times new roman that appeared with the last build put into production!
+
+28-Jan-2025 Sick and tired of trying to use Angular Material docs and being taken to v19 pages
+which seem vaugely relevant only to find there is no equivalent at all for v18.
+Thus going to bite the bullet and upgrade to Angular 19.
+According to https://angular.dev/update-guide?v=18.0-19.0&l=1 it should be easy-peasy so will
+almost certainly entail hours of wasted effort trying to decipher incomprehensible error messages
+into whatever actions are required to workaround the inevitable random changes. But hey! ho!,
+that's what continuous improvement is all about.
+
+- Upgrade to Angular19
+      ng update @angular/core@19 @angular/cli@19
+      optional migration: 
+         new build system: selected: enter
+         provide-initializer: selected: enter
+
+- Update to Typescript 5.5: obviously docs give no clue how to do this, fingers crossed it is automatic
+- Replace usages of BrowserModule.withServerTransition() with injection of the APP_ID token to set the application id instead. No forking clue what this means, fingers crossed I don't need to do anything.
+
+- Migrate from using Router.errorHandler to withNavigationErrorHandler from provideRouter or errorHandler from RouterModule.forRoot. Equally no idea what this refers to, although I do use Routing and did have to fork around with it to get the browser refresh and back buttons to work as expected - fingers crossed this has not been broken by the continuous improvement grassholes.
+
+So.... here goes
+
+   Forking Hell! It doesn't update Material: still says 18.2.7 in package.json. No Angular documentation
+   for this, of course. Google suggests:
+      npm update @angular/material @angular/cdk
+   it didn't work but suggests using '--force'.
+   First I tried to update some of the packages referenced in the error message but they all gave similar
+   error messages so in the end I did 
+      npm update --force @ng-bootstrap/ng-bootstrap @angular/localize @ng-bootstrap/ng-bootstrap @angular/material @angular/cdk
+   it completed with lots of meaningless warn messages about packages numbers.
+
+   Tried to run 'ng serve' and was hit with a mass of deprecation warnings about 'Sass @import rules are deprecated'.
+   Since these are required for Material and the link to some sort of workaround is blocked the only choice
+   is to ignore or disable them. I found instructions to disable here: https://www.angulararchitects.io/en/blog/how-to-disable-the-angular-v19s-sass-compiler-deprecation-warnings/ - it requires a change in angular.json.
+   That left 'WARNING RouterOutlet is not used within the template of CheckedListComponent' which was referring to
+   an unused item in the @Component import list.
+
+   Seems to be working OK. Now maybe I'll be able to figure out from the POS Angular material docs how to make it look more sensible!
+
+   Repeated the upgrade for on site installation. 
+
+   Realised that all the 'npm update' bullshirt had not actually done a thing to update Angular Material - it was still at 18.2 in package.json. More wasted effort to discover that it should be 'ng update', ie.
+
+   ng update @angular/material @angular/cdk
+
+   Now package.json is updated with '"@angular/material": "^19.1.1"'
+   Repeated for off-site and it seemed to work aswell.
+
+   So now the 'fun' starts because my nice red warning button is once again back to being the same blue as the other safe buttons - forking hell!
+   Gave up trying to find the 'Material way' to set the button to warning colour and defined my own class which actually to uses the bootstrap warning colour which makes it consistent with the infinitely more pleasing bootstrap dialog used for transactions. I think Material's days in my code are numbered as whoever develops it appears to have a continuously-fork-the-idiots-who-use-this-shirt policy which does not exactly fill me full of joy.
+
 10-Jan-2025 The 'auto-zoom' when entering transactions on the phone is starting to really
 piddle me off. Alas it is something which is not going to go away, and it's been around a very long time judging by the number of SO requests for how to stop it.
 The general idea appears to be that it happens when the input font size is less than 16 which is probably the case for '.form-control-sm'. This bit of magic is what is suggested to work around it:
