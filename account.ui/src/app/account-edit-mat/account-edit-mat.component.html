@@ -1,1 +1,90 @@
-<p>account-edit-mat works!</p>
+<!-- src/app/account-edit-mat/account-edit-mat.component.html -->
+<mat-card class="so-card" appearance="outlined">
+   <mat-card-header class="so-card-head">
+     <mat-card-title>Account</mat-card-title>
+   </mat-card-header>
+   <form [formGroup]="taForm" novalidate (ngSubmit)="onSubmit()">
+      <mat-card-content>
+         <div class="row">
+            <mat-form-field  appearance="outline" class="full-width">
+              <mat-label>Name</mat-label>
+              <input matInput placeholder="" formControlName="name">
+            </mat-form-field>
+         </div>
+         <div class="row">
+            <div class="col">
+               <mat-form-field  appearance="outline" class="full-width">
+                 <mat-label>Address</mat-label>
+                 <input matInput placeholder="" formControlName="address">
+              </mat-form-field>
+            </div>
+           <div class="col">
+               <mat-form-field  appearance="outline" class="full-width">
+                 <mat-label>Code</mat-label>
+                 <input matInput placeholder="" formControlName="code">
+               </mat-form-field>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col">
+               <mat-form-field  appearance="outline" class="full-width">
+                  <mat-label>Currency</mat-label>
+                  <input matInput placeholder="" formControlName="currency">
+               </mat-form-field>
+            </div>
+            <div class="col">
+               <mat-form-field  appearance="outline" class="full-width">
+                  <mat-label>Format</mat-label>
+                  <input matInput placeholder="" formControlName="format">
+               </mat-form-field>
+            </div>         
+            <div class="col">
+               <mat-form-field  appearance="outline" class="full-width">
+                  <mat-label>Order</mat-label>
+                  <input type="number" matInput placeholder="" formControlName="order">
+               </mat-form-field>                
+            </div>
+        </div>
+        <div class="row">
+         <div class="col">
+            <mat-form-field  appearance="outline" class="full-width">
+               <mat-label>Statement</mat-label>
+               <input matInput placeholder="" formControlName="statement">
+            </mat-form-field>
+         </div>
+         <div class="col">
+            <mat-form-field  appearance="outline" class="full-width">
+               <mat-label>BIC</mat-label>
+               <input matInput placeholder="" formControlName="bic">
+            </mat-form-field>
+         </div>         
+            <div class="col">
+               <mat-form-field  appearance="outline" class="full-width">
+                 <mat-label>Telephone</mat-label>
+                 <input type="number" matInput placeholder="" formControlName="telephone">
+               </mat-form-field>                
+            </div>
+           <div class="col">
+               <mat-form-field  appearance="outline" class="full-width">
+                  <mat-label>statementref</mat-label>
+                  <input type="number" matInput placeholder="" formControlName="statementref">
+               </mat-form-field>                
+            </div>           
+         </div>        
+      </mat-card-content>
+      <mat-card-actions>
+         <div class="actions-card-left">
+            @if(canDelete())
+            {
+               <button mat-flat-button class="mat-error" type="reset" (click)="onDelete()">
+                 <span><mat-icon class="deleteicon" fontSet="material-symbols-rounded">delete</mat-icon></span>
+               </button>
+            }
+         </div>
+         <div class="actions-card-right">
+            <button mat-stroked-button type="reset" (click)="onCancel()">Cancel</button>
+            <button mat-flat-button type="submit" [disabled]="!taForm.valid">Submit</button>
+         </div>
+      </mat-card-actions>
+   </form>
+</mat-card>

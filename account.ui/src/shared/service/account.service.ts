@@ -126,7 +126,7 @@ export class AccountService
       url = this.apiurl + this.listaccinf;
       // The account items are returned wrapped in an array named accounts
       console.log("getAccountDetails API URL: " + url);
-      return this.http.get(url).pipe( map((res:any) => res.accounts) );    
+      return this.http.get(url).pipe( map((res:any) => res) );    
    } 
 
    addAccount(item : AccountDetail) : Observable<string>

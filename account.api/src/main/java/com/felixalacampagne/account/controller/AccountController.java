@@ -412,7 +412,7 @@ public class AccountController {
        return this.phoneAccountService.getPhoneAccounts();
     }
     
-    @PostMapping(value = URL_ADDTFRACCOUNTS)
+    @PostMapping(value = URL_UPDTFRACCOUNTS)
     public String updateTransferAccount(@RequestBody TransferAccountItem phoneAccountItem, Model model)
     {
        log.info("updateTransferAccount: item to update: {}", phoneAccountItem);

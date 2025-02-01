@@ -33,15 +33,20 @@ export class AccountEditMatComponent implements OnInit {
    constructor(private accountService: AccountService)
    {
       this.taForm = new FormGroup({
-      // TODO: Whatever this is for  account
-      cptyAccountName: new FormControl('', Validators.required), 
-      cptyAccountNumber: new FormControl('', Validators.required), 
-      lastCommunication: new FormControl('', Validators.nullValidator), 
+      name: new FormControl('', Validators.required), 
+      address: new FormControl('', Validators.required), 
+      code: new FormControl('', Validators.nullValidator), 
+      currency: new FormControl('', Validators.nullValidator), 
+      format: new FormControl('', Validators.nullValidator), 
       order: new FormControl(1, 
       [
          Validators.required,
          Validators.pattern(/^\d+$/)  // integer only
-      ] ),  
+      ] ),
+      statement: new FormControl('', Validators.nullValidator), 
+      bic: new FormControl('', Validators.nullValidator), 
+      telephone: new FormControl('', Validators.nullValidator), 
+      statementref: new FormControl('', Validators.nullValidator)
       });
    }
 
@@ -82,11 +87,17 @@ export class AccountEditMatComponent implements OnInit {
       let ta : AccountDetail = new AccountDetail();
       ta.id = this.origItem?.id ?? -1;
       ta.token = this.origItem?.token ?? '';
-      ta.cptyAccountName = "" + this.taForm.value.cptyAccountName;
-      ta.cptyAccountNumber = "" + this.taForm.value.cptyAccountNumber;
-      ta.lastCommunication = "" + this.taForm.value.lastCommunication;
+      ta.name = "" + this.taForm.value.name;
+      ta.code = "" + this.taForm.value.code;
+      ta.address = "" + this.taForm.value.address;
+      ta.currency = "" + this.taForm.value.currency;
+      ta.format = "" + this.taForm.value.format;
       ta.order = this.taForm.value.order;
-      ta.relatedAccountId = this.taForm.value.relatedAccount.id ?? 0;
+      ta.statement = this.taForm.value.statement;
+      ta.bic = this.taForm.value.bic;
+      ta.telephone = this.taForm.value.telephone;
+      ta.statementref = this.taForm.value.statementref;
+
       console.log("onSubmit: orig: " + JSON.stringify(this.origItem) + " updated: " + JSON.stringify(takeUntil));
 
       let put : Observable<string>;
@@ -139,10 +150,17 @@ export class AccountEditMatComponent implements OnInit {
    {
       console.log("populateForm: ta:" +  JSON.stringify(ta));
       this.taForm.setValue({
-         cptyAccountName : ta.cptyAccountName,
-         cptyAccountNumber : ta.cptyAccountNumber,
-         lastCommunication : ta.lastCommunication,
+
+         name : ta.name,
+         code : ta.code,
+         address : ta.address,
+         currency : ta.currency,
+         format : ta.format,
          order : ta.order,
+         statement : ta.statement,
+         bic : ta.bic,
+         telephone : ta.telephone,
+         statementref : ta.statementref
       });
   }     
 }

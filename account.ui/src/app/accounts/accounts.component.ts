@@ -5,6 +5,7 @@ import { DeviceDetectorService } from 'ngx-device-detector';
 import { AccountDetail } from 'src/shared/model/accountdetail.model';
 import { AccountService } from 'src/shared/service/account.service';
 import { AccountDeleteConfirmDialog } from './accountdel-confirm-modal.component';
+import { AccountEditMatDialog } from '../account-edit-mat/account-edit-mat.dialog';
 
 @Component({
     selector: 'accounts',
