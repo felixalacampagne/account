@@ -14,7 +14,9 @@ import com.felixalacampagne.account.model.AccountDetail;
 import com.felixalacampagne.account.model.AccountItem;
 import com.felixalacampagne.account.model.Accounts;
 import com.felixalacampagne.account.model.TfrAccountItem;
+import com.felixalacampagne.account.model.TransferAccountItem;
 import com.felixalacampagne.account.persistence.entities.Account;
+import com.felixalacampagne.account.persistence.entities.PhoneAccount;
 import com.felixalacampagne.account.persistence.repository.AccountJpaRepository;
 import com.felixalacampagne.account.persistence.repository.PhoneAccountJpaRepository;
 
@@ -111,6 +113,51 @@ public class AccountService
       return acc;
    }
 
+   public void addAccount(AccountDetail accountDetail)
+   {
+      Account account = mapToEntity(accountDetail);
+      this.accountJpaRepository.saveAndFlush(account);
+   }
+   
+   public void updateAccount(AccountDetail accountDetail)
+   {
+      log.info("updateAccount: accountDetail:{}", accountDetail);
+      if(accountDetail == null)
+         return;
+      Account account = accountJpaRepository.findById(accountDetail.getId())
+            .orElseThrow(()->new AccountException("Account id " + accountDetail.getId() + " not found"));
+
+      String origToken = Utils.getToken(account);
+      if(!origToken.equals(accountDetail.getToken()))
+      {
+         log.info("updateAccount: Token mismatch for Account id:{}: original:{} supplied:{}",
+               accountDetail.getId(), origToken, accountDetail.getToken());
+         throw new  AccountException("Token does not match Account id " + accountDetail.getId());
+      }
+
+      account = mapToEntity(accountDetail, account);
+      this.accountJpaRepository.saveAndFlush(account);
+      
+   }
+
+   public void deleteAccount(AccountDetail accountDetail)
+   {
+      log.info("deleteAccount: phoneAccountItem:{}", accountDetail);
+      if(accountDetail == null)
+         return;
+      Account account = accountJpaRepository.findById(accountDetail.getId())
+            .orElseThrow(()->new AccountException("Account id " + accountDetail.getId() + " not found"));
+
+      String origToken = Utils.getToken(account);
+      if(!origToken.equals(accountDetail.getToken()))
+      {
+         log.info("deleteAccount: Token mismatch for Account id:{}: original:{} supplied:{}",
+               accountDetail.getId(), origToken, accountDetail.getToken());
+         throw new  AccountException("Token does not match Account id " + accountDetail.getId());
+      }
+      this.accountJpaRepository.delete(account);   
+   }
+
    private AccountDetail mapToDetail(Account acc)
    {
       String token = Utils.getToken(acc);
@@ -127,23 +174,28 @@ public class AccountService
             token);
    }
 
-   public void addAccount(AccountDetail accountDetail)
+   private Account mapToEntity(AccountDetail accountDetail)
    {
-      // TODO Auto-generated method stub
-      
+      Account acc = new Account();
+      return mapToEntity(accountDetail, acc);
    }
 
-   public void updateAccount(AccountDetail accountDetail)
+   private Account mapToEntity(AccountDetail accountDetail, Account acc)
    {
-      // TODO Auto-generated method stub
-      
+      if(acc.getAccId() < 1)
+      {
+         acc.setAccId(accountDetail.getId());
+      }
+      acc.setAccDesc(accountDetail.getName());
+      acc.setAccAddr(accountDetail.getAddress());
+      acc.setAccCode(accountDetail.getCode());
+      acc.setAccCurr(accountDetail.getCurrency());
+      acc.setAccFmt(accountDetail.getFormat());
+      acc.setAccOrder(accountDetail.getOrder());
+      acc.setAccSid(accountDetail.getStatementref());
+      acc.setAccSwiftbic(accountDetail.getBic());
+      acc.setAccTel(accountDetail.getTelephone());
+      return acc;
    }
-
-   public void deleteAccount(AccountDetail accountDetail)
-   {
-      // TODO Auto-generated method stub
-      
-   }
-
 
 }
