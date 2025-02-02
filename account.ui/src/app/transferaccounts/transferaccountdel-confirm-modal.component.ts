@@ -33,7 +33,7 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
       <mat-card-content>
          <p>
             <strong>Deleting transfer account:<br />
-            <span style="text-align: center">{{data.name}}</span>
+            <span style="text-align: center">{{data.cptyAccountName}}</span>
          </strong>
          </p>
          <p>

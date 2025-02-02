@@ -32,7 +32,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
       <mat-card-content>
          <p>
             <strong>Deleting account:<br />
-            <span style="text-align: center">{{data.cptyAccountName}}</span>
+            <span style="text-align: center">{{data.name}}</span>
          </strong>
          </p>
          <p>

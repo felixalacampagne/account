@@ -1,21 +1,4 @@
 /* src/app/transferaccount-edit-mat/transferaccount-edit-mat.component.css */
-.mat-mdc-card-header
-{
-   display:inline;
-}
-.title-card-right
-{
-   font-size: 16px;
-   display: inline;
-   float: right;
-}
-.title-card-left
-{
-   display: inline;
-   font-size: 16px;   
-}
-
-
 .mat-mdc-dialog-content /* does not work when in app-material.css */
 {
    height:100%;

@@ -19,7 +19,10 @@ import { DateformatService } from 'src/shared/service/dateformat.service';
     selector: 'checked-list',
     imports: [MatTableModule, MatCardModule, MatIconModule, MatButtonModule, CommonModule, RouterModule],
     templateUrl: './checked-list.component.html',
-    styleUrls: ['../app.component.css', './checked-list.component.css']
+    styleUrls: ['../app.component.css', 
+      './checked-list.component.css',
+      '../app-material.css'
+   ]
 })
 export class CheckedListComponent implements OnInit {
    @Input() accid!: number;  

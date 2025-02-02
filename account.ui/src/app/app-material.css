@@ -25,6 +25,36 @@
    min-height: 24px; /* line spacing in the select dropdown */
 }
 
+/*
+    More hours spent trying to get the title text on the left and an icon on the left.
+    For some reason it suddenly started to work - fingers crossed it carries on working!!
+    These bits of magic coupled with some in the html seem to be responsible. 
+
+    Unfortunately the title overflows the size of the card content hence padding is
+    required which requires hard-coded values.
+
+    Seems it was mat-mdc-card-header which was breaking the flush right. mat-mdc-card-header
+    also provides the required padding to align the title with the content. It seems that
+    replacing the 'display: flex' in mat-mdc-card-header with something else reenables the right flush.
+*/
+.mat-mdc-card-header
+{
+   display:inline;
+}
+
+.title-card-right
+{
+   font-size: 16px;
+   display: inline;
+   float: right;
+}
+
+.title-card-left
+{
+   display: inline;
+  
+}
+
 .mat-mdc-card-actions
 {
    display:inline;
@@ -61,3 +91,38 @@
    max-height: 20px !important;
 }
 */
+
+.so-card {
+   width: 100%;
+ 
+   box-shadow:inset 0px 0px 0px 1px rgb(179, 176, 176);
+   border: 3px solid  white !important;
+   border-radius: 30px !important;
+ }
+ 
+ .so-card-head 
+ {
+    margin-top: 0px; 
+    margin-bottom: 10px;
+ }
+ 
+ .row 
+ {
+   display: flex;
+   flex-direction: row;
+   margin-top: 0px; 
+   margin-bottom: 0px;
+ }
+ 
+ .col {
+   flex: 1;
+ }
+ 
+ .col:last-child {
+   margin-right: 0;
+ }
+ 
+.full-width {
+   width: 100%;
+ }
+ 

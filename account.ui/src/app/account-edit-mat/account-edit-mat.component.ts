@@ -35,18 +35,16 @@ export class AccountEditMatComponent implements OnInit {
       this.taForm = new FormGroup({
       name: new FormControl('', Validators.required), 
       address: new FormControl('', Validators.required), 
-      code: new FormControl('', Validators.nullValidator), 
-      currency: new FormControl('', Validators.nullValidator), 
+      code: new FormControl('', Validators.required), 
+      currency: new FormControl('', Validators.required), 
       format: new FormControl('', Validators.nullValidator), 
+      telephone: new FormControl('', Validators.nullValidator), 
+      statementref: new FormControl('', Validators.nullValidator),
       order: new FormControl(1, 
       [
          Validators.required,
          Validators.pattern(/^\d+$/)  // integer only
-      ] ),
-      statement: new FormControl('', Validators.nullValidator), 
-      bic: new FormControl('', Validators.nullValidator), 
-      telephone: new FormControl('', Validators.nullValidator), 
-      statementref: new FormControl('', Validators.nullValidator)
+      ] )
       });
    }
 
@@ -93,8 +91,7 @@ export class AccountEditMatComponent implements OnInit {
       ta.currency = "" + this.taForm.value.currency;
       ta.format = "" + this.taForm.value.format;
       ta.order = this.taForm.value.order;
-      ta.statement = this.taForm.value.statement;
-      ta.bic = this.taForm.value.bic;
+      ta.bic = "";
       ta.telephone = this.taForm.value.telephone;
       ta.statementref = this.taForm.value.statementref;
 
@@ -150,17 +147,14 @@ export class AccountEditMatComponent implements OnInit {
    {
       console.log("populateForm: ta:" +  JSON.stringify(ta));
       this.taForm.setValue({
-
-         name : ta.name,
-         code : ta.code,
-         address : ta.address,
-         currency : ta.currency,
-         format : ta.format,
+         name : ta.name ?? "",
+         address : ta.address ?? "",
+         code : ta.code ?? "",
+         currency : ta.currency ?? "",
+         format : ta.format ?? "",
+         telephone : ta.telephone ?? "",
+         statementref : ta.statementref ?? "",
          order : ta.order,
-         statement : ta.statement,
-         bic : ta.bic,
-         telephone : ta.telephone,
-         statementref : ta.statementref
       });
   }     
 }

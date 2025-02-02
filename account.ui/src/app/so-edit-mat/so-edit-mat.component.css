@@ -1,21 +1,4 @@
 /* so-edit-mat/so-edit-mat.component.css */
-.full-width {
-  width: 100%;
-}
-
-.so-card {
-  width: 100%;
-
-  box-shadow:inset 0px 0px 0px 1px rgb(179, 176, 176);
-  border: 3px solid  white !important;
-  border-radius: 30px !important;
-}
-
-.so-card-head 
-{
-   margin-top: 0px; 
-   margin-bottom: 10px;
-}
 
 /* On the phone the dialog is displayed with the buttons hidden by the address bar at the bottom of the screen
    and it is impossible to scroll the page up to reveal them - typical forked up angular material UI design.

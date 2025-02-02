@@ -10,7 +10,6 @@ export class AccountDetail
     public currency : string = "";
     public format : string = "";
     public order : number = 0;
-    public statement : string = "";
     public bic : string = "";
     public telephone : string = "";
     public token : string = "";

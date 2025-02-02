@@ -7,7 +7,9 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.felixalacampagne.account.common.Utils;
 import com.felixalacampagne.account.model.AccountDetail;
@@ -19,6 +21,7 @@ import com.felixalacampagne.account.persistence.entities.Account;
 import com.felixalacampagne.account.persistence.entities.PhoneAccount;
 import com.felixalacampagne.account.persistence.repository.AccountJpaRepository;
 import com.felixalacampagne.account.persistence.repository.PhoneAccountJpaRepository;
+import com.felixalacampagne.account.persistence.repository.TransactionJpaRepository;
 
 @Service
 public class AccountService
@@ -27,12 +30,16 @@ public class AccountService
 
    private final AccountJpaRepository accountJpaRepository;
    private final PhoneAccountJpaRepository phoneAccountJpaRepository;
+   private final TransactionJpaRepository transactionJpaRepository;
    private final ConnectionResurrector<AccountJpaRepository> connectionResurrector;
 
    @Autowired
-   public AccountService(AccountJpaRepository accountJpaRepository, PhoneAccountJpaRepository phoneAccountJpaRepository) {
+   public AccountService(AccountJpaRepository accountJpaRepository, 
+         PhoneAccountJpaRepository phoneAccountJpaRepository,
+         TransactionJpaRepository transactionJpaRepository) {
       this.accountJpaRepository = accountJpaRepository;
       this.phoneAccountJpaRepository = phoneAccountJpaRepository;
+      this.transactionJpaRepository = transactionJpaRepository;
       this.connectionResurrector = new ConnectionResurrector<AccountJpaRepository>(accountJpaRepository, AccountJpaRepository.class);
    }
 
@@ -86,8 +93,9 @@ public class AccountService
    }
 
    public List<AccountDetail> getAccountDetailList()
-   {
-      return accountJpaRepository.findAll().stream()
+   {      
+      Sort sort = Sort.by("accOrder", "accDesc");
+      return accountJpaRepository.findAll(sort).stream()
                           .map(a -> mapToDetail(a))
                           .collect(Collectors.toList());
    }
@@ -107,6 +115,7 @@ public class AccountService
       {
          throw new AccountException("Invalid statement reference: '" + accstref + "'");
       }
+
       Account acc = accountJpaRepository.findById(accountItem.getId()).orElseThrow(() -> new AccountException("Account not found: " + accountItem.getId()));
       acc.setAccSid(accstref);
       acc = accountJpaRepository.saveAndFlush(acc);
@@ -140,9 +149,10 @@ public class AccountService
       
    }
 
+   @Transactional
    public void deleteAccount(AccountDetail accountDetail)
    {
-      log.info("deleteAccount: phoneAccountItem:{}", accountDetail);
+      log.info("deleteAccount: accountDetail:{}", accountDetail);
       if(accountDetail == null)
          return;
       Account account = accountJpaRepository.findById(accountDetail.getId())
@@ -155,7 +165,13 @@ public class AccountService
                accountDetail.getId(), origToken, accountDetail.getToken());
          throw new  AccountException("Token does not match Account id " + accountDetail.getId());
       }
-      this.accountJpaRepository.delete(account);   
+      
+      long deleted = this.transactionJpaRepository.deleteByAccountId(account.getAccId());
+      log.info("deleteAccount: transactions for account id:{} deleted: {}", account.getAccId(), deleted);
+      
+      // TODO: delete related PhoneAccount
+      this.accountJpaRepository.delete(account); 
+      log.info("deleteAccount: account id:{} desc:{} deleted", account.getAccId(), account.getAccDesc());
    }
 
    private AccountDetail mapToDetail(Account acc)

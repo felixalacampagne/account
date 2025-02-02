@@ -9,13 +9,14 @@
       </div>
    </div>
 </div>
-
 <div class="accountlist table-responsive" *ngIf="isAccounts()">
    <table class="table table-striped table-sm">
       <thead class="thead-inverse">
-         <tr><th>Name</th><th>Address</th><th>Code</th><th>Currency</th><th>Format</th>
-            <th>Statement</th>
-            <th>BIC</th>
+         <tr><th>Name</th>
+            <th>Address</th>
+            <th>Code</th>
+            <th>Currency</th>
+            <th>Format</th>
             <th>Telephone</th>
             <th>StatementRef</th>
             <th>Order</th> 
@@ -28,11 +29,8 @@
             <td>{{ta.code}}</td>
             <td>{{ta.currency}}</td>
             <td>{{ta.format}}</td>
-            <td>{{ta.statement}}</td>
-            <td>{{ta.bic}}</td>
             <td>{{ta.telephone}}</td>
             <td>{{ta.statementref}}</td>
-
             <td>{{ta.order}}</td>
             <td class="account-edit">
                <button class="acc-table-btn" (click)="editAccount(ta)"><i class="bi bi-pencil-square"></i></button>
