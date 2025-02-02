@@ -168,8 +168,10 @@ public class AccountService
       
       long deleted = this.transactionJpaRepository.deleteByAccountId(account.getAccId());
       log.info("deleteAccount: transactions for account id:{} deleted: {}", account.getAccId(), deleted);
+
+      deleted = this.phoneAccountJpaRepository.deleteByAccountId(account.getAccId());
+      log.info("deleteAccount: phoneAccount for account id:{} deleted: {}", account.getAccId(), deleted);
       
-      // TODO: delete related PhoneAccount
       this.accountJpaRepository.delete(account); 
       log.info("deleteAccount: account id:{} desc:{} deleted", account.getAccId(), account.getAccDesc());
    }

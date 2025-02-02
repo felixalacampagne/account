@@ -50,4 +50,6 @@ public interface PhoneAccountJpaRepository extends JpaRepository<PhoneAccount, L
          + "order by p.order DESC, p.desc ASC" )
    List<PhoneWithAccountDTO> findTransferAccountsWithAccountDTO(@Param("exaccid") Long excludeAccountId);
 
+   long deleteByAccountId(Long accId);
+
 }
