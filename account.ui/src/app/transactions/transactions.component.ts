@@ -718,23 +718,22 @@ updatetransaction(updtxn : TransactionItem)
    // this is not really correct but it is consistent with what the backend is doing at the moment.
    // It assumes that an unlock is temporary for adjustment, eg. of the comment, and the txn
    // will be re-locked immediately.
-   let showcheckedbal: boolean = false;
-   if(!this.origupdTxn.locked && updtxn.locked)
-   {
-      showcheckedbal  = true;
-   }   
-   this.updTransactionToDB(updtxn, showcheckedbal);
+   let newlylocked: boolean = (!this.origupdTxn.locked && updtxn.locked);
+   let statementref : string = (updtxn.statementref ?? "").trim();
+   let acclastref  : string = (this.activeaccount.statementref ?? "").trim();
+
+   this.updTransactionToDB(updtxn, newlylocked);
 
    // If the locked state was changed to locked and the txn statementref is present
    // and different to the account statementref then the account statementref should be updated.
    // This will require an update on the server as the accountitem is loaded each time the 
    // update dialog is displayed.
-   if((!this.origupdTxn.locked && updtxn.locked)
-        && updtxn.statementref 
-        && (updtxn.statementref != this.activeaccount.statementref))
+   if((newlylocked)
+        && (statementref.length != 0) 
+        && (statementref != acclastref))
    {
-      this.activeaccount.statementref = updtxn.statementref;
-      this.accountService.updateAccountStatementRef(this.activeaccount.id, this.activeaccount.statementref);
+      this.activeaccount.statementref = statementref;
+      this.accountService.updateAccountStatementRef(this.activeaccount.id, statementref);
    }
 
 
