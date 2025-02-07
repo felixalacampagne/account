@@ -720,6 +720,7 @@ updatetransaction(updtxn : TransactionItem)
    // will be re-locked immediately.
    let newlylocked: boolean = (!this.origupdTxn.locked && updtxn.locked);
    let statementref : string = (updtxn.statementref ?? "").trim();
+   let origstatementref : string = (this.origupdTxn.statementref ?? "").trim(); 
    let acclastref  : string = (this.activeaccount.statementref ?? "").trim();
 
    this.updTransactionToDB(updtxn, newlylocked);
@@ -729,14 +730,13 @@ updatetransaction(updtxn : TransactionItem)
    // This will require an update on the server as the accountitem is loaded each time the 
    // update dialog is displayed.
    if((newlylocked)
+        && (origstatementref.length == 0)
         && (statementref.length != 0) 
         && (statementref != acclastref))
    {
       this.activeaccount.statementref = statementref;
       this.accountService.updateAccountStatementRef(this.activeaccount.id, statementref);
    }
-
-
 
    // NB updTransactionToDB refreshes the transaction list when the response is received.
    // Horribly ugly code, I guess there must be a better way of doing it but alas I
