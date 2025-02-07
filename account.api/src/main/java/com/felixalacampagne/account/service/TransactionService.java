@@ -264,6 +264,23 @@ public class TransactionService
          throw new  AccountException("Transaction id " + transactionItem.getId() + " is locked");
       }
       boolean  bRecalcChecked = (!txn.getChecked() && updtxn.getChecked());
+// UI should be calling AccountController.updateAccountStatementRef to do this, except sometimes it is not
+// working as required. Better to fix it there than do it here as well.
+//      // Update the Account last statement reference field.
+//      // Only do this if the original value was empty and a value has been added.
+//      // NB. Currently statementref cannot be specified for 'add' so this only needed for update.
+//      String stmnt = Utils.fromNullable(updtxn.getStid());
+//      if(Utils.fromNullable(txn.getStid()).isEmpty()
+//            && !stmnt.isEmpty())
+//      {
+//         Account acc = this.accountJpaRepository.findById(txn.getAccountId()).orElseThrow();
+//         if( !stmnt.equals(acc.getAccSid()))
+//         {
+//            acc.setAccSid(stmnt);
+//            log.info("updateTransaction: update last statement ref for account {}: {}", txn.getAccountId(), stmnt);
+//            this.accountJpaRepository.saveAndFlush(acc);
+//         }
+//      }
 
       // updtxn is possibly not a complete set of Transaction values.
       // Maybe should add checks for presence of values???
@@ -331,7 +348,7 @@ public class TransactionService
    @Transactional
    public Transaction update(Transaction txn)
    {
-      txn = transactionJpaRepository.save(txn);
+      txn = transactionJpaRepository.saveAndFlush(txn);
       balanceService.calculateBalances(txn.getAccountId(), Optional.of(txn));
       return txn;
    }
@@ -340,11 +357,8 @@ public class TransactionService
    @Transactional
    public Transaction add(Transaction txn)
    {
-      txn = transactionJpaRepository.saveAndFlush(txn);
-      log.info("add: added transaction: {}", txn);
-      // TODO: find a way to avoid a full recalculation, can't use the just deleted transaction as the start
-      balanceService.calculateBalances(txn.getAccountId(), Optional.of(txn));
-      return txn;
+      log.info("add: adding transaction: {}", txn);
+      return update(txn);
    }
 
    @Transactional
