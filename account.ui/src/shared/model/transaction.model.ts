@@ -5,6 +5,7 @@ export class TransactionItem
     public comment : string = '';
     public date : string = '';
     public amount : string = '';
+    public amountfmtd : string = '';
     public type : string = '';
     public id: string = '';
     public locked: boolean = false;
@@ -22,6 +23,7 @@ export class TransactionItem
       this.comment = item.comment;
       this.date = item.date;
       this.amount = item.amount;
+      this.amountfmtd = item.amountfmtd;
       this.balance = item.balance;
       this.type = item.type;
       this.id = item.id;

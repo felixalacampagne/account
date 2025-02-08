@@ -67,6 +67,7 @@
       <thead class="thead-inverse">
          <tr>
            <th>Date</th>
+           <th *ngIf="desktopDisplay">Type</th>
            <th>Memo</th>
            <th *ngIf="desktopDisplay">Ref</th>
            <th class="account-amount">Amount</th>
@@ -77,9 +78,10 @@
       <tbody>
          <tr *ngFor="let txn of transactions" [ngClass]="{'table-success': txn.locked}">
             <td class="nowrap">{{formatDateColumn(txn.date)}}</td>
+            <td *ngIf="desktopDisplay">{{txn.type}}</td>
             <td (swipeleft)="open(content, txn)">{{txn.comment}}</td>
             <td *ngIf="desktopDisplay">{{txn.statementref}}</td>
-            <td class="account-amount" [ngClass]="{'account-negamount': txn.amount.startsWith('-')}">{{txn.amount}}</td>
+            <td class="account-amount" [ngClass]="{'account-negamount': txn.amount.startsWith('-')}">{{txn.amountfmtd}}</td>
             <td class="account-amount" [ngClass]="{'account-negbalance': txn.balance.startsWith('-')}" *ngIf="desktopDisplay">{{txn.balance}}</td>
             <td class="account-edit" *ngIf="desktopDisplay">
                <button class="acc-table-btn" type="button" (click)="open(content, txn)" title="edit">

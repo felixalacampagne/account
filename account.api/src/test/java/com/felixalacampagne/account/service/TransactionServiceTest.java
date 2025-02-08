@@ -174,7 +174,7 @@ class TransactionServiceTest
       Transaction origtxn = txnsforacc.get(5);
       TransactionItem origtxnitm = transactionService.mapToItem(origtxn, BalanceType.NORMAL);
       TransactionItem updtxnitm = new TransactionItem(
-            origtxnitm.getAccid(), origtxnitm.getDate(), "9" + origtxnitm.getAmount(), origtxnitm.getType(),
+            origtxnitm.getAccid(), origtxnitm.getDate(), "9" + origtxnitm.getAmount(), "9" + origtxnitm.getAmount(),origtxnitm.getType(),
             "TEST" + origtxnitm.getComment(),
             origtxnitm.isLocked(), origtxnitm.getId(), origtxnitm.getToken(), origtxnitm.getBalance(), origtxnitm.getStatementref());
 
@@ -188,7 +188,7 @@ class TransactionServiceTest
 
 
       origtxnitm = new TransactionItem(
-            origtxnitm.getAccid(), origtxnitm.getDate(), origtxnitm.getAmount(), origtxnitm.getType(),
+            origtxnitm.getAccid(), origtxnitm.getDate(), origtxnitm.getAmount(), origtxnitm.getAmount(),origtxnitm.getType(),
             origtxnitm.getComment(),
             origtxnitm.isLocked(), origtxnitm.getId(),
             updtxnitm.getToken(), null,  origtxnitm.getStatementref()); // this transaction now has the token of the update

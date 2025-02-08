@@ -30,14 +30,14 @@ public class AddTransactionItem extends TransactionItem
    public AddTransactionItem(Long accid, LocalDate date, String amount, String type, String comment,
          Optional<Long> transferAccount)
    {
-      super(accid, date, amount, type, comment, false, -1L, "", "", "");
+      super(accid, date, amount, amount, type, comment, false, -1L, "", "", "");
       this.transferAccount = transferAccount;
    }
 
    public AddTransactionItem(Long accid, LocalDate date, String amount, String type, String comment,
          Optional<Long> transferAccount, String communication, String cptyAccount, String cptyAccountNumber)
    {
-      super(accid, date, amount, type, comment, false, -1L, "", "", "");
+      super(accid, date, amount, amount, type, comment, false, -1L, "", "", "");
       this.transferAccount = transferAccount;
       this.communication = communication;
       this.cptyAccount = cptyAccount;

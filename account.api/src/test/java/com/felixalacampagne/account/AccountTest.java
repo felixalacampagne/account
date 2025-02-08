@@ -31,8 +31,8 @@ import com.felixalacampagne.account.standingorder.StandingOrderConfig;
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import({RepositoryConfig.class, ServiceConfig.class, StandingOrderConfig.class})
 @Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(RetentionPolicy.RUNTIME) 
 public @interface AccountTest
 {
-
+ 
 }
