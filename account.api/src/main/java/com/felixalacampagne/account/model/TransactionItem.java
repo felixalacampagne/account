@@ -16,11 +16,16 @@ public class TransactionItem
    private  String amount;
    
    // Kludge for amounts formatted with the account format string on server because the existing
-   // format string are compatible with Java decimal formatter. The formatted
+   // VB format strings are compatible with Java DecimalFormat. The formatted
    // amounts cannot be used for updates as the formatted string is unparsable
    // so UI must know to use the 'normal', numeric, amount value for updates.
    // If I find a way to format in Javascript using the existing format strings
    // then the formatting can be moved to the UI and only the numeric value needs to be provided.
+   // Should try 'Numeral.js', if available:
+   // npm install numeral
+   // There is also a single file JavaScript DecimalFormat implementation in GitHub which 
+   // could be reworked for typescript - but not even sure I will keep the formatting, it makes
+   // the table look 'messy', but that might just be the presence of the currency symbol... TBD
    private String amountfmtd; 
 
    private  String type;
