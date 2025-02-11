@@ -1,3 +1,4 @@
+// src/app/accounts/accounts.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -115,7 +116,10 @@ export class AccountsComponent  implements OnInit {
          error: (err)=>{
              console.log("delAccount: An error occured during subscribe" + JSON.stringify(err));
              } ,
-         complete: ()=>{console.log("delAccount: complete");}
+         complete: ()=>{
+            this.accountService.notifyAccountModified(acc.id);
+            console.log("delAccount: complete");
+         }
        });      
    }   
 }
