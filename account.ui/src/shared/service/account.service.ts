@@ -1,7 +1,7 @@
 // account.service.ts
-import {Injectable} from '@angular/core';
+import {Injectable, output, OutputEmitterRef, OutputRefSubscription} from '@angular/core';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import {Observable} from "rxjs";
+import {BehaviorSubject, Observable, Subscription} from "rxjs";
 import {map} from 'rxjs/operators';
 import {environment} from '../../environments/environment';
 import { AccountItem } from '../model/accountitem.model';
@@ -80,7 +80,9 @@ export class AccountService
    "INSR",
    "CAR"
    ];
-        
+
+   accountChanged : BehaviorSubject<number> = new BehaviorSubject(-1);
+
    constructor(private http : HttpClient)
    {
       // If host value is not given by environment then should assume api
@@ -102,6 +104,17 @@ export class AccountService
       this.apiurl = this.serverhost + this.accountapiapp
       console.log("Account API server host: " + this.apiurl);
    }    
+
+   // This needs to be called after add/upd/delAccount is completed
+   notifyAccountModified(id : number) : void
+   {
+      this.accountChanged.next(id);
+   }
+
+   listenAccountModified(callback: (value: number) => void) : OutputRefSubscription
+   {
+      return this.accountChanged.subscribe(callback);
+   }
 
    getAccounts() : Observable<AccountItem[]>
    {
