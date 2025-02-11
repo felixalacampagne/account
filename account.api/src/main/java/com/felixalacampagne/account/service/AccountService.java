@@ -16,9 +16,7 @@ import com.felixalacampagne.account.model.AccountDetail;
 import com.felixalacampagne.account.model.AccountItem;
 import com.felixalacampagne.account.model.Accounts;
 import com.felixalacampagne.account.model.TfrAccountItem;
-import com.felixalacampagne.account.model.TransferAccountItem;
 import com.felixalacampagne.account.persistence.entities.Account;
-import com.felixalacampagne.account.persistence.entities.PhoneAccount;
 import com.felixalacampagne.account.persistence.repository.AccountJpaRepository;
 import com.felixalacampagne.account.persistence.repository.PhoneAccountJpaRepository;
 import com.felixalacampagne.account.persistence.repository.TransactionJpaRepository;
@@ -34,7 +32,7 @@ public class AccountService
    private final ConnectionResurrector<AccountJpaRepository> connectionResurrector;
 
    @Autowired
-   public AccountService(AccountJpaRepository accountJpaRepository, 
+   public AccountService(AccountJpaRepository accountJpaRepository,
          PhoneAccountJpaRepository phoneAccountJpaRepository,
          TransactionJpaRepository transactionJpaRepository) {
       this.accountJpaRepository = accountJpaRepository;
@@ -61,12 +59,12 @@ public class AccountService
 
       return phoneAccountJpaRepository.findTransferAccountsWithAccount(srcacc.getAccId())
             .stream()
-            .map(a -> { 
+            .map(a -> {
                String desc = AelseB(a.getAccDesc(), a.getPhoneAccount().getDesc());
-               
+
                // The Account code appears to be out of date or not suitable for making transfers so don't use it.
                String code = a.getPhoneAccount().getAccountNumber(); // aElseB(a.getAccCode(), a.getPhoneAccount().getAccountNumber());
-               return new TfrAccountItem(a.getPhoneAccount().getId(), a.getPhoneAccount().getAccountId(), desc, code, a.getPhoneAccount().getLastComm()); 
+               return new TfrAccountItem(a.getPhoneAccount().getId(), a.getPhoneAccount().getAccountId(), desc, code, a.getPhoneAccount().getLastComm());
                })
             .collect(Collectors.toList());
    }
@@ -74,11 +72,11 @@ public class AccountService
    String AelseB(String a, String b) {
       return !isNullOrEmpty(a) ? a : b;
    }
-   
+
    boolean isNullOrEmpty(String s) {
       return (s==null) || (s.isBlank());
    }
-   
+
    public AccountItem getAccountItem(long id)
    {
       return accountJpaRepository.findById(id)
@@ -93,7 +91,7 @@ public class AccountService
    }
 
    public List<AccountDetail> getAccountDetailList()
-   {      
+   {
       Sort sort = Sort.by("accOrder", "accDesc");
       return accountJpaRepository.findAll(sort).stream()
                           .map(a -> mapToDetail(a))
@@ -127,7 +125,7 @@ public class AccountService
       Account account = mapToEntity(accountDetail);
       this.accountJpaRepository.saveAndFlush(account);
    }
-   
+
    public void updateAccount(AccountDetail accountDetail)
    {
       log.info("updateAccount: accountDetail:{}", accountDetail);
@@ -146,7 +144,7 @@ public class AccountService
 
       account = mapToEntity(accountDetail, account);
       this.accountJpaRepository.saveAndFlush(account);
-      
+
    }
 
    @Transactional
@@ -165,14 +163,14 @@ public class AccountService
                accountDetail.getId(), origToken, accountDetail.getToken());
          throw new  AccountException("Token does not match Account id " + accountDetail.getId());
       }
-      
+
       long deleted = this.transactionJpaRepository.deleteByAccountId(account.getAccId());
       log.info("deleteAccount: transactions for account id:{} deleted: {}", account.getAccId(), deleted);
 
       deleted = this.phoneAccountJpaRepository.deleteByAccountId(account.getAccId());
       log.info("deleteAccount: phoneAccount for account id:{} deleted: {}", account.getAccId(), deleted);
-      
-      this.accountJpaRepository.delete(account); 
+
+      this.accountJpaRepository.delete(account);
       log.info("deleteAccount: account id:{} desc:{} deleted", account.getAccId(), account.getAccDesc());
    }
 
@@ -200,7 +198,7 @@ public class AccountService
 
    private Account mapToEntity(AccountDetail accountDetail, Account acc)
    {
-      if(acc.getAccId() < 1)
+      if((acc.getAccId() == null) || (acc.getAccId() < 1))
       {
          acc.setAccId(accountDetail.getId());
       }
