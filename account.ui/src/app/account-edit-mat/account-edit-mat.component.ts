@@ -1,3 +1,4 @@
+// src/app/account-edit-mat/account-edit-mat.component.ts
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -118,6 +119,7 @@ export class AccountEditMatComponent implements OnInit {
             console.log("onSubmit: complete " );
                // This should trigger closing of a parent modal
             this.submittedEvent.emit('SUBMIT_COMPLETED');
+            this.accountService.notifyAccountModified(ta.id);
          }
       });
    
