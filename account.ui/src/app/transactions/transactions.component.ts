@@ -970,6 +970,13 @@ doScan() {
    // }, 2000);
 
 }
+isAccount() : boolean
+{
+   // !! is a trick to get a boolean value the equivalent of if( value ). 
+   // The the first ! gives boolean true if value is null,undefined,falsey and the second 
+   // results in false if the value is null,undefined,falsey
+   return !!this.activeaccount; // 
+}
 
 isTransactions() : boolean {
   return this.transactions.length > 0;
