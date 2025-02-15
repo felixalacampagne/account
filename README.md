@@ -1,4 +1,36 @@
-v0.4.11 11-Jan-2025 improved the transaction pageination to make it easier to use especially when reconciling. Reconciling
+Account features implemented: 
+   - transaction display with paging, goto page, last page, device dependent pagezise (no custom page size yet),
+   - transaction update 
+   - standing order application and editing,
+   - transfer between accounts,
+   - checked balances
+   - show qr code for transfer
+   - transfer account details update and delete
+   - account creation and details update
+   
+Still to come:
+  - a way to trigger checked balance recalc (updates via Excel cause inconsistencies in the list
+    (although the final balance appears to be correct)
+  - pay date sorted balance display (instead of entry/id sorted, maybe make this the default display)
+  - transaction search
+
+0.4.20 Account management. To get this done as quickly as I could it is more or less a direct copy of the 
+transfer account management with no attempt to make any of the code shared - partly because passing data between components 
+in Angular is so convoluted and partly because the objects to be displayed are unrelated. Still, things like the delete 
+confirmation could be shared but in the end not worth the time it would take - until I refactor to display the confirmation
+dialog before the edit dialog is removed so cancel goes back to the edit instead of the list. 
+
+0.4.19 01-Feb-2025 Transfer account management. Was so fed up with constantly being directed to the documentation for 
+Angular Material 19 and reading about something which might work and then realising it was the wrong documentation and then
+finding that once again the CIAs (continuous improvement grassholes) have made the new version incompatible with the 
+previous version that I migrated to Angular 19. Needless to say this was yet another painful Angular experience. 
+Never did figure out how to apply the standard Material colour variants to a button since they removed the 'color' attribute.
+
+0.4.12 25-Jan-2025 QR code display. Creating the QR code image was no problem since I already
+had all the code needed to for that. Displaying the bytes sent from the server was another matter - everything image related 
+revolves around a URL to a file. Google, and hours of wasted time, to the rescue once again.
+
+0.4.11 11-Jan-2025 improved the transaction pageination to make it easier to use especially when reconciling. Reconciling
 is a good case for search but just displaying a list of matches with no reference to the full transaction list as is done 
 in the VB version. Need to find a way to goto search hits in the actual transaction list while keeping the paging.
 While reconciling the credit card statement concluded that the QR code would be handy to have after all so that will be 
@@ -15,19 +47,3 @@ managed to get it to work just about how I expect it to even though I don't unde
 especially when it comes to all the prefix symbols that are sprinkled around. The final revelation was that the 'string' variable 
 used for the counterparty name was actually being populated with a transfer account object! Knowing that the variable type
 is completely meaningless made life a lot easier.
-So now Account has the most used features: 
-   - transaction display with paging, goto page, last page, device dependent pagezise (no custom page size yet),
-   - transaction update 
-   - standing order application and editing,
-   - transfer between accounts,
-   - checked balances
- 
- To come:
-  - show qr code for transfer
-  - a way to trigger checked balance recalc (updates via Excel cause inconsistencies in the list
-    (although the final balance appears to be correct)
-  - account creation and details update
-  - transfer account details update and delete
-  - date sorted balance display (instead of entry/id sorted)
-  - transaction search (maybe)
-  - better transfer account handling (the old concept of 'phone banking' accounts is no longer useful)

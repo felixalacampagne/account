@@ -1,10 +1,11 @@
 // account.ui/src/app/app.component.ts
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit, OutputRefSubscription } from '@angular/core';
 
 import {AccountService} from '../shared/service/account.service';
 import {AccountItem} from '../shared/model/accountitem.model';
 
 import { Version } from 'src/shared/model/version.model';
+
 
 @Component({
     selector: 'app-root',
@@ -13,13 +14,14 @@ import { Version } from 'src/shared/model/version.model';
     standalone: false
 })
 
-export class AppComponent {
+export class AppComponent implements  OnDestroy, OnInit {
   title: string = 'Account';
   versiontxt: string = '';
   version : Version | undefined;
   accounts: AccountItem[] = [];
   uiversion: string ='';
 
+  accountRefresh?: OutputRefSubscription;
   constructor(private accountService: AccountService)
   {
 
@@ -71,7 +73,40 @@ export class AppComponent {
             } ,
          complete: ()=>{console.log("AppComponent.ngOnInit: getAccounts loading completed");}
       });
+
+      this.accountRefresh = this.accountService.listenAccountModified(id => {
+         console.log("ngOnInit:accountRefresh: account id:" + id + " updated: refreshing account list");
+         this.loadAccounts(); 
+      })
+
       console.log("AppComponent.ngOnInit:Finished");
    }
+   
+   ngOnDestroy() {
+      if (this.accountRefresh) {
+         this.accountRefresh.unsubscribe()
+       }
+   }
+
+   loadAccounts() 
+   {
+      this.accountService.getAccounts().subscribe({
+         next: (res) => {
+              if(!res)
+              {
+                console.log('loadAccounts: accounts is not initialized');
+              }
+              else
+              {
+               this.accounts = res;
+                console.log("loadAccounts: Accounts contains " + this.accounts.length + " items.");
+              }
+            },
+         error: (err)=>{
+            console.log("loadAccounts: An error occured during getAccounts subscribe: " + JSON.stringify(err, null, 2));
+            } ,
+         complete: ()=>{console.log("loadAccounts: getAccounts loading completed");}
+      });   
+   }   
 }
 

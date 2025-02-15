@@ -7,7 +7,9 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.felixalacampagne.account.common.Utils;
 import com.felixalacampagne.account.model.AccountDetail;
@@ -17,6 +19,7 @@ import com.felixalacampagne.account.model.TfrAccountItem;
 import com.felixalacampagne.account.persistence.entities.Account;
 import com.felixalacampagne.account.persistence.repository.AccountJpaRepository;
 import com.felixalacampagne.account.persistence.repository.PhoneAccountJpaRepository;
+import com.felixalacampagne.account.persistence.repository.TransactionJpaRepository;
 
 @Service
 public class AccountService
@@ -25,12 +28,16 @@ public class AccountService
 
    private final AccountJpaRepository accountJpaRepository;
    private final PhoneAccountJpaRepository phoneAccountJpaRepository;
+   private final TransactionJpaRepository transactionJpaRepository;
    private final ConnectionResurrector<AccountJpaRepository> connectionResurrector;
 
    @Autowired
-   public AccountService(AccountJpaRepository accountJpaRepository, PhoneAccountJpaRepository phoneAccountJpaRepository) {
+   public AccountService(AccountJpaRepository accountJpaRepository,
+         PhoneAccountJpaRepository phoneAccountJpaRepository,
+         TransactionJpaRepository transactionJpaRepository) {
       this.accountJpaRepository = accountJpaRepository;
       this.phoneAccountJpaRepository = phoneAccountJpaRepository;
+      this.transactionJpaRepository = transactionJpaRepository;
       this.connectionResurrector = new ConnectionResurrector<AccountJpaRepository>(accountJpaRepository, AccountJpaRepository.class);
    }
 
@@ -52,12 +59,12 @@ public class AccountService
 
       return phoneAccountJpaRepository.findTransferAccountsWithAccount(srcacc.getAccId())
             .stream()
-            .map(a -> { 
+            .map(a -> {
                String desc = AelseB(a.getAccDesc(), a.getPhoneAccount().getDesc());
-               
+
                // The Account code appears to be out of date or not suitable for making transfers so don't use it.
                String code = a.getPhoneAccount().getAccountNumber(); // aElseB(a.getAccCode(), a.getPhoneAccount().getAccountNumber());
-               return new TfrAccountItem(a.getPhoneAccount().getId(), a.getPhoneAccount().getAccountId(), desc, code, a.getPhoneAccount().getLastComm()); 
+               return new TfrAccountItem(a.getPhoneAccount().getId(), a.getPhoneAccount().getAccountId(), desc, code, a.getPhoneAccount().getLastComm());
                })
             .collect(Collectors.toList());
    }
@@ -65,11 +72,11 @@ public class AccountService
    String AelseB(String a, String b) {
       return !isNullOrEmpty(a) ? a : b;
    }
-   
+
    boolean isNullOrEmpty(String s) {
       return (s==null) || (s.isBlank());
    }
-   
+
    public AccountItem getAccountItem(long id)
    {
       return accountJpaRepository.findById(id)
@@ -85,7 +92,8 @@ public class AccountService
 
    public List<AccountDetail> getAccountDetailList()
    {
-      return accountJpaRepository.findAll().stream()
+      Sort sort = Sort.by("accOrder", "accDesc");
+      return accountJpaRepository.findAll(sort).stream()
                           .map(a -> mapToDetail(a))
                           .collect(Collectors.toList());
    }
@@ -105,10 +113,65 @@ public class AccountService
       {
          throw new AccountException("Invalid statement reference: '" + accstref + "'");
       }
+
       Account acc = accountJpaRepository.findById(accountItem.getId()).orElseThrow(() -> new AccountException("Account not found: " + accountItem.getId()));
       acc.setAccSid(accstref);
       acc = accountJpaRepository.saveAndFlush(acc);
       return acc;
+   }
+
+   public void addAccount(AccountDetail accountDetail)
+   {
+      Account account = mapToEntity(accountDetail);
+      this.accountJpaRepository.saveAndFlush(account);
+   }
+
+   public void updateAccount(AccountDetail accountDetail)
+   {
+      log.info("updateAccount: accountDetail:{}", accountDetail);
+      if(accountDetail == null)
+         return;
+      Account account = accountJpaRepository.findById(accountDetail.getId())
+            .orElseThrow(()->new AccountException("Account id " + accountDetail.getId() + " not found"));
+
+      String origToken = Utils.getToken(account);
+      if(!origToken.equals(accountDetail.getToken()))
+      {
+         log.info("updateAccount: Token mismatch for Account id:{}: original:{} supplied:{}",
+               accountDetail.getId(), origToken, accountDetail.getToken());
+         throw new  AccountException("Token does not match Account id " + accountDetail.getId());
+      }
+
+      account = mapToEntity(accountDetail, account);
+      this.accountJpaRepository.saveAndFlush(account);
+
+   }
+
+   @Transactional
+   public void deleteAccount(AccountDetail accountDetail)
+   {
+      log.info("deleteAccount: accountDetail:{}", accountDetail);
+      if(accountDetail == null)
+         return;
+      Account account = accountJpaRepository.findById(accountDetail.getId())
+            .orElseThrow(()->new AccountException("Account id " + accountDetail.getId() + " not found"));
+
+      String origToken = Utils.getToken(account);
+      if(!origToken.equals(accountDetail.getToken()))
+      {
+         log.info("deleteAccount: Token mismatch for Account id:{}: original:{} supplied:{}",
+               accountDetail.getId(), origToken, accountDetail.getToken());
+         throw new  AccountException("Token does not match Account id " + accountDetail.getId());
+      }
+
+      long deleted = this.transactionJpaRepository.deleteByAccountId(account.getAccId());
+      log.info("deleteAccount: transactions for account id:{} deleted: {}", account.getAccId(), deleted);
+
+      deleted = this.phoneAccountJpaRepository.deleteByAccountId(account.getAccId());
+      log.info("deleteAccount: phoneAccount for account id:{} deleted: {}", account.getAccId(), deleted);
+
+      this.accountJpaRepository.delete(account);
+      log.info("deleteAccount: account id:{} desc:{} deleted", account.getAccId(), account.getAccDesc());
    }
 
    private AccountDetail mapToDetail(Account acc)
@@ -127,5 +190,28 @@ public class AccountService
             token);
    }
 
+   private Account mapToEntity(AccountDetail accountDetail)
+   {
+      Account acc = new Account();
+      return mapToEntity(accountDetail, acc);
+   }
+
+   private Account mapToEntity(AccountDetail accountDetail, Account acc)
+   {
+      if((acc.getAccId() == null) || (acc.getAccId() < 1))
+      {
+         acc.setAccId(accountDetail.getId());
+      }
+      acc.setAccDesc(accountDetail.getName());
+      acc.setAccAddr(accountDetail.getAddress());
+      acc.setAccCode(accountDetail.getCode());
+      acc.setAccCurr(accountDetail.getCurrency());
+      acc.setAccFmt(accountDetail.getFormat());
+      acc.setAccOrder(accountDetail.getOrder());
+      acc.setAccSid(accountDetail.getStatementref());
+      acc.setAccSwiftbic(accountDetail.getBic());
+      acc.setAccTel(accountDetail.getTelephone());
+      return acc;
+   }
 
 }

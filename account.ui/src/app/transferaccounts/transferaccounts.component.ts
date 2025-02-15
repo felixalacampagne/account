@@ -48,7 +48,7 @@ export class TransferaccountsComponent implements OnInit {
                 else
                 {
                   this.transferAccounts = ressos; 
-                  console.log("getTransferAccounts: standorders contains " + this.transferAccounts.length + " items.");
+                  console.log("getTransferAccounts: transferAccounts contains " + this.transferAccounts.length + " items.");
                 }
               },
           error: (err)=>{

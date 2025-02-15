@@ -77,10 +77,28 @@ public class StandingOrderService
 
       }
 
-      // Going to assume that ALL fields are present in updso so it can replace the origso... it may be
-      // required to copy the fields from updso into origso by the framework
       update(updso);
    }
+   
+   public void deleteStandingOrder(StandingOrderItem standingOrderItem)
+   {
+      log.info("deleteStandingOrder: phoneAccountItem:{}", standingOrderItem);
+      if(standingOrderItem == null)
+         return;
+      StandingOrders standingorder = standingOrdersJpaRepository.findById(standingOrderItem.getSOId())
+            .orElseThrow(()->new AccountException("StandingOrders id " + standingOrderItem.getSOId() + " not found"));
+
+      String origToken = Utils.getToken(standingorder);
+      if(!origToken.equals(standingOrderItem.getToken()))
+      {
+         log.info("deleteStandingOrder: Token mismatch for StandingOrders id:{}: original:{} supplied:{}",
+               standingOrderItem.getSOId(), origToken, standingOrderItem.getToken());
+         throw new  AccountException("Token does not match StandingOrders id " + standingOrderItem.getSOId());
+      }
+      this.standingOrdersJpaRepository.delete(standingorder);  
+   }
+
+   
    public StandingOrders add(StandingOrders newso)
    {
       return standingOrdersJpaRepository.saveAndFlush(newso);

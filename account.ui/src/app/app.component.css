@@ -89,6 +89,7 @@ td.account-amount, th.account-amount
 {
    text-align: right;
    border-bottom-width: 0;
+   white-space: nowrap;
 }
 td.account-edit, th.account-edit
 {

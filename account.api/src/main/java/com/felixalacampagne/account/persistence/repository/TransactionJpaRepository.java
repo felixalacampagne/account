@@ -34,4 +34,7 @@ public interface TransactionJpaRepository extends JpaRepository<Transaction, Lon
 
    List<Transaction> findByAccountIdAndCheckedIsTrueOrderByDateDescSequenceDesc(long accountId, Pageable pageable);
    Optional<Transaction> findFirstByAccountIdAndCheckedIsTrueAndCheckedBalanceIsNotNullOrderByDateDescSequenceDesc(long accountId);
+   
+   
+   long deleteByAccountId(Long accId);
 }

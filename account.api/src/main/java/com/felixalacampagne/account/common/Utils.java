@@ -2,6 +2,7 @@ package com.felixalacampagne.account.common;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -92,6 +93,23 @@ public class Utils
       return amt;
    }
 
+   
+   public static String formatAmount(BigDecimal bigdec, String fmt)
+   {
+   String amt = "";
+      if(fmt==null || fmt.isEmpty())
+      {
+         return formatAmount(bigdec);
+      }
+      
+      if(bigdec != null)
+      {
+         DecimalFormat formatter = new DecimalFormat(fmt);
+         amt = formatter.format(bigdec.setScale(2, RoundingMode.HALF_UP));
+      }
+      return amt;
+   }
+   
    public static String formatDate(LocalDate ts)
    {
       String date = "";

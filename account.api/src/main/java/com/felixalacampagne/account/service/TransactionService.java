@@ -85,17 +85,20 @@ public class TransactionService
 
       log.debug("getTransactions: page size:{}, rowcount:{}, page:{}, maxpage:{}", pagesize, rowcount, pageZeroBased, maxPageOneBased-1);
 
-      return getTransactions(getTransactionPage(pageZeroBased, pagesize, accountId), pageZeroBased+1, rowcount, BalanceType.NORMAL);
+      return getTransactions(getTransactionPage(pageZeroBased, pagesize, accountId), accountId, pageZeroBased+1, rowcount, BalanceType.NORMAL);
    }
 
-   public Transactions getTransactions(List<Transaction> txns, long pageOneBased, long rowcount, BalanceType balanceType)
+   public Transactions getTransactions(List<Transaction> txns, long accountId,
+         long pageOneBased, long rowcount, BalanceType balanceType)
    {
-      if( !txns.isEmpty())
+      if(rowcount < 0)
       {
-         rowcount = transactionJpaRepository.countByAccountId(txns.get(0).getAccountId());
+         rowcount = transactionJpaRepository.countByAccountId(accountId);
       }
+      Account acc = this.accountJpaRepository.findById(accountId).orElseThrow(() -> new AccountException("Account not found: " + accountId));
+      final String amtfmt = acc.getAccFmt();
       List<TransactionItem> txnitems = txns.stream()
-            .map(t -> mapToItem(t, balanceType))
+            .map(t -> mapToItem(t, amtfmt, balanceType))
             .collect(Collectors.toList());
       Transactions trns = new Transactions(txnitems, pageOneBased, rowcount);
       return trns;
@@ -264,6 +267,23 @@ public class TransactionService
          throw new  AccountException("Transaction id " + transactionItem.getId() + " is locked");
       }
       boolean  bRecalcChecked = (!txn.getChecked() && updtxn.getChecked());
+// UI should be calling AccountController.updateAccountStatementRef to do this, except sometimes it is not
+// working as required. Better to fix it there than do it here as well.
+//      // Update the Account last statement reference field.
+//      // Only do this if the original value was empty and a value has been added.
+//      // NB. Currently statementref cannot be specified for 'add' so this only needed for update.
+//      String stmnt = Utils.fromNullable(updtxn.getStid());
+//      if(Utils.fromNullable(txn.getStid()).isEmpty()
+//            && !stmnt.isEmpty())
+//      {
+//         Account acc = this.accountJpaRepository.findById(txn.getAccountId()).orElseThrow();
+//         if( !stmnt.equals(acc.getAccSid()))
+//         {
+//            acc.setAccSid(stmnt);
+//            log.info("updateTransaction: update last statement ref for account {}: {}", txn.getAccountId(), stmnt);
+//            this.accountJpaRepository.saveAndFlush(acc);
+//         }
+//      }
 
       // updtxn is possibly not a complete set of Transaction values.
       // Maybe should add checks for presence of values???
@@ -331,7 +351,7 @@ public class TransactionService
    @Transactional
    public Transaction update(Transaction txn)
    {
-      txn = transactionJpaRepository.save(txn);
+      txn = transactionJpaRepository.saveAndFlush(txn);
       balanceService.calculateBalances(txn.getAccountId(), Optional.of(txn));
       return txn;
    }
@@ -340,11 +360,8 @@ public class TransactionService
    @Transactional
    public Transaction add(Transaction txn)
    {
-      txn = transactionJpaRepository.saveAndFlush(txn);
-      log.info("add: added transaction: {}", txn);
-      // TODO: find a way to avoid a full recalculation, can't use the just deleted transaction as the start
-      balanceService.calculateBalances(txn.getAccountId(), Optional.of(txn));
-      return txn;
+      log.info("add: adding transaction: {}", txn);
+      return update(txn);
    }
 
    @Transactional
@@ -396,8 +413,12 @@ public class TransactionService
 
    public TransactionItem mapToItem(Transaction t, BalanceType balanceType)
    {
+      return mapToItem(t, null, balanceType);
+   }
+   
+   public TransactionItem mapToItem(Transaction t, String amtfmt, BalanceType balanceType)
+   {
       BigDecimal amount = BigDecimal.ZERO;
-
       if(t.getDebit() != null)
       {
          amount = t.getDebit();
@@ -411,14 +432,14 @@ public class TransactionService
       switch(balanceType)
       {
       case CHECKED:
-         itemBalance = Utils.formatAmount(t.getCheckedBalance());
+         itemBalance = Utils.formatAmount(t.getCheckedBalance(), amtfmt);
          break;
       case SORTED:
-         itemBalance = Utils.formatAmount(t.getSortedBalance());
+         itemBalance = Utils.formatAmount(t.getSortedBalance(), amtfmt);
          break;
       case NORMAL:
       default:
-         itemBalance = Utils.formatAmount(t.getBalance());
+         itemBalance = Utils.formatAmount(t.getBalance(), amtfmt);
       }
       // jackson doesn't handle Java dates [it does now!!] and bigdecimal has too many decimal places so it's
       // simpler just to send the data as Strings with the desired formating.
@@ -426,6 +447,7 @@ public class TransactionService
       return new TransactionItem(t.getAccountId(),
             t.getDate(),
             Utils.formatAmount(amount),
+            Utils.formatAmount(amount, amtfmt),
             t.getType(),
             t.getComment(),
             t.getChecked(),
@@ -439,7 +461,7 @@ public class TransactionService
    public Transactions getCheckedTransactions(long accountId, int rows, int pageno)
    {
       // TODO: Make 1 based, resurrectconnection, get rowcount, check for maxpage
-      return getTransactions(getCheckedTransactionPage(accountId, rows, pageno), pageno, -1L, BalanceType.CHECKED);
+      return getTransactions(getCheckedTransactionPage(accountId, rows, pageno), accountId, pageno, -1L, BalanceType.CHECKED);
    }
 
    public List<Transaction> getCheckedTransactionPage(long accountId, int rows, int pageno)

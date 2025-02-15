@@ -42,6 +42,39 @@ import com.felixalacampagne.account.service.TransactionService.BalanceType;
 @RequestMapping
 @CrossOrigin(origins = "http://localhost:4200") // required because ng serve is on 4200 and standalone spring server is on 8080
 public class AccountController {
+   public final static String URL_GREETING = "/greeting";
+   public final static String URL_VERSION = "/version";
+   public final static String URL_GETACCOUNTSSHORT = "/listaccount";
+   public final static String URL_GETONEACCOUNT = "/account";
+   public final static String URL_GETACCOUNTSFORTFR = "/accsfortfr";
+   
+   public final static String URL_GETACCOUNTS = "/listaccinf";
+   public final static String URL_ADDACCOUNT = "/addaccount";
+   public final static String URL_UPDACCOUNT = "/updaccount";
+   public final static String URL_DELACCOUNT = "/delaccount";
+   
+   public final static String URL_GETTFRACCOUNTS = "/listtransferaccounts";
+   public final static String URL_ADDTFRACCOUNTS = "/addtransferaccount";
+   public final static String URL_UPDTFRACCOUNTS = "/updatetransferaccount";
+   public final static String URL_DELTFRACCOUNTS = "/deletetransferaccount";
+   
+   public final static String URL_GETSTANDORDS = "/liststandingorders";
+   public final static String URL_ADDSTANDORD = "/addstandingorder";
+   public final static String URL_UPDSTANDORD = "/updatestandingorder";
+   public final static String URL_DELSTANDORD = "/delstandingorder";
+   public final static String URL_GETONESTANDORD = "/standingorder";
+   
+   public final static String URL_GETTRANSACTIONS = "/listtransaction";
+   public final static String URL_ADDTRANSACTION = "/addtransaction";
+   public final static String URL_UPDTRANSACTION = "/updatetransaction";
+   public final static String URL_DELTRANSACTION = "/deletetransaction";
+
+   public final static String URL_CALCCHECKBAL = "/calcchecked";
+   public final static String URL_GETCHECKBAL = "/getchecked";
+   public final static String URL_GETCHECKTXNS = "/listchecked";
+   public final static String URL_GETQRCODE = "/qrcodepayer";
+   
+   
    private final Logger log = LoggerFactory.getLogger(this.getClass());
    private final AccountService accountService;
    private final TransactionService transactionService;
@@ -68,34 +101,33 @@ public class AccountController {
       this.phoneAccountService = phoneAccountService;
    }
 
-    @GetMapping("/greeting")
+    @GetMapping(URL_GREETING)
     public String getMessage()
     {
         return "Welcome to the Account Spring Boot Application running on Tomcat server\nand reading from Access database;\n";
     }
 
-    @GetMapping("/version")
+    @GetMapping(URL_VERSION)
     public Version getVersion()
     {
        log.debug("getVersion: {}", this.version);
        return this.version;
     }
 
-
     // Note Spring will automatically convert objects to json string and supply the appropriate header
-    @GetMapping("/listaccount")
+    @GetMapping(URL_GETACCOUNTSSHORT)
     public Accounts getAccounts()
     {
        return this.accountService.getAccounts();
     }
 
-    @GetMapping("/account/{id}")
+    @GetMapping(URL_GETONEACCOUNT + "/{id}")
     public AccountItem getAccount(@PathVariable Long id)
     {
        return this.accountService.getAccountItem(id);
     }
 
-    @GetMapping("/accsfortfr/{id}")
+    @GetMapping(URL_GETACCOUNTSFORTFR + "/{id}")
     public List<TfrAccountItem> getTransferAccounts(@PathVariable Long id)
     {
        return this.accountService.getTransferAccounts(id);
@@ -107,13 +139,66 @@ public class AccountController {
        return this.accountService.getAccountDetail(id);
     }
 
-    @GetMapping("/listaccinf")
+    
+    @GetMapping(URL_GETACCOUNTS)
     public List<AccountDetail> getAccountDetails()
     {
        return this.accountService.getAccountDetailList();
     }
 
+    @PostMapping(value = URL_ADDACCOUNT)
+    public String addAccountDetail(@RequestBody AccountDetail accountDetail, Model model)
+    {
+       log.info("addAccountDetail: item to add: {}", accountDetail);
+       try
+       {
+          this.accountService.addAccount(accountDetail);
 
+       }
+       catch(Exception ex)
+       {
+          log.info("addAccountDetail: Failed to add: {}", accountDetail, ex);
+          return "failed: " + ex.getMessage();
+       }
+
+       return "ok";
+    }
+    
+    @PostMapping(value = URL_UPDACCOUNT)
+    public String updAccountDetail(@RequestBody AccountDetail accountDetail, Model model)
+    {
+       log.info("updAccountDetail: item to update: {}", accountDetail);
+       try
+       {
+          this.accountService.updateAccount(accountDetail);
+       }
+       catch(Exception ex)
+       {
+          log.info("updAccountDetail: Failed to update: {}", accountDetail, ex);
+          return "failed: " + ex.getMessage();
+       }
+
+       return "ok";       
+    }
+    
+    @PostMapping(value = URL_DELACCOUNT)
+    public String deleteAccountDetail(@RequestBody AccountDetail accountDetail, Model model)
+    {
+       log.info("deleteAccountDetail: item to delete: {}", accountDetail);
+       try
+       {
+          this.accountService.deleteAccount(accountDetail);
+       }
+       catch(Exception ex)
+       {
+          log.info("deleteAccountDetail: Failed to delete: {}", accountDetail, ex);
+          return "failed: " + ex.getMessage();
+       }
+
+       return "ok";       
+    }
+    
+    
     @PostMapping(value = "/updaccountstref")
     public String updateAccountStatementRef(@RequestBody AccountItem accountItem, Model model)
     {
@@ -132,7 +217,7 @@ public class AccountController {
     }
 
 // Could use @RequestParam(name="name", required=false, defaultValue="World" to supply as url ? values
-    @GetMapping(value = {"/listtransaction/{accountid}", "/listtransaction/{accountid}/{page}"})
+    @GetMapping(value = {URL_GETTRANSACTIONS +"/{accountid}", URL_GETTRANSACTIONS + "/{accountid}/{page}"})
     public Transactions getTransactions(
           @PathVariable Long accountid,
           @PathVariable Optional<Integer> page,
@@ -156,7 +241,7 @@ public class AccountController {
     // Without @RequestBody Spring seems to be expecting something other than the JSON of the
     // TransactionItem (haven't got a forking clue what it is expecting). The front-end not surprisingly
     // only provides the TransactionItem json.
-    @PostMapping(value = "/addtransaction")
+    @PostMapping(value = URL_ADDTRANSACTION)
     public String addTransaction(@RequestBody AddTransactionItem transactionItem, Model model)
     {
        log.info("addTransaction: transaction item to add: {}", transactionItem);
@@ -173,7 +258,7 @@ public class AccountController {
        return "ok";
     }
 
-    @PostMapping(value = "/updatetransaction")
+    @PostMapping(value = URL_UPDTRANSACTION)
     public String updateTransaction(@RequestBody TransactionItem transactionItem, Model model)
     {
        log.info("updateTransaction: transaction item to add: {}", transactionItem);
@@ -190,7 +275,7 @@ public class AccountController {
        return "ok";
     }
 
-    @PostMapping(value = "/deletetransaction")
+    @PostMapping(value = URL_DELTRANSACTION)
     public String deleteTransaction(@RequestBody TransactionItem transactionItem, Model model)
     {
        log.info("deleteTransaction: transaction item to delete: {}", transactionItem);
@@ -207,20 +292,20 @@ public class AccountController {
        return "ok";
     }
 
-    // Note Spring will automatically convert objects to json string and supply the appropriate header
-    @GetMapping("/liststandingorders")
-    public List<StandingOrderItem> getStandingOrderItems()
-    {
-       return this.standingOrderService.getStandingOrderItems();
-    }
-
-    @GetMapping("/standingorder/{id}")
+    @GetMapping(URL_GETONESTANDORD + "/{id}")
     public StandingOrderItem getStandingOrderItem(@PathVariable Long id)
     {
        return this.standingOrderService.getStandingOrderItem(id);
     }
 
-    @PostMapping(value = "/addstandingorder")
+    // Note Spring will automatically convert objects to json string and supply the appropriate header
+    @GetMapping(URL_GETSTANDORDS)
+    public List<StandingOrderItem> getStandingOrderItems()
+    {
+       return this.standingOrderService.getStandingOrderItems();
+    }
+
+    @PostMapping(value = URL_ADDSTANDORD)
     public String addStandingOrder(@RequestBody StandingOrderItem standingOrderItem, Model model)
     {
        log.info("addStandingOrder: item to add: {}", standingOrderItem);
@@ -238,7 +323,7 @@ public class AccountController {
        return "ok";
     }
 
-    @PostMapping(value = "/updatestandingorder")
+    @PostMapping(value = URL_UPDSTANDORD)
     public String updateStandingOrder(@RequestBody StandingOrderItem standingOrderItem, Model model)
     {
        log.info("updateStandingOrder: item to update: {}", standingOrderItem);
@@ -255,9 +340,25 @@ public class AccountController {
 
        return "ok";
     }
+    
+    @PostMapping(value = URL_DELSTANDORD)
+    public String deleteStandingOrder(@RequestBody StandingOrderItem standingOrderItem, Model model)
+    {
+       log.info("deleteStandingOrder: item to delete: {}", standingOrderItem);
+       try
+       {
+          this.standingOrderService.deleteStandingOrder(standingOrderItem);
+       }
+       catch(Exception ex)
+       {
+          log.info("deleteStandingOrder: Failed to delete: {}", standingOrderItem, ex);
+          return "failed: " + ex.getMessage();
+       }
 
+       return "ok";
+    }
 
-    @GetMapping(value = "/calcchecked/{accountid}")
+    @GetMapping(value = URL_CALCCHECKBAL + "/{accountid}")
     public TransactionItem calcChecked(@PathVariable Long accountid)
     {
        // An exception might be a bit extreme for no checked balances
@@ -267,7 +368,7 @@ public class AccountController {
        return ti;
     }
 
-    @GetMapping(value = "/getchecked/{accountid}")
+    @GetMapping(value = URL_GETCHECKBAL + "/{accountid}")
     public TransactionItem getLatestChecked(@PathVariable Long accountid)
     {
        // An exception might be a bit extreme for no checked balances
@@ -275,7 +376,7 @@ public class AccountController {
        return ti;
     }
 
-    @GetMapping(value = {"/listchecked/{accountid}", "/listchecked/{accountid}/{page}"})
+    @GetMapping(value = {URL_GETCHECKTXNS + "/{accountid}", URL_GETCHECKTXNS + "/{accountid}/{page}"})
     public Transactions getCheckedTransactions(
           @PathVariable Long accountid,
           @PathVariable Optional<Integer> page)
@@ -288,19 +389,7 @@ public class AccountController {
        return this.transactionService.getCheckedTransactions(accountid, 25, pageno);
     }
 
-    // TODO: needs to return an image, eg. PNG
-// @RequestMapping(value = "/image-byte-array", method = RequestMethod.GET, produces = MediaType.IMAGE_PNG)
-// public @ResponseBody byte[] getImageAsByteArray() throws IOException {
-//    // get byte array and simply return it;
-// }
-   // if the simple way doesn't work then  the hyper complex spring way could be used which requires a
-   // ByteArrayHttpMessageConverter and some way to call 'configureMessageConverters' to add the bean,
-   // according to https://www.baeldung.com/spring-mvc-image-media-data
-   // or returning a ResponseEntity might work:
-   //     return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(bytearray);
-
-   
-    @PostMapping(value = "/qrcodepayer", produces = MediaType.IMAGE_PNG_VALUE)
+    @PostMapping(value = URL_GETQRCODE, produces = MediaType.IMAGE_PNG_VALUE)
     public @ResponseBody byte[] getQREPCImage(@RequestBody EPCTransaction epcTransaction, Model model)
     {
        log.info("getQREPCImage: epc: {}", epcTransaction);
@@ -317,13 +406,13 @@ public class AccountController {
        return null;
     }
 
-    @GetMapping("/listtransferaccounts")
+    @GetMapping(URL_GETTFRACCOUNTS)
     public List<TransferAccountItem> getTransferAccounts()
     {
        return this.phoneAccountService.getPhoneAccounts();
     }
     
-    @PostMapping(value = "/updatetransferaccount")
+    @PostMapping(value = URL_UPDTFRACCOUNTS)
     public String updateTransferAccount(@RequestBody TransferAccountItem phoneAccountItem, Model model)
     {
        log.info("updateTransferAccount: item to update: {}", phoneAccountItem);
@@ -341,7 +430,7 @@ public class AccountController {
        return "ok";
     }
     
-    @PostMapping(value = "/addtransferaccount")
+    @PostMapping(value = URL_ADDTFRACCOUNTS)
     public String addTransferAccount(@RequestBody TransferAccountItem phoneAccountItem, Model model)
     {
        log.info("addTransferAccount: item to add: {}", phoneAccountItem);
@@ -359,7 +448,7 @@ public class AccountController {
        return "ok";
     }
     
-    @PostMapping(value = "/deletetransferaccount")
+    @PostMapping(value = URL_DELTFRACCOUNTS)
     public String deleteTransferAccount(@RequestBody TransferAccountItem phoneAccountItem, Model model)
     {
        log.info("deleteTransferAccount: item to delete: {}", phoneAccountItem);

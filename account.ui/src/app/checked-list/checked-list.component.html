@@ -1,7 +1,7 @@
 <!-- account.ui/src/app/checked-list/checked-list.component.html -->
 <mat-card appearance="outlined">
    <mat-card-header>
-      <mat-card-title *ngIf="isTransactions()">
+      <mat-card-title>
          <div class="title-card-left">Checked Transactions for {{activeaccount.name}}</div>
          <div class="title-card-right">
             <button class="btn btn-outline-success btn-sm" [routerLink]="['/transactions', activeaccount.id]" title="transaction list">

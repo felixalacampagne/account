@@ -1,5 +1,5 @@
 // src/app/transferaccount-edit-mat/transferaccount-edit-mat.component.ts
-import { Component, ChangeDetectionStrategy, Output, EventEmitter, SimpleChanges, Input } from "@angular/core";
+import { Component, ChangeDetectionStrategy, Output, EventEmitter, SimpleChanges, Input, OnInit } from "@angular/core";
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from "@angular/forms";
 import { MatButtonModule } from "@angular/material/button";
 import { MatCardModule } from "@angular/material/card";
@@ -37,7 +37,7 @@ import { AccountService } from "src/shared/service/account.service";
     ]
 })
 
-export class TransferAccountEditMatComponent 
+export class TransferAccountEditMatComponent implements OnInit
 {
    @Input() origItem: TransferAccountItem | undefined;
    @Output() public submittedEvent = new EventEmitter();
@@ -50,7 +50,6 @@ export class TransferAccountEditMatComponent
    {
 
        this.taForm = new FormGroup({
-         // TODO: Whatever this is for transfer account
          cptyAccountName: new FormControl('', Validators.required), 
          cptyAccountNumber: new FormControl('', Validators.required), 
          lastCommunication: new FormControl('', Validators.nullValidator), 

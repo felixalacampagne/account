@@ -1,7 +1,7 @@
 // account.service.ts
-import {Injectable} from '@angular/core';
+import {Injectable, output, OutputEmitterRef, OutputRefSubscription} from '@angular/core';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import {Observable} from "rxjs";
+import {BehaviorSubject, Observable, Subscription} from "rxjs";
 import {map} from 'rxjs/operators';
 import {environment} from '../../environments/environment';
 import { AccountItem } from '../model/accountitem.model';
@@ -36,9 +36,12 @@ export class AccountService
    private standingorder : string = "standingorder/";
    private addsosvc : string = "addstandingorder";
    private updsosvc : string = "updatestandingorder";
-   private delsosvc : string = "deletestandingorder";
+   private delsosvc : string = "delstandingorder";
    private getqrcodepayer : string = 'qrcodepayer';
    private listaccinf : string = "listaccinf";
+   private addaccount: string = "addaccount";
+   private updaccount: string = "updaccount";
+   private delaccount: string = "delaccount";
    private listtfraccs : string = "listtransferaccounts";
    private addtfracc  : string = "addtransferaccount";
    private updtfracc : string = "updatetransferaccount";
@@ -77,7 +80,9 @@ export class AccountService
    "INSR",
    "CAR"
    ];
-        
+
+   accountChanged : BehaviorSubject<number> = new BehaviorSubject(-1);
+
    constructor(private http : HttpClient)
    {
       // If host value is not given by environment then should assume api
@@ -99,6 +104,17 @@ export class AccountService
       this.apiurl = this.serverhost + this.accountapiapp
       console.log("Account API server host: " + this.apiurl);
    }    
+
+   // This needs to be called after add/upd/delAccount is completed
+   notifyAccountModified(id : number) : void
+   {
+      this.accountChanged.next(id);
+   }
+
+   listenAccountModified(callback: (value: number) => void) : OutputRefSubscription
+   {
+      return this.accountChanged.subscribe(callback);
+   }
 
    getAccounts() : Observable<AccountItem[]>
    {
@@ -123,8 +139,57 @@ export class AccountService
       url = this.apiurl + this.listaccinf;
       // The account items are returned wrapped in an array named accounts
       console.log("getAccountDetails API URL: " + url);
-      return this.http.get(url).pipe( map((res:any) => res.accounts) );    
+      return this.http.get(url).pipe( map((res:any) => res) );    
    } 
+
+   addAccount(item : AccountDetail) : Observable<string>
+   {
+      let json : string;
+      let url : string;
+      let res;
+      json = JSON.stringify(item);
+      url = this.apiurl + this.addaccount ;
+      console.log("addAccount: POSTing to " + url + ": " + json);
+
+      // Spring gives exception saying text/plain not supported so need to set content type to JSON
+      var headers = new HttpHeaders();
+      headers = headers.set('Content-Type', 'application/json');
+      headers = headers.set("Accept", "text/plain");
+        
+      return this.http.post(url, json, {headers: headers,  responseType: 'text'});        
+   }
+
+   updateAccount(item : AccountDetail) : Observable<string>
+   {
+      let json : string;
+      let url : string;
+      let res;
+      json = JSON.stringify(item);
+      url = this.apiurl + this.updaccount ;
+      console.log("updateAccount: POSTing to " + url + ": " + json);
+
+      var headers = new HttpHeaders();
+      headers = headers.set('Content-Type', 'application/json');
+      headers = headers.set("Accept", "text/plain");
+      
+      return this.http.post(url, json, {headers: headers,  responseType: 'text'});       
+   }
+
+   deleteAccount(item : AccountDetail) : Observable<string>
+   {
+       let json : string;
+       let url : string;
+       let res;
+       json = JSON.stringify(item);
+       url = this.apiurl + this.delaccount;
+       console.log("deleteAccount: POSTing to " + url + ": " + json);
+
+       var headers = new HttpHeaders();
+       headers = headers.set('Content-Type', 'application/json');
+       headers = headers.set("Accept", "text/plain");
+       
+       return this.http.post(url, json, {headers: headers,  responseType: 'text'}); 
+   }
 
    getAccountDetail(id : number) : Observable<AccountDetail>
    {
