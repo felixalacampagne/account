@@ -23,7 +23,10 @@ public interface TransactionJpaRepository extends JpaRepository<Transaction, Lon
    long countByAccountId(long accountId);
 
    Optional<Transaction> findFirstByAccountIdOrderBySequenceDesc(long accountId); // latest
+   Optional<Transaction> findFirstByAccountIdAndSequenceIsLessThanOrderByDateAscSequenceAsc(long accountId, long sequence);
 
+
+   
    List<Transaction> findByAccountIdOrderBySequenceAsc(long accountId); // sequence (normal) balance
 
    // transaction previous to the given transaction (for balance calculation post transaction delete
