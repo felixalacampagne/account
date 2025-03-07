@@ -1,6 +1,7 @@
 package com.felixalacampagne.account.service;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -30,6 +31,21 @@ import com.felixalacampagne.account.persistence.repository.TransactionJpaReposit
 @Service
 public class TransactionService
 {
+   public enum BalanceType
+   {
+      NORMAL,
+      CHECKED,
+      SORTED
+   }
+
+   // Maybe make this a property? Only NORMAL or SORTED is supported. CHECKED is for displaying ONLY checked entries
+   // Changing the default is not supported - I done it like this to make
+   // the transition from pure sequence to date/sequence a bit easier (I hope)
+   // Note that two different transactions columns are used for sequence and date/sequence balances
+   // and only one is updated by default. When the default is changed some way of triggering a complete
+   // recalculation for all active accounts will be required.
+   private final BalanceType defaultBalanceType = BalanceType.SORTED;
+
    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
    private final TransactionJpaRepository transactionJpaRepository;
@@ -85,7 +101,9 @@ public class TransactionService
 
       log.debug("getTransactions: page size:{}, rowcount:{}, page:{}, maxpage:{}", pagesize, rowcount, pageZeroBased, maxPageOneBased-1);
 
-      return getTransactions(getTransactionPage(pageZeroBased, pagesize, accountId), accountId, pageZeroBased+1, rowcount, BalanceType.NORMAL);
+      return getTransactions(getTransactionPage(pageZeroBased, pagesize, accountId),
+            accountId, pageZeroBased+1, rowcount,
+            this.defaultBalanceType);
    }
 
    public Transactions getTransactions(List<Transaction> txns, long accountId,
@@ -107,10 +125,31 @@ public class TransactionService
    // Page uses the native, 0 based, index
    public List<Transaction> getTransactionPage(int page, int rows, long accountId)
    {
+      if(BalanceType.SORTED == this.defaultBalanceType)
+      {
+         return getTransactionPageDateSorted(page, rows, accountId);
+      }
+      return getTransactionPageSequenceSorted(page, rows, accountId);
+   }
+
+   public List<Transaction> getTransactionPageSequenceSorted(int page, int rows, long accountId)
+   {
       List<Transaction> txns = transactionJpaRepository.
             findByAccountId(accountId,  PageRequest.of(page, rows, Sort.by("sequence").descending())).stream()
             .sorted(Comparator.comparingLong(Transaction::getSequence))
             .collect(Collectors.toList());
+      return txns;
+   }
+
+   // Page uses the native, 0 based, index
+   public List<Transaction> getTransactionPageDateSorted(int page, int rows, long accountId)
+   {
+      List<Transaction> txns = transactionJpaRepository.
+            findByAccountId(accountId,  PageRequest.of(page, rows,
+                  Sort.by(Sort.Order.desc("date"),Sort.Order.desc("sequence"))))
+                  .stream()
+            .collect(Collectors.toList());
+      Collections.reverse(txns);
       return txns;
    }
 
@@ -346,15 +385,6 @@ public class TransactionService
          balanceService.calculateCheckedBalances(deltxn.getAccountId(), Optional.empty());
       }
    }
-   // This must be @Transactional because it recalculates the balances of all following transactions
-   // and any failure during this calculation should revert all changes
-   @Transactional
-   public Transaction update(Transaction txn)
-   {
-      txn = transactionJpaRepository.saveAndFlush(txn);
-      balanceService.calculateBalances(txn.getAccountId(), Optional.of(txn));
-      return txn;
-   }
 
    // Add is effectively the same as update but with 0 following transactions
    @Transactional
@@ -364,15 +394,69 @@ public class TransactionService
       return update(txn);
    }
 
+   // This must be @Transactional because it recalculates the balances of all following transactions
+   // and any failure during this calculation should revert all changes
+   @Transactional
+   public Transaction update(Transaction txn)
+   {
+      log.info("update: updating transaction: {}", txn);
+      if(BalanceType.SORTED == this.defaultBalanceType)
+      {
+         return updateDateSorted(txn);
+      }
+      return updateSequenceSorted(txn);
+   }
+
+   @Transactional
+   private Transaction updateSequenceSorted(Transaction txn)
+   {
+      txn = transactionJpaRepository.saveAndFlush(txn);
+      balanceService.calculateBalances(txn.getAccountId(), Optional.of(txn));
+      return txn;
+   }
+
+   @Transactional
+   private Transaction updateDateSorted(Transaction txn)
+   {
+      txn = transactionJpaRepository.saveAndFlush(txn);
+      balanceService.calculateDatesortedBalances(txn.getAccountId(), Optional.of(txn));
+      return txn;
+   }
+
    @Transactional
    public void delete(Transaction txn)
    {
       log.info("delete: deleting transaction: {}", txn);
+      if(BalanceType.SORTED == this.defaultBalanceType)
+      {
+         deleteDateSorted(txn);
+      }
+      else
+      {
+         deleteSequenceSorted(txn);
+      }
+   }
+
+   @Transactional
+   private void deleteSequenceSorted(Transaction txn)
+   {
+      log.info("deleteSequenceSorted: deleting transaction: {}", txn);
       Optional<Transaction> prevtxn = transactionJpaRepository.findFirstByAccountIdAndSequenceIsLessThanOrderBySequenceAsc(txn.getAccountId(), txn.getSequence());
       transactionJpaRepository.delete(txn);
       balanceService.calculateBalances(txn.getAccountId(), prevtxn);
 
    }
+
+   @Transactional
+   private void deleteDateSorted(Transaction txn)
+   {
+      log.info("deleteDateSorted: deleting transaction: {}", txn);
+      Optional<Transaction> prevtxn = transactionJpaRepository.findFirstByAccountIdAndSequenceIsLessThanOrderByDateAscSequenceAsc(txn.getAccountId(), txn.getSequence());
+      transactionJpaRepository.delete(txn);
+      balanceService.calculateDatesortedBalances(txn.getAccountId(), prevtxn);
+
+   }
+
 
    private Transaction mapToEntity(TransactionItem transactionItem)
    {
@@ -404,18 +488,12 @@ public class TransactionService
       return tosave;
    }
 
-   public enum BalanceType
-   {
-      NORMAL,
-      CHECKED,
-      SORTED
-   }
 
    public TransactionItem mapToItem(Transaction t, BalanceType balanceType)
    {
       return mapToItem(t, null, balanceType);
    }
-   
+
    public TransactionItem mapToItem(Transaction t, String amtfmt, BalanceType balanceType)
    {
       BigDecimal amount = BigDecimal.ZERO;
