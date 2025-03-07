@@ -171,7 +171,7 @@ public class BalanceService
       return Optional.of(chktxns.get(chktxns.size()-1));
    }
 
-   public Optional<Transaction> sortedBalances(long accountId, Optional<Transaction> startTransaction)
+   public Optional<Transaction> calculateDatesortedBalances(long accountId, Optional<Transaction> startTransaction)
    {
       List<Transaction> txns = transactionJpaRepository.findByAccountIdOrderByDateAscSequenceAsc(accountId);
       if(txns.isEmpty())
