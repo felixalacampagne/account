@@ -27,7 +27,7 @@
             </ng-container>
             <ng-container matColumnDef="amount">
                <th mat-header-cell *matHeaderCellDef>Amount</th>
-               <td mat-cell [ngClass]="{'account-negamount': txn.amount.startsWith('-')}" *matCellDef="let txn">{{txn.amount}}</td>
+               <td mat-cell [ngClass]="{'account-negamount': txn.amount.startsWith('-')}" *matCellDef="let txn">{{txn.amountfmtd}}</td>
             </ng-container>
             <ng-container matColumnDef="chkbal">
                <th mat-header-cell *matHeaderCellDef>Chkd Bal</th>

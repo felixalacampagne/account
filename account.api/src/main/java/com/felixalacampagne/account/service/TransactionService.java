@@ -1,6 +1,7 @@
 package com.felixalacampagne.account.service;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -473,8 +474,9 @@ public class TransactionService
       }
       List<Transaction> txns = transactionJpaRepository.
             findByAccountIdAndCheckedIsTrueOrderByDateDescSequenceDesc(accountId, p).stream()
-            .sorted(Comparator.comparingLong(Transaction::getSequence))
+            //.sorted(Comparator.comparingLong(Transaction::getSequence))
             .collect(Collectors.toList());
+      Collections.reverse(txns);
       return txns;
    }
 
