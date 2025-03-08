@@ -261,10 +261,11 @@ public class AccountController {
     @PostMapping(value = URL_UPDTRANSACTION)
     public String updateTransaction(@RequestBody TransactionItem transactionItem, Model model)
     {
-       log.info("updateTransaction: transaction item to add: {}", transactionItem);
+       log.info("updateTransaction: transaction item to update: {}", transactionItem);
        try
        {
           this.transactionService.updateTransaction(transactionItem);
+          log.info("updateTransaction: transaction item updated: {}", transactionItem);
        }
        catch(Exception ex)
        {

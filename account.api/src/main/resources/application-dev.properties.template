@@ -2,6 +2,9 @@ falc.account.name=DevJAccount
 falc.account.db=TEST
 falc.account.version=0.4.2adev
 falc.account.standingorder.cron=* 0 */2 * * ?
+# NORMAL (default) or SORTED
+#falc.account.transaction.listsort=SORTED
+
 spring.datasource.url=jdbc:ucanaccess://E:/Development/workspace/accountREST/acc2003_TEST.mdb
 # C:/Development/accountDB/acc2003TEST.mdb
 

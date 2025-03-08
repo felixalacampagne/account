@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -34,17 +35,20 @@ public class TransactionService
    public enum BalanceType
    {
       NORMAL,
-      CHECKED,
-      SORTED
+      SORTED,
+      CHECKED
    }
 
+   
+   private Integer listsort;
    // Maybe make this a property? Only NORMAL or SORTED is supported. CHECKED is for displaying ONLY checked entries
    // Changing the default is not supported - I done it like this to make
    // the transition from pure sequence to date/sequence a bit easier (I hope)
    // Note that two different transactions columns are used for sequence and date/sequence balances
    // and only one is updated by default. When the default is changed some way of triggering a complete
    // recalculation for all active accounts will be required.
-   private final BalanceType defaultBalanceType = BalanceType.SORTED;
+   @Value("${falc.account.transaction.listsort:NORMAL}")
+   private  BalanceType defaultBalanceType; // = BalanceType.SORTED;
 
    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
