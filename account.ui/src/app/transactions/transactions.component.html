@@ -81,7 +81,7 @@
             <td class="nowrap">{{formatDateColumn(txn.date)}}</td>
             <td *ngIf="desktopDisplay">{{txn.type}}</td>
             <td (swipeleft)="open(content, txn)">{{txn.comment}}</td>
-            <td *ngIf="desktopDisplay">{{txn.statementref}}</td>
+            <td class="nowrap" *ngIf="desktopDisplay">{{txn.statementref}}</td>
             <td class="account-amount" [ngClass]="{'account-negamount': txn.amount.startsWith('-')}">{{txn.amountfmtd}}</td>
             <td class="account-amount" [ngClass]="{'account-negbalance': txn.balance.startsWith('-')}" *ngIf="desktopDisplay">{{txn.balance}}</td>
             <td class="account-edit" *ngIf="desktopDisplay">
