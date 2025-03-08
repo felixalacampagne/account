@@ -1,10 +1,13 @@
 package com.felixalacampagne.account.persistence.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.felixalacampagne.account.persistence.entities.Transaction;
@@ -40,4 +43,27 @@ public interface TransactionJpaRepository extends JpaRepository<Transaction, Lon
    
    
    long deleteByAccountId(Long accId);
+   
+   // Queries to determine the previous checked balance when the transaction itself has been deleted/removed
+   // Not used in the end as checking whether the balance is changed should be enough to avoid length multi-record
+   // updates which take time. 
+   // sort date desc, seq desc
+   // date <= st_date
+   // id< st_id
+   // checkbal != null
+   // first entry is the start of the list: fe
+   //@Query("SELECT t FROM Transaction  t "
+   //      + "where t.accountId = :accid " 
+   //      + "and t.date <= :dt "
+   //      + "and t.sequence <= :seq "
+   //      + "and t.checkedBalance is not null "
+   //      + "order by t.date DESC, t.sequence DESC" )   
+   //List<Transaction> findPrevCheckedBal(@Param("accid") long accountId, @Param("seq") long sequence, @Param("dt") LocalDate date);
+   // recalc list
+   // sort date asc, seq asc
+   // date >= fe_date
+   // id >= fe_id   
+   // List<Transaction> findCheckedFromTransaction(long accountId, long sequence, LocalDate date);
+   
+   
 }

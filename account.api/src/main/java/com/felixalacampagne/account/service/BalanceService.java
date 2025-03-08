@@ -77,7 +77,7 @@ public class BalanceService
 
       if(startTransaction.isPresent())
       {
-        // Search backwards for the first transaction before start transaction with a checked balance,
+        // Search backwards for the first transaction before start transaction with a non-null balance,
         // ie. the seed transaction
         // This balance is used as the start balance and the list adjusted to start at the next
         // transaction after the seed transaction - usually it will be the start transaction
@@ -89,11 +89,14 @@ public class BalanceService
             Transaction pt = txns.get(i);
             BigDecimal curbalance = balanceGetter.apply(pt);
 
-            // Find the starttransaction before it and then take the first previous
+            // Find starttransaction in the list and then take the first previous
             // non-null balance from the list.
-            // WARNING: starttransaction may have been deleted so will not be in the list. Since this
+            // WARNING: starttransaction may not be in the list, eg. deleted, unverified. Since this
             // method is unaware of the sort criteria of the list it cannot 'guess' which
-            // transaction is the previous transaction.
+            // entry is previous to the starttransaction so the calculation will be from the first 
+            // entry in the list which will make 'removal' actions quite time consuming!!!
+            // TODO: Would be nice to find a way to avoid the full recalculation when an entry is removed.
+            // The only way would be for the caller to supply the shortened list.
             if(pt.getSequence() == stid)
             {
                startFound = true;
@@ -121,6 +124,7 @@ public class BalanceService
          BigDecimal curbalance = balanceGetter.apply(nxttxn);
          if((curbalance == null) || balance.compareTo(curbalance) != 0)
          {
+            log.debug("doBalanceCalculation: update balance old:{} new:{}", curbalance, balance);
             balanceSetter.accept(nxttxn, balance);  // nxttxn.setCheckedBalance(balance);
             updtxns.add(nxttxn);
          }
@@ -158,7 +162,51 @@ public class BalanceService
 
    public Optional<Transaction> calculateCheckedBalances(long accountId, Optional<Transaction> startTransaction)
    {
-      List<Transaction> chktxns = transactionJpaRepository.findByAccountIdAndCheckedIsTrueOrderByDateAscSequenceAsc(accountId);
+      
+      // Ideally need to find a list starting from the first transaction with a non-null checked balance BEFORE
+      // the startTransaction, knowing that startTransaction may not been removed.
+      // Actually this is not necessary since the balances before the changed record do not change, in theory,
+      // so they are not updated, in theory, so the complication of trying to determine the previous record
+      // should not be necessary. 
+      // In case theory doesn't translate to practice this is how I was going to do it...
+      // I started to make this change because the updates of recent records were taking a very long time and
+      // the log appeared to indicate all records were being updated. When repeated with additional logging
+      // the number of records updated was limited and the update was much faster than previously. Not sure
+      // why, maybe the balances were actually wrong, or for some reason didn't compare to the new balances.
+      // sort date desc, seq desc
+      // date <= st_date
+      // id< st_id
+      // checkbal != null
+      // first entry is the start of the list: fe
+      
+      // recalc list
+      // sort date asc, seq asc
+      // date >= fe_date
+      // id >= fe_id
+      // List<Transaction> chktxns;
+      // if(startTransaction.isPresent())
+      // {
+      //    Transaction t = startTransaction.get();
+      //    chktxns = transactionJpaRepository.findPrevCheckedBal(accountId, t.getSequence(), t.getDate());
+      //    if(chktxns.isEmpty())
+      //    {
+      //       chktxns = transactionJpaRepository.findByAccountIdAndCheckedIsTrueOrderByDateAscSequenceAsc(accountId);
+      //    }
+      //    else
+      //    {
+      //       Transaction p = chktxns.get(0);
+      //       chktxns = transactionJpaRepository.findCheckedFromTransaction(accountId, p.getSequence(), p.getDate());
+      //    }
+      // }
+      // else
+      // {
+      //    chktxns = transactionJpaRepository.findByAccountIdAndCheckedIsTrueOrderByDateAscSequenceAsc(accountId);
+      // }      
+      
+      List<Transaction> chktxns;
+      chktxns = transactionJpaRepository.findByAccountIdAndCheckedIsTrueOrderByDateAscSequenceAsc(accountId);
+
+      
       if(chktxns.isEmpty())
       {
          return Optional.empty();

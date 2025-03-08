@@ -39,16 +39,14 @@ public class TransactionService
       CHECKED
    }
 
-   
-   private Integer listsort;
-   // Maybe make this a property? Only NORMAL or SORTED is supported. CHECKED is for displaying ONLY checked entries
-   // Changing the default is not supported - I done it like this to make
+   // Only NORMAL or SORTED is supported. CHECKED is ONLY for displaying checked entries
+   // Dynamically switching between modes is not supported - I've done it like this to make
    // the transition from pure sequence to date/sequence a bit easier (I hope)
-   // Note that two different transactions columns are used for sequence and date/sequence balances
+   // Note that two different transaction columns are used for sequence and date/sequence balances
    // and only one is updated by default. When the default is changed some way of triggering a complete
    // recalculation for all active accounts will be required.
    @Value("${falc.account.transaction.listsort:NORMAL}")
-   private  BalanceType defaultBalanceType; // = BalanceType.SORTED;
+   private BalanceType defaultBalanceType; // = BalanceType.SORTED;
 
    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -56,8 +54,7 @@ public class TransactionService
    private final AccountJpaRepository accountJpaRepository;
    private final PhoneAccountJpaRepository phoneAccountJpaRepository;
    private final ConnectionResurrector<TransactionJpaRepository> connectionResurrector;
-
-   BalanceService balanceService;
+   private final BalanceService balanceService;
 
    @Autowired
    public TransactionService(TransactionJpaRepository transactionJpaRepository,
@@ -309,24 +306,7 @@ public class TransactionService
 
          throw new  AccountException("Transaction id " + transactionItem.getId() + " is locked");
       }
-      boolean  bRecalcChecked = (!txn.getChecked() && updtxn.getChecked());
-// UI should be calling AccountController.updateAccountStatementRef to do this, except sometimes it is not
-// working as required. Better to fix it there than do it here as well.
-//      // Update the Account last statement reference field.
-//      // Only do this if the original value was empty and a value has been added.
-//      // NB. Currently statementref cannot be specified for 'add' so this only needed for update.
-//      String stmnt = Utils.fromNullable(updtxn.getStid());
-//      if(Utils.fromNullable(txn.getStid()).isEmpty()
-//            && !stmnt.isEmpty())
-//      {
-//         Account acc = this.accountJpaRepository.findById(txn.getAccountId()).orElseThrow();
-//         if( !stmnt.equals(acc.getAccSid()))
-//         {
-//            acc.setAccSid(stmnt);
-//            log.info("updateTransaction: update last statement ref for account {}: {}", txn.getAccountId(), stmnt);
-//            this.accountJpaRepository.saveAndFlush(acc);
-//         }
-//      }
+      boolean  bRecalcChecked = (txn.getChecked() != updtxn.getChecked());
 
       // updtxn is possibly not a complete set of Transaction values.
       // Maybe should add checks for presence of values???
