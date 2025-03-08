@@ -24,9 +24,15 @@
 {
     border: none !important;
 }
-.mat-column-date
+
+.mat-column-date, .mat-column-amount, .mat-column-ref, .mat-column-chkbal
 {
    white-space: nowrap;
+}
+
+.mat-column-amount, .mat-column-chkbal
+{
+   text-align: right;
 }
 
 /* Unbelievably the icon inside an 'icon button' is forking displayed in the center by default! 

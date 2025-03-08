@@ -551,8 +551,9 @@ public class TransactionService
       }
       List<Transaction> txns = transactionJpaRepository.
             findByAccountIdAndCheckedIsTrueOrderByDateDescSequenceDesc(accountId, p).stream()
-            .sorted(Comparator.comparingLong(Transaction::getSequence))
+            //.sorted(Comparator.comparingLong(Transaction::getSequence))
             .collect(Collectors.toList());
+      Collections.reverse(txns);
       return txns;
    }
 
