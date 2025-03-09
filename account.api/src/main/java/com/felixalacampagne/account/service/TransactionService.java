@@ -48,6 +48,11 @@ public class TransactionService
    @Value("${falc.account.transaction.listsort:NORMAL}")
    private BalanceType defaultBalanceType; // = BalanceType.SORTED;
 
+   public BalanceType getDefaultBalanceType()
+   {
+      return defaultBalanceType;
+   }
+
    private final Logger log = LoggerFactory.getLogger(this.getClass());
 
    private final TransactionJpaRepository transactionJpaRepository;
