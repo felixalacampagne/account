@@ -42,14 +42,37 @@ public class ReSyncService
             // find a way to do commits after x number of records. Probably something which could be
             // solved by NOT using Access but I'm not ready for that yet...
             log.info("reSyncBalances: sync date sorted balance for account:{} {}", acc.getId(), acc.getName());
-            this.balanceService.calculateDatesortedBalances(acc.getId(), Optional.empty());
+            try
+            {
+               this.balanceService.calculateDatesortedBalances(acc.getId(), Optional.empty());
+            }
+            catch(Exception ex)
+            {
+               log.info("reSyncBalances: exception: {}", ex.toString());
+            }
             
             log.info("reSyncBalances: sync sequence sorted balance for account:{} {}", acc.getId(), acc.getName());
-            this.balanceService.calculateBalances(acc.getId(), Optional.empty());
-   
+            try
+            {
+               this.balanceService.calculateBalances(acc.getId(), Optional.empty());
+            }
+            catch(Exception ex)
+            {
+               log.info("reSyncBalances: exception: {}", ex.toString());
+            }
+            
             log.info("reSyncBalances: sync checked balance for account:{} {}", acc.getId(), acc.getName());
-            this.balanceService.calculateCheckedBalances(acc.getId(), Optional.empty());
+            try
+            {
+               this.balanceService.calculateCheckedBalances(acc.getId(), Optional.empty());
+            }
+            catch(Exception ex)
+            {
+               log.info("reSyncBalances: exception: {}", ex.toString());
+            }               
          });
       log.info("reSyncBalances: done");
    }
+   
+
 }
