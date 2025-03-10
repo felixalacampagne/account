@@ -10,7 +10,6 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.felixalacampagne.account.common.Utils;
 import com.felixalacampagne.account.persistence.entities.Transaction;
@@ -26,41 +25,8 @@ public class BalanceService
       this.transactionJpaRepository = transactionJpaRepository;
    }
 
-//   @Transactional
-//   public Transaction calculateBalancesOld(Transaction startTransaction)
-//   {
-//      log.info("calculateBalances: startTransaction:{}", startTransaction.getSequence());
-//      BigDecimal balance = BigDecimal.ZERO;
-//      BigDecimal amt = Utils.getAmount(startTransaction);
-//
-//      // Get last transaction
-//      Optional<Transaction> prevtxn = getPreviousTransaction(startTransaction);
-//      if(prevtxn.isPresent())
-//      {
-//         balance = Utils.getZeroOrValue(prevtxn.get().getBalance());
-//      }
-//      balance = balance.add(amt);
-//
-//      // Could check if new balance is same as old balance and stop if no change
-//      startTransaction.setBalance(balance);
-//      startTransaction = transactionJpaRepository.save(startTransaction);
-//
-//      // Now need to update the balance for any transactions which occurred AFTER the updated transaction
-//      List<Transaction> txns = getFollowingTransactions(startTransaction);
-//
-//      for(Transaction nxttxn : txns)
-//      {
-//         amt = Utils.getAmount(nxttxn);
-//         balance = balance.add(amt);
-//         nxttxn.setBalance(balance);
-//      }
-//      transactionJpaRepository.saveAll(txns);
-//      transactionJpaRepository.flush();
-//      log.info("calculateBalances: done startTransaction:{}", startTransaction.getSequence());
-//      return txns.get(txns.size()-1);
-//   }
-
-   @Transactional
+   // Made non-Transactional in attempt to avoid 'Closed connection' when committing many records
+   // @Transactional
    public void doBalanceCalculation(List<Transaction> txns,
                                     Function<Transaction, BigDecimal> balanceGetter,
                                     BiConsumer<Transaction, BigDecimal> balanceSetter,
@@ -75,41 +41,44 @@ public class BalanceService
       BigDecimal balance = BigDecimal.ZERO;
       BigDecimal amt = BigDecimal.ZERO;
 
-      if(startTransaction.isPresent())
-      {
-        // Search backwards for the first transaction before start transaction with a non-null balance,
-        // ie. the seed transaction
-        // This balance is used as the start balance and the list adjusted to start at the next
-        // transaction after the seed transaction - usually it will be the start transaction
-        long stid = startTransaction.get().getSequence();
-        boolean startFound = false;
-        List<Transaction> subchktxns = txns;
-        for(int i = txns.size() - 1 ; i > -1 ; i--)
-        {
-            Transaction pt = txns.get(i);
-            BigDecimal curbalance = balanceGetter.apply(pt);
-
-            // Find starttransaction in the list and then take the first previous
-            // non-null balance from the list.
-            // WARNING: starttransaction may not be in the list, eg. deleted, unverified. Since this
-            // method is unaware of the sort criteria of the list it cannot 'guess' which
-            // entry is previous to the starttransaction so the calculation will be from the first 
-            // entry in the list which will make 'removal' actions quite time consuming!!!
-            // TODO: Would be nice to find a way to avoid the full recalculation when an entry is removed.
-            // The only way would be for the caller to supply the shortened list.
-            if(pt.getSequence() == stid)
-            {
-               startFound = true;
-            }
-            else if(startFound && (curbalance != null))
-            {
-                balance = curbalance;
-                subchktxns = txns.subList(i+1, txns.size()); // to index must be the index +1, ie. size() for the last one
-                break;
-            }
-        }
-        txns = subchktxns;
-      }
+      // remove this, it isn't necessary since the calculation is quick and only
+      // records with modified balances are updated. In addition it doesn't work
+      // for 'removed' items.
+//      if(startTransaction.isPresent())
+//      {
+//        // Search backwards for the first transaction before start transaction with a non-null balance,
+//        // ie. the seed transaction
+//        // This balance is used as the start balance and the list adjusted to start at the next
+//        // transaction after the seed transaction - usually it will be the start transaction
+//        long stid = startTransaction.get().getSequence();
+//        boolean startFound = false;
+//        List<Transaction> subchktxns = txns;
+//        for(int i = txns.size() - 1 ; i > -1 ; i--)
+//        {
+//            Transaction pt = txns.get(i);
+//            BigDecimal curbalance = balanceGetter.apply(pt);
+//
+//            // Find starttransaction in the list and then take the first previous
+//            // non-null balance from the list.
+//            // WARNING: starttransaction may not be in the list, eg. deleted, unverified. Since this
+//            // method is unaware of the sort criteria of the list it cannot 'guess' which
+//            // entry is previous to the starttransaction so the calculation will be from the first
+//            // entry in the list which will make 'removal' actions quite time consuming!!!
+//            // TODO: Would be nice to find a way to avoid the full recalculation when an entry is removed.
+//            // The only way would be for the caller to supply the shortened list.
+//            if(pt.getSequence() == stid)
+//            {
+//               startFound = true;
+//            }
+//            else if(startFound && (curbalance != null))
+//            {
+//                balance = curbalance;
+//                subchktxns = txns.subList(i+1, txns.size()); // to index must be the index +1, ie. size() for the last one
+//                break;
+//            }
+//        }
+//        txns = subchktxns;
+//      }
 
       log.debug("doBalanceCalculation: adjusted for start txn: first id:{} final id:{} chkd bal: {}",
             txns.get(0).getSequence(),
@@ -133,8 +102,13 @@ public class BalanceService
       if(!updtxns.isEmpty())
       {
          log.debug("doBalanceCalculation: saving {} records", updtxns.size());
-         transactionJpaRepository.saveAll(updtxns);
-         transactionJpaRepository.flush();
+//         transactionJpaRepository.saveAll(updtxns);
+//         transactionJpaRepository.flush();
+         for(Transaction txn : updtxns)
+         {
+            transactionJpaRepository.save(txn);
+            transactionJpaRepository.flush();
+         }
          log.debug("doBalanceCalculation: saved {} records", updtxns.size());
       }
 
@@ -144,7 +118,8 @@ public class BalanceService
             balanceGetter.apply(txns.get(txns.size()-1)));
    }
 
-   @Transactional // required as calls internal @Transactional
+   // Made non-Transactional in attempt to avoid 'Closed connection' when committing many records
+   // @Transactional // required as calls internal @Transactional
    public Optional<Transaction> calculateBalances(long accountId, Optional<Transaction> startTransaction)
    {
       List<Transaction> txns = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(accountId);
@@ -161,15 +136,16 @@ public class BalanceService
 
    }
 
-   @Transactional // required as calls internal @Transactional
+   // Made non-Transactional in attempt to avoid 'Closed connection' when committing many records
+   // @Transactional // required as calls internal @Transactional
    public Optional<Transaction> calculateCheckedBalances(long accountId, Optional<Transaction> startTransaction)
    {
-      
+
       // Ideally need to find a list starting from the first transaction with a non-null checked balance BEFORE
       // the startTransaction, knowing that startTransaction may not been removed.
       // Actually this is not necessary since the balances before the changed record do not change, in theory,
       // so they are not updated, in theory, so the complication of trying to determine the previous record
-      // should not be necessary. 
+      // should not be necessary.
       // In case theory doesn't translate to practice this is how I was going to do it...
       // I started to make this change because the updates of recent records were taking a very long time and
       // the log appeared to indicate all records were being updated. When repeated with additional logging
@@ -180,7 +156,7 @@ public class BalanceService
       // id< st_id
       // checkbal != null
       // first entry is the start of the list: fe
-      
+
       // recalc list
       // sort date asc, seq asc
       // date >= fe_date
@@ -203,12 +179,12 @@ public class BalanceService
       // else
       // {
       //    chktxns = transactionJpaRepository.findByAccountIdAndCheckedIsTrueOrderByDateAscSequenceAsc(accountId);
-      // }      
-      
+      // }
+
       List<Transaction> chktxns;
       chktxns = transactionJpaRepository.findByAccountIdAndCheckedIsTrueOrderByDateAscSequenceAsc(accountId);
 
-      
+
       if(chktxns.isEmpty())
       {
          return Optional.empty();
@@ -221,7 +197,8 @@ public class BalanceService
       return Optional.of(chktxns.get(chktxns.size()-1));
    }
 
-   @Transactional // required as calls internal @Transactional
+   // Made non-Transactional in attempt to avoid 'Closed connection' when committing many records
+   // @Transactional // required as calls internal @Transactional
    public Optional<Transaction> calculateDatesortedBalances(long accountId, Optional<Transaction> startTransaction)
    {
       List<Transaction> txns = transactionJpaRepository.findByAccountIdOrderByDateAscSequenceAsc(accountId);
@@ -237,12 +214,4 @@ public class BalanceService
       return Optional.of(txns.get(txns.size()-1));
 
    }
-
-//   public Optional<Transaction> getLatestTransaction(long accountId)
-//   {
-//      return transactionJpaRepository.findFirstByAccountIdOrderBySequenceDesc(accountId);
-//   }
-
-
-
 }
