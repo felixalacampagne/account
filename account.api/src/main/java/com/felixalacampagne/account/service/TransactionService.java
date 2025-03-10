@@ -60,17 +60,21 @@ public class TransactionService
    private final PhoneAccountJpaRepository phoneAccountJpaRepository;
    private final ConnectionResurrector<TransactionJpaRepository> connectionResurrector;
    private final BalanceService balanceService;
+   private final TransactionHandlerService transactionHandler;
+
 
    @Autowired
    public TransactionService(TransactionJpaRepository transactionJpaRepository,
                              BalanceService balanceService,
                              AccountJpaRepository accountJpaRepository,
-                             PhoneAccountJpaRepository phoneAccountJpaRepository
+                             PhoneAccountJpaRepository phoneAccountJpaRepository,
+                             TransactionHandlerService transactionHandler
                              ) {
       this.transactionJpaRepository = transactionJpaRepository;
       this.balanceService = balanceService;
       this.accountJpaRepository = accountJpaRepository;
       this.phoneAccountJpaRepository = phoneAccountJpaRepository;
+      this.transactionHandler = transactionHandler;
       this.connectionResurrector = new ConnectionResurrector<TransactionJpaRepository>(transactionJpaRepository, TransactionJpaRepository.class);
    }
 
@@ -165,16 +169,17 @@ public class TransactionService
       return transactionJpaRepository.findById(id);
    }
 
-   @Transactional
-   public void addPhoneAccountTransaction(Long phoneAccId, Transaction srcTxn, String communication)
+   @Transactional // this must be transactional
+   private Long addPhoneAccountTransaction(Long phoneAccId, Transaction srcTxn, String communication)
    {
+      Long tfraccid = null;
       Long srcaccid = srcTxn.getAccountId();
       PhoneWithAccountProjection paproj = this.phoneAccountJpaRepository.findPhoneWithAccountById(phoneAccId)
                                               .orElseThrow(() -> new AccountException("Phone account not found: " + phoneAccId));
       PhoneAccount pa = paproj.getPhoneAccount();
       if(pa.getAccountId() > 0) // transfer is to a related account so must apply a 'reverse' transaction to it
       {
-         Long tfraccid = pa.getAccountId();
+         tfraccid = pa.getAccountId();
          String srcupdcomm = Utils.prefixNullable(" ref:", communication);
          Account srcacc = this.accountJpaRepository.findById(srcaccid)
                .orElseThrow(() -> new AccountException("Transfer source account not found: " + srcaccid));
@@ -228,18 +233,39 @@ public class TransactionService
          pa.setLastComm(communication);
          pa = this.phoneAccountJpaRepository.save(pa);
       }
+      return tfraccid;
+   }
+
+   class UpdateAccounts
+   {
+      public Long sourceAccId;
+      public Long transferAccId;
+   }
+
+   public void addTransaction(AddTransactionItem transactionItem)
+   {
+      // Execute transaction record updates in a transaction, which can only be initiated by an external
+      // call to the @Transactional method.
+      UpdateAccounts updAccs = this.transactionHandler.runInTransaction(
+            () -> addTransactionTransactional(transactionItem));
+      log.info("addTransaction: updated accounts: sourceAccId:{}, transferAccId:{}", updAccs.sourceAccId, updAccs.transferAccId);
+      this.updateBalance(updAccs.sourceAccId);
+      this.updateBalance(updAccs.transferAccId);
    }
 
    @Transactional // potentially two transactions are added so transaction is required
-   public void addTransaction(AddTransactionItem transactionItem)
+   public UpdateAccounts addTransactionTransactional(AddTransactionItem transactionItem)
    {
+      UpdateAccounts updAccs = new UpdateAccounts();
       connectionResurrector.ressurectConnection();
       Transaction txn = mapToEntity(transactionItem);
+
       Transaction updtxn = add(txn);
+      updAccs.sourceAccId = updtxn.getAccountId();
       log.info("addTransaction: added transaction for account id {}: id:{}", updtxn.getAccountId(), updtxn.getSequence());
       if(transactionItem.getTransferAccount().isPresent())
       {
-         addPhoneAccountTransaction(transactionItem.getTransferAccount().get(), updtxn, transactionItem.getCommunication());
+         updAccs.transferAccId = addPhoneAccountTransaction(transactionItem.getTransferAccount().get(), updtxn, transactionItem.getCommunication());
       }
       else if( !( Utils.fromNullable(transactionItem.getCptyAccount()).isBlank()
                && Utils.fromNullable(transactionItem.getCptyAccountNumber()).isBlank()
@@ -250,14 +276,16 @@ public class TransactionService
          updcomm = updcomm + " to:" + transactionItem.getCptyAccountNumber();
          updcomm = updcomm + " " + transactionItem.getCptyAccount();
          updtxn.setComment(updtxn.getComment() + updcomm);
+
          updtxn = this.transactionJpaRepository.save(updtxn);
 
          // Add the new account to PhoneAccount
          addPhoneAccount(transactionItem.getCptyAccountNumber(), transactionItem.getCptyAccount(), transactionItem.getCommunication());
 
       }
+      log.info("addTransactionTransactional: updated accounts: sourceAccId:{}, transferAccId:{}", updAccs.sourceAccId, updAccs.transferAccId);
+      return updAccs;
    }
-
 
    private void addPhoneAccount(String cptyAccountNumber, String cptyAccount, String communication)
    {
@@ -274,7 +302,7 @@ public class TransactionService
 
    // This must be @Transactional because it calls 'update()' which is @Transactional and in the same class which
    // means the Spring @Transactional proxies would be bypassed - I think
-   @Transactional
+   // @Transactional - keep balance calc out of transaction
    public Transaction updateTransaction(TransactionItem transactionItem)
    {
       log.info("updateTransaction: transactionItem:{}", transactionItem);
@@ -322,8 +350,10 @@ public class TransactionService
       txn.setDebit(updtxn.getDebit());
       txn.setChecked(updtxn.getChecked());
       txn.setStid(updtxn.getStid());
+
       Transaction txnupdated = update(txn);
 
+      this.updateBalance(txnupdated.getAccountId());
       if(bRecalcChecked)
       {
          // not sure if I really want this as it could be very time consuming
@@ -332,7 +362,12 @@ public class TransactionService
       return txnupdated;
    }
 
-   @Transactional
+//   public boolean addUsers(List<User> users) {
+//      for (User user : users) {
+//          transactionHandler.runInTransaction(() -> addUser(user.getUsername, user.getPassword));
+//      }
+//   }
+   // @Transactional - keep balance calc out of transaction
    public void deleteTransaction(TransactionItem transactionItem)
    {
       log.info("deleteTransaction: transactionItem:{}", transactionItem);
@@ -367,6 +402,7 @@ public class TransactionService
       boolean  bRecalcChecked = deltxn.getChecked();
 
       delete(txn);
+      updateBalance(txn.getAccountId());
 
       if(bRecalcChecked)
       {
@@ -376,7 +412,7 @@ public class TransactionService
    }
 
    // Add is effectively the same as update but with 0 following transactions
-   @Transactional
+   // @Transactional - keep balance calc out of transaction
    public Transaction add(Transaction txn)
    {
       log.info("add: adding transaction: {}", txn);
@@ -384,68 +420,42 @@ public class TransactionService
    }
 
    // This must be @Transactional because it recalculates the balances of all following transactions
-   // and any failure during this calculation should revert all changes
-   @Transactional
+   // and any failure during this calculation should revert all changes.
+   //
+   // Must make balance calculation non-transactional as the time it takes to commit many
+   // records exceeds the time that the connection remains open, ie. a Connection closed
+   // exception can happen which I still haven't been able to prevent.
+   //
+   // If the balances are not in the transaction then no need for the update to be in a transaction
    public Transaction update(Transaction txn)
    {
       log.info("update: updating transaction: {}", txn);
-      if(BalanceType.SORTED == this.defaultBalanceType)
+      txn = transactionJpaRepository.saveAndFlush(txn);
+      return txn;
+   }
+
+   private void updateBalance(Long accountId)
+   {
+      if(accountId != null)
       {
-         return updateDateSorted(txn);
+         if(BalanceType.SORTED == this.defaultBalanceType)
+         {
+            log.info("update: updating date/sequence sorted balance for acc id: {}", accountId);
+            balanceService.calculateDatesortedBalances(accountId, Optional.empty());
+         }
+         else
+         {
+            log.info("update: updating sequence only sorted balance for acc id: {}", accountId);
+            balanceService.calculateBalances(accountId, Optional.empty());
+         }
       }
-      return updateSequenceSorted(txn);
    }
 
-   @Transactional
-   private Transaction updateSequenceSorted(Transaction txn)
-   {
-      txn = transactionJpaRepository.saveAndFlush(txn);
-      balanceService.calculateBalances(txn.getAccountId(), Optional.of(txn));
-      return txn;
-   }
-
-   @Transactional
-   private Transaction updateDateSorted(Transaction txn)
-   {
-      txn = transactionJpaRepository.saveAndFlush(txn);
-      balanceService.calculateDatesortedBalances(txn.getAccountId(), Optional.of(txn));
-      return txn;
-   }
-
-   @Transactional
    public void delete(Transaction txn)
    {
       log.info("delete: deleting transaction: {}", txn);
-      if(BalanceType.SORTED == this.defaultBalanceType)
-      {
-         deleteDateSorted(txn);
-      }
-      else
-      {
-         deleteSequenceSorted(txn);
-      }
-   }
-
-   @Transactional
-   private void deleteSequenceSorted(Transaction txn)
-   {
-      log.info("deleteSequenceSorted: deleting transaction: {}", txn);
-      Optional<Transaction> prevtxn = transactionJpaRepository.findFirstByAccountIdAndSequenceIsLessThanOrderBySequenceAsc(txn.getAccountId(), txn.getSequence());
       transactionJpaRepository.delete(txn);
-      balanceService.calculateBalances(txn.getAccountId(), prevtxn);
-
    }
-
-   @Transactional
-   private void deleteDateSorted(Transaction txn)
-   {
-      log.info("deleteDateSorted: deleting transaction: {}", txn);
-      Optional<Transaction> prevtxn = transactionJpaRepository.findFirstByAccountIdAndSequenceIsLessThanOrderByDateAscSequenceAsc(txn.getAccountId(), txn.getSequence());
-      transactionJpaRepository.delete(txn);
-      balanceService.calculateDatesortedBalances(txn.getAccountId(), prevtxn);
-
-   }
-
 
    private Transaction mapToEntity(TransactionItem transactionItem)
    {
