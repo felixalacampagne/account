@@ -78,12 +78,11 @@ public class BalanceService
 //            }
 //        }
 //        txns = subchktxns;
+//         log.debug("doBalanceCalculation: adjusted for start txn: first id:{} final id:{} chkd bal: {}",
+//               txns.get(0).getSequence(),
+//               txns.get(txns.size()-1).getSequence(),
+//               balanceGetter.apply(txns.get(txns.size()-1)));
 //      }
-
-      log.debug("doBalanceCalculation: adjusted for start txn: first id:{} final id:{} chkd bal: {}",
-            txns.get(0).getSequence(),
-            txns.get(txns.size()-1).getSequence(),
-            balanceGetter.apply(txns.get(txns.size()-1)));
 
       List<Transaction> updtxns = new ArrayList<>();
       for(Transaction nxttxn : txns)
