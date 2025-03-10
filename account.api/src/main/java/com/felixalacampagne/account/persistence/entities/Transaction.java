@@ -75,7 +75,7 @@ public class Transaction implements Serializable
    @Override
    public String toString() {
       StringBuilder sb = new StringBuilder();
-      sb.append(this.getClass().getName());
+      sb.append(this.getClass().getSimpleName());
       sb.append(" sequence:").append(sequence);
       sb.append(" accountId:").append(accountId);
       sb.append(" balance:").append(balance);
