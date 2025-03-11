@@ -29,60 +29,16 @@ public class BalanceService
    // @Transactional
    public void doBalanceCalculation(List<Transaction> txns,
                                     Function<Transaction, BigDecimal> balanceGetter,
-                                    BiConsumer<Transaction, BigDecimal> balanceSetter,
-                                    Optional<Transaction> startTransaction)
+                                    BiConsumer<Transaction, BigDecimal> balanceSetter)
    {
-      log.debug("doBalanceCalculation: start: first id:{} final id:{} chkd bal: {}{}",
+      log.debug("doBalanceCalculation: start: first id:{} final id:{} final bal: {}{}",
             txns.get(0).getSequence(),
             txns.get(txns.size()-1).getSequence(),
-            balanceGetter.apply(txns.get(txns.size()-1)),
-            startTransaction.map(t -> " start txn id:" + t.getSequence()).orElse(""));
+            balanceGetter.apply(txns.get(txns.size()-1)));
 
       BigDecimal balance = BigDecimal.ZERO;
       BigDecimal amt = BigDecimal.ZERO;
 
-      // remove this, it isn't necessary since the calculation is quick and only
-      // records with modified balances are updated. In addition it doesn't work
-      // for 'removed' items.
-//      if(startTransaction.isPresent())
-//      {
-//        // Search backwards for the first transaction before start transaction with a non-null balance,
-//        // ie. the seed transaction
-//        // This balance is used as the start balance and the list adjusted to start at the next
-//        // transaction after the seed transaction - usually it will be the start transaction
-//        long stid = startTransaction.get().getSequence();
-//        boolean startFound = false;
-//        List<Transaction> subchktxns = txns;
-//        for(int i = txns.size() - 1 ; i > -1 ; i--)
-//        {
-//            Transaction pt = txns.get(i);
-//            BigDecimal curbalance = balanceGetter.apply(pt);
-//
-//            // Find starttransaction in the list and then take the first previous
-//            // non-null balance from the list.
-//            // WARNING: starttransaction may not be in the list, eg. deleted, unverified. Since this
-//            // method is unaware of the sort criteria of the list it cannot 'guess' which
-//            // entry is previous to the starttransaction so the calculation will be from the first
-//            // entry in the list which will make 'removal' actions quite time consuming!!!
-//            // TODO: Would be nice to find a way to avoid the full recalculation when an entry is removed.
-//            // The only way would be for the caller to supply the shortened list.
-//            if(pt.getSequence() == stid)
-//            {
-//               startFound = true;
-//            }
-//            else if(startFound && (curbalance != null))
-//            {
-//                balance = curbalance;
-//                subchktxns = txns.subList(i+1, txns.size()); // to index must be the index +1, ie. size() for the last one
-//                break;
-//            }
-//        }
-//        txns = subchktxns;
-//         log.debug("doBalanceCalculation: adjusted for start txn: first id:{} final id:{} chkd bal: {}",
-//               txns.get(0).getSequence(),
-//               txns.get(txns.size()-1).getSequence(),
-//               balanceGetter.apply(txns.get(txns.size()-1)));
-//      }
 
       List<Transaction> updtxns = new ArrayList<>();
       for(Transaction nxttxn : txns)
@@ -93,7 +49,7 @@ public class BalanceService
          if((curbalance == null) || balance.compareTo(curbalance) != 0)
          {
             log.debug("doBalanceCalculation: update balance old:{} new:{}", curbalance, balance);
-            balanceSetter.accept(nxttxn, balance);  // nxttxn.setCheckedBalance(balance);
+            balanceSetter.accept(nxttxn, balance);
             updtxns.add(nxttxn);
          }
       }
@@ -101,8 +57,6 @@ public class BalanceService
       if(!updtxns.isEmpty())
       {
          log.debug("doBalanceCalculation: saving {} records", updtxns.size());
-//         transactionJpaRepository.saveAll(updtxns);
-//         transactionJpaRepository.flush();
          for(Transaction txn : updtxns)
          {
             transactionJpaRepository.save(txn);
@@ -111,15 +65,13 @@ public class BalanceService
          log.debug("doBalanceCalculation: saved {} records", updtxns.size());
       }
 
-      log.debug("doBalanceCalculation: finish: first id:{} final id: {} chkd bal: {}",
-            txns.get(0).getSequence(),
-            txns.get(txns.size()-1).getSequence(),
-            balanceGetter.apply(txns.get(txns.size()-1)));
+      log.debug("doBalanceCalculation: finish: result final bal: {}",
+                balanceGetter.apply(txns.get(txns.size()-1)));
    }
 
    // Made non-Transactional in attempt to avoid 'Closed connection' when committing many records
    // @Transactional // required as calls internal @Transactional
-   public Optional<Transaction> calculateBalances(long accountId, Optional<Transaction> startTransaction)
+   public Optional<Transaction> calculateBalances(long accountId)
    {
       List<Transaction> txns = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(accountId);
       if(txns.isEmpty())
@@ -129,15 +81,14 @@ public class BalanceService
 
       doBalanceCalculation(txns,
             (t) -> t.getBalance(),
-            (t, b) -> t.setBalance(b),
-            startTransaction);
+            (t, b) -> t.setBalance(b));
       return Optional.of(txns.get(txns.size()-1));
 
    }
 
    // Made non-Transactional in attempt to avoid 'Closed connection' when committing many records
    // @Transactional // required as calls internal @Transactional
-   public Optional<Transaction> calculateCheckedBalances(long accountId, Optional<Transaction> startTransaction)
+   public Optional<Transaction> calculateCheckedBalances(long accountId)
    {
 
       // Ideally need to find a list starting from the first transaction with a non-null checked balance BEFORE
@@ -191,14 +142,13 @@ public class BalanceService
 
       doBalanceCalculation(chktxns,
             (t) -> t.getCheckedBalance(),
-            (t, b) -> t.setCheckedBalance(b),
-            startTransaction);
+            (t, b) -> t.setCheckedBalance(b));
       return Optional.of(chktxns.get(chktxns.size()-1));
    }
 
    // Made non-Transactional in attempt to avoid 'Closed connection' when committing many records
    // @Transactional // required as calls internal @Transactional
-   public Optional<Transaction> calculateDatesortedBalances(long accountId, Optional<Transaction> startTransaction)
+   public Optional<Transaction> calculateDatesortedBalances(long accountId)
    {
       List<Transaction> txns = transactionJpaRepository.findByAccountIdOrderByDateAscSequenceAsc(accountId);
       if(txns.isEmpty())
@@ -208,8 +158,7 @@ public class BalanceService
 
       doBalanceCalculation(txns,
             (t) -> t.getSortedBalance(),
-            (t, b) -> t.setSortedBalance(b),
-            startTransaction);
+            (t, b) -> t.setSortedBalance(b));
       return Optional.of(txns.get(txns.size()-1));
 
    }
