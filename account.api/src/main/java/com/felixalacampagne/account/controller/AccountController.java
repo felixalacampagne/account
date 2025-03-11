@@ -363,7 +363,7 @@ public class AccountController {
     public TransactionItem calcChecked(@PathVariable Long accountid)
     {
        // An exception might be a bit extreme for no checked balances
-       TransactionItem ti = this.balanceService.calculateCheckedBalances(accountid, Optional.empty())
+       TransactionItem ti = this.balanceService.calculateCheckedBalances(accountid)
                       .map(t ->this.transactionService.mapToItem(t, BalanceType.CHECKED))
                       .orElseThrow(() -> new AccountException("Checked balances not found: " + accountid));
        return ti;
