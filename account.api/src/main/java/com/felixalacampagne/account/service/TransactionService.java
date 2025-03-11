@@ -352,12 +352,15 @@ public class TransactionService
       txn.setStid(updtxn.getStid());
 
       Transaction txnupdated = update(txn);
-
-      this.updateBalance(txnupdated.getAccountId());
+      if( !(Utils.areSame(txn.getCredit(), txnupdated.getCredit())
+         && Utils.areSame(txn.getDebit(), txnupdated.getDebit())) )
+      {
+         this.updateBalance(txnupdated.getAccountId());
+      }
       if(bRecalcChecked)
       {
          // not sure if I really want this as it could be very time consuming
-         balanceService.calculateCheckedBalances(txnupdated.getAccountId(), Optional.of(txnupdated));
+         balanceService.calculateCheckedBalances(txnupdated.getAccountId());
       }
       return txnupdated;
    }
@@ -407,7 +410,7 @@ public class TransactionService
       if(bRecalcChecked)
       {
          // not sure if I really want this as it could be very time consuming
-         balanceService.calculateCheckedBalances(deltxn.getAccountId(), Optional.empty());
+         balanceService.calculateCheckedBalances(deltxn.getAccountId());
       }
    }
 
@@ -441,12 +444,12 @@ public class TransactionService
          if(BalanceType.SORTED == this.defaultBalanceType)
          {
             log.info("update: updating date/sequence sorted balance for acc id: {}", accountId);
-            balanceService.calculateDatesortedBalances(accountId, Optional.empty());
+            balanceService.calculateDatesortedBalances(accountId);
          }
          else
          {
             log.info("update: updating sequence only sorted balance for acc id: {}", accountId);
-            balanceService.calculateBalances(accountId, Optional.empty());
+            balanceService.calculateBalances(accountId);
          }
       }
    }
