@@ -352,8 +352,11 @@ public class TransactionService
       txn.setStid(updtxn.getStid());
 
       Transaction txnupdated = update(txn);
+      
+      // With date sorting must recalc balance if the date is changed
       if( !(Utils.areSame(txn.getCredit(), txnupdated.getCredit())
-         && Utils.areSame(txn.getDebit(), txnupdated.getDebit())) )
+         && Utils.areSame(txn.getDebit(), txnupdated.getDebit())
+         && txn.getDate().equals(txnupdated.getDate())) )
       {
          this.updateBalance(txnupdated.getAccountId());
       }
