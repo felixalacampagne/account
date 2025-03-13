@@ -1,6 +1,7 @@
 package com.felixalacampagne.account.service;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -35,11 +36,12 @@ public class BalanceService
             txns.get(0).getSequence(),
             txns.get(txns.size()-1).getSequence(),
             balanceGetter.apply(txns.get(txns.size()-1)));
-
+      Instant millisStart = Instant.now();
       BigDecimal balance = BigDecimal.ZERO;
       BigDecimal amt = BigDecimal.ZERO;
 
 
+      int cnt=0;
       List<Transaction> updtxns = new ArrayList<>();
       for(Transaction nxttxn : txns)
       {
@@ -48,21 +50,55 @@ public class BalanceService
          BigDecimal curbalance = balanceGetter.apply(nxttxn);
          if((curbalance == null) || balance.compareTo(curbalance) != 0)
          {
+            cnt++;
             log.debug("doBalanceCalculation: update balance old:{} new:{}", curbalance, balance);
             balanceSetter.accept(nxttxn, balance);
             updtxns.add(nxttxn);
+            if((cnt % 500) == 0)
+            {
+               transactionJpaRepository.flush();
+            }
          }
       }
 
       if(!updtxns.isEmpty())
       {
          log.debug("doBalanceCalculation: saving {} records", updtxns.size());
-         for(Transaction txn : updtxns)
-         {
-            transactionJpaRepository.save(txn);
-            transactionJpaRepository.flush();
-         }
-         log.debug("doBalanceCalculation: saved {} records", updtxns.size());
+
+         // This is annoyingly slow for updates of more than 50 or so records.
+         // - saveAll seemed to be even slower
+         // - save and flush is slow
+         // - save and flush every 100? 2.5mins
+         // - google suggest save and flush are not even required, that the change to the balance will
+         //   be automatically written!
+         //   This results in the 'java.nio.channels.ClosedChannelException' exception which
+         //   is why I stopped using a transaction and saveAll.
+         //   However the changes are persisted even though no saveXxx() is called.
+         //   Putting a flush after X balance changes avoids the ClosedChannelException.
+         //   Time is still quite long: 5086 records
+         //       02:07.207 flush every 100
+         //       02:11.085 flush every 50
+         //       02:05.547 flush every 500 (01:57.942 second time, 01:51.739 3rd time)
+
+         // Google suggestions
+//         @PersistenceContext
+//         private EntityManager entityManager;
+//         entityManager.clear(); every 100-1000
+//         int i = 0;
+//         for(Transaction txn : updtxns)
+//         {
+//            i++;
+//            transactionJpaRepository.save(txn);
+//            if( i % 100 == 0)
+//            {
+//               transactionJpaRepository.flush();
+//            }
+//         }
+         // Need a final flush to ensure the last records are persisted.
+         transactionJpaRepository.flush();
+         Instant millisEnd = Instant.now();
+         log.debug("doBalanceCalculation: saved {} records: elapsed:{}ms", updtxns.size(),
+               Utils.formatElapsed(millisStart, millisEnd));
       }
 
       log.debug("doBalanceCalculation: finish: result final bal: {}",
