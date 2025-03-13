@@ -3,6 +3,8 @@ package com.felixalacampagne.account.common;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -140,6 +142,12 @@ public class Utils
          s = prefix + s;
       }
       return s;
+   }
+
+   public static String formatElapsed(Instant start, Instant end)
+   {
+      Duration diff = Duration.between(start, end);
+      return String.format("%02d:%02d.%03d", diff.toMinutesPart(), diff.toSecondsPart(), diff.toMillisPart());
    }
 
    private Utils()
