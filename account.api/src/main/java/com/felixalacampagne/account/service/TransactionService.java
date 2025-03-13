@@ -341,6 +341,11 @@ public class TransactionService
       }
       boolean  bRecalcChecked = (txn.getChecked() != updtxn.getChecked());
 
+      log.debug("updateTransaction: {} is equal to {}: {}", txn.getDate(), updtxn.getDate(), txn.getDate().equals(updtxn.getDate()));
+      boolean bRecalcBal = ! (Utils.areSame(txn.getCredit(), updtxn.getCredit())
+                           && Utils.areSame(txn.getDebit(), updtxn.getDebit())
+                           && txn.getDate().equals(updtxn.getDate()));
+
       // updtxn is possibly not a complete set of Transaction values.
       // Maybe should add checks for presence of values???
       txn.setDate(updtxn.getDate());
@@ -352,17 +357,16 @@ public class TransactionService
       txn.setStid(updtxn.getStid());
 
       Transaction txnupdated = update(txn);
-      
+
+
       // With date sorting must recalc balance if the date is changed
-      if( !(Utils.areSame(txn.getCredit(), txnupdated.getCredit())
-         && Utils.areSame(txn.getDebit(), txnupdated.getDebit())
-         && txn.getDate().equals(txnupdated.getDate())) )
+      if( bRecalcBal )
       {
          this.updateBalance(txnupdated.getAccountId());
       }
+
       if(bRecalcChecked)
       {
-         // not sure if I really want this as it could be very time consuming
          balanceService.calculateCheckedBalances(txnupdated.getAccountId());
       }
       return txnupdated;
@@ -382,6 +386,7 @@ public class TransactionService
       Transaction txn = getTransaction(transactionItem.getId())
             .orElseThrow(()->new AccountException("Transaction id " + transactionItem.getId() + " not found"));
 
+      final long txnAccId = txn.getAccountId();
       String origToken = Utils.getToken(txn);
       if(!origToken.equals(transactionItem.getToken()))
       {
@@ -391,10 +396,10 @@ public class TransactionService
       }
 
       Transaction deltxn = mapToEntity(transactionItem);
-      if(txn.getAccountId() != deltxn.getAccountId())
+      if(txnAccId != deltxn.getAccountId())
       {
          log.info("updateTransaction: Account id does not match transaction id:{}: original:{} supplied:{}",
-               transactionItem.getId(), txn.getAccountId(), deltxn.getAccountId());
+               transactionItem.getId(), txnAccId, deltxn.getAccountId());
          throw new  AccountException("Account id does not match Transaction id " + transactionItem.getId());
       }
 
@@ -405,15 +410,15 @@ public class TransactionService
          throw new  AccountException("Transaction id " + transactionItem.getId() + " is locked");
       }
 
-      boolean  bRecalcChecked = deltxn.getChecked();
-
+      boolean  bRecalcChecked = txn.getChecked();
       delete(txn);
-      updateBalance(txn.getAccountId());
+
+      updateBalance(txnAccId);
 
       if(bRecalcChecked)
       {
          // not sure if I really want this as it could be very time consuming
-         balanceService.calculateCheckedBalances(deltxn.getAccountId());
+         balanceService.calculateCheckedBalances(txnAccId);
       }
    }
 
@@ -569,7 +574,4 @@ public class TransactionService
       TransactionItem ti = mapToItem(t, BalanceType.CHECKED);
       return ti;
    }
-
-
-
 }
