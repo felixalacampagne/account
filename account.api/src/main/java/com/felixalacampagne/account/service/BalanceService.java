@@ -53,6 +53,7 @@ public class BalanceService
             cnt++;
             log.debug("doBalanceCalculation: update balance old:{} new:{}", curbalance, balance);
             balanceSetter.accept(nxttxn, balance);
+            transactionJpaRepository.save(nxttxn); // Required when running in tomcat
             updtxns.add(nxttxn);
             if((cnt % 500) == 0)
             {
