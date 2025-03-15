@@ -417,7 +417,6 @@ public class TransactionService
 
       if(bRecalcChecked)
       {
-         // not sure if I really want this as it could be very time consuming
          balanceService.calculateCheckedBalances(txnAccId);
       }
    }
