@@ -261,10 +261,11 @@ public class AccountController {
     @PostMapping(value = URL_UPDTRANSACTION)
     public String updateTransaction(@RequestBody TransactionItem transactionItem, Model model)
     {
-       log.info("updateTransaction: transaction item to add: {}", transactionItem);
+       log.info("updateTransaction: transaction item to update: {}", transactionItem);
        try
        {
           this.transactionService.updateTransaction(transactionItem);
+          log.info("updateTransaction: transaction item updated: {}", transactionItem);
        }
        catch(Exception ex)
        {
@@ -362,7 +363,7 @@ public class AccountController {
     public TransactionItem calcChecked(@PathVariable Long accountid)
     {
        // An exception might be a bit extreme for no checked balances
-       TransactionItem ti = this.balanceService.calculateCheckedBalances(accountid, Optional.empty())
+       TransactionItem ti = this.balanceService.calculateCheckedBalances(accountid)
                       .map(t ->this.transactionService.mapToItem(t, BalanceType.CHECKED))
                       .orElseThrow(() -> new AccountException("Checked balances not found: " + accountid));
        return ti;

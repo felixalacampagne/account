@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 
 import com.felixalacampagne.account.AccountTest;
 import com.felixalacampagne.account.common.Utils;
@@ -33,7 +32,7 @@ public class BalanceServiceTest
    void testCalcBalances()
    {
 
-      Optional<Transaction> optTrans = balanceService.calculateCheckedBalances(22L, Optional.empty());
+      Optional<Transaction> optTrans = balanceService.calculateCheckedBalances(22L);
       assertTrue(optTrans.isPresent());
       Transaction t = optTrans.get();
       log.info("testCalcBalances: id:{} amount:{} balance:{} ref:{} checked:{} checked balance:{}",
@@ -47,7 +46,7 @@ public class BalanceServiceTest
       Transaction tupd = ctxns.get(ctxns.size() / 2);
       tupd.setDebit(BigDecimal.valueOf(10000).add(tupd.getDebit()));
       tupd = transactionJpaRepository.save(tupd);
-      optTrans = balanceService.calculateCheckedBalances(22L, Optional.of(tupd));
+      optTrans = balanceService.calculateCheckedBalances(22L);
       assertTrue(optTrans.isPresent());
       t = optTrans.get();
       log.info("testCalcBalances: id:{} amount:{} balance:{} ref:{} checked:{} checked balance:{}",
@@ -61,20 +60,20 @@ public class BalanceServiceTest
    void testBalances()
    {
       List<Transaction> txns = transactionJpaRepository.findByAccountIdOrderBySequenceAsc(22);
-      
+
       Transaction lastTxn = txns.get(txns.size()-1);
       BigDecimal origBal = lastTxn.getBalance();
 
-      log.info("testBalances: id:{} amount:{} initial balance: {}", 
+      log.info("testBalances: id:{} amount:{} initial balance: {}",
             lastTxn.getSequence(), Utils.getAmount(lastTxn), origBal);
-      
+
       Transaction tupd = txns.get(txns.size() / 2);
       tupd.setDebit(BigDecimal.valueOf(10000).add(tupd.getDebit()));
       tupd = transactionJpaRepository.save(tupd);
-      
-      Optional<Transaction> optt = balanceService.calculateBalances(22, Optional.of(tupd));
+
+      Optional<Transaction> optt = balanceService.calculateBalances(22);
       assertTrue(optt.isPresent());
-      
+
       Transaction t = optt.get();
       log.info("testBalances: id:{} amount:{} balance:{}",
             t.getSequence(), Utils.getAmount(t), t.getBalance());

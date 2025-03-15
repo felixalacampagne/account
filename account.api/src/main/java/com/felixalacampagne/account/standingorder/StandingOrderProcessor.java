@@ -1,11 +1,7 @@
 package com.felixalacampagne.account.standingorder;
 
 import java.math.BigDecimal;
-import java.sql.Date;
-import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
@@ -18,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.felixalacampagne.account.persistence.entities.StandingOrders;
 import com.felixalacampagne.account.persistence.entities.Transaction;
+import com.felixalacampagne.account.service.ReSyncService;
 import com.felixalacampagne.account.service.StandingOrderService;
 import com.felixalacampagne.account.service.TransactionService;
 
@@ -29,16 +26,19 @@ public class StandingOrderProcessor
    private final StandingOrderService standingOrderService;
    private final TransactionService transactionService;
    private final StandingOrderProcessingService standingOrderProcessingService;
+   private final ReSyncService reSyncService;
 
    @Autowired
    public StandingOrderProcessor(
          StandingOrderProcessingService standingOrderProcessingService,
          StandingOrderService standingOrderService,
-         TransactionService transactionService)
+         TransactionService transactionService,
+         ReSyncService reSyncService)
    {
       this.standingOrderProcessingService = standingOrderProcessingService;
       this.standingOrderService = standingOrderService;
       this.transactionService = transactionService;
+      this.reSyncService = reSyncService;
    }
 
    public void processStandingOrders()
@@ -64,8 +64,12 @@ public class StandingOrderProcessor
          }
          StandingOrders nextso = optso.get();
          processStandingOrder(nextso);
-
       }
+
+      // Could have done a per account balance calculation for each SO executed but simpler
+      // just to recalculate everything, especially since this usually happens when I'mnot using it.
+      // Might even be beneficial to do the sync on a regular basis to mitigate against any missed recalcs.
+      this.reSyncService.reSyncBalances();
    }
 
    public void processStandingOrder(StandingOrders so)
