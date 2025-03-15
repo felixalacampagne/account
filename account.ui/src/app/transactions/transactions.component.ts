@@ -794,6 +794,7 @@ parseEPC(epc : string) : TransactionItem | undefined
 }
 
 
+// Cleans structrued communication, eg. +++462/7468/14516+++
 cleanSComm( rawval : string) : string | undefined
 {
    let scomm : string | undefined;
@@ -832,7 +833,7 @@ onPasteUpd(event: ClipboardEvent) {
       //clipboardData.setData('text', scomm);
 
       event.preventDefault();
-   
+
       let element = event.target  as HTMLInputElement;;
       console.log("onPasteUpd: " + JSON.stringify(element, null, 2));
       let start = element.selectionStart as number;
@@ -843,6 +844,17 @@ onPasteUpd(event: ClipboardEvent) {
       element.value = value.slice(0, start) + scomm + value.slice(end);
       console.log("onPasteUpd: text: orig: " + value + " new: " + element.value);
       element.selectionStart = element.selectionEnd = start + scomm.length;
+
+      // Angular doesn't detect the programmatic change to the field so must tell it something happened
+      // this.cd.detectChanges(); // this does not work
+      // As for all things Angular it is necessary to do simple, basic operations the hard way. So must
+      // figure out for myself which variable needs to be change single Angular appears to be incapable of
+      // doing it for me. Naturally Google is full of the same sort of question  dating from Angular2
+      // with no working answers and no still no fix in Angular19.
+      if(element.id == "txCommentUpd")
+      {
+         this.updateTxn.comment = element.value; // This actually works.
+      }      
      }
    }
    console.log("onPasteUpd: exit");
