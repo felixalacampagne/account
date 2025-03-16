@@ -843,7 +843,6 @@ onPasteUpd(event: ClipboardEvent) {
       const value = element.value;
       element.value = value.slice(0, start) + scomm + value.slice(end);
       console.log("onPasteUpd: text: orig: " + value + " new: " + element.value);
-      element.selectionStart = element.selectionEnd = start + scomm.length;
 
       // Angular doesn't detect the programmatic change to the field so must tell it something happened
       // this.cd.detectChanges(); // this does not work
@@ -851,10 +850,18 @@ onPasteUpd(event: ClipboardEvent) {
       // figure out for myself which variable needs to be change single Angular appears to be incapable of
       // doing it for me. Naturally Google is full of the same sort of question  dating from Angular2
       // with no working answers and no still no fix in Angular19.
+      // +++462/7468/14516+++
+      // this.cd.markForCheck(); doesn't work, even with detectChanges after
+
       if(element.id == "txCommentUpd")
       {
-         this.updateTxn.comment = element.value; // This actually works.
-      }      
+         this.updateTxn.comment = element.value; // This is really ugly but is the only thing that actually works.
+      }
+
+      // NB selecting pasted text is not default behaviour - the cleaned number is usually meeded for 
+      // the filename of the invoice document so auto selecting it makes it easier to copy.
+      element.selectionStart = start;
+      element.selectionEnd = start + scomm.length;        
      }
    }
    console.log("onPasteUpd: exit");
