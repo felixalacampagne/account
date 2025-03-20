@@ -848,15 +848,24 @@ onPasteUpd(event: ClipboardEvent) {
       // this.cd.detectChanges(); // this does not work
       // As for all things Angular it is necessary to do simple, basic operations the hard way. So must
       // figure out for myself which variable needs to be change single Angular appears to be incapable of
-      // doing it for me. Naturally Google is full of the same sort of question  dating from Angular2
+      // doing it for me. Naturally Google is full of the same sort of question dating from Angular2
       // with no working answers and no still no fix in Angular19.
       // +++462/7468/14516+++
-      // this.cd.markForCheck(); doesn't work, even with detectChanges after
+      // this.cd.markForCheck(); doesn't work, even with detectChanges 
+ 
+      // Maybe something like... change:nope input:YIPEEE! Input actually seem to work!
+      var evt = new CustomEvent('input');
+      element.dispatchEvent(evt);
 
-      if(element.id == "txCommentUpd")
-      {
-         this.updateTxn.comment = element.value; // This is really ugly but is the only thing that actually works.
-      }
+      // // This is really really ugly but is the only thing that actually works.
+      // if(element.id == "txCommentUpd")
+      // {
+      //    this.updateTxn.comment = element.value; 
+      // }
+      // else if(element.id == 'txCommunication')
+      // {
+      //    this.txCommunication = element.value; 
+      // }
 
       // NB selecting pasted text is not default behaviour - the cleaned number is usually meeded for 
       // the filename of the invoice document so auto selecting it makes it easier to copy.
