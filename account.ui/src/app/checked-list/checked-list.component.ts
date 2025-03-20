@@ -26,7 +26,7 @@ import { DateformatService } from 'src/shared/service/dateformat.service';
 })
 export class CheckedListComponent implements OnInit {
    @Input() accid!: number;  
-   activeaccount!: AccountItem; 
+   activeaccount: AccountItem = new AccountItem();
    
    transactions: TransactionItem[] = [];
 
