@@ -1,3 +1,15 @@
+21-Mar-2025 application has progressed nicely since the last entry here. It hass all the functionality
+I use day to day and seems to be working correctly. Things were going so well that I was thinking
+'What can I do to fork it up?'. And then it hit me, of course, I could change the Java to version 21 
+(it was at 17) as that is now the default on one of the development machines. In fact the change
+to Java 21 does not seem to have caused a problem.... yet, as i have only run the application
+in standalone mode, not using a 'real' tomcat. Still, it seems promising...
+
+Must reorder the entries here so oldest are lower down - it's too much like hard work to scroll to the 
+entry before making a new one.
+
+
+
 18-Aug-2024 The proof of concept for accessing the Access database using Spring JPA seems to have
 all the features I need for now working so I figured now was the time to start doing it for real. 
 I decided to start from scratch since there had been a large number of wild goose chases on the way
