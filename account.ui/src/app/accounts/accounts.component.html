@@ -25,12 +25,12 @@
       <tbody>
          <tr *ngFor="let ta of accounts">
             <td class="">{{ta.name}}</td>
-            <td class="nowrap">{{ta.address}}</td>
-            <td>{{ta.code}}</td>
+            <td>{{ta.address}}</td>
+            <td class="nowrap">{{ta.code}}</td>
             <td>{{ta.currency}}</td>
             <td>{{ta.format}}</td>
-            <td>{{ta.telephone}}</td>
-            <td>{{ta.statementref}}</td>
+            <td class="nowrap">{{ta.telephone}}</td>
+            <td class="nowrap">{{ta.statementref}}</td>
             <td>{{ta.order}}</td>
             <td class="account-edit">
                <button class="acc-table-btn" (click)="editAccount(ta)"><i class="bi bi-pencil-square"></i></button>

@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>accountapi</artifactId> <!-- NB this is part of the war file name -->
-  <version>0.4.21.3-RELEASE</version>
+  <version>0.4.22.0-RELEASE</version>
   
   <packaging>war</packaging>
   <name>Account API</name>
@@ -20,19 +20,34 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
    <properties>
+      <raw.finalName>j${project.artifactId}${project.version}</raw.finalName>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <java.version>17</java.version>
+      <java.version>21</java.version>
       <spring.version>3.3.2</spring.version>
       <maven.compiler.target>${java.version}</maven.compiler.target>
       <maven.compiler.source>${java.version}</maven.compiler.source>
    </properties>
-   
+<profiles>
+    <profile>
+        <id>ssbld</id>
+        <properties>
+            <raw.finalName>j${project.artifactId}</raw.finalName>
+        </properties>
+    </profile>
+</profiles>
    <dependencies>
       <!-- Newer version with newer dependencies. Source: https://github.com/spannm/ucanaccess?tab=readme-ov-file -->
       <dependency>
           <groupId>io.github.spannm</groupId>
           <artifactId>ucanaccess</artifactId>
           <version>5.1.1</version>
+          <exclusions>
+             <exclusion>
+               <!-- spring does not like commons-logging -->
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+             </exclusion>
+          </exclusions>          
       </dependency>   
       <dependency>
         <groupId>io.nayuki</groupId>
@@ -75,7 +90,7 @@
    </dependencies>
 
    <build>
-      <finalName>j${project.artifactId}</finalName>
+      <finalName>${clean.finalName}</finalName>
       <plugins>
          <plugin>
             <groupId>org.springframework.boot</groupId>
@@ -101,6 +116,26 @@
                  </execution>
             </executions>
          </plugin>
+         
+<plugin>
+    <groupId>org.codehaus.mojo</groupId>
+    <artifactId>build-helper-maven-plugin</artifactId>
+    <executions>
+        <execution>
+            <id>regex-property</id>
+            <goals>
+                <goal>regex-property</goal>
+            </goals>
+            <configuration>
+                <name>clean.finalName</name>
+                <value>${raw.finalName}</value>
+                <regex>(?:\.0){0,1}(?:-RELEASE|-SNAPSHOT)$</regex>
+                <replacement></replacement>
+                <failIfNoMatch>false</failIfNoMatch>
+            </configuration>
+        </execution>
+    </executions>
+</plugin>         
          <plugin>
             <artifactId>maven-war-plugin</artifactId>   
             <!-- version>2.6</version -->   
