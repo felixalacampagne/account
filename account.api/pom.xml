@@ -1,24 +1,26 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>accountapi</artifactId> <!-- NB this is part of the war file name -->
-  <version>0.4.22.0-SNAPSHOT</version>
-  
-  <packaging>war</packaging>
-  <name>Account API</name>
-  <description>The backend server code for Account</description>
+   <artifactId>accountapi</artifactId> <!-- NB this is part of the war file name -->
+   <version>0.4.22.0-SNAPSHOT</version>
+
+   <packaging>war</packaging>
+   <name>Account API</name>
+   <description>The backend server code for Account</description>
   
    <!-- This sets all the Spring dependency version numbers so they don't need to be included here.
         Not really sure if having a parent which is not the root maven project will work but I don't
         really want to have the entire project depending in spring, since the front end will have 
         nothing to do with Spring
     -->
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.2</version>
-        <relativePath/> <!-- lookup parent from repository -->
-    </parent>
+   <parent>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-parent</artifactId>
+      <version>3.3.2</version>
+      <relativePath /> <!-- lookup parent from repository -->
+   </parent>
    <properties>
       <raw.finalName>j${project.artifactId}${project.version}</raw.finalName>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -27,32 +29,32 @@
       <maven.compiler.target>${java.version}</maven.compiler.target>
       <maven.compiler.source>${java.version}</maven.compiler.source>
    </properties>
-<profiles>
-    <profile>
-        <id>ssbld</id>
-        <properties>
+   <profiles>
+      <profile>
+         <id>ssbld</id>
+         <properties>
             <raw.finalName>j${project.artifactId}</raw.finalName>
-        </properties>
-    </profile>
-</profiles>
+         </properties>
+      </profile>
+   </profiles>
    <dependencies>
       <!-- Newer version with newer dependencies. Source: https://github.com/spannm/ucanaccess?tab=readme-ov-file -->
       <dependency>
-          <groupId>io.github.spannm</groupId>
-          <artifactId>ucanaccess</artifactId>
-          <version>5.1.1</version>
-          <exclusions>
-             <exclusion>
+         <groupId>io.github.spannm</groupId>
+         <artifactId>ucanaccess</artifactId>
+         <version>5.1.1</version>
+         <exclusions>
+            <exclusion>
                <!-- spring does not like commons-logging -->
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-             </exclusion>
-          </exclusions>          
-      </dependency>   
+               <groupId>commons-logging</groupId>
+               <artifactId>commons-logging</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
       <dependency>
-        <groupId>io.nayuki</groupId>
-        <artifactId>qrcodegen</artifactId>
-        <version>1.5.0</version>
+         <groupId>io.nayuki</groupId>
+         <artifactId>qrcodegen</artifactId>
+         <version>1.5.0</version>
       </dependency>         
       <!-- https://mvnrepository.com/artifact/xalan/xalan -->
       <!-- Try to stop 'formContentFilter' when hot redeploying the app on tomcat. No idea why this is needed
@@ -60,33 +62,29 @@
            exception prevents the application from starting
        -->
       <dependency>
-          <groupId>xalan</groupId>
-          <artifactId>xalan</artifactId>
-          <version>2.7.3</version>
+         <groupId>xalan</groupId>
+         <artifactId>xalan</artifactId>
+         <version>2.7.3</version>
       </dependency>
-      
+
       <dependency>
          <groupId>org.springframework.boot</groupId>
          <artifactId>spring-boot-starter-web</artifactId>
-         <!-- version>${spring.version}</version -->
       </dependency>
       <dependency>
          <groupId>org.springframework.boot</groupId>
          <artifactId>spring-boot-starter-data-jpa</artifactId>
-         <!-- version>${spring.version}</version -->
       </dependency>
       <dependency>
          <groupId>org.springframework.boot</groupId>
          <artifactId>spring-boot-starter-test</artifactId>
-         <!-- version>${spring.version}</version -->
          <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.springframework.boot</groupId>
          <artifactId>spring-boot-starter-tomcat</artifactId>
-         <!-- version>${spring.version}</version -->
          <scope>provided</scope>
-      </dependency>     
+      </dependency>
    </dependencies>
 
    <build>
@@ -97,53 +95,52 @@
             <artifactId>spring-boot-maven-plugin</artifactId>
          </plugin>
          <plugin>
-             <artifactId>maven-resources-plugin</artifactId>
-             <executions>
-                 <execution>
-                     <id>copy-resources</id>
-                     <phase>validate</phase>
-                     <goals>
-                         <goal>copy-resources</goal>
-                     </goals>
-                     <configuration>
-                         <outputDirectory>${project.build.directory}/classes/static/</outputDirectory>
-                         <resources>
-                             <resource>
-                                 <directory>../account.ui/dist/accountui/browser</directory>
-                             </resource>
-                         </resources>
-                     </configuration>
-                 </execution>
+            <artifactId>maven-resources-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>copy-resources</id>
+                  <phase>validate</phase>
+                  <goals>
+                     <goal>copy-resources</goal>
+                  </goals>
+                  <configuration>
+                     <outputDirectory>${project.build.directory}/classes/static/</outputDirectory>
+                     <resources>
+                        <resource>
+                           <directory>../account.ui/dist/accountui/browser</directory>
+                        </resource>
+                     </resources>
+                  </configuration>
+               </execution>
             </executions>
          </plugin>
-         
-<plugin>
-    <groupId>org.codehaus.mojo</groupId>
-    <artifactId>build-helper-maven-plugin</artifactId>
-    <executions>
-        <execution>
-            <id>regex-property</id>
-            <goals>
-                <goal>regex-property</goal>
-            </goals>
-            <configuration>
-                <name>clean.finalName</name>
-                <value>${raw.finalName}</value>
-                <regex>(?:\.0){0,1}(?:-RELEASE|-SNAPSHOT)$</regex>
-                <replacement></replacement>
-                <failIfNoMatch>false</failIfNoMatch>
-            </configuration>
-        </execution>
-    </executions>
-</plugin>         
+         <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <executions>
+               <execution>
+                  <id>regex-property</id>
+                  <goals>
+                     <goal>regex-property</goal>
+                  </goals>
+                  <configuration>
+                     <name>clean.finalName</name>
+                     <value>${raw.finalName}</value>
+                     <regex>(?:\.0){0,1}(?:-RELEASE|-SNAPSHOT)$</regex>
+                     <replacement></replacement>
+                     <failIfNoMatch>false</failIfNoMatch>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
          <plugin>
             <artifactId>maven-war-plugin</artifactId>   
-            <!-- version>2.6</version -->   
-            <configuration>     
-               <failOnMissingWebXml>false</failOnMissingWebXml>   
-            </configuration> 
-         </plugin>         
+            <!-- version>2.6</version -->
+            <configuration>
+               <failOnMissingWebXml>false</failOnMissingWebXml>
+            </configuration>
+         </plugin>
       </plugins>
    </build>
-   
+
 </project>
