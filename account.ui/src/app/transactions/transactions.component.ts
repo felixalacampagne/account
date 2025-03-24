@@ -111,6 +111,7 @@ export class TransactionsComponent implements OnInit  {
    public defaultdate: string = '';
    envName: string = '';
 
+   jsonNow: string = "";
    txDate: Date = new Date('1970-12-25'); // NgbDateStruct = {year: 1970, month: 12, day: 25};
    txUpdDate: Date = new Date('1970-12-25'); // NgbDateStruct = {year: 1970, month: 12, day: 25};
    txType: string;
@@ -427,6 +428,7 @@ loadTransactions(acc : AccountItem, page: number = 1)
                this.transactions = res.transactions;
                this.pageNumber = res.currentpage;
                this.maxPage = Math.trunc(res.rowcount / pagesize)+1;
+               this.jsonNow = this.datfmt.jsonFormat( new Date());
                // console.log("loadTransactions[next]: transactions contains " + this.transactions.length + " items.");
             }
           },
@@ -616,6 +618,11 @@ lockedChange()
     //console.log("TransactionsComponent.lockedChange: set ref:" + this.activeaccount.statementref);
     this.updateTxn.statementref = this.activeaccount.statementref;  
   }
+}
+
+isFuture(txn : TransactionItem) : boolean
+{
+   return txn.date > this.jsonNow;
 }
 
 delTransactionToDB(txn : TransactionItem) 
