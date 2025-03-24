@@ -110,6 +110,10 @@ datefmt : string [];
             }
          }
       }   
+      if(date)
+      {
+         date.setUTCHours(0,0,0,0);
+      }
       return date;   
    }
 
