@@ -111,7 +111,8 @@ export class TransactionsComponent implements OnInit  {
    public defaultdate: string = '';
    envName: string = '';
 
-   jsonNow: string = "";
+   jsonToday: string = "";
+   jsonTomorrow: string = "";
    txDate: Date = new Date('1970-12-25'); // NgbDateStruct = {year: 1970, month: 12, day: 25};
    txUpdDate: Date = new Date('1970-12-25'); // NgbDateStruct = {year: 1970, month: 12, day: 25};
    txType: string;
@@ -428,7 +429,11 @@ loadTransactions(acc : AccountItem, page: number = 1)
                this.transactions = res.transactions;
                this.pageNumber = res.currentpage;
                this.maxPage = Math.trunc(res.rowcount / pagesize)+1;
-               this.jsonNow = this.datfmt.jsonFormat( new Date());
+               let date : Date = this.datfmt.getNowDay();
+
+               this.jsonToday = this.datfmt.jsonFormat( date);
+               date.setDate( date.getDate()+1);
+               this.jsonTomorrow = this.datfmt.jsonFormat( date );
                // console.log("loadTransactions[next]: transactions contains " + this.transactions.length + " items.");
             }
           },
@@ -620,9 +625,30 @@ lockedChange()
   }
 }
 
-isFuture(txn : TransactionItem) : boolean
+rowClasses(txn : TransactionItem) : string []
 {
-   return txn.date > this.jsonNow;
+   // {
+   //    'table-success': txn.locked,
+   //    'table-primary': isFuture(txn)
+   // }"
+   let classes : string [] = [];
+   if(txn.locked) 
+   {
+      classes.push('table-success');
+   }
+   if(txn.date == this.jsonToday)
+   {
+      classes.push('border border-secondary');
+   }
+   else if(txn.date == this.jsonTomorrow)
+   {
+      classes.push('table-warning');
+   }
+   else if( txn.date > this.jsonTomorrow)
+   {
+      classes.push('table-primary');
+   }
+   return classes;
 }
 
 delTransactionToDB(txn : TransactionItem) 
