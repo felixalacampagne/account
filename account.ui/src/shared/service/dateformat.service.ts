@@ -112,7 +112,7 @@ datefmt : string [];
       }   
       if(date)
       {
-         date.setUTCHours(0,0,0,0);
+         date.setHours(0,0,0,0);
       }
       return date;   
    }
@@ -158,4 +158,10 @@ datefmt : string [];
         .map(obj => obj.type)
         ;
     }   
+   
+   getNowDay() : Date 
+   {
+      let date : Date = new Date(new Date().setHours(0,0,0,0));
+      return date;
+   }
 }
