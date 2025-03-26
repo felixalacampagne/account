@@ -77,10 +77,7 @@
          </tr>
       </thead>
       <tbody>
-         <tr *ngFor="let txn of transactions" [ngClass]="{
-            'table-success': txn.locked,
-            'table-primary': isFuture(txn)
-         }">
+         <tr *ngFor="let txn of transactions" [ngClass]="rowClasses(txn)">
             <td class="nowrap">{{formatDateColumn(txn.date)}}</td>
             <td *ngIf="desktopDisplay">{{txn.type}}</td>
             <td (swipeleft)="open(content, txn)">{{txn.comment}}</td>
