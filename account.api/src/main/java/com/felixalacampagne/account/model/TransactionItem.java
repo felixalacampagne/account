@@ -11,10 +11,10 @@ public class TransactionItem
    private  long accid;
    private  String comment;
 
-   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+
    private  LocalDate date;
    private  String amount;
-   
+
    // Kludge for amounts formatted with the account format string on server because the existing
    // VB format strings are compatible with Java DecimalFormat. The formatted
    // amounts cannot be used for updates as the formatted string is unparsable
@@ -23,15 +23,15 @@ public class TransactionItem
    // then the formatting can be moved to the UI and only the numeric value needs to be provided.
    // Should try 'Numeral.js', if available:
    // npm install numeral
-   // There is also a single file JavaScript DecimalFormat implementation in GitHub which 
+   // There is also a single file JavaScript DecimalFormat implementation in GitHub which
    // could be reworked for typescript - but not even sure I will keep the formatting, it makes
    // the table look 'messy', but that might just be the presence of the currency symbol... TBD
-   private String amountfmtd; 
+   private String amountfmtd;
 
    private  String type;
    private  long id;
    private  boolean locked;
-   private  String balance;  // This is formatted with the account format string. 
+   private  String balance;  // This is formatted with the account format string.
    private String statementref;
 
 
@@ -40,7 +40,7 @@ public class TransactionItem
    public TransactionItem()
    {
    }
-   
+
    public TransactionItem(Long accid, LocalDate date, String amount, String amountfmtd, String type, String comment,
                           boolean locked, long id, String token, String balance, String statementref)
    {
@@ -57,7 +57,13 @@ public class TransactionItem
       this.token = token; // Maybe create this here?
    }
 
+   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd['T'HH:mm[:ss[.SSS]][v]]")
+   public void setDate(LocalDate date)
+   {
+      this.date = date;
+   }
 
+   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
    public LocalDate getDate()
    {
       return date;
