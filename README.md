@@ -23,6 +23,8 @@ git config --global core.eol lf
 
 git config core.eol lf
 
+git add --update --renormalize
+
 0.4.20 Account management. To get this done as quickly as I could it is more or less a direct copy of the 
 transfer account management with no attempt to make any of the code shared - partly because passing data between components 
 in Angular is so convoluted and partly because the objects to be displayed are unrelated. Still, things like the delete 
