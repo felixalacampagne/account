@@ -14,6 +14,15 @@ Still to come:
   - pay date sorted balance display (instead of entry/id sorted, maybe make this the default display)
   - transaction search
 
+0.4.23 converted lineendings to LF and hopefully configured repo for LF endings. Requires some
+local commands I think:
+
+git config --global core.autocrlf false
+
+git config --global core.eol lf
+
+git config core.eol lf
+
 0.4.20 Account management. To get this done as quickly as I could it is more or less a direct copy of the 
 transfer account management with no attempt to make any of the code shared - partly because passing data between components 
 in Angular is so convoluted and partly because the objects to be displayed are unrelated. Still, things like the delete 
