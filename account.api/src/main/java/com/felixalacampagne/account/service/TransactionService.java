@@ -444,7 +444,7 @@ public class TransactionService
       return txn;
    }
 
-   private void updateBalance(Long accountId)
+   public void updateBalance(Long accountId)
    {
       if(accountId != null)
       {
