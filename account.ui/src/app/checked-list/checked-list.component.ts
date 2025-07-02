@@ -160,7 +160,8 @@ export class CheckedListComponent implements OnInit {
       this.checkLoading = true;
       this.accountService.calcChecked(this.activeaccount).subscribe( {
          next: (res)=>{
-             console.log("TransactionsComponent.calcCheckedBalance: Response: " + res);
+             console.log("TransactionsComponent.calcCheckedBalance: Response: " + JSON.stringify(res));
+             this.loadTransactions(this.activeaccount, this.pageNumber);
             },
          error: (err)=>{
              console.log("TransactionsComponent.calcCheckedBalance: An error occured during calcCheckedBalance subscribe:" + JSON.stringify(err));
