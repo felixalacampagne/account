@@ -235,14 +235,16 @@ export class SoEditMatComponent
    
   }
 
-
    canDelete() : boolean
    {
-      return false;
+      return true;
    }
 
    onDelete()
    {
+      console.log("onDelete: start");
+      this.submittedEvent.emit('SUBMIT_DELETE');
+      console.log("onDelete: finish");      
    }
 
    populateFormFromSO(so : StandingOrderItem)
