@@ -1,4 +1,4 @@
-// standingorders.component.ts
+// standingorders/standingorders.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { DeviceDetectorService } from 'ngx-device-detector';
@@ -8,6 +8,9 @@ import { SoEditMatComponent } from '../so-edit-mat/so-edit-mat.component';
 import { MatDialog } from '@angular/material/dialog';
 import { SoEditMatDialog } from '../so-edit-mat/so-edit-mat.dialog';
 import { DateformatService } from 'src/shared/service/dateformat.service';
+import { AccountDetail } from 'src/shared/model/accountdetail.model';
+import { AccountDeleteConfirmDialog } from '../accounts/accountdel-confirm-modal.component';
+import { StandingorderDeleteConfirmDialog } from './standingorderdel-confirm-modal.component';
 
 export interface DialogData {
    sodata: StandingOrderItem;
@@ -85,6 +88,10 @@ export class StandingordersComponent implements OnInit {
          {
             this.getStandingorders();
          }
+         else if(result == 'SUBMIT_DELETE')
+         {
+            this.delStandingordersConfirm(so);
+         }         
        });
    }
 
@@ -103,4 +110,35 @@ export class StandingordersComponent implements OnInit {
       return this.dateFmt.listFormat(jsondate) ;   
    }
 
+   delStandingordersConfirm(so : StandingOrderItem) 
+   {
+      this.dialog.open(StandingorderDeleteConfirmDialog, {data :so} )
+         .afterClosed().subscribe(result => 
+         {
+            console.log("delStandingordersConfirm: dialog closed: " + JSON.stringify(result, null, 2));
+            if(result == 'DELETE_OK')
+            {
+               this.delStandingorder(so);      
+            }
+         });
+   }
+   
+   delStandingorder(so : StandingOrderItem) 
+   {
+      console.log("delStandingorder: start: transfer account:" + JSON.stringify(so));
+      this.accountService.deleteStandingOrder(so).subscribe(
+      {
+         next: (result)=>
+         {
+            console.log("delStandingorder: result:" + JSON.stringify(result));
+            this.getStandingorders();
+         },
+         error: (err)=>{
+             console.log("delStandingorder: An error occured during subscribe" + JSON.stringify(err));
+             } ,
+         complete: ()=>{
+            console.log("delStandingorder: complete");
+         }
+       });      
+   } 
 }
