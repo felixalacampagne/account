@@ -27,7 +27,7 @@ import { DateformatService } from 'src/shared/service/dateformat.service';
 export class CheckedListComponent implements OnInit {
    @Input() accid!: number;  
    activeaccount: AccountItem = new AccountItem();
-   
+   checkLoading: boolean = false;
    transactions: TransactionItem[] = [];
 
    columnsToDisplay = ['date', 'memo', 'ref', 'amount', 'chkbal'];
@@ -153,6 +153,26 @@ export class CheckedListComponent implements OnInit {
       return this.transactions.length > 0;
    }
     
+
+   calcCheckedBalance()
+   {
+      console.log("TransactionsComponent.calcCheckedBalance: Starting");
+      this.checkLoading = true;
+      this.accountService.calcChecked(this.activeaccount).subscribe( {
+         next: (res)=>{
+             console.log("TransactionsComponent.calcCheckedBalance: Response: " + JSON.stringify(res));
+             this.loadTransactions(this.activeaccount, this.pageNumber);
+            },
+         error: (err)=>{
+             console.log("TransactionsComponent.calcCheckedBalance: An error occured during calcCheckedBalance subscribe:" + JSON.stringify(err));
+             } ,
+         complete: ()=>{
+            this.checkLoading = false;
+            console.log("TransactionsComponent.calcCheckedBalance: completed");
+         }
+      });
+      console.log("TransactionsComponent.calcCheckedBalance: Finished");
+   }
 }
 
 

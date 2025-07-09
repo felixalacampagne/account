@@ -4,6 +4,15 @@
       <mat-card-title>
          <div class="title-card-left">Checked Transactions for {{activeaccount.name}}</div>
          <div class="title-card-right">
+            <button *ngIf="isTransactions()" class="btn btn-outline-success btn-sm" (disabled)="checkLoading" (click)="calcCheckedBalance()" title="Recalculate checked balances">
+               <div *ngIf="!checkLoading">
+               <i class="bi bi-arrow-clockwise"></i>
+               </div>
+               <div *ngIf="checkLoading">
+                  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+               </div>
+            </button>
+            &nbsp;            
             <button class="btn btn-outline-success btn-sm" [routerLink]="['/transactions', activeaccount.id]" title="transaction list">
                <i class="bi bi-list"></i>
             </button>

@@ -99,18 +99,21 @@
 </div>
 
 <div id="txncontainer" *ngIf="isAccount()">
-   <div id="qrreadercontainer">
-     <div id="reader" class="reader" width="300px"></div>
-   </div>
    <!-- QR reader panel. Should overlay the transaciton input form -->
+   <div id="qrreadercontainer">
+      <div id="reader" class="reader" width="300px"></div>
+      <div *ngIf="isScanning()" class="text-center py-1">
+         <button  type="button" class="btn btn-secondary" (click)="abortScan()">Close Scanner</button>
+      </div>
+   </div>
+   
    <div id="txnform" class="txnform">
-
       <!-- pt/pb are padding top/bottom -->
       <div class="container border border-warning rounded pt-2 pb-2">
 
          <!-- 
             Was going to use 'real radio button horizontally but they just didn't look right, plus the fonts were wrong
-            and the alignment was prtty awful too. So I tried the 'button' radio buttons which look better, although they
+            and the alignment was pretty awful too. So I tried the 'button' radio buttons which look better, although they
             needed the obligatory hours of wasted time to get them into sensible positions.
             The "mb-2 d-flex gap-2" is needed to put the radio buttons in a sensible place, without it they
             are jammed together and sit directly on top of the Date row,  No clue why these buttons are jammed

@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -23,11 +22,11 @@ import com.felixalacampagne.account.model.AccountItem;
 import com.felixalacampagne.account.model.Accounts;
 import com.felixalacampagne.account.model.AddTransactionItem;
 import com.felixalacampagne.account.model.EPCTransaction;
-import com.felixalacampagne.account.model.TransferAccountItem;
 import com.felixalacampagne.account.model.StandingOrderItem;
 import com.felixalacampagne.account.model.TfrAccountItem;
 import com.felixalacampagne.account.model.TransactionItem;
 import com.felixalacampagne.account.model.Transactions;
+import com.felixalacampagne.account.model.TransferAccountItem;
 import com.felixalacampagne.account.model.Version;
 import com.felixalacampagne.account.service.AccountException;
 import com.felixalacampagne.account.service.AccountService;
@@ -47,23 +46,23 @@ public class AccountController {
    public final static String URL_GETACCOUNTSSHORT = "/listaccount";
    public final static String URL_GETONEACCOUNT = "/account";
    public final static String URL_GETACCOUNTSFORTFR = "/accsfortfr";
-   
+
    public final static String URL_GETACCOUNTS = "/listaccinf";
    public final static String URL_ADDACCOUNT = "/addaccount";
    public final static String URL_UPDACCOUNT = "/updaccount";
    public final static String URL_DELACCOUNT = "/delaccount";
-   
+
    public final static String URL_GETTFRACCOUNTS = "/listtransferaccounts";
    public final static String URL_ADDTFRACCOUNTS = "/addtransferaccount";
    public final static String URL_UPDTFRACCOUNTS = "/updatetransferaccount";
    public final static String URL_DELTFRACCOUNTS = "/deletetransferaccount";
-   
+
    public final static String URL_GETSTANDORDS = "/liststandingorders";
    public final static String URL_ADDSTANDORD = "/addstandingorder";
    public final static String URL_UPDSTANDORD = "/updatestandingorder";
    public final static String URL_DELSTANDORD = "/delstandingorder";
    public final static String URL_GETONESTANDORD = "/standingorder";
-   
+
    public final static String URL_GETTRANSACTIONS = "/listtransaction";
    public final static String URL_ADDTRANSACTION = "/addtransaction";
    public final static String URL_UPDTRANSACTION = "/updatetransaction";
@@ -73,8 +72,8 @@ public class AccountController {
    public final static String URL_GETCHECKBAL = "/getchecked";
    public final static String URL_GETCHECKTXNS = "/listchecked";
    public final static String URL_GETQRCODE = "/qrcodepayer";
-   
-   
+
+
    private final Logger log = LoggerFactory.getLogger(this.getClass());
    private final AccountService accountService;
    private final TransactionService transactionService;
@@ -89,7 +88,7 @@ public class AccountController {
                            StandingOrderService standingOrderService,
                            Version version,
                            BalanceService balanceService,
-                           EPCTransactionService epcTransactionService, 
+                           EPCTransactionService epcTransactionService,
                            PhoneAccountService phoneAccountService)
    {
       this.accountService = accountService;
@@ -139,7 +138,7 @@ public class AccountController {
        return this.accountService.getAccountDetail(id);
     }
 
-    
+
     @GetMapping(URL_GETACCOUNTS)
     public List<AccountDetail> getAccountDetails()
     {
@@ -163,7 +162,7 @@ public class AccountController {
 
        return "ok";
     }
-    
+
     @PostMapping(value = URL_UPDACCOUNT)
     public String updAccountDetail(@RequestBody AccountDetail accountDetail, Model model)
     {
@@ -178,9 +177,9 @@ public class AccountController {
           return "failed: " + ex.getMessage();
        }
 
-       return "ok";       
+       return "ok";
     }
-    
+
     @PostMapping(value = URL_DELACCOUNT)
     public String deleteAccountDetail(@RequestBody AccountDetail accountDetail, Model model)
     {
@@ -195,10 +194,10 @@ public class AccountController {
           return "failed: " + ex.getMessage();
        }
 
-       return "ok";       
+       return "ok";
     }
-    
-    
+
+
     @PostMapping(value = "/updaccountstref")
     public String updateAccountStatementRef(@RequestBody AccountItem accountItem, Model model)
     {
@@ -232,7 +231,7 @@ public class AccountController {
           {
              pagesize = rows.get();
           }
-          
+
        }
        return this.transactionService.getTransactions(accountid, pageno, pagesize);
     }
@@ -341,7 +340,7 @@ public class AccountController {
 
        return "ok";
     }
-    
+
     @PostMapping(value = URL_DELSTANDORD)
     public String deleteStandingOrder(@RequestBody StandingOrderItem standingOrderItem, Model model)
     {
@@ -362,6 +361,12 @@ public class AccountController {
     @GetMapping(value = URL_CALCCHECKBAL + "/{accountid}")
     public TransactionItem calcChecked(@PathVariable Long accountid)
     {
+       // This is most likely to be used because an external reconcile was done in which
+       // case the actual balances might need re-calculation. I'll put it here for
+       // now but maybe it should be done via the transaction list - or auto-detected?
+       // transactionService.updateBalance decides whether sorted balances are being used or not
+       // - should move it to balanceService really
+       this.transactionService.updateBalance(accountid);
        // An exception might be a bit extreme for no checked balances
        TransactionItem ti = this.balanceService.calculateCheckedBalances(accountid)
                       .map(t ->this.transactionService.mapToItem(t, BalanceType.CHECKED))
@@ -412,7 +417,7 @@ public class AccountController {
     {
        return this.phoneAccountService.getPhoneAccounts();
     }
-    
+
     @PostMapping(value = URL_UPDTFRACCOUNTS)
     public String updateTransferAccount(@RequestBody TransferAccountItem phoneAccountItem, Model model)
     {
@@ -430,7 +435,7 @@ public class AccountController {
 
        return "ok";
     }
-    
+
     @PostMapping(value = URL_ADDTFRACCOUNTS)
     public String addTransferAccount(@RequestBody TransferAccountItem phoneAccountItem, Model model)
     {
@@ -448,7 +453,7 @@ public class AccountController {
 
        return "ok";
     }
-    
+
     @PostMapping(value = URL_DELTFRACCOUNTS)
     public String deleteTransferAccount(@RequestBody TransferAccountItem phoneAccountItem, Model model)
     {
@@ -466,5 +471,5 @@ public class AccountController {
        return "ok";
     }
 
-    
+
 }

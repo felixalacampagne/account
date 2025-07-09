@@ -961,15 +961,18 @@ onSearchCptySelect(item : TfrAccountItem)
 }
 
 
+abortScan()
+{
+   console.log('abortScan: entry');
+   this.stopScan();
+   console.log('abortScan: exit');
+}
 
 onScanSuccess(decodedText: string, decodedResult: Html5QrcodeResult) {
   // handle the scanned code as you like, for example:
   console.log('onScanSuccess: entry');
-  if(this.html5QrcodeScanner != undefined) {
-    console.log('onScanSuccess: stopping scanner');
-    this.html5QrcodeScanner.clear();
-    this.html5QrcodeScanner = undefined;
-  }  
+  this.stopScan();
+
   console.log('onScanSuccess: Parsing result ' + decodedText);
   const txn : TransactionItem | undefined = this.parseEPC(decodedText);
   if(txn)
@@ -986,6 +989,19 @@ onScanFailure(error: any) {
   // handle scan failure, usually better to ignore and keep scanning.
   // for example:
   //console.warn(`Code scan error = ${error}`);
+}
+
+isScanning() : boolean 
+{
+   return (this.html5QrcodeScanner != undefined);
+}
+
+stopScan() {
+   if(this.html5QrcodeScanner != undefined) {
+      console.log('stopScan: stopping scanner');
+      this.html5QrcodeScanner.clear();
+      this.html5QrcodeScanner = undefined;
+    }   
 }
 
 doScan() {
