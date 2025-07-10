@@ -1,4 +1,4 @@
-// account.service.ts
+// shared/service/account.service.ts
 import {Injectable, output, OutputEmitterRef, OutputRefSubscription} from '@angular/core';
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import {BehaviorSubject, Observable, Subscription} from "rxjs";
@@ -386,6 +386,22 @@ export class AccountService
       return this.http.post(url, json, {headers: headers,  responseType: 'text'}); 
    }
  
+   deleteStandingOrder(item : StandingOrderItem) : Observable<string>
+   {
+       let json : string;
+       let url : string;
+
+       json = JSON.stringify(item);
+       url = this.apiurl + this.delsosvc;
+       console.log("deleteStandingOrder: POSTing to " + url + ": " + json);
+
+       var headers = new HttpHeaders();
+       headers = headers.set('Content-Type', 'application/json');
+       headers = headers.set("Accept", "text/plain");
+       
+       return this.http.post(url, json, {headers: headers,  responseType: 'text'}); 
+   }
+
    getQRCode(epc: EPCtransaction) : Observable<any>
    {
       let json : string;
