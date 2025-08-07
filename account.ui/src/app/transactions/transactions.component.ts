@@ -5,7 +5,7 @@ import { CommonModule /*, DatePipe */ } from '@angular/common';
 import { NgbModal, ModalDismissReasons, NgbModalRef, NgbModule, NgbDateAdapter, NgbDateNativeAdapter} from '@ng-bootstrap/ng-bootstrap';
 import { NgbDateParserFormatter } from '@ng-bootstrap/ng-bootstrap';
 import { DeviceDetectorService } from 'ngx-device-detector';
-
+import { BreakpointObserver, LayoutModule } from '@angular/cdk/layout';
 import {environment} from '../../environments/environment';
 
 import { accountNgbDateParserFormatter } from '../../shared/datepickformatter';
@@ -78,7 +78,10 @@ export class DebounceInputDirective implements OnInit, OnDestroy {
 // NG8002: Can't bind to 'ngModel' since it isn't a known property of 'select'
 @Component({
     selector: 'transactions',
-    imports: [FormsModule, CommonModule, NgbModule, RouterModule, DebounceInputDirective, QrcodepayerComponent],
+    imports: [FormsModule, CommonModule, NgbModule, RouterModule, 
+      LayoutModule,
+      DebounceInputDirective, 
+      QrcodepayerComponent],
     templateUrl: './transactions.component.html',
     styleUrls: ['../../sass/account-styles.scss', '../app.component.css', './transactions.component.css'],
     providers: [{ provide: NgbDateParserFormatter, useClass: accountNgbDateParserFormatter },
@@ -123,6 +126,7 @@ export class TransactionsComponent implements OnInit  {
    txCptyNumber: string = '';
    closeResult: string = '';
    html5QrcodeScanner: Html5QrcodeScanner | undefined; // Only defined while a scan is being performed
+   landscapeDisplay: boolean = false;
    desktopDisplay: boolean = false;
    // The modal code in .html will not compile if updateTxn is set to undefined since it
    // references 'this.updateTxn'. Obviously it should only consider the value when it is displayed
@@ -140,7 +144,8 @@ export class TransactionsComponent implements OnInit  {
       private cd: ChangeDetectorRef,
       private modalService: NgbModal,
       private deviceService: DeviceDetectorService,
-      private datfmt : DateformatService
+      private datfmt : DateformatService,
+      private bpObservable: BreakpointObserver
     )
    {
       this.envName = environment.envName;
@@ -148,6 +153,7 @@ export class TransactionsComponent implements OnInit  {
       // This is only necessary because the ngModel attribute breaks the selected behaviour of the option tag
       this.txType = this.txnTypes[0];
       this.resetDatepicker();
+      this.landscapeDisplay = this.bpObservable.isMatched('(orientation: landscape)'); 
       this.desktopDisplay = this.deviceService.isDesktop();
    }
 
@@ -156,6 +162,20 @@ export class TransactionsComponent implements OnInit  {
       console.log('ngOnInit: start');
       const d: Date = new Date();  
       this.txDate = d; //{year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
+
+      this.bpObservable.observe(['(orientation: portrait)'])
+                        .subscribe(result => {
+                           if(result.matches){
+                              this.landscapeDisplay = false;
+                           }
+                        });
+      
+      this.bpObservable.observe(['(orientation: landscape)'])
+                        .subscribe(result => {
+                        if(result.matches){
+                           this.landscapeDisplay = true;
+                        }
+                        });
       console.log("ngOnInit: finish");
    }
       
@@ -416,7 +436,13 @@ loadTransactions(acc : AccountItem, page: number = 1)
    // console.log("loadTransactions: Starting: " + JSON.stringify(acc, null, 2));
    if(acc.id < 0)
       return;
-   let pagesize: number = this.desktopDisplay ? 30 : 15;
+
+   // Mobile in portrait can display more rows than mobile in landscape.
+   // Desktop can display more than mobile and has no concept of portrait/landscape (as far as I am concerned)
+   // NB. The number of rows displayed does not change until a page refresh is requested. This is to
+   // avoid too many useless requests going to the server.
+   let mobilePageSize = this.landscapeDisplay ? 13 : 15;
+   let pagesize: number = this.desktopDisplay ? 30 : mobilePageSize;
    this.accountService.getTransactions(acc, page, pagesize).subscribe({
       next: (res)=>{
             if(!res)
