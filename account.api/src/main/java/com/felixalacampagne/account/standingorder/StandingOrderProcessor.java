@@ -27,7 +27,8 @@ public class StandingOrderProcessor
    private final TransactionService transactionService;
    private final StandingOrderProcessingService standingOrderProcessingService;
    private final ReSyncService reSyncService;
-
+   private final StandingOrderUtils soUtils = new StandingOrderUtils();
+   
    @Autowired
    public StandingOrderProcessor(
          StandingOrderProcessingService standingOrderProcessingService,
@@ -111,58 +112,10 @@ public class StandingOrderProcessor
       standingOrderProcessingService.updateTxnAndSo(so, sotxn);
    }
 
+   
    public String expandSOmemo(String memo, LocalDate txndate, LocalDate entdate)
    {
-      int i;
-      int e;
-      String srtn = memo;
-      String sl;
-      String sr;
-      String pat;
-      LocalDate fmtdate;
-
-      do
-      {
-         i = srtn.indexOf('#');
-         if(i < 0)
-         {
-            break;
-         }
-         e = srtn.indexOf('#', i+1);
-         if(e < 0)
-         {
-            break;
-         }
-
-         sl = "";
-         sr = "";
-
-         if(i > 0)
-            sl = srtn.substring(0, i);
-
-         if(e < srtn.length())
-            sr = srtn.substring(e+1, srtn.length());
-
-         pat = srtn.substring(i+1, e);
-
-         fmtdate = txndate;
-         if(pat.startsWith("E"))
-         {
-            pat = pat.substring(1, pat.length());
-            if(entdate != null)
-            {
-               fmtdate = entdate;
-            }
-         }
-         // pat should now be a VB date format - unfortunately this is not the same as a Java date format
-         // There are only a few formats actually used and the main difference is for month, ie. m vs. M for java
-         pat = pat.replace('m', 'M');
-         DateTimeFormatter df = DateTimeFormatter.ofPattern(pat);
-
-         srtn = sl + df.format(fmtdate) + sr;
-      }while(true);
-
-      return srtn;
+      return soUtils.expandSOmemo(memo, txndate, entdate);
    }
 
    private void adjustSODates(StandingOrders so)
@@ -186,14 +139,19 @@ public class StandingOrderProcessor
          break;
       }
 
+      // Dates on or after 28th will eventually become end-of-month since 28th is the EOM for February usually.
+      // To avoid EOM adjustment use dates before 28th.
+      // Might eventually need to add a flag to indicate whether this should be done but don't want to modify
+      // DB until it is converted to a non-Access db.
+      // Both entry and pay dates have End Of Month adjustments applied for monthly adjustments.
+      // Not sure whether that is appropriate, time will tell.
+      // Currently 2 entries are in the 'danger zone', pay date and bank charge, both can be moved out of the zone.
       so.setSOEntryDate(adjustDate(so.getSOEntryDate(), periodUnit, so.getSOCount()));
       so.setSONextPayDate(adjustDate(so.getSONextPayDate(), periodUnit, so.getSOCount()));
    }
 
    private LocalDate adjustDate(LocalDate origdate, TemporalUnit periodUnit, long numperiods)
    {
-      LocalDate adjustdate = origdate;
-      adjustdate = adjustdate.plus(numperiods, periodUnit);
-      return adjustdate; //Date.valueOf(adjustdate);
+      return soUtils.adjustDate(origdate, periodUnit, numperiods);
    }
 }
