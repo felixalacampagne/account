@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -80,5 +81,18 @@ public class StandingOrderProcessorTest
 
        nextexec = cron.next(nextexec.plusMinutes(2));
        log.info("testCron: next execution time after: {}", nextexec);
+   }
+   
+   @Test
+   void lastDayOfMonth()
+   {
+      LocalDate origEOM = LocalDate.of(2025, 06, 30);
+      LocalDate nextEOM;
+      String memotmpl;
+      String memo;
+      nextEOM = origEOM.plus(1, ChronoUnit.MONTHS);
+      memotmpl = "next #dd mm yyyy#, orig #Edd mm yyyy";
+      memo = standingOrderProcessor.expandSOmemo(memotmpl, nextEOM, origEOM);
+      log.info("lastDayOfMonth: {}", memo);
    }
 }
