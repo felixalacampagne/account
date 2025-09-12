@@ -2,8 +2,10 @@ package com.felixalacampagne.account.model;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 // JSON friendly form of StandingOrders entity
 public class StandingOrderItem
@@ -69,7 +71,49 @@ public class StandingOrderItem
       this.entryeom = entryeom;
       this.payeom = payeom;
    }
-
+   
+//   public StandingOrderItem()
+//   {
+      // Can't deserialize JSON with period, entryeom and payeom for incomprehensible reason:
+      // cannot deserialize from Object value (no delegate- or property-based Creator)
+      // adding constructor with all fields didn't help.
+      // Default constructor is not possible with the 'final' fields - it didn't cause a problem when
+      // SOPeriod was used without translation.
+      // Maybe need to tell deserializer which constructor to use??
+//   }
+   
+   // Needed for JSON deserializing
+   @JsonCreator
+   public StandingOrderItem(
+         @JsonProperty("soid") Long sOid, 
+         @JsonProperty("soamount") String sOAmount, 
+         @JsonProperty("socount") Long sOCount, 
+         @JsonProperty("sodesc") String sODesc,
+         @JsonProperty("soentrydate") LocalDate sOEntryDate, 
+         @JsonProperty("sonextpaydate") LocalDate sONextPayDate, 
+         @JsonProperty("period") String period, 
+         @JsonProperty("sotfrtype") String sOTfrType,
+         @JsonProperty("token") String token, 
+         @JsonProperty("accountid") Long accountid, 
+         @JsonProperty("accountname") String accountname, 
+         @JsonProperty("entryeom") boolean entryeom, 
+         @JsonProperty("payeom") boolean payeom)
+   {
+      this.soid = sOid;
+      this.soamount = sOAmount;
+      this.socount = sOCount;
+      this.sodesc = sODesc;
+      this.soentrydate = sOEntryDate;
+      this.sonextpaydate = sONextPayDate;
+      this.period = period;
+      this.sotfrtype = sOTfrType;
+      this.token = token;
+      this.accountid = accountid;
+      this.accountname = accountname;
+      this.entryeom = entryeom;
+      this.payeom = payeom;      
+   }
+   
    public Long getSOId()
    {
       return soid;
