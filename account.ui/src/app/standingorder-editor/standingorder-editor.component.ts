@@ -55,7 +55,7 @@ export class StandingorderEditorComponent {
     soamount: new FormControl(''),        // numerics only
     sodesc: new FormControl(''),          // the memo field, free format
     accountname: new FormControl(''),     // select from dropdown of accounts?
-    soperiod: new FormControl(''),        // select from dropdown of period types
+    period: new FormControl(''),        // select from dropdown of period types
     socount: new FormControl(''),         // integer only
     sotfrtype: new FormControl('')        // dowpdown list of types as shown in transaction
   });
@@ -78,7 +78,7 @@ export class StandingorderEditorComponent {
          soamount : so.soamount,
          accountname : so.accountname,
       //NB Looks like the FormControls only accept strings
-         soperiod : "" + so.soperiod,
+         period : "" + so.period,
          socount : "" + so.socount,
          sotfrtype : so.sotfrtype
       });
@@ -94,7 +94,7 @@ export class StandingorderEditorComponent {
     so.socount = 2;
     so.soentrydate = new Date("2024-11-02");
     so.sonextpaydate = new Date("2024-11-05");
-    so.soperiod = "M";
+    so.period = "M";
     so.sotfrtype = 'TEST';
 
     this.populateFormFromSO(so);

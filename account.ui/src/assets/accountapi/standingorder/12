@@ -5,7 +5,7 @@
     "sodesc": "To Savings #mmm yy#",
     "soentrydate": "2024-10-28",
     "sonextpaydate": "2024-11-01",
-    "soperiod": "M",
+    "period": "M",
     "sotfrtype": "SAVE",
     "token": "2024-10-28:2024-11-01:900.00:M:1:SAVE:12:22",
     "accountid": 22,

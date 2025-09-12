@@ -34,18 +34,28 @@ public class StandingOrderUtilsTest
       
       // 30/06 -> 30/07 (lastDOM=31/07) can't use 32/06 or 31/06 - must be valid DOM value
       origEOM = LocalDate.of(2025, 02, 28);
-      nextEOM = soUtils.adjustMonthWithEOM(origEOM, 1);
+      nextEOM = soUtils.adjustMonthAtEOM(origEOM, 1);
 
       memo = soUtils.expandSOmemo(memotmpl, nextEOM, nextEOM);
       log.info("lastDayOfMonth: orig:{} next:{}", soUtils.expandSOmemo(memotmpl, origEOM, origEOM), memo);
       assertEquals("31 03 2025", memo);
    
       origEOM = LocalDate.of(2025, 01, 31);
-      nextEOM = soUtils.adjustMonthWithEOM(origEOM, 3);
+      nextEOM = soUtils.adjustMonthAtEOM(origEOM, 3);
 
       memo = soUtils.expandSOmemo(memotmpl, nextEOM, nextEOM);
       log.info("lastDayOfMonth: orig:{} next:{}", soUtils.expandSOmemo(memotmpl, origEOM, origEOM), memo);
       assertEquals("30 04 2025", memo);
 
+
+      // Dates are always adjusted to the EOM by adjustMonthAtEOM
+      origEOM = LocalDate.of(2025, 01, 27);
+      nextEOM = soUtils.adjustMonthAtEOM(origEOM, 3);
+
+      memo = soUtils.expandSOmemo(memotmpl, nextEOM, nextEOM);
+      log.info("lastDayOfMonth: orig:{} next:{}", soUtils.expandSOmemo(memotmpl, origEOM, origEOM), memo);
+      assertEquals("30 04 2025", memo);
+
+   
    }
 }

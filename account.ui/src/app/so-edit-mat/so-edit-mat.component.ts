@@ -16,7 +16,9 @@ import { AccountItem } from 'src/shared/model/accountitem.model';
 import { Observable } from 'rxjs';
 import { DateformatService } from 'src/shared/service/dateformat.service';
 import { MatIconModule } from '@angular/material/icon';
-
+import {MatCheckboxModule} from '@angular/material/checkbox';
+import {MatButtonToggleModule} from '@angular/material/button-toggle';
+import { MatChipsModule } from '@angular/material/chips';
 @Injectable()
 export class FormatingDateAdapter extends NativeDateAdapter 
 {
@@ -79,6 +81,9 @@ export const ISO_DATE_FORMAT : MatDateFormats = {
         MatSelectModule,
         MatDatepickerModule,
         MatIconModule,
+        MatCheckboxModule, 
+        MatButtonToggleModule,
+        MatChipsModule,
         ReactiveFormsModule],
     changeDetection: ChangeDetectionStrategy.OnPush,
     templateUrl: './so-edit-mat.component.html',
@@ -113,13 +118,17 @@ export class SoEditMatComponent
             ] ),        
          sodesc: new FormControl('', Validators.required), 
          account: new FormControl(null as unknown as AccountItem, Validators.required), // select from dropdown of accounts
-         soperiod: new FormControl('', Validators.required), // select from dropdown of period string
+         period: new FormControl('', Validators.required), // select from dropdown of period string
          socount: new FormControl(1, 
             [
                Validators.required,
                Validators.pattern(/^\d+$/)  // integer only
             ] ),         
-         sotfrtype: new FormControl(this.txnTypes[0], Validators.required)  // dowpdown list of types as shown in transaction
+         sotfrtype: new FormControl(this.txnTypes[0], Validators.required),  // dowpdown list of types as shown in transaction
+
+         // only allowed when period is 'Monthly' but that's for another time.
+         entryeom: new FormControl(false, Validators.required),
+         payeom: new FormControl(false, Validators.required)
        });
    }
 
@@ -205,8 +214,10 @@ export class SoEditMatComponent
    so.socount = this.soForm.value.socount ?? -1;
    so.soentrydate = this.datePipe.transform(ed, fmt) ?? '';
    so.sonextpaydate = this.datePipe.transform(pd, fmt) ?? '';
-   so.soperiod = "" + this.soForm.value.soperiod;
+   so.period = "" + this.soForm.value.period;
    so.sotfrtype = "" + this.soForm.value.sotfrtype;
+   so.entryeom = this.soForm.value.entryeom ?? false;
+   so.payeom = this.soForm.value.payeom ?? false;
    console.log("SoEditMatComponent.onSubmit: orig SO: " + JSON.stringify(this.origSOitem, null, 2) + " updated: " + JSON.stringify(so, null, 2));
 
    let put : Observable<string>;
@@ -260,9 +271,11 @@ export class SoEditMatComponent
         sonextpaydate : this.datePipe.transform(pd, 'yyyy-MM-dd') ?? '',
         soamount : amt, // TODO: use number for StandingOrderItem amount
         account : acc ?? null,
-        soperiod : "" + so.soperiod,
+        period : "" + so.period,
         socount :  so.socount,
-        sotfrtype : so.sotfrtype
+        sotfrtype : so.sotfrtype,
+        entryeom: so.entryeom ?? false,
+        payeom: so.payeom ?? false
       });
   }  
 }

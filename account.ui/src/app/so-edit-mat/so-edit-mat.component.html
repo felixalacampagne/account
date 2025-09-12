@@ -11,20 +11,35 @@
       <form [formGroup]="soForm" novalidate (ngSubmit)="onSubmit()">
         <mat-card-content>
            <div class="row">
+
+              <!-- Obvisouly the checkbox should be display on the same line as the date input field and the
+                   date picker toggle button however, this being Angular, and even wrose, Angular Material,
+                   there appears to be no way to do this. Typical forking Angular shirt - i seriously wish I
+                   had never tried to use this Material shirt, it wastes so much time trying to get it to
+                   look half way presentable. Anyway for now the check box is displayed underneath the input
+                   field even though there is masses of unnecessary space used by the input box. 
+                   NB. It appears that checkbox doesnot work with mat-form-field so it has to be outside the
+                   Could maybe consider using a mat-chip-set, if I can work out how to use it as a checkbox/toggle or
+                   a button toggle (a la Verified button in checked entries - which is bootstrap, so it works OK)
+                   but both these options appear in the same way as the check box - ie, not in line with the input field.
+                   --> 
               <div class="col">
-                 <mat-form-field  appearance="outline" class="full-width">
+                 <mat-form-field appearance="outline" class="full-width">
                     <mat-label>Entry Date</mat-label>
                     <input matInput [matDatepicker]="entrydatepicker" placeholder="dd/mm/yyyy" formControlName="soentrydate">
                     <mat-datepicker-toggle matIconSuffix [for]="entrydatepicker"></mat-datepicker-toggle>
-                    <mat-datepicker #entrydatepicker></mat-datepicker>            
-                 </mat-form-field>
-              </div>
+                    <mat-datepicker #entrydatepicker></mat-datepicker> 
+                    <mat-checkbox formControlName="entryeom">EOM</mat-checkbox>
+                  </mat-form-field>
+               </div>
+
               <div class="col">
                  <mat-form-field  appearance="outline" class="full-width">
                     <mat-label>Pay Date</mat-label>
                     <input matInput [matDatepicker]="paydatepicker" placeholder="dd/mm/yyyy" formControlName="sonextpaydate">
                     <mat-datepicker-toggle matIconSuffix [for]="paydatepicker"></mat-datepicker-toggle>
                     <mat-datepicker #paydatepicker></mat-datepicker>  
+                    <mat-checkbox formControlName="payeom">EOM</mat-checkbox>
                  </mat-form-field>
               </div>
            </div>
@@ -73,7 +88,7 @@
               <div class="col">
               <mat-form-field  appearance="outline" class="full-width">
                  <mat-label>Period</mat-label>
-                 <mat-select formControlName="soperiod">
+                 <mat-select formControlName="period">
                     @for (type of periodTypes; track type) {
                     <mat-option [value]="type.period">{{ type.desc }}</mat-option>
                     }

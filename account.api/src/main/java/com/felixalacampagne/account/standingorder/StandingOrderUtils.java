@@ -67,15 +67,13 @@ public class StandingOrderUtils
       return (d.getDayOfMonth() == d.lengthOfMonth());
    }
    
-   public LocalDate adjustMonthWithEOM(LocalDate orig, long offset)
+   public LocalDate adjustMonthAtEOM(LocalDate orig, long offset)
    {
-      LocalDate next = orig.plusMonths(offset);
+      LocalDate next;
       
-      if(isEndOfMonth(orig))
-      {
-         // nextEOM = nextEOM.withDayOfMonth(nextEOM.lengthOfMonth());
-         next = YearMonth.from(next).atEndOfMonth();
-      }
+      next = YearMonth.from(orig)
+                      .plusMonths(offset)
+                      .atEndOfMonth();
       return next;
    }
    
@@ -83,14 +81,7 @@ public class StandingOrderUtils
    public LocalDate adjustDate(LocalDate origdate, TemporalUnit periodUnit, long numperiods)
    {
       LocalDate adjustdate = origdate;
-      if(ChronoUnit.MONTHS.equals(periodUnit))
-      {
-         adjustdate = adjustMonthWithEOM(origdate, numperiods);
-      }
-      else
-      {
-         adjustdate = adjustdate.plus(numperiods, periodUnit);
-      }
+      adjustdate = adjustdate.plus(numperiods, periodUnit);
       return adjustdate; //Date.valueOf(adjustdate);
    }   
 }

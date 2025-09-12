@@ -120,7 +120,17 @@ public class StandingOrderProcessor
 
    private void adjustSODates(StandingOrders so)
    {
-
+      boolean payEOM = false;
+      boolean entryEOM = false;
+      // SOPeriod is a single character DB field.
+      // Need to be able to indicate that entry and/or pay date should be a monthly period 
+      // which adjusts to the end of month.
+      // So use unused letters to indicate a monthly date EOM adjusted
+      // E - monthly period, entry date EOM adjusted
+      // P - monthly period, pay date, EOM adjusted
+      // B - monthly period, both entry and pay EOM adjusted
+      // M - monthly period, NO EOM adjustment
+      // There is maybe a more 'elegant' way but this is good enough.
       TemporalUnit periodUnit;
       switch(so.getSOPeriod())
       {
@@ -133,25 +143,46 @@ public class StandingOrderProcessor
       case "M":
          periodUnit = ChronoUnit.MONTHS;
          break;
+      case "E":
+         periodUnit = ChronoUnit.MONTHS;
+         entryEOM = true;
+         break;
+      case "P":
+         periodUnit = ChronoUnit.MONTHS;
+         payEOM = true;
+         break;
+      case "B":
+         periodUnit = ChronoUnit.MONTHS;
+         payEOM = true;
+         entryEOM = true;
+         break;
       default:
          log.warn("adjustSODates: unrecognised standing order period value: {}", so.getSOPeriod());
          periodUnit = ChronoUnit.MONTHS;
          break;
       }
 
-      // Dates on or after 28th will eventually become end-of-month since 28th is the EOM for February usually.
-      // To avoid EOM adjustment use dates before 28th.
-      // Might eventually need to add a flag to indicate whether this should be done but don't want to modify
-      // DB until it is converted to a non-Access db.
-      // Both entry and pay dates have End Of Month adjustments applied for monthly adjustments.
-      // Not sure whether that is appropriate, time will tell.
-      // Currently 2 entries are in the 'danger zone', pay date and bank charge, both can be moved out of the zone.
-      so.setSOEntryDate(adjustDate(so.getSOEntryDate(), periodUnit, so.getSOCount()));
-      so.setSONextPayDate(adjustDate(so.getSONextPayDate(), periodUnit, so.getSOCount()));
+      long numperiods = so.getSOCount();
+      LocalDate nextEntry = adjustDate(so.getSOEntryDate(), periodUnit, numperiods, entryEOM);
+      LocalDate nextPay = adjustDate(so.getSONextPayDate(), periodUnit, numperiods, payEOM);
+      
+      so.setSOEntryDate(nextEntry);
+      so.setSONextPayDate(nextPay);
    }
 
-   private LocalDate adjustDate(LocalDate origdate, TemporalUnit periodUnit, long numperiods)
+   
+   
+   private LocalDate adjustDate(LocalDate origdate, TemporalUnit periodUnit, long numperiods, boolean eom)
    {
-      return soUtils.adjustDate(origdate, periodUnit, numperiods);
+      LocalDate nextDate = origdate;
+      if(eom)
+      {
+         nextDate = soUtils.adjustMonthAtEOM(nextDate, numperiods);
+      }
+      else
+      {
+         nextDate = soUtils.adjustDate(nextDate, periodUnit, numperiods);
+      }      
+      return nextDate;
    }
 }
