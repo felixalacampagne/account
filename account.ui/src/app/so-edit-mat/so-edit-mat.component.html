@@ -24,23 +24,23 @@
                    but both these options appear in the same way as the check box - ie, not in line with the input field.
                    --> 
               <div class="col">
-                 <mat-form-field appearance="outline" class="full-width">
+                 <mat-form-field appearance="outline" class="eomwidth">
                     <mat-label>Entry Date</mat-label>
                     <input matInput [matDatepicker]="entrydatepicker" placeholder="dd/mm/yyyy" formControlName="soentrydate">
                     <mat-datepicker-toggle matIconSuffix [for]="entrydatepicker"></mat-datepicker-toggle>
                     <mat-datepicker #entrydatepicker></mat-datepicker> 
-                    <mat-checkbox formControlName="entryeom">EOM</mat-checkbox>
                   </mat-form-field>
+                    <mat-checkbox formControlName="entryeom">EoM</mat-checkbox>
                </div>
 
               <div class="col">
-                 <mat-form-field  appearance="outline" class="full-width">
+                 <mat-form-field  appearance="outline" class="eomwidth">
                     <mat-label>Pay Date</mat-label>
                     <input matInput [matDatepicker]="paydatepicker" placeholder="dd/mm/yyyy" formControlName="sonextpaydate">
                     <mat-datepicker-toggle matIconSuffix [for]="paydatepicker"></mat-datepicker-toggle>
                     <mat-datepicker #paydatepicker></mat-datepicker>  
-                    <mat-checkbox formControlName="payeom">EOM</mat-checkbox>
                  </mat-form-field>
+                    <mat-checkbox formControlName="payeom">EoM</mat-checkbox>
               </div>
            </div>
   
