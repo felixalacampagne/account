@@ -1,19 +1,20 @@
 Account features implemented: 
-   - transaction display with paging, goto page, last page, device dependent pagezise (no custom page size yet),
+   - transaction display with paging, goto page, last page, device dependent pagesize (no custom page size yet),
    - transaction update 
-   - standing order application and editing,
+   - standing order application and editing/deleting,
    - transfer between accounts,
-   - checked balances
+   - checked balances with manual trigger
    - show qr code for transfer
    - transfer account details update and delete
    - account creation and details update
-   - trigger checked balance recalc
    - permanent pay date sorted balance display
 
 Still to come:
   - transaction search
+  - non-Access database (obvious choice is mysql, or is there another type which is preferred nowadays [absolutely not Oracle!!!])
+  - reconcile using CSV statement file (currently done via Excel for CBC - would be a challenge to make it generic) with some way to record exceptions encountered during the reconciliation (as happens in the Excel sheet). Would need new tables so probably will only happen after migration away from Access (can the Excel scripts work with a different DB?)
 
-0.4.25 standing order end of month processing - when a monthly standing order date is at the end of the month then it will stick to the end of the month for subsequent entries. This means that entries on the 28th or later will eventually move to the end of the month. Thought about making this configurable but decided not worth the effort since any date after the 28th is going to move around due to the way Java does 'add month' processing, ie. 31st will become 30th and eventually 28th. Getting the UI to display a checkbox as part of the datepicker field also proved to be impossible which is another reason I abandoned the configurable end of month processing. Maybe in the future it might be interesting to add a last day X of the month, eg. last Wednesday of the month, but so far I don't have a need to anything like that.
+0.4.25 standing order end of month processing - when a monthly standing order date is at the end of the month then it will stick to the end of the month for subsequent entries. This means that entries on the 28th or later will eventually move to the end of the month. Thought about making this configurable but decided not worth the effort since any date after the 28th is going to move around due to the way Java does 'add month' processing, ie. 31st will become 30th and eventually 28th. Getting the UI to display a checkbox as part of the datepicker field also proved to be impossible which is another reason I abandoned the configurable EOM processing. Maybe in the future it might be interesting to add a last day X of the month, eg. last Wednesday of the month, but so far I don't have a need for anything like that.
 
 0.4.24 various changes including standing order delete, display balances on phone in landscape mode, abort QR scan, manual trigger for balance recalculation
     
