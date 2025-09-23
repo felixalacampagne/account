@@ -33,7 +33,7 @@ public interface AccountJpaRepository extends JpaRepository<Account, Long>
    @Query("select a from Account a where a.accOrder not in (:excluded) order by a.accOrder asc, a.accDesc asc")
    List<Account> findAccountsExcludeAccOrderSorted(@Param(value = "excluded") List<Long> excluded);
    
-   @Query("select a from Account a where a.accCurr = :currency and a.accId != :srcid and a.accOrder not in (:excluded) order by a.accOrder asc, a.accDesc asc")
+   @Query("select a from Account a where a.accCurr = :currency and a.id != :srcid and a.accOrder not in (:excluded) order by a.accOrder asc, a.accDesc asc")
    List<Account> findTransferAccounts(
          @Param(value = "srcid") Long srcid,
          @Param(value = "currency") String currency,

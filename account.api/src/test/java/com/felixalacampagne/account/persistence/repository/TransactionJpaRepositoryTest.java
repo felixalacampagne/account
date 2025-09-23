@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import com.felixalacampagne.account.AccountTest;
+import com.felixalacampagne.account.persistence.entities.Account;
 import com.felixalacampagne.account.persistence.entities.Transaction;
 
 @AccountTest
@@ -84,8 +85,10 @@ class TransactionJpaRepositoryTest
    {
       long txncount = transactionJpaRepository.countByAccountId(1);
 
+      Account account = new Account();
+      account.setId(1L);
       Transaction tosave = new Transaction();
-      tosave.setAccountId(1L);
+      tosave.setAccount(account);
       tosave.setDate(LocalDate.now());
       tosave.setType("TEST");
       tosave.setComment("This is a test");

@@ -172,19 +172,19 @@ public class TransactionService
    @Transactional // this must be transactional
    private Long addPhoneAccountTransaction(Long phoneAccId, Transaction srcTxn, String communication)
    {
-      Long tfraccid = null;
-      Long srcaccid = srcTxn.getAccountId();
+      Account tfracc = null;
+      Long srcaccid = srcTxn.getAccount().getId();
       PhoneWithAccountProjection paproj = this.phoneAccountJpaRepository.findPhoneWithAccountById(phoneAccId)
                                               .orElseThrow(() -> new AccountException("Phone account not found: " + phoneAccId));
       PhoneAccount pa = paproj.getPhoneAccount();
-      if(pa.getAccountId() > 0) // transfer is to a related account so must apply a 'reverse' transaction to it
+      if(pa.getAccount() != null) // transfer is to a related account so must apply a 'reverse' transaction to it
       {
-         tfraccid = pa.getAccountId();
+         tfracc = pa.getAccount();
          String srcupdcomm = Utils.prefixNullable(" ref:", communication);
          Account srcacc = this.accountJpaRepository.findById(srcaccid)
                .orElseThrow(() -> new AccountException("Transfer source account not found: " + srcaccid));
          Transaction txntfr = new Transaction();
-         txntfr.setAccountId(tfraccid);
+         txntfr.setAccount(tfracc);
          txntfr.setDate(srcTxn.getDate());
          txntfr.setType(srcTxn.getType());
          txntfr.setComment(srcTxn.getComment() + Utils.prefixNullable(" ref:", communication));
@@ -213,7 +213,7 @@ public class TransactionService
             srcTxn.setComment(srcTxn.getComment() + srcupdcomm);
             srcTxn = this.transactionJpaRepository.save(srcTxn);
          }
-         log.info("addPhoneAccountTransaction: added transfer transaction for account id {}: id:{}", txntfr.getAccountId(), txntfr.getSequence());
+         log.info("addPhoneAccountTransaction: added transfer transaction for account id {}: id:{}", txntfr.getAccount().getId(), txntfr.getSequence());
       }
       else
       {
@@ -261,8 +261,8 @@ public class TransactionService
       Transaction txn = mapToEntity(transactionItem);
 
       Transaction updtxn = add(txn);
-      updAccs.sourceAccId = updtxn.getAccountId();
-      log.info("addTransaction: added transaction for account id {}: id:{}", updtxn.getAccountId(), updtxn.getSequence());
+      updAccs.sourceAccId = updtxn.getAccount().getId();
+      log.info("addTransaction: added transaction for account id {}: id:{}", updtxn.getAccount().getId(), updtxn.getSequence());
       if(transactionItem.getTransferAccount().isPresent())
       {
          updAccs.transferAccId = addPhoneAccountTransaction(transactionItem.getTransferAccount().get(), updtxn, transactionItem.getCommunication());
@@ -290,7 +290,7 @@ public class TransactionService
    private void addPhoneAccount(String cptyAccountNumber, String cptyAccount, String communication)
    {
       PhoneAccount pa = new PhoneAccount();
-      pa.setAccountId(0L); // leaving it null means it is excluded from the transferaccount query
+      pa.setAccount(null); // leaving it null means it is excluded from the transferaccount query
       pa.setAccountNumber(cptyAccountNumber);
       pa.setDesc(cptyAccount);
       pa.setLastComm(communication);

@@ -91,7 +91,7 @@ public class StandingOrderProcessor
 
       // create new transaction
       Transaction sotxn = new Transaction();
-      sotxn.setAccountId(accId);
+      sotxn.setAccount(so.getAccount());
 
       sotxn.setDate(so.getSONextPayDate());
       sotxn.setType(so.getSOTfrType());

@@ -10,63 +10,84 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 
 /**
  * The persistent class for the "transaction" database table.
  *
+ * To map Access CSV to H2 CSV columns
+ * sequence;AccountId;Date           ;Type           ;Comment;Checked;Credit;Debit;Balance;CheckedBalance;SortedBalance;Stid
+ * id     ;accountid ;transactiondate;transactiontype;comment;checked;credit;debit;balance;checkedbalance;sortedbalance;statementref
  */
 @Entity
-@Table(name="Transaction")
+@Table(name="transaction")
 public class Transaction implements Serializable
 {
 //   public static final String TRANSACTION_ALLFORACCOUNT="Transaction.findByAccountId";
    private static final long serialVersionUID = 1L;
 
-   @Id // Mandatory
+   // WARNING: columns names have been changed to more readable names, entity properties are the same as for account
 
    // .AUTO gives UcanaccessSQLException: UCAExc:::5.0.1 user lacks privilege or object not found: HIBERNATE_SEQUENCE
    // TABLE same as AUTO
    // SEQUENCE same as AUTO
    // IDENTITY gives weird error: class org.hsqldb.jdbc.JDBCStatement cannot be cast to class java.sql.PreparedStatement
    //
-   @GeneratedValue(strategy=GenerationType.IDENTITY)
-   @Column(name="sequence")
+   // @GeneratedValue(strategy=GenerationType.IDENTITY)
+   @Id
+   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "transaction_seq_gen")
+   @SequenceGenerator(initialValue = 1, name = "transaction_seq_gen", sequenceName = "transaction_seq", allocationSize = 1)
+   @Column(name="id")                             // sequence
    private long sequence;
 
-   // Spring JPA seems to be putting underscores into the column names: needs a setting in application.properties to stop the underscores
-   @Column(name="AccountId")
-   private Long accountId;
+   // Access version just uses a simple long with no attempt to make the relationship
+   // I was going to keep the same for H2 except that standingorder is using an
+   // 'official' many2one relationship so I figured why not do the same with
+   // transaction. This will require some changes to retrieve the account id but
+   // maybe that can be done via a method in here...
+   //
+   // Alas changing to ManyToOne requires re-writing the queries which are generally using the
+   // query-from-the-method-name feature which in turn means all code using the queries will need to
+   // be changed - in addition the account id must be converted to an account object for all of the
+   // queries which is likely to be impractical unless someway to specify the account id can be found.
+   // @Column(name="accountid")                      // AccountId
+   // private Long accountId;
+   @ManyToOne
+   @JoinColumn(name = "accountid", nullable = false) // SOAccId
+   private Account account;
 
-   @Column(name="Balance")
+   @Column(name="balance")                        // Balance
    private BigDecimal balance;
 
-   @Column(name="Checked")
+   @Column(name="checked")                        // Checked
    private boolean checked;
 
-   @Column(name="CheckedBalance")
+   @Column(name="checkedbalance")                 // CheckedBalance
    private BigDecimal checkedBalance;
 
-   @Column(name="Comment")
+   @Column(name="comment")                        // Comment
    private String comment;
 
-   @Column(name="Credit")
+   @Column(name="credit")                         // Credit
    private BigDecimal credit;
 
-   @Column(name="Date")
+   @Column(name="transactiondate")                           // Date
    private LocalDate date;
 
-   @Column(name="Debit")
+   @Column(name="debit")                          // Debit
    private BigDecimal debit;
 
-   @Column(name="SortedBalance")
+   @Column(name="sortedbalance")                  // SortedBalance
    private BigDecimal sortedBalance;
 
-   @Column(name="Stid")
+   @Column(name="statementref")                   // Stid
    private String stid;
 
-   @Column(name="Type")
+   @Column(name="transactiontype")                           // Type
    private String type;
 
    public Transaction() {
@@ -77,7 +98,7 @@ public class Transaction implements Serializable
       StringBuilder sb = new StringBuilder();
       sb.append(this.getClass().getSimpleName());
       sb.append(" sequence:").append(sequence);
-      sb.append(" accountId:").append(accountId);
+      sb.append(" accountId:").append(account.getAccId());
       sb.append(" balance:").append(balance);
       sb.append(" checked:").append(checked);
       sb.append(" checkedBalance:").append(checkedBalance);
@@ -99,13 +120,21 @@ public class Transaction implements Serializable
       this.sequence = sequence;
    }
 
-   public Long getAccountId() {
-      return this.accountId;
+   public Account getAccount() {
+      return this.account;
    }
 
-   public void setAccountId(Long accountId) {
-      this.accountId = accountId;
+   public void setAccount(Account account) {
+      this.account = account;
    }
+
+   // public Long getAccountId() {
+   //    return this.accountId;
+   // }
+   //
+   // public void setAccountId(Long accountId) {
+   //    this.accountId = accountId;
+   // }
 
    public BigDecimal getBalance() {
       return this.balance;
@@ -190,7 +219,7 @@ public class Transaction implements Serializable
    @Override
    public int hashCode()
    {
-      return Objects.hash(accountId, balance, checked, checkedBalance, comment, credit, date, debit, sequence, sortedBalance, stid, type);
+      return Objects.hash(account.getAccId(), balance, checked, checkedBalance, comment, credit, date, debit, sequence, sortedBalance, stid, type);
    }
 
    @Override
@@ -203,7 +232,7 @@ public class Transaction implements Serializable
       if (getClass() != obj.getClass())
          return false;
       Transaction other = (Transaction) obj;
-      return Objects.equals(accountId, other.accountId) && Objects.equals(balance, other.balance) && checked == other.checked && Objects.equals(checkedBalance, other.checkedBalance) && Objects.equals(comment, other.comment)
+      return Objects.equals(account.getAccId(), other.account.getAccId()) && Objects.equals(balance, other.balance) && checked == other.checked && Objects.equals(checkedBalance, other.checkedBalance) && Objects.equals(comment, other.comment)
             && Objects.equals(credit, other.credit) && Objects.equals(date, other.date) && Objects.equals(debit, other.debit) && sequence == other.sequence && Objects.equals(sortedBalance, other.sortedBalance)
             && Objects.equals(stid, other.stid) && Objects.equals(type, other.type);
    }

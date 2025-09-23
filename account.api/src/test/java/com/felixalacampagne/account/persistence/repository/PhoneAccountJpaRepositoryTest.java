@@ -50,14 +50,6 @@ public class PhoneAccountJpaRepositoryTest
    }
 
    @Test
-   void testfindTransferAccountsWithAccountDTO()
-   {
-      List<PhoneWithAccountDTO> accs = phoneAccountJpaRepository.findTransferAccountsWithAccountDTO(22L);
-      log.info("testfindTransferAccountsWithAccount: found {} phoneaccounts", accs.size());
-      log.info("testfindTransferAccountsWithAccount: phoneaccounts:\n{}", Utils.listToString(accs, "\n   "));
-   }
-
-   @Test
    void testfindPhoneWithAccountById()
    {
       PhoneWithAccountProjection pwa = phoneAccountJpaRepository.findPhoneWithAccountById(86L).get();

@@ -2,42 +2,69 @@ package com.felixalacampagne.account.persistence.entities;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 
 /**
  * The persistent class for the "PhoneTrans" database table.
  *
+ * To map Access CSV to H2 CSV columns
+ * PTid;PTPayDate;PTsrcpaid           ;PTdstpaid              ;PTamount;PTcomm       ;PTaccom;PTSentDate;PTTransDate    ;PTErrStatus
+ * id  ;paydate  ;senderphoneaccountid;recipientphoneaccountid;amount  ;communication;comment;sentdate  ;transactiondate;errorstatus
+ *
  */
 @Entity
-@Table(name="PhoneTrans")
+@Table(name="phonetransaction")
 //@NamedQuery(name="PhoneTrans.findAll", query="SELECT p FROM PhoneTrans p")
 public class PhoneTrans implements Serializable {
    private static final long serialVersionUID = 1L;
+
+   @Id
+   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "phonetransaction_seq_gen")
+   @SequenceGenerator(initialValue = 1, name = "phonetransaction_seq_gen", sequenceName = "phonetransaction_seq", allocationSize = 1)
+   @Column(name="id")                          // PTid
    private Long PTid;
+
+   @Column(name="comment")                     // PTaccom
    private String PTaccom;
+
+   @Column(name="amount")                      // PTamount
    private String PTamount;
+
+   @Column(name="communication")               // PTcomm
    private String PTcomm;
+
+   @Column(name="recipientphoneaccountid")     // PTdstpaid
    private Long PTdstpaid;
-   private String PTErrStatus;
-   private Timestamp PTPayDate;
-   private Timestamp PTSentDate;
+
+   @Column(name="senderphoneaccountid")        // PTsrcpaid
    private Long PTsrcpaid;
-   private Timestamp PTTransDate;
+
+   @Column(name="paydate")                     // PTPayDate
+   private LocalDate PTPayDate;
+
+   @Column(name="sentdate")                    // PTSentDate
+   private LocalDate PTSentDate;
+
+   @Column(name="transactiondate")             // PTTransDate
+   private LocalDate PTTransDate;
+
+   @Column(name="errorstatus")                 // PTErrStatus
+   private String PTErrStatus;
 
    public PhoneTrans() {
    }
 
 
-   @Id
-   @GeneratedValue(strategy=GenerationType.IDENTITY)
-   @Column(name="PTid", unique=true, nullable=false)
+
    public Long getPTid() {
       return this.PTid;
    }
@@ -47,7 +74,6 @@ public class PhoneTrans implements Serializable {
    }
 
 
-   @Column(name="PTaccom", length=255)
    public String getPTaccom() {
       return this.PTaccom;
    }
@@ -57,7 +83,7 @@ public class PhoneTrans implements Serializable {
    }
 
 
-   @Column(name="PTamount", length=40)
+
    public String getPTamount() {
       return this.PTamount;
    }
@@ -67,7 +93,7 @@ public class PhoneTrans implements Serializable {
    }
 
 
-   @Column(name="PTcomm", length=80)
+
    public String getPTcomm() {
       return this.PTcomm;
    }
@@ -77,7 +103,7 @@ public class PhoneTrans implements Serializable {
    }
 
 
-   @Column(name="PTdstpaid")
+
    public Long getPTdstpaid() {
       return this.PTdstpaid;
    }
@@ -87,7 +113,7 @@ public class PhoneTrans implements Serializable {
    }
 
 
-   @Column(name="PTErrStatus", length=255)
+
    public String getPTErrStatus() {
       return this.PTErrStatus;
    }
@@ -97,27 +123,27 @@ public class PhoneTrans implements Serializable {
    }
 
 
-   @Column(name="PTPayDate")
-   public Timestamp getPTPayDate() {
+
+   public LocalDate getPTPayDate() {
       return this.PTPayDate;
    }
 
-   public void setPTPayDate(Timestamp PTPayDate) {
+   public void setPTPayDate(LocalDate PTPayDate) {
       this.PTPayDate = PTPayDate;
    }
 
 
-   @Column(name="PTSentDate")
-   public Timestamp getPTSentDate() {
+
+   public LocalDate getPTSentDate() {
       return this.PTSentDate;
    }
 
-   public void setPTSentDate(Timestamp PTSentDate) {
+   public void setPTSentDate(LocalDate PTSentDate) {
       this.PTSentDate = PTSentDate;
    }
 
 
-   @Column(name="PTsrcpaid")
+
    public Long getPTsrcpaid() {
       return this.PTsrcpaid;
    }
@@ -127,12 +153,12 @@ public class PhoneTrans implements Serializable {
    }
 
 
-   @Column(name="PTTransDate")
-   public Timestamp getPTTransDate() {
+
+   public LocalDate getPTTransDate() {
       return this.PTTransDate;
    }
 
-   public void setPTTransDate(Timestamp PTTransDate) {
+   public void setPTTransDate(LocalDate PTTransDate) {
       this.PTTransDate = PTTransDate;
    }
 

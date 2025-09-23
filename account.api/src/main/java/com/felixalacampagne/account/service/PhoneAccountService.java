@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 
 import com.felixalacampagne.account.common.Utils;
 import com.felixalacampagne.account.model.TransferAccountItem;
+import com.felixalacampagne.account.persistence.entities.Account;
 import com.felixalacampagne.account.persistence.entities.PhoneAccount;
+import com.felixalacampagne.account.persistence.repository.AccountJpaRepository;
 import com.felixalacampagne.account.persistence.repository.PhoneAccountJpaRepository;
 
 @Service
@@ -18,10 +20,12 @@ public class PhoneAccountService
 {
 private final Logger log = LoggerFactory.getLogger(this.getClass());
 private final PhoneAccountJpaRepository phoneAccountJpaRepository;
-
-   public PhoneAccountService(PhoneAccountJpaRepository phoneAccountJpaRepository)
+private final AccountJpaRepository accountJpaRepository;
+   public PhoneAccountService(PhoneAccountJpaRepository phoneAccountJpaRepository,
+		   AccountJpaRepository accountJpaRepository)
    {
       this.phoneAccountJpaRepository = phoneAccountJpaRepository;
+      this.accountJpaRepository = accountJpaRepository;
    }
 
    public List<TransferAccountItem> getPhoneAccounts()
@@ -31,7 +35,7 @@ private final PhoneAccountJpaRepository phoneAccountJpaRepository;
             .stream()
             .map(a -> {
                return new TransferAccountItem(a.getPhoneAccount().getId(),
-                     a.getPhoneAccount().getAccountId(),
+                     a.getPhoneAccount().getAccount().getId(),
                      a.getPhoneAccount().getDesc(),
                      a.getPhoneAccount().getAccountNumber(),
                      a.getPhoneAccount().getLastComm(),
@@ -105,7 +109,9 @@ private final PhoneAccountJpaRepository phoneAccountJpaRepository;
       {
          pa.setId(phoneAccountItem.getId());
       }
-      pa.setAccountId(phoneAccountItem.getRelatedAccountId());
+      Account relacc = this.accountJpaRepository.findById(phoneAccountItem.getRelatedAccountId())
+    		  .orElseThrow(() -> new  AccountException("No Account for id " + phoneAccountItem.getRelatedAccountId()));
+      pa.setAccount(relacc);
       pa.setAccountNumber(phoneAccountItem.getCptyAccountNumber());
       pa.setDesc(phoneAccountItem.getCptyAccountName());
       pa.setLastComm(phoneAccountItem.getLastCommunication());

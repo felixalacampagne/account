@@ -12,37 +12,72 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 
 /**
  * The persistent class for the "StandingOrders" database table.
  *
+ * To map Access CSV to H2 CSV columns
+ * SOid;SOPeriod;SOCount;SONextPayDate;SOEntryDate;SODesc ;SOAccId  ;SOTfrType      ;SOAmount
+ * id  ;period  ;count  ;paydate      ;entrydate  ;comment;accountid;transactiontype;amount
+ *
  */
 @Entity
-@Table(name="StandingOrders")
+@Table(name="standingorder")
 //@NamedQuery(name="StandingOrder.findAll", query="SELECT s FROM StandingOrder s")
 public class StandingOrders implements Serializable {
    private static final long serialVersionUID = 1L;
-   private Long SOid;
+
+
+   @Id
+   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "standingorder_seq_gen")
+   @SequenceGenerator(initialValue = 1, name = "standingorder_seq_gen", sequenceName = "standingorder_seq", allocationSize = 1)
+   @Column(name="id")
+   private Long SOid;             // SOid
 
 //   private Long SOAccId;
+   // Each Account can be mapped to many standingorders
+   //uni-directional many-to-one association to AccountX
+
+   @ManyToOne
+   @JoinColumn(name = "accountid", nullable = false) // SOAccId
    private Account account;
+
+   @Column(name="amount")
    private BigDecimal SOAmount;
+
+   @Column(name="count")
    private Long SOCount;
+
+   @Column(name="comment")
    private String SODesc;
+
+   @Column(name="entrydate")
    private LocalDate SOEntryDate;
+
+   @Column(name="paydate")
    private LocalDate SONextPayDate;
+
+   @Column(name="period")
    private String SOPeriod;
+
+   @Column(name="transactiontype")
    private String SOTfrType;
 
    public StandingOrders() {
    }
 
 
-   @Id
-   @GeneratedValue(strategy=GenerationType.IDENTITY)
-   @Column(name="SOid", unique=true, nullable=false)
+   public Account getAccount() {
+      return this.account;
+   }
+
+   public void setAccount(Account account) {
+      this.account = account;
+   }
+
    public Long getSOid() {
       return this.SOid;
    }
@@ -120,16 +155,6 @@ public class StandingOrders implements Serializable {
       this.SOTfrType = SOTfrType;
    }
 
-   //uni-directional many-to-one association to AccountX
-   @ManyToOne
-   @JoinColumn(name = "SOAccId", nullable = false)
-   public Account getAccount() {
-      return this.account;
-   }
-
-   public void setAccount(Account account) {
-      this.account = account;
-   }
 
    @Override
    public String toString()

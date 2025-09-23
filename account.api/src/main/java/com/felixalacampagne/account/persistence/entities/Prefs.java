@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 
@@ -14,23 +15,35 @@ import jakarta.persistence.Table;
 /**
  * The persistent class for the "prefs" database table.
  *
+ * To map Access CSV to H2 CSV columns
+ * prefs_name;prefs_text;prefs_numeric
+ * name      ;text      ;numeric
  */
 @Entity
 @Table(name="prefs")
 //@NamedQuery(name="Pref.findAll", query="SELECT p FROM Pref p")
 public class Prefs implements Serializable {
    private static final long serialVersionUID = 1L;
+
+   @Id
+   // @GeneratedValue(strategy=GenerationType.IDENTITY)
+   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "prefs_seq_gen")
+   @SequenceGenerator(initialValue = 1, name = "prefs_seq_gen", sequenceName = "prefs_seq", allocationSize = 1)
+   @Column(name="id")
+   private Long id;
+
+   @Column(name="name", unique=true, nullable=false)
    private String prefsName;
+
+   @Column(name="numeric")
    private int prefsNumeric;
+
+   @Column(name="text")
    private String prefsText;
 
    public Prefs() {
    }
 
-
-   @Id
-   @GeneratedValue(strategy=GenerationType.IDENTITY)
-   @Column(name="prefs_name", unique=true, nullable=false, length=80)
    public String getPrefsName() {
       return this.prefsName;
    }
@@ -40,7 +53,6 @@ public class Prefs implements Serializable {
    }
 
 
-   @Column(name="prefs_numeric")
    public int getPrefsNumeric() {
       return this.prefsNumeric;
    }
@@ -50,7 +62,6 @@ public class Prefs implements Serializable {
    }
 
 
-   @Column(name="prefs_text", length=255)
    public String getPrefsText() {
       return this.prefsText;
    }

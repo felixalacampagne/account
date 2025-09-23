@@ -57,14 +57,16 @@ public class AccountService
       Account srcacc = accountJpaRepository.findById(id)
          .orElseThrow(() -> new AccountException("Account not found: " + id));
 
-      return phoneAccountJpaRepository.findTransferAccountsWithAccount(srcacc.getAccId())
+      return phoneAccountJpaRepository.findTransferAccountsWithAccount(srcacc.getId())
             .stream()
             .map(a -> {
                String desc = AelseB(a.getAccDesc(), a.getPhoneAccount().getDesc());
 
                // The Account code appears to be out of date or not suitable for making transfers so don't use it.
                String code = a.getPhoneAccount().getAccountNumber(); // aElseB(a.getAccCode(), a.getPhoneAccount().getAccountNumber());
-               return new TfrAccountItem(a.getPhoneAccount().getId(), a.getPhoneAccount().getAccountId(), desc, code, a.getPhoneAccount().getLastComm());
+               return new TfrAccountItem(a.getPhoneAccount().getId(), 
+            		   a.getPhoneAccount().getAccount().getId(), 
+            		   desc, code, a.getPhoneAccount().getLastComm());
                })
             .collect(Collectors.toList());
    }
@@ -80,7 +82,7 @@ public class AccountService
    public AccountItem getAccountItem(long id)
    {
       return accountJpaRepository.findById(id)
-                          .map(a -> { return new AccountItem(a.getAccId(), a.getAccDesc(), a.getAccSid()); })
+                          .map(a -> { return new AccountItem(a.getId(), a.getAccDesc(), a.getAccSid()); })
                           .orElseThrow(() -> new AccountException("Account not found: " + id));
    }
 
