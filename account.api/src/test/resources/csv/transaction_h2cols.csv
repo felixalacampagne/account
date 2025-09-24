@@ -1,0 +1,2 @@
+id;accountid;transactiondate;transactiontype;comment;checked;credit;debit;balance;checkedbalance;sortedbalance;statementref
+1;1;1995-01-10 00:00:00;BC  ;Petrol, Hoeilaart (75448km 39.45l)                ;true;(null);1176.0;-1176.0;(null);(null);(null)

@@ -5,10 +5,8 @@ import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+
 
 @Component
 public class ReSyncService
@@ -26,8 +24,7 @@ public class ReSyncService
       this.accountService = accountService;
    }
 
-   @Async
-   @EventListener(ApplicationReadyEvent.class)
+
    public void reSyncBalances()
    {
       log.info("reSyncBalances: start: accountJpaRepository:{} balanceService:{}",
