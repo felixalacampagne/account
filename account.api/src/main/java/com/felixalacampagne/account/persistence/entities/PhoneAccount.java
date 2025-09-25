@@ -113,17 +113,6 @@ public class PhoneAccount implements Serializable
       this.Id = Id;
    }
 
-   // Presence of getAccountId confuses the spring conversion of method names to queries so
-   // xxxByAccountId is incorrectly interpreted as a field called accountId instead of account.id
-   // public Long getAccountId()
-   // {
-   //    return account==null ? 0: account.getId(); //this.accountId;
-   // }
-
-   // public void setAccountId(Long accountId)
-   // {
-   //    this.accountId = accountId;
-   // }
 
    public Account getAccount()
    {
@@ -203,6 +192,21 @@ public class PhoneAccount implements Serializable
       PhoneAccount other = (PhoneAccount) obj;
       return Objects.equals(Id, other.Id) && Objects.equals(account, other.account) && Objects.equals(accountNumber, other.accountNumber) && Objects.equals(desc, other.desc) && Objects.equals(lastComm, other.lastComm)
             && Objects.equals(order, other.order) && Objects.equals(type, other.type);
+   }
+
+   // Convenience methods to access content of Account which may be null
+   // null is replaced by values appropriate for the UI
+   // Presence of getAccountId confuses the spring conversion of method names to queries so
+   // xxxByAccountId is incorrectly interpreted as a field called accountId instead of account.id
+   // Returns 0 for a null Account for compatibility with the UI
+   public Long getAccId()
+   {
+      return account==null ? 0 : account.getId();
+   }
+
+   public String getAccDesc()
+   {
+      return account==null ? "" : account.getAccDesc();
    }
 
 }

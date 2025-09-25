@@ -131,7 +131,7 @@ class TransactionServiceTest
 //      Example<PhoneAccount> example = Example.of(phoneAccount);
 //      phoneAccount = phoneAccountJpaRepository.findOne(example).orElseThrow(()-> new RuntimeException("no PhoneAccount for Account.ID:" + cptyaccid));
       PhoneAccount phoneAccount = phoneAccountJpaRepository.findAll().stream()
-            .filter(p-> p.getAccount().getId()==cptyaccid)
+            .filter(p-> p.getAccId()==cptyaccid)
             .findAny()
             .orElseThrow(()-> new RuntimeException("no PhoneAccount for Account.ID:" + cptyaccid));
 

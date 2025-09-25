@@ -23,7 +23,6 @@ import com.felixalacampagne.account.model.TransactionItem;
 import com.felixalacampagne.account.model.Transactions;
 import com.felixalacampagne.account.persistence.entities.Account;
 import com.felixalacampagne.account.persistence.entities.PhoneAccount;
-import com.felixalacampagne.account.persistence.entities.PhoneWithAccountProjection;
 import com.felixalacampagne.account.persistence.entities.Transaction;
 import com.felixalacampagne.account.persistence.repository.AccountJpaRepository;
 import com.felixalacampagne.account.persistence.repository.PhoneAccountJpaRepository;
@@ -175,9 +174,9 @@ public class TransactionService
       Account tfracc = null;
       Long tfraccid = 0L;
       Long srcaccid = srcTxn.getAccount().getId();
-      PhoneWithAccountProjection paproj = this.phoneAccountJpaRepository.findPhoneWithAccountById(phoneAccId)
+      PhoneAccount pa = this.phoneAccountJpaRepository.findById(phoneAccId)
                                               .orElseThrow(() -> new AccountException("Phone account not found: " + phoneAccId));
-      PhoneAccount pa = paproj.getPhoneAccount();
+//      PhoneAccount pa = paproj.getPhoneAccount();
       if(pa.getAccount() != null) // transfer is to a related account so must apply a 'reverse' transaction to it
       {
          tfracc = pa.getAccount();
@@ -197,7 +196,7 @@ public class TransactionService
             txntfr.setCredit(srcTxn.getDebit());
             txntfr.setDebit(null);
             txntfr.setComment(txntfr.getComment() + " from:" + srcacc.getAccDesc());
-            srcupdcomm = srcupdcomm + " to:" + paproj.getAccDesc();
+            srcupdcomm = srcupdcomm + " to:" + tfracc.getAccDesc();
          }
          else
          {
@@ -205,7 +204,7 @@ public class TransactionService
             txntfr.setDebit(srcTxn.getCredit());
             txntfr.setCredit(null);
             txntfr.setComment(txntfr.getComment() + " to:" + srcacc.getAccDesc());
-            srcupdcomm = srcupdcomm + " from:" + paproj.getAccDesc();
+            srcupdcomm = srcupdcomm + " from:" + tfracc.getAccDesc();
          }
 
          txntfr = add(txntfr);

@@ -32,7 +32,7 @@ public class BalanceService
                                     Function<Transaction, BigDecimal> balanceGetter,
                                     BiConsumer<Transaction, BigDecimal> balanceSetter)
    {
-      log.debug("doBalanceCalculation: start: first id:{} final id:{} final bal: {}{}",
+      log.debug("doBalanceCalculation: start: first id:{} final id:{} final bal: {}",
             txns.get(0).getSequence(),
             txns.get(txns.size()-1).getSequence(),
             balanceGetter.apply(txns.get(txns.size()-1)));

@@ -31,18 +31,20 @@ private final AccountJpaRepository accountJpaRepository;
    public List<TransferAccountItem> getPhoneAccounts()
    {
       Sort sort = Sort.by(Sort.Direction.DESC, "order");
-      return phoneAccountJpaRepository.findAllWithRelatedDetails()
+      return phoneAccountJpaRepository.findAll(Sort.by(List.of (
+                                                      new Sort.Order(Sort.Direction.DESC, "order"),
+                                                      new Sort.Order(Sort.Direction.ASC, "desc"))))
             .stream()
             .map(a -> {
-               return new TransferAccountItem(a.getPhoneAccount().getId(),
-                     a.getPhoneAccount().getAccount().getId(),
-                     a.getPhoneAccount().getDesc(),
-                     a.getPhoneAccount().getAccountNumber(),
-                     a.getPhoneAccount().getLastComm(),
-                     a.getPhoneAccount().getOrder(),
-                     a.getPhoneAccount().getType(),
+               return new TransferAccountItem(a.getId(),
+                     a.getAccId(),
+                     a.getDesc(),
+                     a.getAccountNumber(),
+                     a.getLastComm(),
+                     a.getOrder(),
+                     a.getType(),
                      a.getAccDesc(),
-                     Utils.getToken(a.getPhoneAccount()));
+                     Utils.getToken(a));
             })
             .collect(Collectors.toList());
    }
@@ -105,13 +107,18 @@ private final AccountJpaRepository accountJpaRepository;
    // If the id of the entity is already set then it will NOT be overridden by a value in item
    private PhoneAccount mapToEntity(TransferAccountItem phoneAccountItem, PhoneAccount pa)
    {
-      if(pa.getId() < 1)
+      if((pa.getId() == null) || (pa.getId() < 1))
       {
          pa.setId(phoneAccountItem.getId());
       }
-      Account relacc = this.accountJpaRepository.findById(phoneAccountItem.getRelatedAccountId())
-    		  .orElseThrow(() -> new  AccountException("No Account for id " + phoneAccountItem.getRelatedAccountId()));
-      pa.setAccount(relacc);
+
+      if(phoneAccountItem.getRelatedAccountId() > 0)
+      {
+         Account relacc = this.accountJpaRepository.findById(phoneAccountItem.getRelatedAccountId())
+       		  .orElseThrow(() -> new  AccountException("No Account for id " + phoneAccountItem.getRelatedAccountId()));
+         pa.setAccount(relacc);
+      }
+
       pa.setAccountNumber(phoneAccountItem.getCptyAccountNumber());
       pa.setDesc(phoneAccountItem.getCptyAccountName());
       pa.setLastComm(phoneAccountItem.getLastCommunication());
