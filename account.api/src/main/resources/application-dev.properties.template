@@ -1,7 +1,8 @@
+falc.account.standingorder.cron=* 0 */2 * * ?
+
 falc.account.name=DevJAccountH2
 falc.account.db=TEST
 falc.account.version=0.5.0adev
-falc.account.standingorder.cron=* 0 */2 * * ?
 
 # Uses the DB created and populated by DatabasePopulateTest
 falc.account.db.name=accountH2create

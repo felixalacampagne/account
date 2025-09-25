@@ -25,7 +25,7 @@ import com.felixalacampagne.account.persistence.repository.TransactionJpaReposit
 // Fork Me! Disabled test can be run in eclipse by providing:
 // -Djunit.jupiter.conditions.deactivate=org.junit.*DisabledCondition
 // as a VM argument to the run configuration.
-@Disabled
+//@Disabled
 
 @SpringBootTest(classes = {TestApplication.class})
 //@Configuration
