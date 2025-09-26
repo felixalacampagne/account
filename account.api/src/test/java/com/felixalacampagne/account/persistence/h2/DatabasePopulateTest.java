@@ -28,7 +28,6 @@ import com.felixalacampagne.account.persistence.repository.TransactionJpaReposit
 //@Disabled
 
 @SpringBootTest(classes = {TestApplication.class})
-//@Configuration
 @Import({RepositoryConfig.class})
 @ActiveProfiles({"h2create"
              , "noinittest"
