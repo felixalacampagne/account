@@ -119,8 +119,8 @@ Map<String, Pair> columnMaps = new HashMap<>();
        String fixline = line;
        if("transaction".equals(tablename))
        {
-          fixline = line.replaceAll("^(\\d{1,6});;", "$1;25;");
-          fixline = fixline.replaceAll("^(\\d{1,6});\\(null\\);", "$1;25;");
+          fixline = line.replaceAll("^(\\d{1,6});;", "$1;46;");
+          fixline = fixline.replaceAll("^(\\d{1,6});\\(null\\);", "$1;46;");
           // maybe needs this also: ^\d{1,5};\(null\);
        }
        return fixline;

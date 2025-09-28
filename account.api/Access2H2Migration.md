@@ -6,12 +6,12 @@ as possible since it may not work with the new H2 database.
 The export from UCanaccess is fairly straight forward once the package is downloaded - there is a console.bat, as indicated 
 by the documentation, and running it does connect to the database. Exporting the tables is also simple enough;
 
-    export -t account ./account.csv;
-    export -t transaction ./transaction.csv;
-    export -t standingorders ./standingorders.csv;
-    export -t PhoneAccounts ./phoneaccount.csv;
-    export -t PhoneTrans ./phonetransaction.csv;
-    export -t Prefs ./prefs.csv;
+    export -t account ../../csv/account.csv;
+    export -t transaction ../../csv/transaction.csv;
+    export -t standingorders ../../csv/standingorders.csv;
+    export -t PhoneAccounts ../../csv/phoneaccount.csv;
+    export -t PhoneTrans ../../csv/phonetransaction.csv;
+    export -t Prefs ../../csv/prefs.csv;
 
 The column headers need to be modified to match the new column names.
 
