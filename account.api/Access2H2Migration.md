@@ -13,21 +13,13 @@ by the documentation, and running it does connect to the database. Exporting the
     export -t PhoneTrans ../../csv/phonetransaction.csv;
     export -t Prefs ../../csv/prefs.csv;
 
-The column headers need to be modified to match the new column names.
+WARNING: The CSV files MUST be loaded into UE in UTF-8 mode - changing to UTF-8 after loading doesn't seem to
+work.
 
-WARNING: The CSV files MUST be edited as UTF-8, loading into UE and changing to UTF-8 doesn't seem to
-work. Only way so far is to load the file, change the encoding in the status bar to UTF-8 and then drag the
-file from explorer on to itself. The account.csv is the one to check as the format strings must contain
-UTF-8 for the 'pound' and 'euro' signs.
+Column header update and invalid entry fixing is done by running CSVHeaderFixTest test. The UCanAccess CSV files should
+be put into account.api/csv before running CSVHeaderFixTest. The modified files are created with the '_h2cols' suffix.
 
-The 'live' data contains invalid entries in the transaction data, ie. missing account ids. I fixed this
-by searching for '^(\d{1,5});;' and replacing with '\1;25;'
+Run DatabasePopulateTest (need to remove the @Ignore first) to create a new accountH2create DB in account.api/db populated
+with the content of the modified CSV files.
 
-Update the _h2cols.csv files in test/resources/csv with the fresh, cleaned, data, ensuring that UTF-8 is used
-throughout and that the new column names are used.
-
-Remove the accountH2create files in the db directory.
-
-Run DatabasePopulateTest (need to remove the @Ignore first). the db directory now contains the 
-migrated H2 database. The standalone development AccountApplication will run using it so it can be
-validated before commiting it to the live system.
+The standalone development AccountApplication will run using the db in account.api/db.

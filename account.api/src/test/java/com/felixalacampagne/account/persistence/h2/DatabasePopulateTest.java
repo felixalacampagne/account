@@ -2,9 +2,11 @@ package com.felixalacampagne.account.persistence.h2;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.Disabled;
+import java.io.File;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
@@ -15,6 +17,7 @@ import com.felixalacampagne.account.persistence.repository.PhoneAccountJpaReposi
 import com.felixalacampagne.account.persistence.repository.RepositoryConfig;
 import com.felixalacampagne.account.persistence.repository.StandingOrdersJpaRepository;
 import com.felixalacampagne.account.persistence.repository.TransactionJpaRepository;
+import com.felixalacampagne.account.service.HouseKeepingService;
 
 // AAAAAAAAAAAAAAAaaaaaaaaaaaaaaaaaaaaaggggggggggggggggggggggghhhhhhhhhhhhhhhhhhhhh!
 // WARNING: eclipse does not run @Disabled test even when
@@ -35,6 +38,9 @@ import com.felixalacampagne.account.persistence.repository.TransactionJpaReposit
              })
 public class DatabasePopulateTest
 {
+   @Value("${falc.account.db.location}")
+   String dblocation;
+
    @Autowired
    AccountJpaRepository accountJpaRepository;
 
@@ -47,6 +53,8 @@ public class DatabasePopulateTest
    @Autowired
    StandingOrdersJpaRepository standingOrdersJpaRepository;
 
+   @Autowired
+   HouseKeepingService houseKeepingService;
 
    @Test
    void databaseIsPopulated()
@@ -56,4 +64,18 @@ public class DatabasePopulateTest
       assertTrue(phoneAccountJpaRepository.count() > 0, "Phoneaccount table should exist and be empty");
       assertTrue(standingOrdersJpaRepository.count() > 0, "Standingorder table should exist and be empty");
    }
+
+   @Test
+   void backupTest()
+   {
+      File path = new File(dblocation, "accountH2create_backup_00.zip");
+
+      path.delete();
+
+      houseKeepingService.doHouseKeeping();
+
+      assertTrue(path.exists(), "backup file should exist: " + path.getAbsolutePath());
+
+   }
+
 }
