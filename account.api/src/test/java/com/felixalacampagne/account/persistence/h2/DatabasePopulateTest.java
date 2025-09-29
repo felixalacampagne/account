@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +29,7 @@ import com.felixalacampagne.account.service.HouseKeepingService;
 // Fork Me! Disabled test can be run in eclipse by providing:
 // -Djunit.jupiter.conditions.deactivate=org.junit.*DisabledCondition
 // as a VM argument to the run configuration.
-//@Disabled
+@Disabled
 
 @SpringBootTest(classes = {TestApplication.class})
 @Import({RepositoryConfig.class})
