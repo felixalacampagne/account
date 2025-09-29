@@ -150,6 +150,20 @@ public class Utils
       return String.format("%02d:%02d.%03d", diff.toMinutesPart(), diff.toSecondsPart(), diff.toMillisPart());
    }
 
+   // filenameTemplate: a full pathspec containing '00' in the position for the version number
+   // count: max version number (0 < count < 100)
+   public static void rotateFiles(String filenameTemplate, int count)
+   {
+//	   my $backfmt=$path . ".%d.backup";
+//		for(my $bkupid = 9; $bkupid>0; $bkupid--)
+//		{
+//			my $src = sprintf($backfmt, ($bkupid - 1));
+//			my $dst = sprintf($backfmt, ($bkupid));
+//		 	move($src, $dst);	
+//		}
+//		copy($path, sprintf($backfmt, 0));
+   }
+   
    private Utils()
    {
       // utility class should only contain statics

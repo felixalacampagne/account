@@ -11,6 +11,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.felixalacampagne.account.common.Utils;
 import com.felixalacampagne.account.persistence.entities.Prefs;
 import com.felixalacampagne.account.persistence.repository.PrefsAndHouseKeepingRepository;
 
@@ -51,17 +52,12 @@ private final PrefsAndHouseKeepingRepository prefsAndHouseKeepingRepository;
       {
          backdir = opt.get().getPrefsText();
       }
-
-      rotateBackups(backdir, this.dbname + "_backup", 14);
       File path = new File(backdir, this.dbname + "_backup_00.zip");
+      Utils.rotateFiles(path.getAbsolutePath(), 14);
+
 
       log.info("doHouseKeeping: Backup database: {}", path.getAbsolutePath());
       this.prefsAndHouseKeepingRepository.backupDB(path.getAbsolutePath());
    }
 
-   private void rotateBackups(String backdir, String string, int bucount)
-   {
-
-
-   }
 }
