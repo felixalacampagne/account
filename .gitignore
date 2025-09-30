@@ -4,3 +4,4 @@
 *.diff
 db/
 csv/
+*.rej

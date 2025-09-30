@@ -1,5 +1,6 @@
 package com.felixalacampagne.account.common;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
@@ -84,7 +85,7 @@ public class Utils
          + ":" + acc.getAccountNumber()
          + ":" + acc.getDesc();
    }
-   
+
    public static String formatAmount(BigDecimal bigdec)
    {
    String amt = "";
@@ -95,7 +96,7 @@ public class Utils
       return amt;
    }
 
-   
+
    public static String formatAmount(BigDecimal bigdec, String fmt)
    {
    String amt = "";
@@ -103,7 +104,7 @@ public class Utils
       {
          return formatAmount(bigdec);
       }
-      
+
       if(bigdec != null)
       {
          DecimalFormat formatter = new DecimalFormat(fmt);
@@ -111,7 +112,7 @@ public class Utils
       }
       return amt;
    }
-   
+
    public static String formatDate(LocalDate ts)
    {
       String date = "";
@@ -154,16 +155,22 @@ public class Utils
    // count: max version number (0 < count < 100)
    public static void rotateFiles(String filenameTemplate, int count)
    {
-//	   my $backfmt=$path . ".%d.backup";
-//		for(my $bkupid = 9; $bkupid>0; $bkupid--)
-//		{
-//			my $src = sprintf($backfmt, ($bkupid - 1));
-//			my $dst = sprintf($backfmt, ($bkupid));
-//		 	move($src, $dst);	
-//		}
-//		copy($path, sprintf($backfmt, 0));
+      for(int dstid = count; dstid > 0; dstid--)
+      {
+         int srcid = dstid - 1;
+
+         // Not the most efficient algorithm!!
+         String dstname = filenameTemplate.replace("00", String.format("%02d", dstid));
+         String srcname = filenameTemplate.replace("00", String.format("%02d", srcid));
+         File srcFile = new File(srcname);
+         File dstFile = new File(dstname);
+
+         dstFile.delete();
+         srcFile.renameTo(dstFile);
+
+      }
    }
-   
+
    private Utils()
    {
       // utility class should only contain statics
