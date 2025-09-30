@@ -24,24 +24,22 @@ import org.springframework.context.annotation.PropertySource;
 // So start with try putting it in the tomcat conf directory and see if it is picked up
 // via the 'classpath' prefix.
 
-@PropertySource(value = "classpath:account.properties", ignoreResourceNotFound = true)
+// This manages to access the account.properties but, in yet another typical bit of Spring Boot Shirt Think
+// the values loaded via PropertySource do NOT override the default values in application.properties - once
+// again the Spring Boot forkers are having a giant laugh at the expense of poor, time constrained developers.
+// This effectively makes the @PropertySource option completely useless unless default values are NOT
+// provided in application.properties
+// spring.config.additional-location is supposed to allow application.properties to be overridden but
+// it is only effective if provided on the command line or in an environment variable - no use for
+// providing properties to the app running in tomcat
 
-// If that doesn't work then try an environment variable, eg.
-//@PropertySource(value = "file:${CATALINA_BASE}/conf/account.properties", ignoreResourceNotFound = true)
-// This will require adding the TOMCAT_CONFIG value to the tomcat 'setenv.bat', which might not
-// work if the windows service is being used, in which case the service command must be updated with
-// something like
-// Tomcat9.exe //US//Tomcat9 ++JvmOptions="-Dconfigpath=D:/properties"
-// NB Maybe this config difference can be avoided by using CATALINA_BASE which should be defined for
-// both service and normal environments
-//
-// A potentially more generic way is to use a 'JNDI' variable. Don't really know how this
-// works but the propertysource might like
-//@PropertySource(value = "file:${java:comp/env/springbootconfig}/account.properties", ignoreResourceNotFound = true)
-// with something like the following added to the tomcat config (in $CATALINA_BASE/conf/context.xml Context block)
-// <Environment name="springbootconfig" value="path_to_app_configs" type="java.lang.String" override="false"/>
-// The classpath way is preferable followed by the JNDI way (if it can be made to work).
-// Multiple @PropertySource are allowed so why not use them all!
+// So for now any properties that are specific to tomcat must be either hard-coded in the application.properties
+// or COMPLETELY OMMITTED from application.properties and MUST appear in account.properties
+// Maybe a profile specific to the tomcat installation could be used but not sure where the file would
+// need to go unless a config directory is specified on the tomcat command line.
+@PropertySource(value = "file:${catalina.home}/conf/account.properties", ignoreResourceNotFound = true)
+
+
 @SpringBootApplication(scanBasePackages = {
 "com.felixalacampagne.account.controller"
 //"com.scu.account.persistence.entities"
