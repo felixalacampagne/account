@@ -37,6 +37,13 @@ import org.springframework.context.annotation.PropertySource;
 // or COMPLETELY OMMITTED from application.properties and MUST appear in account.properties
 // Maybe a profile specific to the tomcat installation could be used but not sure where the file would
 // need to go unless a config directory is specified on the tomcat command line.
+// Something to try:
+//    Define an active profile in the account.properties, eg. tomcat
+//    Figure out what classpath is and put an application-{profile}.properties containing the real DB settings on the classpath.
+//    It should be picked up and override any values in application.properties
+// Nope - can't set active profile from PropertySource file.
+// So looks like we stuck with the borked PropertySource way and then not being able
+// to use default values
 @PropertySource(value = "file:${catalina.home}/conf/account.properties", ignoreResourceNotFound = true)
 
 
@@ -51,4 +58,15 @@ public class AccountApplication extends SpringBootServletInitializer {
       SpringApplication.run(AccountApplication.class, args);
    }
 
+// Potential way to determine if running in container or embedded mode.
+//   @Override
+//   protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+//       return application.sources(ExampleApplication.class).properties(
+//               "com.example.mode:servlet-container");
+//   }
+//
+//   public static void main(String[] args) throws Exception {
+//       new SpringApplicationBuilder(ExampleApplication.class).properties(
+//               "com.example.mode:standalone").run(args);
+//   }
 }
