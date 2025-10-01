@@ -19,8 +19,8 @@
 </appender>
   <logger name="com.felixalacampagne" level="debug"/>
   
-  
+  <!-- STDOUT when tomcat is a service, FILE if tomcat started from console - naturally there is no way to know! -->
   <root level="info">
-    <appender-ref ref="FILE"/>
+    <appender-ref ref="STDOUT"/>
   </root>
 </configuration>
