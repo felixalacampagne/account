@@ -44,7 +44,10 @@ import org.springframework.context.annotation.PropertySource;
 // Nope - can't set active profile from PropertySource file.
 // So looks like we stuck with the borked PropertySource way and then not being able
 // to use default values
-@PropertySource(value = "file:${catalina.home}/conf/account.properties", ignoreResourceNotFound = true)
+// Maybe have the values in application.properties be derived from values with a different name in
+// the propertysource file with a default value of the required default value so absence of the
+// file or the propertysource value results in the desired default values being used...
+@PropertySource(value = "file:${catalina.home}/conf/account-local.properties", ignoreResourceNotFound = true)
 
 
 @SpringBootApplication(scanBasePackages = {

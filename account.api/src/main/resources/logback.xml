@@ -21,6 +21,6 @@
   
   <!-- STDOUT when tomcat is a service, FILE if tomcat started from console - naturally there is no way to know! -->
   <root level="info">
-    <appender-ref ref="STDOUT"/>
+    <appender-ref ref="FILE"/>
   </root>
 </configuration>
