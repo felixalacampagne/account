@@ -1,0 +1,16 @@
+local.falc.account.db.name=accountH2
+local.falc.account.db.location=/account
+local.falc.account.db.backupdir=accountbackup
+local.falc.account.db.username=user
+local.falc.account.db.password=secret
+#   second
+#   minute
+#   hour
+#   day of month
+#   month
+#   day of week
+# "0 10 08 * * ?"  08:10 every day
+# "*/10 * * * * *" every 10 seconds
+#                               s m  h  d m 
+local.falc.account.standingorder.cron=0 5 */4 * * ?
+local.falc.account.db.cron=0 45 23 * * ?

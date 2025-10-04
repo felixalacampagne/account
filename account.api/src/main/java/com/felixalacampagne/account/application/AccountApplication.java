@@ -17,43 +17,25 @@ import org.springframework.context.annotation.PropertySource;
 // Also has to explicitly import AccountApplicationConfig, which is strange given that it is in the
 // same package as Application - that's Spring for you, constantly finding ways to fork you over and
 // suck up available time on idiocies.
-//
 
 // Want to provide the DB location/credentials in an installation dependent properties file but
 // this is far from straight forward to do in tomcat.
 // So start with try putting it in the tomcat conf directory and see if it is picked up
 // via the 'classpath' prefix.
 
-// This manages to access the account.properties but, in yet another typical bit of Spring Boot Shirt Think
-// the values loaded via PropertySource do NOT override the default values in application.properties - once
-// again the Spring Boot forkers are having a giant laugh at the expense of poor, time constrained developers.
-// This effectively makes the @PropertySource option completely useless unless default values are NOT
-// provided in application.properties
-// spring.config.additional-location is supposed to allow application.properties to be overridden but
-// it is only effective if provided on the command line or in an environment variable - no use for
-// providing properties to the app running in tomcat
-
-// So for now any properties that are specific to tomcat must be either hard-coded in the application.properties
-// or COMPLETELY OMMITTED from application.properties and MUST appear in account.properties
-// Maybe a profile specific to the tomcat installation could be used but not sure where the file would
-// need to go unless a config directory is specified on the tomcat command line.
-// Something to try:
-//    Define an active profile in the account.properties, eg. tomcat
-//    Figure out what classpath is and put an application-{profile}.properties containing the real DB settings on the classpath.
-//    It should be picked up and override any values in application.properties
-// Nope - can't set active profile from PropertySource file.
-// So looks like we stuck with the borked PropertySource way and then not being able
-// to use default values
-// Maybe have the values in application.properties be derived from values with a different name in
-// the propertysource file with a default value of the required default value so absence of the
-// file or the propertysource value results in the desired default values being used...
+// In yet another typical bit of Spring Boot Shirt Think the values loaded via PropertySource 
+// do NOT override the default values in application.properties.
+// Therefore the values in application.properties must be derived from properties with a different name
+// which ONLY appear in the propertysource file or a default value so absence of the
+// propertysource value results in the desired default value being used. I use the 'local' prefix for all
+// properties in the porpertysource file. Obviously the absence of the propertysource file MUST NOT
+// cause the application to crash (which is the default behaviour!!).
+// Note that 'catalina.home', the JVM property used in the tomcat startup command line, is used as this
+// is unlikely to be available unless the application is running in the tomcat container
 @PropertySource(value = "file:${catalina.home}/conf/account-local.properties", ignoreResourceNotFound = true)
-
-
 @SpringBootApplication(scanBasePackages = {
-"com.felixalacampagne.account.controller"
-//"com.scu.account.persistence.entities"
-})
+		"com.felixalacampagne.account.controller"
+		})
 @Import(AccountApplicationConfig.class)
 public class AccountApplication extends SpringBootServletInitializer {
 

@@ -2,6 +2,7 @@ package com.felixalacampagne.account.persistence.h2;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,7 @@ import com.felixalacampagne.account.persistence.repository.TransactionJpaReposit
 //Fork Me! Disabled test can be run in eclipse by providing:
 //-Djunit.jupiter.conditions.deactivate=org.junit.*DisabledCondition
 //as a VM argument to the run configuration.
-//@Disabled
+@Disabled
 
 // More AAAAAAAAAAAAAAAaaaaaaaaaaaaaaaaaaaaaggggggggggggggggggggggghhhhhhhhhhhhhhhhhhhhh!
 // DatabasePopulateTest successfully use the values for db name/location from the h2create properties files

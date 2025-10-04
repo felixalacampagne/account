@@ -22,7 +22,7 @@ private Logger log = LoggerFactory.getLogger(this.getClass());
 
 private final PrefsAndHouseKeepingRepository prefsAndHouseKeepingRepository;
 
-@Value("${falc.account.db.location}") private String defaultbackuplocation;
+@Value("${falc.account.db.backupdir}") private String defaultbackuplocation;
 @Value("${falc.account.db.name}")     private String dbname;
 @Value("${falc.account.db.cron}")     private String cronstr;
 
@@ -45,17 +45,8 @@ private final PrefsAndHouseKeepingRepository prefsAndHouseKeepingRepository;
    public void doHouseKeeping()
    {
       String backdir = this.defaultbackuplocation;
-      Prefs pref = new Prefs();
-      pref.setPrefsName("BACKUP_LOCATION");
-      Optional<Prefs> opt = this.prefsAndHouseKeepingRepository.findOne(Example.of(pref));
-      if(opt.isPresent())
-      {
-         backdir = opt.get().getPrefsText();
-      }
       File path = new File(backdir, this.dbname + "_backup_00.zip");
       Utils.rotateFiles(path.getAbsolutePath(), 14);
-
-
       log.info("doHouseKeeping: Backup database: {}", path.getAbsolutePath());
       this.prefsAndHouseKeepingRepository.backupDB(path.getAbsolutePath());
    }
