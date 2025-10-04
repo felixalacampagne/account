@@ -1,8 +1,11 @@
 package com.felixalacampagne.account.common;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
+import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -96,4 +99,92 @@ class UtilsTest
       assertEquals(ti.getDate(), tifromj.getDate(),testDateStr);
 
    }
+
+   @Test
+   void rotateFilesTest() throws Exception
+   {
+      for(int i = 0; i < 6; i++)
+      {
+         File f = new File("rotatetest_" + String.format("%02d", i) +  ".txt");
+         f.delete();
+      }
+
+      File f = new File("rotatetest_00.txt");
+      PrintWriter out = new PrintWriter(f);
+      out.println("First Dummy test for file rotate test");
+      out.close();
+
+      assertTrue(f.exists(), "File should exist: " + f.getAbsolutePath());
+      Utils.rotateFiles(f.getAbsolutePath(), 3);
+      assertFalse(f.exists(), "File should NOT exist: " + f.getAbsolutePath());
+
+      f = new File("rotatetest_01.txt");
+      assertTrue(f.exists(), "File should exist: " + f.getAbsolutePath());
+
+      f = new File("rotatetest_00.txt");
+      out = new PrintWriter(f);
+      out.println("Second Dummy test for file rotate test");
+      out.close();
+
+      assertTrue(f.exists(), "File should exist: " + f.getAbsolutePath());
+      Utils.rotateFiles(f.getAbsolutePath(), 3);
+      assertFalse(f.exists(), "File should NOT exist: " + f.getAbsolutePath());
+
+      f = new File("rotatetest_01.txt");
+      assertTrue(f.exists(), "File should exist: " + f.getAbsolutePath());
+      f = new File("rotatetest_02.txt");
+      assertTrue(f.exists(), "File should exist: " + f.getAbsolutePath());
+
+      f = new File("rotatetest_00.txt");
+      out = new PrintWriter(f);
+      out.println("Third Dummy test for file rotate test");
+      out.close();
+
+      assertTrue(f.exists(), "File should exist: " + f.getAbsolutePath());
+      Utils.rotateFiles(f.getAbsolutePath(), 3);
+      assertFalse(f.exists(), "File should NOT exist: " + f.getAbsolutePath());
+
+      f = new File("rotatetest_01.txt");
+      assertTrue(f.exists(), "File should exist: " + f.getAbsolutePath());
+      f = new File("rotatetest_02.txt");
+      assertTrue(f.exists(), "File should exist: " + f.getAbsolutePath());
+
+
+      f = new File("rotatetest_00.txt");
+      out = new PrintWriter(f);
+      out.println("Fourth Dummy test for file rotate test");
+      out.close();
+
+      assertTrue(f.exists(), "File should exist: " + f.getAbsolutePath());
+      Utils.rotateFiles(f.getAbsolutePath(), 3);
+      assertFalse(f.exists(), "File should NOT exist: " + f.getAbsolutePath());
+
+      f = new File("rotatetest_01.txt");
+      assertTrue(f.exists(), "File should exist: " + f.getAbsolutePath());
+      f = new File("rotatetest_02.txt");
+      assertTrue(f.exists(), "File should exist: " + f.getAbsolutePath());
+      f = new File("rotatetest_03.txt");
+      assertTrue(f.exists(), "File should exist: " + f.getAbsolutePath());
+
+
+      f = new File("rotatetest_00.txt");
+      out = new PrintWriter(f);
+      out.println("Fifth Dummy test for file rotate test");
+      out.close();
+
+      assertTrue(f.exists(), "File should exist: " + f.getAbsolutePath());
+      Utils.rotateFiles(f.getAbsolutePath(), 3);
+      assertFalse(f.exists(), "File should NOT exist: " + f.getAbsolutePath());
+
+      f = new File("rotatetest_01.txt");
+      assertTrue(f.exists(), "File should exist: " + f.getAbsolutePath());
+      f = new File("rotatetest_02.txt");
+      assertTrue(f.exists(), "File should exist: " + f.getAbsolutePath());
+      f = new File("rotatetest_03.txt");
+      assertTrue(f.exists(), "File should exist: " + f.getAbsolutePath());
+      f = new File("rotatetest_04.txt");
+      assertFalse(f.exists(), "File NOT should exist: " + f.getAbsolutePath());
+
+   }
+
 }

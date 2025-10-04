@@ -10,10 +10,16 @@
       <pattern>%d %-5level:%logger{40}: %msg%n</pattern>
     </encoder>
   </appender>
-  
+  <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+    <file>${catalina.home}/logs/jaccountapi.log</file>
+    <param name="Append" value="false" />
+    <encoder>
+        <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
+    </encoder>
+</appender>
   <logger name="com.felixalacampagne" level="debug"/>
   
-  
+  <!-- STDOUT when tomcat is a service, FILE if tomcat started from console - naturally there is no way to know! -->
   <root level="info">
     <appender-ref ref="STDOUT"/>
   </root>

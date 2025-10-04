@@ -23,7 +23,6 @@ import com.felixalacampagne.account.model.TransactionItem;
 import com.felixalacampagne.account.model.Transactions;
 import com.felixalacampagne.account.persistence.entities.Account;
 import com.felixalacampagne.account.persistence.entities.PhoneAccount;
-import com.felixalacampagne.account.persistence.entities.PhoneWithAccountProjection;
 import com.felixalacampagne.account.persistence.entities.Transaction;
 import com.felixalacampagne.account.persistence.repository.AccountJpaRepository;
 import com.felixalacampagne.account.persistence.repository.PhoneAccountJpaRepository;
@@ -172,19 +171,21 @@ public class TransactionService
    @Transactional // this must be transactional
    private Long addPhoneAccountTransaction(Long phoneAccId, Transaction srcTxn, String communication)
    {
-      Long tfraccid = null;
-      Long srcaccid = srcTxn.getAccountId();
-      PhoneWithAccountProjection paproj = this.phoneAccountJpaRepository.findPhoneWithAccountById(phoneAccId)
+      Account tfracc = null;
+      Long tfraccid = 0L;
+      Long srcaccid = srcTxn.getAccount().getId();
+      PhoneAccount pa = this.phoneAccountJpaRepository.findById(phoneAccId)
                                               .orElseThrow(() -> new AccountException("Phone account not found: " + phoneAccId));
-      PhoneAccount pa = paproj.getPhoneAccount();
-      if(pa.getAccountId() > 0) // transfer is to a related account so must apply a 'reverse' transaction to it
+//      PhoneAccount pa = paproj.getPhoneAccount();
+      if(pa.getAccount() != null) // transfer is to a related account so must apply a 'reverse' transaction to it
       {
-         tfraccid = pa.getAccountId();
+         tfracc = pa.getAccount();
+         tfraccid = tfracc.getId();
          String srcupdcomm = Utils.prefixNullable(" ref:", communication);
          Account srcacc = this.accountJpaRepository.findById(srcaccid)
                .orElseThrow(() -> new AccountException("Transfer source account not found: " + srcaccid));
          Transaction txntfr = new Transaction();
-         txntfr.setAccountId(tfraccid);
+         txntfr.setAccount(tfracc);
          txntfr.setDate(srcTxn.getDate());
          txntfr.setType(srcTxn.getType());
          txntfr.setComment(srcTxn.getComment() + Utils.prefixNullable(" ref:", communication));
@@ -195,7 +196,7 @@ public class TransactionService
             txntfr.setCredit(srcTxn.getDebit());
             txntfr.setDebit(null);
             txntfr.setComment(txntfr.getComment() + " from:" + srcacc.getAccDesc());
-            srcupdcomm = srcupdcomm + " to:" + paproj.getAccDesc();
+            srcupdcomm = srcupdcomm + " to:" + tfracc.getAccDesc();
          }
          else
          {
@@ -203,7 +204,7 @@ public class TransactionService
             txntfr.setDebit(srcTxn.getCredit());
             txntfr.setCredit(null);
             txntfr.setComment(txntfr.getComment() + " to:" + srcacc.getAccDesc());
-            srcupdcomm = srcupdcomm + " from:" + paproj.getAccDesc();
+            srcupdcomm = srcupdcomm + " from:" + tfracc.getAccDesc();
          }
 
          txntfr = add(txntfr);
@@ -213,7 +214,7 @@ public class TransactionService
             srcTxn.setComment(srcTxn.getComment() + srcupdcomm);
             srcTxn = this.transactionJpaRepository.save(srcTxn);
          }
-         log.info("addPhoneAccountTransaction: added transfer transaction for account id {}: id:{}", txntfr.getAccountId(), txntfr.getSequence());
+         log.info("addPhoneAccountTransaction: added transfer transaction for account id {}: id:{}", txntfr.getAccount().getId(), txntfr.getSequence());
       }
       else
       {
@@ -261,8 +262,8 @@ public class TransactionService
       Transaction txn = mapToEntity(transactionItem);
 
       Transaction updtxn = add(txn);
-      updAccs.sourceAccId = updtxn.getAccountId();
-      log.info("addTransaction: added transaction for account id {}: id:{}", updtxn.getAccountId(), updtxn.getSequence());
+      updAccs.sourceAccId = updtxn.getAccount().getId();
+      log.info("addTransaction: added transaction for account id {}: id:{}", updtxn.getAccount().getId(), updtxn.getSequence());
       if(transactionItem.getTransferAccount().isPresent())
       {
          updAccs.transferAccId = addPhoneAccountTransaction(transactionItem.getTransferAccount().get(), updtxn, transactionItem.getCommunication());
@@ -290,7 +291,7 @@ public class TransactionService
    private void addPhoneAccount(String cptyAccountNumber, String cptyAccount, String communication)
    {
       PhoneAccount pa = new PhoneAccount();
-      pa.setAccountId(0L); // leaving it null means it is excluded from the transferaccount query
+      pa.setAccount(null); // leaving it null means it is excluded from the transferaccount query
       pa.setAccountNumber(cptyAccountNumber);
       pa.setDesc(cptyAccount);
       pa.setLastComm(communication);
@@ -321,10 +322,10 @@ public class TransactionService
       }
 
       Transaction updtxn = mapToEntity(transactionItem);
-      if(txn.getAccountId() != updtxn.getAccountId())
+      if(txn.getAccount().getId() != updtxn.getAccount().getId())
       {
          log.info("updateTransaction: Account id does not match transaction id:{}: original:{} supplied:{}",
-               transactionItem.getId(), txn.getAccountId(), updtxn.getAccountId());
+               transactionItem.getId(), txn.getAccount().getId(), updtxn.getAccount().getId());
          throw new  AccountException("Account id does not match Transaction id " + transactionItem.getId());
       }
 
@@ -362,21 +363,16 @@ public class TransactionService
       // With date sorting must recalc balance if the date is changed
       if( bRecalcBal )
       {
-         this.updateBalance(txnupdated.getAccountId());
+         this.updateBalance(txnupdated.getAccount().getId());
       }
 
       if(bRecalcChecked)
       {
-         balanceService.calculateCheckedBalances(txnupdated.getAccountId());
+         balanceService.calculateCheckedBalances(txnupdated.getAccount().getId());
       }
       return txnupdated;
    }
 
-//   public boolean addUsers(List<User> users) {
-//      for (User user : users) {
-//          transactionHandler.runInTransaction(() -> addUser(user.getUsername, user.getPassword));
-//      }
-//   }
    // @Transactional - keep balance calc out of transaction
    public void deleteTransaction(TransactionItem transactionItem)
    {
@@ -386,7 +382,7 @@ public class TransactionService
       Transaction txn = getTransaction(transactionItem.getId())
             .orElseThrow(()->new AccountException("Transaction id " + transactionItem.getId() + " not found"));
 
-      final long txnAccId = txn.getAccountId();
+      final long txnAccId = txn.getAccount().getId();
       String origToken = Utils.getToken(txn);
       if(!origToken.equals(transactionItem.getToken()))
       {
@@ -396,10 +392,10 @@ public class TransactionService
       }
 
       Transaction deltxn = mapToEntity(transactionItem);
-      if(txnAccId != deltxn.getAccountId())
+      if(txnAccId != deltxn.getAccount().getId())
       {
          log.info("updateTransaction: Account id does not match transaction id:{}: original:{} supplied:{}",
-               transactionItem.getId(), txnAccId, deltxn.getAccountId());
+               transactionItem.getId(), txnAccId, deltxn.getAccount().getId());
          throw new  AccountException("Account id does not match Transaction id " + transactionItem.getId());
       }
 
@@ -470,7 +466,10 @@ public class TransactionService
    private Transaction mapToEntity(TransactionItem transactionItem)
    {
       Transaction tosave = new Transaction();
-      tosave.setAccountId(transactionItem.getAccid());
+
+      Account acc = this.accountJpaRepository.findById(transactionItem.getAccid())
+            .orElseThrow(()-> new AccountException("Account id " + transactionItem.getAccid() + " does not exist"));
+      tosave.setAccount(acc);
       tosave.setDate(transactionItem.getDate());
       tosave.setType(transactionItem.getType());
       tosave.setComment(transactionItem.getComment());
@@ -531,7 +530,7 @@ public class TransactionService
       // jackson doesn't handle Java dates [it does now!!] and bigdecimal has too many decimal places so it's
       // simpler just to send the data as Strings with the desired formating.
       String token = Utils.getToken(t);
-      return new TransactionItem(t.getAccountId(),
+      return new TransactionItem(t.getAccount().getId(),
             t.getDate(),
             Utils.formatAmount(amount),
             Utils.formatAmount(amount, amtfmt),

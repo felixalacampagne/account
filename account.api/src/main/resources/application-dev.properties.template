@@ -1,12 +1,15 @@
-falc.account.name=DevJAccount
-falc.account.db=TEST
-falc.account.version=0.4.2adev
-falc.account.standingorder.cron=* 0 */2 * * ?
-# NORMAL (default) or SORTED
-#falc.account.transaction.listsort=SORTED
+falc.account.db.name=accountH2create
+falc.account.db.location=./db
+spring.datasource.username=sa
+spring.datasource.password=password
+falc.account.db.cron=0 45 2 * * ?
+falc.account.standingorder.cron=0 5 */4 * * ?
 
-spring.datasource.url=jdbc:ucanaccess://E:/Development/workspace/accountREST/acc2003_TEST.mdb
-# C:/Development/accountDB/acc2003TEST.mdb
+
+falc.account.name=DevJAccountH2
+falc.account.db=TEST
+falc.account.version=0.5.0adev
+
 
 # this causes an exception when debugging so set it to a high value
-spring.datasource.hikari.leakDetectionThreshold=1000000
+#spring.datasource.hikari.leakDetectionThreshold=1000000

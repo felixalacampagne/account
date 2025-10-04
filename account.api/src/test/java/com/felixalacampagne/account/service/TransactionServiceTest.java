@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
@@ -125,18 +124,18 @@ class TransactionServiceTest
       assertEquals(origtfrtxncnt, txnsfortfracc.size());
       origtxncnt = txnsforacc.size();
 
-      // last param must be PhoneAccount.ID, not Account.ID (which happens to be 242 for Account.ID=35)  
+      // last param must be PhoneAccount.ID, not Account.ID (which happens to be 242 for Account.ID=35)
       // Example didn't work and no way to know why. Brute force filter works just fine!!
 //      PhoneAccount phoneAccount = new PhoneAccount();
 //      phoneAccount.setAccountId(cptyaccid);
 //      Example<PhoneAccount> example = Example.of(phoneAccount);
 //      phoneAccount = phoneAccountJpaRepository.findOne(example).orElseThrow(()-> new RuntimeException("no PhoneAccount for Account.ID:" + cptyaccid));
       PhoneAccount phoneAccount = phoneAccountJpaRepository.findAll().stream()
-            .filter(p-> p.getAccountId()==cptyaccid)
+            .filter(p-> p.getAccId()==cptyaccid)
             .findAny()
             .orElseThrow(()-> new RuntimeException("no PhoneAccount for Account.ID:" + cptyaccid));
-      
-      
+
+
       addtxnitm = new AddTransactionItem(
             origtxnitm.getAccid(), LocalDate.now(), "22345.12", "TEST",
             "TEST with TFR from (debit) src account",
