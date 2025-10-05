@@ -8,11 +8,21 @@ Account features implemented:
    - transfer account details update and delete
    - account creation and details update
    - permanent pay date sorted balance display
+   - converted from MS Access database to file based H2 database
 
 Still to come:
   - transaction search
-  - non-Access database (obvious choice is mysql, or is there another type which is preferred nowadays [absolutely not Oracle!!!])
   - reconcile using CSV statement file (currently done via Excel for CBC - would be a challenge to make it generic) with some way to record exceptions encountered during the reconciliation (as happens in the Excel sheet). Would need new tables so probably will only happen after migration away from Access (can the Excel scripts work with a different DB?)
+
+0.5.1 converted to H2 database as this seemed a reasonable choice given the requirements for Account. The choice
+was also based on the H2 documentation that claims support for ODBC which would allow Excel to continue to be used for reconciliation. 
+Turns out ODBC support is non-existant - the PostgreSQL driver is not compatible with the H2 database created by H2 - it is 
+gives error 'PUBLIC' schema not found while apparently trying to create a sequence. The public schema is the default one and can be
+used to address the tables amd the sequence already exists so I have no idea what the fork is going on there. There isn't a fat lot of
+info available for this and the documentation appears to be years out of date so I will just have to forget about using H2 with ODBC.
+This means I must either implement some means of doing reconciliation with H2, manually perform the reconciliation or switch to a database
+which supports ODBC. None of these options are appealing but I guess it will be option one that I try first although I have no clue
+how reading a CSV file from the browser and in a tomcat/spring boot environment is going to work!! 
 
 0.4.25 standing order end of month processing - when a monthly standing order date is at the end of the month then it will stick to the end of the month for subsequent entries. This means that entries on the 28th or later will eventually move to the end of the month. Thought about making this configurable but decided not worth the effort since any date after the 28th is going to move around due to the way Java does 'add month' processing, ie. 31st will become 30th and eventually 28th. Getting the UI to display a checkbox as part of the datepicker field also proved to be impossible which is another reason I abandoned the configurable EOM processing. Maybe in the future it might be interesting to add a last day X of the month, eg. last Wednesday of the month, but so far I don't have a need for anything like that.
 
