@@ -3,7 +3,7 @@ Migrated from Access to H2 database. Turns out this is a big mistake as the supp
 I was counting on is non-functional and years out of date. Now must investigate the possibility
 of ODBC support from one of the other DB candidates, probably MySQL as this will be easier to 
 investigate offline. Fingers crossed migrating from H2 to another DB is straightforward now it
-has been done once!!
+has been done once!! 
 
 ### 22-Mar-2025
 Figured it was a good a time as any to update to the latest patch of Tomcat 10.1. Seems to have gone
