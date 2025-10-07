@@ -1,40 +1,53 @@
 -- noinspection SqlNoDataSourceInspectionForFile
 
-insert into account (id,code,description,address,contact,currency,currencyformat,statementref,ranking,swiftbic)
-SELECT * FROM CSVREAD('csv/account_h2cols.csv', null, 'charset=UTF-8 fieldSeparator=;');
+LOAD DATA LOCAL INFILE
+'csv/account_h2cols.csv'
+INTO TABLE account
+FIELDS TERMINATED BY ';'
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+(id,code,description,address,contact,currency,currencyformat,statementref,ranking,swiftbic);
 
-ALTER SEQUENCE account_seq RESTART WITH (select max(id)+1 from account);
+UPDATE account_seq SET next_val=(select max(id)+1 from account);
 
-insert into transaction (id,accountid,transactiondate,transactiontype,comment,checked,credit,debit,balance,checkedbalance,sortedbalance,statementref)
-SELECT id,accountid, cast(parsedatetime(transactiondate, 'yyyy-MM-dd HH:mm:ss') as date) as transactiondate, transactiontype,comment,checked,credit,debit,balance,checkedbalance,sortedbalance,statementref
-FROM CSVREAD('csv/transaction_h2cols.csv', null,  'charset=UTF-8 fieldSeparator=;  null=(null)');
+LOAD DATA LOCAL INFILE
+'csv/transaction_h2cols.csv'
+INTO TABLE transaction
+FIELDS TERMINATED BY ';'
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+(id,accountid,transactiondate,transactiontype,comment,checked,credit,debit,balance,checkedbalance,sortedbalance,statementref);
 
-ALTER SEQUENCE transaction_seq RESTART WITH (select max(id)+1 from transaction);
+UPDATE transaction_seq SET next_val=(select max(id)+1 from transaction);
 
-insert into standingorder (id  ,period  ,count  ,paydate      ,entrydate  ,comment,accountid,transactiontype,amount)
-SELECT id  ,period  ,count  ,
-cast(parsedatetime(paydate, 'yyyy-MM-dd HH:mm:ss') as date) as paydate,
-cast(parsedatetime(entrydate, 'yyyy-MM-dd HH:mm:ss') as date) as entrydate,
-comment,accountid,transactiontype,amount
-FROM CSVREAD('csv/standingorders_h2cols.csv', null,  'charset=UTF-8 fieldSeparator=;');
+LOAD DATA LOCAL INFILE
+'csv/phoneaccount_h2cols.csv'
+INTO TABLE phoneaccount
+FIELDS TERMINATED BY ';'
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+(id,accounttype,accountid,code,comment,ranking,communication,@dummy,@dummy,@dummy);
 
-ALTER SEQUENCE standingorder_seq RESTART WITH (select max(id)+1 from standingorder);
+UPDATE phoneaccount_seq SET next_val=(select max(id)+1 from phoneaccount);
 
-insert into phoneaccount (id  ,accounttype,accountid,code    ,comment,ranking,communication)
-SELECT id  ,accounttype, NULLIF(accountid, 0) ,code    ,comment,ranking,communication FROM CSVREAD('csv/phoneaccount_h2cols.csv', null, 'charset=UTF-8 fieldSeparator=;');
 
-ALTER SEQUENCE phoneaccount_seq RESTART WITH (select max(id)+1 from phoneaccount);
+LOAD DATA LOCAL INFILE
+'csv/phonetransaction_h2cols.csv'
+INTO TABLE phonetransaction
+FIELDS TERMINATED BY ';'
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+(id,paydate,senderphoneaccountid,recipientphoneaccountid,amount,communication,comment,sentdate,transactiondate,errorstatus);
 
-insert into phonetransaction (id  ,paydate  ,senderphoneaccountid,recipientphoneaccountid,amount  ,communication,comment,sentdate  ,transactiondate,errorstatus)
-SELECT id  ,
-cast(parsedatetime(paydate, 'yyyy-MM-dd HH:mm:ss') as date) as paydate,
-senderphoneaccountid,recipientphoneaccountid,amount  ,communication,comment,
-cast(parsedatetime(sentdate, 'yyyy-MM-dd HH:mm:ss') as date) as sentdate,
-cast(parsedatetime(transactiondate, 'yyyy-MM-dd HH:mm:ss') as date) as transactiondate,
-errorstatus
-FROM CSVREAD('csv/phonetransaction_h2cols.csv', null, 'charset=UTF-8 fieldSeparator=; null=(null)');
+UPDATE phonetransaction_seq SET next_val=(select max(id)+1 from phonetransaction);
 
-ALTER SEQUENCE phonetransaction_seq RESTART WITH (select max(id)+1 from phonetransaction);
+LOAD DATA LOCAL INFILE
+'csv/standingorders_h2cols.csv'
+INTO TABLE standingorder
+FIELDS TERMINATED BY ';'
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+(id,period,count,paydate,entrydate,comment,accountid,transactiontype,amount);
 
-insert into prefs (id, name,text,numeric)
-SELECT (select nextval('prefs_seq') ) as id, name,text,numeric FROM CSVREAD('csv/prefs_h2cols.csv', null, 'charset=UTF-8 fieldSeparator=; null=(null)');
+UPDATE standingorder_seq SET next_val=(select max(id)+1 from standingorder);
+

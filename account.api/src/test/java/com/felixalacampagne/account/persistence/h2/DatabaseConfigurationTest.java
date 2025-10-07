@@ -2,7 +2,6 @@ package com.felixalacampagne.account.persistence.h2;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +26,7 @@ import com.felixalacampagne.account.persistence.repository.TransactionJpaReposit
 //Fork Me! Disabled test can be run in eclipse by providing:
 //-Djunit.jupiter.conditions.deactivate=org.junit.*DisabledCondition
 //as a VM argument to the run configuration.
-@Disabled
+//@Disabled
 
 // More AAAAAAAAAAAAAAAaaaaaaaaaaaaaaaaaaaaaggggggggggggggggggggggghhhhhhhhhhhhhhhhhhhhh!
 // DatabasePopulateTest successfully use the values for db name/location from the h2create properties files
@@ -80,8 +79,8 @@ public class DatabaseConfigurationTest {
 
 		// This should work. If the console has loads of weird JPA/JDBC errors then there is probably
 		// already a console running - eclipse doesn't always stop the tests when the stop button is clicked.
-	   log.info("Now is the time to connect to the H2 console: http://localhost:8080/h2-console  jdbc:h2:file:./db/accountH2create");
-	   Thread.sleep(60000 * 15);
+	   //log.info("Now is the time to connect to the H2 console: http://localhost:8080/h2-console  jdbc:h2:file:./db/accountH2create");
+	   // Thread.sleep(60000 * 15);
 
 	}
 }

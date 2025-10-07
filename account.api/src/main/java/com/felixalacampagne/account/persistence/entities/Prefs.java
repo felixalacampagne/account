@@ -35,10 +35,10 @@ public class Prefs implements Serializable {
    @Column(name="name", unique=true, nullable=false)
    private String prefsName;
 
-   @Column(name="numeric")
+   @Column(name="numericvalue")
    private int prefsNumeric;
 
-   @Column(name="text")
+   @Column(name="textvalue")
    private String prefsText;
 
    public Prefs() {

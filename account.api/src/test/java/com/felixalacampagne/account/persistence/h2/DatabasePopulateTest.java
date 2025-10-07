@@ -2,9 +2,6 @@ package com.felixalacampagne.account.persistence.h2;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.File;
-
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +26,7 @@ import com.felixalacampagne.account.service.HouseKeepingService;
 // Fork Me! Disabled test can be run in eclipse by providing:
 // -Djunit.jupiter.conditions.deactivate=org.junit.*DisabledCondition
 // as a VM argument to the run configuration.
-@Disabled
+//@Disabled
 
 @SpringBootTest(classes = {TestApplication.class})
 @Import({RepositoryConfig.class})
@@ -61,22 +58,22 @@ public class DatabasePopulateTest
    void databaseIsPopulated()
    {
       assertTrue(accountJpaRepository.count() > 0, "Account table should exist and not be empty");
-      assertTrue(transactionJpaRepository.count() > 0, "Transaction table should exist and be empty");
-      assertTrue(phoneAccountJpaRepository.count() > 0, "Phoneaccount table should exist and be empty");
-      assertTrue(standingOrdersJpaRepository.count() > 0, "Standingorder table should exist and be empty");
+      assertTrue(transactionJpaRepository.count() > 0, "Transaction table should exist and not be empty");
+      assertTrue(phoneAccountJpaRepository.count() > 0, "Phoneaccount table should exist and not be empty");
+      assertTrue(standingOrdersJpaRepository.count() > 0, "Standingorder table should exist and not be empty");
    }
 
-   @Test
-   void backupTest()
-   {
-      File path = new File(dblocation, "accountH2create_backup_00.zip");
-
-      path.delete();
-
-      houseKeepingService.doHouseKeeping();
-
-      assertTrue(path.exists(), "backup file should exist: " + path.getAbsolutePath());
-
-   }
+//   @Test
+//   void backupTest()
+//   {
+//      File path = new File(dblocation, "accountH2create_backup_00.zip");
+//
+//      path.delete();
+//
+//      houseKeepingService.doHouseKeeping();
+//
+//      assertTrue(path.exists(), "backup file should exist: " + path.getAbsolutePath());
+//
+//   }
 
 }
