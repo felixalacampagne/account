@@ -58,8 +58,10 @@ human would ever make it so forking hard!
 In theory the initial root password should be a one time password created when the data directory
 is initialized which happens the first time the image is run. It seems that the image
 does not come pre-configured for this to happen. It requires:
-MYSQL_RANDOM_ROOT_PASSWORD=1 
-MYSQL_ONETIME_PASSWORD=1
+
+- MYSQL_RANDOM_ROOT_PASSWORD=1 
+- MYSQL_ONETIME_PASSWORD=1
+
 Then the log of the container must be consulted for find the password and on first access it should
 need changing. I used MYSQL_ALLOW_EMPTY_PASSWORD instead.
 
@@ -73,6 +75,8 @@ So
  - connect from portainer console
    mysql -u root
  - confirm there is a remote access entry for 'root'
+
+```
    mysql> select host, user from mysql.user;
    +-----------+------------------+
    | host      | user             |
@@ -83,6 +87,8 @@ So
    | localhost | mysql.sys        |
    | localhost | root             |
    +-----------+------------------+
+```
+
  - set root password like    
    mysql> ALTER USER 'root'@'%' IDENTIFIED BY 'Abcd1234';  
    
@@ -106,12 +112,13 @@ Population of the tables might be possible in similar way to that used for H2
 but the data.sql command is very different. It will also require a CSV export from the H2 database.
 
 LOAD DATA LOCAL INFILE  
-'c:/temp/some-file.csv'
-INTO TABLE your_awesome_table  
-FIELDS TERMINATED BY ',' 
+'csv/account_h2cols.csv'
+INTO TABLE account  
+FIELDS TERMINATED BY ';' 
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
-(field_1,field_2 , field_3);
+(id,code,description,address,contact,currency,currencyformat,statementref,ranking,swiftbic);
+
 
 First attempt gives: Loading local data is disabled;
 
@@ -132,4 +139,31 @@ NB Workbench needs a configuration to allow updates and deletes without where cl
 Edit > Preferences > SQL Editor > Safe updates
 
 
+## Export from H2
+CALL CSVWRITE('account_h2.csv', 
+'SELECT * FROM account', 
+STRINGDECODE('charset=UTF-8 escape=\\\\ fieldSeparator=; lineSeparator=\n fieldDelimiter='));
 
+CALL CSVWRITE('transaction_h2.csv', 
+'SELECT * FROM transaction', 
+STRINGDECODE('charset=UTF-8 escape=\\\\ fieldSeparator=; lineSeparator=\n fieldDelimiter='));
+
+CALL CSVWRITE('standingorder_h2.csv', 
+'SELECT * FROM standingorder', 
+STRINGDECODE('charset=UTF-8 escape=\\\\ fieldSeparator=; lineSeparator=\n fieldDelimiter='));
+
+CALL CSVWRITE('phoneaccount_h2.csv', 
+'SELECT * FROM phoneaccount', 
+STRINGDECODE('charset=UTF-8 escape=\\\\ fieldSeparator=; lineSeparator=\n fieldDelimiter='));
+
+CALL CSVWRITE('phonetransaction_h2.csv', 
+'SELECT * FROM phonetransaction', 
+STRINGDECODE('charset=UTF-8 escape=\\\\ fieldSeparator=; lineSeparator=\n fieldDelimiter='));
+
+The H2 CSV columns will need to be mapped to the right order in the LOAD DATA lines but they should be
+match the order already in data.sql
+
+The H2 CSVs appear to have (null) for NULL columns which gets imported as the text "(null)". If this
+is a problem then either edit the CSV to replace with "\N" or manually updated the rows after the import.
+Couldn't get the export command to use a different NULL value, and it is possible that the text is actually
+present in the H2 DB as I didn't check 
