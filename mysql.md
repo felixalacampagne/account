@@ -146,23 +146,23 @@ FLUSH PRIVILEGES;
 in a query window.
 
 ## Export from H2
-CALL CSVWRITE('account_h2.csv', 
+CALL CSVWRITE('/development/tmp/account_h2.csv', 
 'SELECT * FROM account', 
 STRINGDECODE('charset=UTF-8 escape=\\\\ fieldSeparator=; lineSeparator=\n fieldDelimiter='));
 
-CALL CSVWRITE('transaction_h2.csv', 
+CALL CSVWRITE('/development/tmp/transaction_h2.csv', 
 'SELECT * FROM transaction', 
 STRINGDECODE('charset=UTF-8 escape=\\\\ fieldSeparator=; lineSeparator=\n fieldDelimiter='));
 
-CALL CSVWRITE('standingorder_h2.csv', 
+CALL CSVWRITE('/development/tmp/standingorder_h2.csv', 
 'SELECT * FROM standingorder', 
 STRINGDECODE('charset=UTF-8 escape=\\\\ fieldSeparator=; lineSeparator=\n fieldDelimiter='));
 
-CALL CSVWRITE('phoneaccount_h2.csv', 
+CALL CSVWRITE('/development/tmp/phoneaccount_h2.csv', 
 'SELECT * FROM phoneaccount', 
 STRINGDECODE('charset=UTF-8 escape=\\\\ fieldSeparator=; lineSeparator=\n fieldDelimiter='));
 
-CALL CSVWRITE('phonetransaction_h2.csv', 
+CALL CSVWRITE('/development/tmp/phonetransaction_h2.csv', 
 'SELECT * FROM phonetransaction', 
 STRINGDECODE('charset=UTF-8 escape=\\\\ fieldSeparator=; lineSeparator=\n fieldDelimiter='));
 
@@ -172,4 +172,12 @@ match the order already in data.sql
 The H2 CSVs appear to have (null) for NULL columns which gets imported as the text "(null)". If this
 is a problem then either edit the CSV to replace with "\N" or manually updated the rows after the import.
 Couldn't get the export command to use a different NULL value, and it is possible that the text is actually
-present in the H2 DB as I didn't check 
+present in the H2 DB as I didn't check
+
+The TRUE/FALSE for boolean in the CSV is always interpreted as true so special processing is required (transaction.checked)
+
+The CSVs for the live DB do not have '(null)' but ';;'. ';;' is interpreted as empty string instead of NULL
+which causes the row not to be imported if the column is numeric so special processing is required (phoneaccount.accountid). This can apparently depend on the db configuration; 
+
+mysql> show variables like 'sql_mode';
+
