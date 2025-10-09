@@ -100,7 +100,7 @@ So
 Using the workbench create a user for the account DB
    I chose 'account'
    'Limits to Hosts Matching': %
-   Account Limits must be provided - I used 99999
+   Account Limits must be provided - must use 0 for unlimited
    Administrative Roles can be left alone
    Schema Privileges must be set: %
    
@@ -138,6 +138,12 @@ Need to experiment with adding records without id to see if it really gets autom
 NB Workbench needs a configuration to allow updates and deletes without where clauses! 
 Edit > Preferences > SQL Editor > Safe updates
 
+User 'account' has exceeded the 'max_questions' resource (current value: 99999)
+
+Use workbench to set the limits for user 'account' to zero.
+Then 
+FLUSH PRIVILEGES;
+in a query window.
 
 ## Export from H2
 CALL CSVWRITE('account_h2.csv', 

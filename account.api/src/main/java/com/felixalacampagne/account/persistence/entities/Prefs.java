@@ -7,7 +7,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 
@@ -26,10 +25,10 @@ public class Prefs implements Serializable {
    private static final long serialVersionUID = 1L;
 
    @Id
-   // @GeneratedValue(strategy=GenerationType.IDENTITY)
-   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "prefs_seq_gen")
-   @SequenceGenerator(initialValue = 1, name = "prefs_seq_gen", sequenceName = "prefs_seq", allocationSize = 1)
-   @Column(name="id")
+   @GeneratedValue(strategy=GenerationType.IDENTITY)
+//   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "prefs_seq_gen")
+//   @SequenceGenerator(initialValue = 1, name = "prefs_seq_gen", sequenceName = "prefs_seq", allocationSize = 1)
+   @Column(name="id", nullable=false)
    private Long id;
 
    @Column(name="name", unique=true, nullable=false)

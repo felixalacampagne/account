@@ -10,7 +10,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 
@@ -33,9 +32,10 @@ public class PhoneAccount implements Serializable
    private static final long serialVersionUID = 1L;
 
    @Id
-   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "phoneaccount_seq_gen")
-   @SequenceGenerator(initialValue = 1, name = "phoneaccount_seq_gen", sequenceName = "phoneaccount_seq", allocationSize = 1)
-   @Column(name="id")
+   @GeneratedValue(strategy=GenerationType.IDENTITY)
+//   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "phoneaccount_seq_gen")
+//   @SequenceGenerator(initialValue = 1, name = "phoneaccount_seq_gen", sequenceName = "phoneaccount_seq", allocationSize = 1)
+   @Column(name="id", nullable=false)
    private Long Id;
 
    // @Column(name = "accountid", nullable = true)   // PAaccid

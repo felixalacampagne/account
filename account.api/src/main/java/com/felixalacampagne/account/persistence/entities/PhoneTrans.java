@@ -1,7 +1,6 @@
 package com.felixalacampagne.account.persistence.entities;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 
 import jakarta.persistence.Column;
@@ -30,7 +29,7 @@ public class PhoneTrans implements Serializable {
    @Id
    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "phonetransaction_seq_gen")
    @SequenceGenerator(initialValue = 1, name = "phonetransaction_seq_gen", sequenceName = "phonetransaction_seq", allocationSize = 1)
-   @Column(name="id")                          // PTid
+   @Column(name="id", nullable=false)                          // PTid
    private Long PTid;
 
    @Column(name="comment")                     // PTaccom

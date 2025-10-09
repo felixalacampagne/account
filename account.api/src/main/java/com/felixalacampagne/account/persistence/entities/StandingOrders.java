@@ -12,7 +12,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 
@@ -32,9 +31,10 @@ public class StandingOrders implements Serializable {
 
 
    @Id
-   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "standingorder_seq_gen")
-   @SequenceGenerator(initialValue = 1, name = "standingorder_seq_gen", sequenceName = "standingorder_seq", allocationSize = 1)
-   @Column(name="id")
+   @GeneratedValue(strategy=GenerationType.IDENTITY)
+//   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "standingorder_seq_gen")
+//   @SequenceGenerator(initialValue = 1, name = "standingorder_seq_gen", sequenceName = "standingorder_seq", allocationSize = 1)
+   @Column(name="id", nullable=false)
    private Long SOid;             // SOid
 
 //   private Long SOAccId;

@@ -1,3 +1,7 @@
+Handy commands:
+
+git apply --whitespace=fix --ignore-whitespace --reject patch.diff
+
 Account features implemented: 
    - transaction display with paging, goto page, last page, device dependent pagesize (no custom page size yet),
    - transaction update 

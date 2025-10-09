@@ -12,7 +12,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 
@@ -37,11 +36,11 @@ public class Transaction implements Serializable
    // SEQUENCE same as AUTO
    // IDENTITY gives weird error: class org.hsqldb.jdbc.JDBCStatement cannot be cast to class java.sql.PreparedStatement
    //
-   // @GeneratedValue(strategy=GenerationType.IDENTITY)
    @Id
-   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "transaction_seq_gen")
-   @SequenceGenerator(initialValue = 1, name = "transaction_seq_gen", sequenceName = "transaction_seq", allocationSize = 1)
-   @Column(name="id")                             // sequence
+   @GeneratedValue(strategy=GenerationType.IDENTITY)
+//   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "transaction_seq_gen")
+//   @SequenceGenerator(initialValue = 1, name = "transaction_seq_gen", sequenceName = "transaction_seq", allocationSize = 1)
+   @Column(name="id", nullable=false)                             // sequence
    private long sequence;
 
    // Access version just uses a simple long with no attempt to make the relationship
