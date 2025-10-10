@@ -134,6 +134,9 @@ to work like the Access DB does where one column is designated to AUTO_INCREMENT
 has created tables for the sequences and the 'next_val' column can be set to the next value to be used.
 Need to experiment with adding records without id to see if it really gets automatically applied.
 
+In the end I decided to revert to the 'IDENTITY' ID generation type. This translates to the mysql AUTO_INCREMENT. 
+It appears the AUTO_INCREMENT is aware of the explicit IDs in the CSV files and automatically adjusts itself when the LOAD DATA is performed.
+
 NB Workbench needs a configuration to allow updates and deletes without where clauses! 
 Edit > Preferences > SQL Editor > Safe updates
 
@@ -168,15 +171,22 @@ STRINGDECODE('charset=UTF-8 escape=\\\\ fieldSeparator=; lineSeparator=\n fieldD
 The H2 CSV columns will need to be mapped to the right order in the LOAD DATA lines but they should be
 match the order already in data.sql
 
-The H2 CSVs appear to have (null) for NULL columns which gets imported as the text "(null)". If this
-is a problem then either edit the CSV to replace with "\N" or manually updated the rows after the import.
-Couldn't get the export command to use a different NULL value, and it is possible that the text is actually
-present in the H2 DB as I didn't check
+## Import of H2 CSVs into MySQL
 
-The TRUE/FALSE for boolean in the CSV is always interpreted as true so special processing is required (transaction.checked)
+### NULLs
+The H2 CSVs appear to have either (null) or ';;' (the latter is for the live DB) for NULL columns 
+which gets imported as the text "(null)" or the empty string "". 
+If column containing the NULL is numeric then the row is not imported, presumably as the text is not a valid
+numeric value. There is no error reported for this. Thus numeric columns which can contain nulls, eg. phoneaccount.accountid, require special processing, eg. 
 
-The CSVs for the live DB do not have '(null)' but ';;'. ';;' is interpreted as empty string instead of NULL
-which causes the row not to be imported if the column is numeric so special processing is required (phoneaccount.accountid). This can apparently depend on the db configuration; 
+set ACCOUNTID = NULLIF(@vaccid,'')
 
-mysql> show variables like 'sql_mode';
+where ACCOUNTID the field list is replaced by the variable '@vaccid'.
+
+The TRUE/FALSE for boolean in the CSV is always interpreted as true. This can be worked around with special processing, eg. for (transaction.checked)
+
+set CHECKED = (@vchk = 'TRUE')
+
+where CHECKED in the field list is replace by the variable '@vchk'.
+
 
