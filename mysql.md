@@ -1,8 +1,7 @@
 Ended up having to use a mysql docker image as that was the only recent version available.
-Since it's MySQL requires a server then having it in docker to start with makes sense.
- 
+Since MySQL requires a server, unlike Access or H2, then having it in docker on the NAS to start with makes sense.
 
-Used portainer to run containers of image for mysql 8.4
+Used portainer to run containers of image for mysql 8.4.
 
 Required to set an environment variable for the container: MYSQL_ALLOW_EMPTY_PASSWORD = 1
 Did this via portainer.
