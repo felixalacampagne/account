@@ -128,6 +128,8 @@ SHOW GLOBAaccountL VARIABLES LIKE 'local_infile';
 
 After much Googling and cursing I finally got the client side to allow the local infiles; allowLoadLocalInfile=true
 https://dev.mysql.com/doc/connector-j/en/connector-j-connp-props-security.html
+(Workbench requires 'OPT_LOCAL_INFILE=1' in the connection advanced tab - Why the fork can't it use the same
+value as the JDBC connection!)
 
 The LOAD command seemed to work well but the sequence update failed. MySql doesn't do sequences, it seems
 to work like the Access DB does where one column is designated to AUTO_INCREMENT. Curiously Spring JPA (whatever)
@@ -181,7 +183,7 @@ numeric value. There is no error reported for this. Thus numeric columns which c
 
 set ACCOUNTID = NULLIF(@vaccid,'')
 
-where ACCOUNTID the field list is replaced by the variable '@vaccid'.
+where ACCOUNTID in the field list is replaced by the variable '@vaccid'.
 
 The TRUE/FALSE for boolean in the CSV is always interpreted as true. This can be worked around with special processing, eg. for (transaction.checked)
 
@@ -189,4 +191,7 @@ set CHECKED = (@vchk = 'TRUE')
 
 where CHECKED in the field list is replace by the variable '@vchk'.
 
+Empty numeric fields, ie. ';;', are interpreted as 0.00 instead of NULL.
+For the transaction credit and debit columns this results in incorrect display although the balance appears to be
+OK. Special processing will be required for this, I guess similar to that required for ACCOUNTID.
 

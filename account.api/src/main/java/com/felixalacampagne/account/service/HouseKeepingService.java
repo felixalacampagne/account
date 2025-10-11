@@ -44,11 +44,11 @@ private final PrefsAndHouseKeepingRepository prefsAndHouseKeepingRepository;
 
    public void doHouseKeeping()
    {
-      String backdir = this.defaultbackuplocation;
-      File path = new File(backdir, this.dbname + "_backup_00.zip");
-      Utils.rotateFiles(path.getAbsolutePath(), 14);
-      log.info("doHouseKeeping: Backup database: {}", path.getAbsolutePath());
-      this.prefsAndHouseKeepingRepository.backupDB(path.getAbsolutePath());
+//      String backdir = this.defaultbackuplocation;
+//      File path = new File(backdir, this.dbname + "_backup_00.zip");
+//      Utils.rotateFiles(path.getAbsolutePath(), 14);
+//      log.info("doHouseKeeping: Backup database: {}", path.getAbsolutePath());
+//      this.prefsAndHouseKeepingRepository.backupDB(path.getAbsolutePath());
    }
 
 }

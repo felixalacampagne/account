@@ -10,9 +10,8 @@ LINES TERMINATED BY '\n'
 IGNORE 1 LINES
 (ID,RANKING,ADDRESS,CODE,CONTACT,CURRENCY,CURRENCYFORMAT,DESCRIPTION,STATEMENTREF,SWIFTBIC);
 
--- maybe use native mysql AUTO_INCREMENT, ie. GENERATED as the GenerationType, rather than the JPA 
--- The 'sequence' does not need to be manually adjusted after the population
 -- TRUE/FALSE in csv must be manually converted to 1/0 values 
+-- null fields in csv must be manually set to null
 LOAD DATA LOCAL INFILE  
 'csv/transaction_h2.csv'
 INTO TABLE transaction  
@@ -20,11 +19,12 @@ FIELDS TERMINATED BY ';'
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 LINES
-(BALANCE,@vchk,CHECKEDBALANCE,CREDIT,DEBIT,SORTEDBALANCE,TRANSACTIONDATE,ACCOUNTID,ID,COMMENT,STATEMENTREF,TRANSACTIONTYPE)
-set CHECKED = (@vchk = 'TRUE')
+(BALANCE,@vchk,CHECKEDBALANCE,@vcred,@vdeb,SORTEDBALANCE,TRANSACTIONDATE,ACCOUNTID,ID,COMMENT,STATEMENTREF,TRANSACTIONTYPE)
+set 
+CHECKED = (@vchk = 'TRUE'),
+CREDIT = NULLIF(@vcred,'') ,
+DEBIT = NULLIF(@vdeb,'')
 ;
-
--- UPDATE transaction_seq SET next_val=(select max(id)+1 from transaction);
 
 -- rows with null account id are not imported (I think). null account id is expressed as ;;
 -- empty field is interpreted as empty string so fails when the field is a number, ie. accountid
@@ -40,8 +40,6 @@ IGNORE 1 LINES
 set
 ACCOUNTID = NULLIF(@vaccid,'')
 ;
--- UPDATE phoneaccount_seq SET next_val=(select max(id)+1 from phoneaccount);
-
 
 LOAD DATA LOCAL INFILE  
 'csv/phonetransaction_h2.csv'
@@ -52,8 +50,6 @@ LINES TERMINATED BY '\n'
 IGNORE 1 LINES
 (PAYDATE,SENTDATE,TRANSACTIONDATE,ID,RECIPIENTPHONEACCOUNTID,SENDERPHONEACCOUNTID,AMOUNT,COMMENT,COMMUNICATION,ERRORSTATUS);
 
--- UPDATE phonetransaction_seq SET next_val=(select max(id)+1 from phonetransaction);
-
 LOAD DATA LOCAL INFILE  
 'csv/standingorder_h2.csv'
 INTO TABLE standingorder  
@@ -62,5 +58,3 @@ ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 LINES
 (AMOUNT,ENTRYDATE,PAYDATE,ACCOUNTID,COUNT,ID,COMMENT,PERIOD,TRANSACTIONTYPE);
-
--- UPDATE standingorder_seq SET next_val=(select max(id)+1 from standingorder);
