@@ -3,7 +3,7 @@
 export const environment = {
   production: true,
   accountapi_host: "", // http://minnie",
-  accountapi_app: "/jaccountapi/",
+  accountapi_app: "/jaccountapimysql/",
   envName: ' (JLIVE)',  
   uiversion: '',
   folder: ''

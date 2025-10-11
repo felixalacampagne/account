@@ -34,7 +34,7 @@
       <profile>
          <id>ssbld</id>
          <properties>
-            <raw.finalName>j${project.artifactId}</raw.finalName>
+            <raw.finalName>j${project.artifactId}mysql</raw.finalName>
          </properties>
       </profile>
    </profiles>
