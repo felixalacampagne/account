@@ -195,3 +195,12 @@ Empty numeric fields, ie. ';;', are interpreted as 0.00 instead of NULL.
 For the transaction credit and debit columns this results in incorrect display although the balance appears to be
 OK. Special processing will be required for this, I guess similar to that required for ACCOUNTID.
 
+## Accessing MySQL from Excel
+
+Confirmed that it is possible to read from the mysql database in Excel. Requires use of
+ADO instead of the DAO currently used by the reconciliation routines so this is going to
+require quite a bit of work given that it is probably a decade since I last touched the VBA 
+database code! Will probably still be quicker than re-writing the functionality as Java code (I hope!!)
+Needed an old 32bit ODBC driver described as 8.0 for compatibility with Excel. It didn't seem to
+cause a problem but I guess it's a sign that I will need the Java version eventually - unless
+there is an OpenOffice equivalent of Excel which can be programmed in a similar way to Excel
