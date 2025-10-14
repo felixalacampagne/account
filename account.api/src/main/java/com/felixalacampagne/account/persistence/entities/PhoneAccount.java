@@ -26,32 +26,27 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name="phoneaccount")
-//@NamedQuery(name="PhoneAccount.findAll", query="SELECT p FROM PhoneAccount p")
 public class PhoneAccount implements Serializable
 {
    private static final long serialVersionUID = 1L;
 
    @Id
    @GeneratedValue(strategy=GenerationType.IDENTITY)
-//   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "phoneaccount_seq_gen")
-//   @SequenceGenerator(initialValue = 1, name = "phoneaccount_seq_gen", sequenceName = "phoneaccount_seq", allocationSize = 1)
    @Column(name="id", nullable=false)
    private Long Id;
 
-   // @Column(name = "accountid", nullable = true)   // PAaccid
-   // private Long accountId;
    @ManyToOne
    @JoinColumn(name = "accountid", nullable = true)  // PAaccid
    private Account account; // The related account in Account table, if any.
-                           // Presence indicates transfer between account is
-                           // required.
+                            // Presence indicates transfer between account is
+                            // required.
    @Column(name = "comment")                       // PAdesc
    private String desc;
 
    @Column(name = "communication")                 // PALastComm
    private String lastComm;
 
-   @Column(name = "code")                      // PAnumber
+   @Column(name = "code")                          // PAnumber
    private String accountNumber;
 
    @Column(name = "ranking")                   // PAorder

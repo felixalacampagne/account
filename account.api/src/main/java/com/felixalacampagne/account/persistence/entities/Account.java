@@ -45,8 +45,6 @@ public class Account implements Serializable {
 
    @Id
    @GeneratedValue(strategy=GenerationType.IDENTITY)
-//   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account_seq_gen")
-//   @SequenceGenerator(initialValue = 1, name = "account_seq_gen", sequenceName = "account_seq", allocationSize = 1)
    @Column(name="id", nullable=false)             // acc_id
    private Long id;
 
