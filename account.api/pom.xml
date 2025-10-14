@@ -4,7 +4,7 @@
    <modelVersion>4.0.0</modelVersion>
 
    <artifactId>accountapi</artifactId> <!-- NB this is part of the war file name -->
-  <version>0.5.1-RELEASE</version>
+   <version>0.6.0-RELEASE</version>
 
    <packaging>war</packaging>
    <name>Account API</name>
@@ -34,7 +34,7 @@
       <profile>
          <id>ssbld</id>
          <properties>
-            <raw.finalName>j${project.artifactId}mysql</raw.finalName>
+            <raw.finalName>j${project.artifactId}</raw.finalName>
          </properties>
       </profile>
    </profiles>

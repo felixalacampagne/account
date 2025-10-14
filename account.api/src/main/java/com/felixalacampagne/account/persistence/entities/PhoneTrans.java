@@ -27,8 +27,9 @@ public class PhoneTrans implements Serializable {
    private static final long serialVersionUID = 1L;
 
    @Id
-   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "phonetransaction_seq_gen")
-   @SequenceGenerator(initialValue = 1, name = "phonetransaction_seq_gen", sequenceName = "phonetransaction_seq", allocationSize = 1)
+   @GeneratedValue(strategy=GenerationType.IDENTITY)
+   // @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "phonetransaction_seq_gen")
+   // @SequenceGenerator(initialValue = 1, name = "phonetransaction_seq_gen", sequenceName = "phonetransaction_seq", allocationSize = 1)
    @Column(name="id", nullable=false)                          // PTid
    private Long PTid;
 

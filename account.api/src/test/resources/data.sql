@@ -19,11 +19,14 @@ FIELDS TERMINATED BY ';'
 ENCLOSED BY '"'
 LINES TERMINATED BY '\n'
 IGNORE 1 LINES
-(BALANCE,@vchk,CHECKEDBALANCE,@vcred,@vdeb,SORTEDBALANCE,TRANSACTIONDATE,ACCOUNTID,ID,COMMENT,STATEMENTREF,TRANSACTIONTYPE)
+(BALANCE,@vchk,@chkbal,@vcred,@vdeb,@srtbal,TRANSACTIONDATE,ACCOUNTID,ID,COMMENT,STATEMENTREF,TRANSACTIONTYPE)
 set 
+BALANCE = NULLIF(@bal,''),
 CHECKED = (@vchk = 'TRUE'),
 CREDIT = NULLIF(@vcred,'') ,
-DEBIT = NULLIF(@vdeb,'')
+DEBIT = NULLIF(@vdeb,''),
+CHECKEDBALANCE = NULLIF(@chkbal,''),
+SORTEDBALANCE = NULLIF(@srtbal,'')
 ;
 
 -- rows with null account id are not imported (I think). null account id is expressed as ;;

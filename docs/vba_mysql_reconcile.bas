@@ -1,4 +1,4 @@
-Attribute VB_Name = "Module1"
+Attribute VB_Name = "MySQLReconcile"
 Option Explicit
 
 Const COL_ACCNUM = 1
@@ -61,8 +61,8 @@ Dim sql As String
 Dim rownum As Long
 Dim amtstr As String
 Dim amtvalue As Double
-Dim credit As Double
-Dim debit As Double
+Dim credit As Variant
+Dim debit As Variant
 Dim amtdate As Date
 Dim transsql As String
 Dim seqid As Long
@@ -72,16 +72,27 @@ Dim bookmark As Variant
 Dim actionstr As String
 Dim accidint As Integer
 
-    ' SELECT * FROM accountmysql.transaction where accountid=22 and checked=0 order by id asc;
-   accidint = 22
+       DBEngine.BeginTrans
+   'mysql gives data type mismatch if id is not in quotes!
    sql = "select * from transaction where accountid='" & accid & "' and checked=0 order by id asc"
-   'sql = "select * from transaction where accountid='22' and checked=0 order by id asc"
    Set rs = db.OpenRecordset(sql, dbOpenSnapshot)
+   If rs.EOF Then
+   MsgBox "No transactions found for query: " & sql
+      rs.Close
+      Exit Sub
+   End If
    rs.MoveFirst
+   Do While Not rs.EOF
+       Debug.Print rs("id"), rs("comment"), rs("debit"), rs("credit"), rs("accountid")
+       rs.MoveNext
+   Loop
    
-   DBEngine.BeginTrans
-   Debug.Print rs("id"), rs("comment"), rs("debit"), rs("credit"), rs("accountid")
+
    
+   ' The FindFirst method does not work with MySQL and MySQL ODBC
+   ' so forced to use brute force method of searching manually through the recordset for a match.
+   ' This is done very crudely with two different searches depending on whether the statement
+   ' amount is a credit or a debit.
    With ActiveSheet
       rownum = 2
       Do While .Cells(rownum, 1).Text <> ""
@@ -92,31 +103,59 @@ Dim accidint As Integer
          amtvalue = Val(amtstr)
          If amtvalue < 0 Then
             debit = amtvalue * -1#
-            transsql = "credit is null and debit = convert(" & debit & " using decimal(38,2))"
          Else
             credit = amtvalue
-            transsql = "debit is null and credit = convert(" & credit & " using decimal(38,2))"
          End If
+         
+         rs.MoveFirst
+         Do While Not rs.EOF
+            If amtvalue < 0 Then
+               If IsNull(rs("credit")) And Not IsNull(rs("debit")) Then
+                 If debit = CDbl(rs("debit")) Then
+                     Exit Do
+                 End If
+               End If
+            Else
+               If IsNull(rs("debit")) And Not IsNull(rs("credit")) Then
+                  If credit = CDbl(rs("credit")) Then
+                      Exit Do
+                  Else
+                     Debug.Print "No match:", credit, rs("credit")
+                  End If
+               End If
+            End If
+            rs.MoveNext
+         Loop
+         
          
          ' Items in the recordset are being updated - avoiding the already updated
          ' ones should help avoid problems with repetitive equal payments.
-         transsql = transsql & " and checked=0"
+         ' There is currently no way to remove the items which have already been checked as part of
+         ' the current reconciliation - recordset can't be refreshed during a transaction
+         ' and the recordset itself is not editable - guess I will need to make a
+         ' copy of the recordset which can be modified...
+         ' transsql = transsql & " and checked=0"
          
          If debit = 150 Then
             Debug.Print "Grocery!"
          End If
          
-         rs.FindFirst transsql
-         If rs.NoMatch Then
+
+         'rs.FindFirst transsql
+         If rs.EOF Then
+            Debug.Print "Amount not found: " & amtvalue
             notrcncld = addTransaction(accid, rs, .Rows(rownum))
             If notrcncld = ALLOK Then
                cntchange = cntchange + 1
                setRowStyle .Rows(rownum), 2
-               .Cells(rownum, COL_DBSEQ) = rs("id")
+               
+               'TODO: find a way to get id of newly added record
+               ' .Cells(rownum, COL_DBSEQ) = rs("id")
             ElseIf notrcncld = QUITNOW Then
                ' Emergency bailout button pressed!
-               rs.Close
+
                DBEngine.Rollback
+               rs.Close
                Exit Sub
             Else
                setRowStyle .Rows(rownum), 0
@@ -124,18 +163,43 @@ Dim accidint As Integer
             
             .Cells(rownum, COL_FAILREASON) = notrcncld
          Else
+            Debug.Print rs("id"), rs("comment"), rs("debit"), rs("credit"), rs("accountid")
             ' Still need to be able distinguish between similar payments made on different days
             ' for example the grocery weekly standing order.
             seqid = rs("id")
             amtdate = .Cells(rownum, COL_DATE).Value
-            bookmark = rs.bookmark
-            'Debug.Print amtdate
-            Do While (Abs(DateDiff("d", rs("transactiondate"), amtdate)) > 3) And Not rs.NoMatch
-                'Debug.Print rs("Date"), rs("comment"), rs("debit")
-               rs.FindNext transsql
-            Loop
+            
+            ' This was much nicer with FindFirst/Next but now is hideous. Need to find other records
+            ' which match the amount but with less date difference.
+            ' The recordset cursor is currently pointing to a matching amount. If the Date is within
+            ' two days then it should remain the current record, otherwise continue scanning the list.
+            ' If a date match is not found then need to reset to the original matching amount
+            ' and display a message for the date mismatch
+            If Abs(DateDiff("d", rs("transactiondate"), amtdate)) > 3 Then
+               bookmark = rs.bookmark
+               Do While Not rs.EOF
+                  If amtvalue < 0 Then
+                     If IsNull(rs("credit")) And Not IsNull(rs("debit")) Then
+                        If debit = CDbl(rs("debit")) Then
+                           If Abs(DateDiff("d", rs("transactiondate"), amtdate)) < 3 Then
+                              Exit Do
+                           End If
+                        End If
+                     End If
+                  Else
+                     If IsNull(rs("debit")) And Not IsNull(rs("credit")) Then
+                        If credit = rs("credit") Then
+                           If Abs(DateDiff("d", rs("transactiondate"), amtdate)) < 3 Then
+                              Exit Do
+                           End If
+                        End If
+                     End If
+                  End If
+                  rs.MoveNext
+               Loop
+            End If
             notrcncld = ""
-            If Not rs.NoMatch Then
+            If Not rs.EOF Then
                notrcncld = reconcileTransaction(rs, .Rows(rownum))
             Else
                 ' Restore pointer to first match to avoid problem in reconoraddTransaction
@@ -162,11 +226,12 @@ Dim accidint As Integer
             .Cells(rownum, COL_DBDESC) = actionstr
          End If
          rownum = rownum + 1
+
       Loop
    End With
+     rs.Close
    
-   
-   rs.Close
+
    
    If cntchange > 0 Then
       ' Do the commit/rollback in async form to allow the changes in the sheet to be examined
@@ -232,24 +297,47 @@ End Function
 Function addtodb(accid As Long, rs As Recordset, arow As Range) As String
 Dim amt As String
 Dim amtv As Double
+Dim inssql As String
 amt = Trim$(arow.Columns(COL_VALUE))
    amt = StrRepl(amt, ",", ".")
    amtv = Val(amt)
    
-   rs.AddNew
-   If amtv < 0 Then
-      rs("debit") = amtv * -1
-   Else
-      rs("credit") = amtv
-   End If
-   rs("accountid") = accid
-   rs("statementref") = arow.Columns(COL_STATNUM)
-   rs("checked") = True
-   rs("transactiondate") = arow.Columns(COL_DATE)
-   rs("comment") = Left$(arow.Columns(COL_DESC), rs("comment").Size)
-   rs("type") = "STMNT"
+   Dim amtcol As String
+   Dim amtval As Double
    
-   rs.Update
+   'rs.AddNew
+   If amtv < 0 Then
+      'rs("debit") = amtv * -1
+      amtcol = "debit"
+      amtval = amtv * -1
+   Else
+      'rs("credit") = amtv
+      amtcol = "credit"
+      amtval = amtv
+   End If
+   'rs("accountid") = accid
+   'rs("statementref") = arow.Columns(COL_STATNUM)
+   'rs("checked") = True
+   'rs("transactiondate") = arow.Columns(COL_DATE)
+   'rs("comment") = Left$(arow.Columns(COL_DESC), rs("comment").Size)
+   'rs("type") = "STMNT"
+   
+   'rs.Update
+   
+   inssql = "insert into transaction (accountid, statementref, checked, transactiondate, comment, transactiontype, " & amtcol
+   inssql = inssql & ") values ("
+   inssql = inssql & "'" & accid & "', "
+   inssql = inssql & "'" & arow.Columns(COL_STATNUM) & "', "
+   inssql = inssql & "1, "
+   inssql = inssql & "'" & arow.Columns(COL_DATE) & "', "
+   inssql = inssql & "'" & Left$(arow.Columns(COL_DESC), rs("comment").Size) & "', "
+   inssql = inssql & "'STMNT', "
+   inssql = inssql & "'" & amtval & "'"
+   inssql = inssql & ")"
+   
+   Debug.Print "addtodb: insert sql: " & inssql
+   gDB.Execute inssql
+   
    addtodb = ALLOK
 End Function
 
