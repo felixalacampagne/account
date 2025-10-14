@@ -60,9 +60,9 @@ Dim rs As DAO.Recordset
 Dim sql As String
 Dim rownum As Long
 Dim amtstr As String
-Dim amtvalue As Double
-Dim credit As Variant
-Dim debit As Variant
+Dim stmntamount As Double
+Dim credit As double
+Dim debit As double
 Dim amtdate As Date
 Dim transsql As String
 Dim seqid As Long
@@ -72,23 +72,22 @@ Dim bookmark As Variant
 Dim actionstr As String
 Dim accidint As Integer
 
-       DBEngine.BeginTrans
+dim dbnullcol as string
+dim dbamtcol as string
+dim dbamtval as double
+dim first as boolean
+dim datematch as boolean
+
+   DBEngine.BeginTrans
    'mysql gives data type mismatch if id is not in quotes!
-   sql = "select * from transaction where accountid='" & accid & "' and checked=0 order by id asc"
+   sql = "select * from transaction where accountid='" & accid & "' and checked=0 order by transactiondate asc, id asc"
    Set rs = db.OpenRecordset(sql, dbOpenSnapshot)
    If rs.EOF Then
    MsgBox "No transactions found for query: " & sql
       rs.Close
       Exit Sub
    End If
-   rs.MoveFirst
-   Do While Not rs.EOF
-       Debug.Print rs("id"), rs("comment"), rs("debit"), rs("credit"), rs("accountid")
-       rs.MoveNext
-   Loop
-   
 
-   
    ' The FindFirst method does not work with MySQL and MySQL ODBC
    ' so forced to use brute force method of searching manually through the recordset for a match.
    ' This is done very crudely with two different searches depending on whether the statement
@@ -100,34 +99,39 @@ Dim accidint As Integer
          debit = 0#
          amtstr = .Cells(rownum, COL_VALUE).Text
          amtstr = StrRepl(amtstr, ",", ".")
-         amtvalue = Val(amtstr)
-         If amtvalue < 0 Then
-            debit = amtvalue * -1#
+         stmntamount = Val(amtstr)
+         
+         If stmntamount < 0 Then
+            'debit = stmntamount * -1#
+            dbamtval = stmntamount * -1#
+            dbamtcol = "debit"
+            dbnullcol = "credit"
          Else
-            credit = amtvalue
+            'credit = stmntamount
+            dbamtval = stmntamount
+            dbamtcol = "credit"
+            dbnullcol = "debit"
          End If
          
          rs.MoveFirst
          Do While Not rs.EOF
-            If amtvalue < 0 Then
-               If IsNull(rs("credit")) And Not IsNull(rs("debit")) Then
-                 If debit = CDbl(rs("debit")) Then
+            If IsNull(rs(dbnullcol)) And Not IsNull(rs(dbamtcol)) Then
+               If dbamtval = CDbl(rs(dbamtcol)) Then
+                  If Abs(DateDiff("d", rs("transactiondate"), amtdate)) < 3 Then
+                     datematch = true
+                     first = false
                      Exit Do
-                 End If
-               End If
-            Else
-               If IsNull(rs("debit")) And Not IsNull(rs("credit")) Then
-                  If credit = CDbl(rs("credit")) Then
-                      Exit Do
-                  Else
-                     Debug.Print "No match:", credit, rs("credit")
-                  End If
-               End If
+                  elseif not first then
+                     ' mark the first matching value even if the date does not match
+                     ' as this will be the record suggested if not date match is found
+                     first = true
+                     bookmark = rs.bookmark
+                  end if   
+               end if
             End If
             rs.MoveNext
          Loop
-         
-         
+
          ' Items in the recordset are being updated - avoiding the already updated
          ' ones should help avoid problems with repetitive equal payments.
          ' There is currently no way to remove the items which have already been checked as part of
@@ -135,25 +139,15 @@ Dim accidint As Integer
          ' and the recordset itself is not editable - guess I will need to make a
          ' copy of the recordset which can be modified...
          ' transsql = transsql & " and checked=0"
-         
-         If debit = 150 Then
-            Debug.Print "Grocery!"
-         End If
-         
-
-         'rs.FindFirst transsql
-         If rs.EOF Then
-            Debug.Print "Amount not found: " & amtvalue
+         notrcncld = ""
+         If rs.EOF and not first Then
+            Debug.Print "Amount not found: " & stmntamount
             notrcncld = addTransaction(accid, rs, .Rows(rownum))
             If notrcncld = ALLOK Then
                cntchange = cntchange + 1
                setRowStyle .Rows(rownum), 2
-               
-               'TODO: find a way to get id of newly added record
-               ' .Cells(rownum, COL_DBSEQ) = rs("id")
             ElseIf notrcncld = QUITNOW Then
                ' Emergency bailout button pressed!
-
                DBEngine.Rollback
                rs.Close
                Exit Sub
@@ -162,75 +156,37 @@ Dim accidint As Integer
             End If
             
             .Cells(rownum, COL_FAILREASON) = notrcncld
-         Else
-            Debug.Print rs("id"), rs("comment"), rs("debit"), rs("credit"), rs("accountid")
-            ' Still need to be able distinguish between similar payments made on different days
-            ' for example the grocery weekly standing order.
-            seqid = rs("id")
-            amtdate = .Cells(rownum, COL_DATE).Value
-            
-            ' This was much nicer with FindFirst/Next but now is hideous. Need to find other records
-            ' which match the amount but with less date difference.
-            ' The recordset cursor is currently pointing to a matching amount. If the Date is within
-            ' two days then it should remain the current record, otherwise continue scanning the list.
-            ' If a date match is not found then need to reset to the original matching amount
-            ' and display a message for the date mismatch
-            If Abs(DateDiff("d", rs("transactiondate"), amtdate)) > 3 Then
-               bookmark = rs.bookmark
-               Do While Not rs.EOF
-                  If amtvalue < 0 Then
-                     If IsNull(rs("credit")) And Not IsNull(rs("debit")) Then
-                        If debit = CDbl(rs("debit")) Then
-                           If Abs(DateDiff("d", rs("transactiondate"), amtdate)) < 3 Then
-                              Exit Do
-                           End If
-                        End If
-                     End If
-                  Else
-                     If IsNull(rs("debit")) And Not IsNull(rs("credit")) Then
-                        If credit = rs("credit") Then
-                           If Abs(DateDiff("d", rs("transactiondate"), amtdate)) < 3 Then
-                              Exit Do
-                           End If
-                        End If
-                     End If
-                  End If
-                  rs.MoveNext
-               Loop
-            End If
-            notrcncld = ""
-            If Not rs.EOF Then
-               notrcncld = reconcileTransaction(rs, .Rows(rownum))
-            Else
-                ' Restore pointer to first match to avoid problem in reconoraddTransaction
-                rs.bookmark = bookmark
-                notrcncld = "Amount matched with too great date difference"
-            End If
-            
-            actionstr = rs("comment")
-            If notrcncld = ALLOK Then
-               cntchange = cntchange + 1
-               setRowStyle .Rows(rownum), 1
-            Else
-                
-               notrcncld = reconoraddTransaction(accid, rs, .Rows(rownum), notrcncld, actionstr)
-               ' There was a matching amount but the date was too different...
-               setRowStyle .Rows(rownum), 2
-            End If
-            .Cells(rownum, COL_DBSEQ) = seqid
-            .Cells(rownum, COL_FAILREASON) = notrcncld
-            
-            ' This is misleading if reconoraddTransaction resulted in a new row being added as
-            ' the comment is that of the row with the large date difference. Need to refactor
-            ' so that the comment indicates that a new row was added
-            .Cells(rownum, COL_DBDESC) = actionstr
+         Else If datematch Then   ' Clean match
+            notrcncld = reconcileTransaction(rs, .Rows(rownum))
+         Else ' Should mean that first is true and bookmark is set 
+            ' Restore pointer to first match to avoid problem in reconoraddTransaction
+            rs.bookmark = bookmark
+            notrcncld = "Amount matched with too great date difference"
          End If
+            
+         actionstr = rs("comment")
+         If notrcncld = ALLOK Then
+            cntchange = cntchange + 1
+            setRowStyle .Rows(rownum), 1
+         Else
+            notrcncld = reconoraddTransaction(accid, rs, .Rows(rownum), notrcncld, actionstr)
+            ' There was a matching amount but the date was too different...
+            setRowStyle .Rows(rownum), 2
+         End If
+         
+         .Cells(rownum, COL_DBSEQ) = seqid
+         .Cells(rownum, COL_FAILREASON) = notrcncld
+         
+         ' This is misleading if reconoraddTransaction resulted in a new row being added as
+         ' the comment is that of the row with the large date difference. Need to refactor
+         ' so that the comment indicates that a new row was added
+         .Cells(rownum, COL_DBDESC) = actionstr
+
          rownum = rownum + 1
 
       Loop
    End With
-     rs.Close
-   
+   rs.Close
 
    
    If cntchange > 0 Then
@@ -241,6 +197,7 @@ Dim accidint As Integer
 
     
 End Sub
+
 
 Function reconoraddTransaction(accid As Long, rs As Recordset, arow As Range, notrcncld As String, actionstr As String) As String
 Dim msg As String
@@ -705,4 +662,5 @@ Set objForm = Nothing
 Set objForms = Nothing
 Set objIE = Nothing
 End Sub
+
 
