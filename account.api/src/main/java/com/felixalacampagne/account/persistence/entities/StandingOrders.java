@@ -12,7 +12,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 
@@ -26,20 +25,14 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name="standingorder")
-//@NamedQuery(name="StandingOrder.findAll", query="SELECT s FROM StandingOrder s")
 public class StandingOrders implements Serializable {
    private static final long serialVersionUID = 1L;
 
 
    @Id
-   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "standingorder_seq_gen")
-   @SequenceGenerator(initialValue = 1, name = "standingorder_seq_gen", sequenceName = "standingorder_seq", allocationSize = 1)
-   @Column(name="id")
-   private Long SOid;             // SOid
-
-//   private Long SOAccId;
-   // Each Account can be mapped to many standingorders
-   //uni-directional many-to-one association to AccountX
+   @GeneratedValue(strategy=GenerationType.IDENTITY)
+   @Column(name="id", nullable=false)
+   private Long SOid;                                // SOid
 
    @ManyToOne
    @JoinColumn(name = "accountid", nullable = false) // SOAccId

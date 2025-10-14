@@ -1,40 +1,63 @@
 -- noinspection SqlNoDataSourceInspectionForFile
 
-insert into account (id,code,description,address,contact,currency,currencyformat,statementref,ranking,swiftbic)
-SELECT * FROM CSVREAD('csv/account_h2cols.csv', null, 'charset=UTF-8 fieldSeparator=;');
+-- https://dev.mysql.com/doc/refman/8.4/en/load-data.html
+LOAD DATA LOCAL INFILE  
+'csv/account_h2.csv'
+INTO TABLE account  
+FIELDS TERMINATED BY ';' 
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES
+(ID,RANKING,ADDRESS,CODE,CONTACT,CURRENCY,CURRENCYFORMAT,DESCRIPTION,STATEMENTREF,SWIFTBIC);
 
-ALTER SEQUENCE account_seq RESTART WITH (select max(id)+1 from account);
+-- TRUE/FALSE in csv must be manually converted to 1/0 values 
+-- null fields in csv must be manually set to null
+LOAD DATA LOCAL INFILE  
+'csv/transaction_h2.csv'
+INTO TABLE transaction  
+FIELDS TERMINATED BY ';' 
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES
+(BALANCE,@vchk,@chkbal,@vcred,@vdeb,@srtbal,TRANSACTIONDATE,ACCOUNTID,ID,COMMENT,STATEMENTREF,TRANSACTIONTYPE)
+set 
+BALANCE = NULLIF(@bal,''),
+CHECKED = (@vchk = 'TRUE'),
+CREDIT = NULLIF(@vcred,'') ,
+DEBIT = NULLIF(@vdeb,''),
+CHECKEDBALANCE = NULLIF(@chkbal,''),
+SORTEDBALANCE = NULLIF(@srtbal,'')
+;
 
-insert into transaction (id,accountid,transactiondate,transactiontype,comment,checked,credit,debit,balance,checkedbalance,sortedbalance,statementref)
-SELECT id,accountid, cast(parsedatetime(transactiondate, 'yyyy-MM-dd HH:mm:ss') as date) as transactiondate, transactiontype,comment,checked,credit,debit,balance,checkedbalance,sortedbalance,statementref
-FROM CSVREAD('csv/transaction_h2cols.csv', null,  'charset=UTF-8 fieldSeparator=;  null=(null)');
+-- rows with null account id are not imported (I think). null account id is expressed as ;;
+-- empty field is interpreted as empty string so fails when the field is a number, ie. accountid
+-- so accountid must be explicitly set to NULL if the field is empty
+LOAD DATA LOCAL INFILE  
+'csv/phoneaccount_h2.csv'
+INTO TABLE phoneaccount  
+FIELDS TERMINATED BY ';' 
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES
+(RANKING,@vaccid,ID,ACCOUNTTYPE,CODE,COMMENT,COMMUNICATION)
+set
+ACCOUNTID = NULLIF(@vaccid,'')
+;
 
-ALTER SEQUENCE transaction_seq RESTART WITH (select max(id)+1 from transaction);
+LOAD DATA LOCAL INFILE  
+'csv/phonetransaction_h2.csv'
+INTO TABLE phonetransaction  
+FIELDS TERMINATED BY ';' 
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES
+(PAYDATE,SENTDATE,TRANSACTIONDATE,ID,RECIPIENTPHONEACCOUNTID,SENDERPHONEACCOUNTID,AMOUNT,COMMENT,COMMUNICATION,ERRORSTATUS);
 
-insert into standingorder (id  ,period  ,count  ,paydate      ,entrydate  ,comment,accountid,transactiontype,amount)
-SELECT id  ,period  ,count  ,
-cast(parsedatetime(paydate, 'yyyy-MM-dd HH:mm:ss') as date) as paydate,
-cast(parsedatetime(entrydate, 'yyyy-MM-dd HH:mm:ss') as date) as entrydate,
-comment,accountid,transactiontype,amount
-FROM CSVREAD('csv/standingorders_h2cols.csv', null,  'charset=UTF-8 fieldSeparator=;');
-
-ALTER SEQUENCE standingorder_seq RESTART WITH (select max(id)+1 from standingorder);
-
-insert into phoneaccount (id  ,accounttype,accountid,code    ,comment,ranking,communication)
-SELECT id  ,accounttype, NULLIF(accountid, 0) ,code    ,comment,ranking,communication FROM CSVREAD('csv/phoneaccount_h2cols.csv', null, 'charset=UTF-8 fieldSeparator=;');
-
-ALTER SEQUENCE phoneaccount_seq RESTART WITH (select max(id)+1 from phoneaccount);
-
-insert into phonetransaction (id  ,paydate  ,senderphoneaccountid,recipientphoneaccountid,amount  ,communication,comment,sentdate  ,transactiondate,errorstatus)
-SELECT id  ,
-cast(parsedatetime(paydate, 'yyyy-MM-dd HH:mm:ss') as date) as paydate,
-senderphoneaccountid,recipientphoneaccountid,amount  ,communication,comment,
-cast(parsedatetime(sentdate, 'yyyy-MM-dd HH:mm:ss') as date) as sentdate,
-cast(parsedatetime(transactiondate, 'yyyy-MM-dd HH:mm:ss') as date) as transactiondate,
-errorstatus
-FROM CSVREAD('csv/phonetransaction_h2cols.csv', null, 'charset=UTF-8 fieldSeparator=; null=(null)');
-
-ALTER SEQUENCE phonetransaction_seq RESTART WITH (select max(id)+1 from phonetransaction);
-
-insert into prefs (id, name,text,numeric)
-SELECT (select nextval('prefs_seq') ) as id, name,text,numeric FROM CSVREAD('csv/prefs_h2cols.csv', null, 'charset=UTF-8 fieldSeparator=; null=(null)');
+LOAD DATA LOCAL INFILE  
+'csv/standingorder_h2.csv'
+INTO TABLE standingorder  
+FIELDS TERMINATED BY ';' 
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES
+(AMOUNT,ENTRYDATE,PAYDATE,ACCOUNTID,COUNT,ID,COMMENT,PERIOD,TRANSACTIONTYPE);

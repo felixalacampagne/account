@@ -12,7 +12,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 
@@ -27,67 +26,45 @@ import jakarta.persistence.Table;
 @Table(name="transaction")
 public class Transaction implements Serializable
 {
-//   public static final String TRANSACTION_ALLFORACCOUNT="Transaction.findByAccountId";
    private static final long serialVersionUID = 1L;
 
-   // WARNING: columns names have been changed to more readable names, entity properties are the same as for account
-
-   // .AUTO gives UcanaccessSQLException: UCAExc:::5.0.1 user lacks privilege or object not found: HIBERNATE_SEQUENCE
-   // TABLE same as AUTO
-   // SEQUENCE same as AUTO
-   // IDENTITY gives weird error: class org.hsqldb.jdbc.JDBCStatement cannot be cast to class java.sql.PreparedStatement
-   //
-   // @GeneratedValue(strategy=GenerationType.IDENTITY)
    @Id
-   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "transaction_seq_gen")
-   @SequenceGenerator(initialValue = 1, name = "transaction_seq_gen", sequenceName = "transaction_seq", allocationSize = 1)
-   @Column(name="id")                             // sequence
+   @GeneratedValue(strategy=GenerationType.IDENTITY)
+   @Column(name="id", nullable=false)                // sequence
    private long sequence;
 
-   // Access version just uses a simple long with no attempt to make the relationship
-   // I was going to keep the same for H2 except that standingorder is using an
-   // 'official' many2one relationship so I figured why not do the same with
-   // transaction. This will require some changes to retrieve the account id but
-   // maybe that can be done via a method in here...
-   //
-   // Alas changing to ManyToOne requires re-writing the queries which are generally using the
-   // query-from-the-method-name feature which in turn means all code using the queries will need to
-   // be changed - in addition the account id must be converted to an account object for all of the
-   // queries which is likely to be impractical unless someway to specify the account id can be found.
-   // @Column(name="accountid")                      // AccountId
-   // private Long accountId;
    @ManyToOne
    @JoinColumn(name = "accountid", nullable = false) // SOAccId
    private Account account;
 
-   @Column(name="balance")                        // Balance
+   @Column(name="balance")                           // Balance
    private BigDecimal balance;
 
-   @Column(name="checked")                        // Checked
+   @Column(name="checked")                           // Checked
    private boolean checked;
 
-   @Column(name="checkedbalance")                 // CheckedBalance
+   @Column(name="checkedbalance")                    // CheckedBalance
    private BigDecimal checkedBalance;
 
-   @Column(name="comment")                        // Comment
+   @Column(name="comment")                           // Comment
    private String comment;
 
-   @Column(name="credit")                         // Credit
+   @Column(name="credit")                            // Credit
    private BigDecimal credit;
 
-   @Column(name="transactiondate")                           // Date
+   @Column(name="transactiondate")                   // Date
    private LocalDate date;
 
-   @Column(name="debit")                          // Debit
+   @Column(name="debit")                             // Debit
    private BigDecimal debit;
 
-   @Column(name="sortedbalance")                  // SortedBalance
+   @Column(name="sortedbalance")                     // SortedBalance
    private BigDecimal sortedBalance;
 
-   @Column(name="statementref")                   // Stid
+   @Column(name="statementref")                      // Stid
    private String stid;
 
-   @Column(name="transactiontype")                           // Type
+   @Column(name="transactiontype")                   // Type
    private String type;
 
    public Transaction() {

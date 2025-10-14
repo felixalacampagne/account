@@ -32,7 +32,7 @@ import org.springframework.context.annotation.PropertySource;
 // cause the application to crash (which is the default behaviour!!).
 // Note that 'catalina.home', the JVM property used in the tomcat startup command line, is used as this
 // is unlikely to be available unless the application is running in the tomcat container
-@PropertySource(value = "file:${catalina.home}/conf/account-local.properties", ignoreResourceNotFound = true)
+@PropertySource(value = "file:${catalina.home}/conf/accountmysql-local.properties", ignoreResourceNotFound = true)
 @SpringBootApplication(scanBasePackages = {
 		"com.felixalacampagne.account.controller"
 		})

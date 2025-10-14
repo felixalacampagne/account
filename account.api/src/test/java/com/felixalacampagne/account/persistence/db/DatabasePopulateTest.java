@@ -1,8 +1,6 @@
-package com.felixalacampagne.account.persistence.h2;
+package com.felixalacampagne.account.persistence.db;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.File;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -61,22 +59,22 @@ public class DatabasePopulateTest
    void databaseIsPopulated()
    {
       assertTrue(accountJpaRepository.count() > 0, "Account table should exist and not be empty");
-      assertTrue(transactionJpaRepository.count() > 0, "Transaction table should exist and be empty");
-      assertTrue(phoneAccountJpaRepository.count() > 0, "Phoneaccount table should exist and be empty");
-      assertTrue(standingOrdersJpaRepository.count() > 0, "Standingorder table should exist and be empty");
+      assertTrue(transactionJpaRepository.count() > 0, "Transaction table should exist and not be empty");
+      assertTrue(phoneAccountJpaRepository.count() > 0, "Phoneaccount table should exist and not be empty");
+      assertTrue(standingOrdersJpaRepository.count() > 0, "Standingorder table should exist and not be empty");
    }
 
-   @Test
-   void backupTest()
-   {
-      File path = new File(dblocation, "accountH2create_backup_00.zip");
-
-      path.delete();
-
-      houseKeepingService.doHouseKeeping();
-
-      assertTrue(path.exists(), "backup file should exist: " + path.getAbsolutePath());
-
-   }
+//   @Test
+//   void backupTest()
+//   {
+//      File path = new File(dblocation, "accountH2create_backup_00.zip");
+//
+//      path.delete();
+//
+//      houseKeepingService.doHouseKeeping();
+//
+//      assertTrue(path.exists(), "backup file should exist: " + path.getAbsolutePath());
+//
+//   }
 
 }

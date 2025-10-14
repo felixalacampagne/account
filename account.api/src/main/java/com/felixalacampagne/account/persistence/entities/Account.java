@@ -8,7 +8,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 
@@ -44,11 +43,9 @@ public class Account implements Serializable {
    // Maybe could drop and recreate the sequence with the max id? This can be done in the data.sql
 
 
-   // @GeneratedValue(strategy=GenerationType.IDENTITY)
    @Id
-   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "account_seq_gen")
-   @SequenceGenerator(initialValue = 1, name = "account_seq_gen", sequenceName = "account_seq", allocationSize = 1)
-   @Column(name="id")             // acc_id
+   @GeneratedValue(strategy=GenerationType.IDENTITY)
+   @Column(name="id", nullable=false)             // acc_id
    private Long id;
 
    @Column(name="address")        // acc_addr

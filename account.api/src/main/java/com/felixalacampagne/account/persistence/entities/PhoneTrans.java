@@ -1,7 +1,6 @@
 package com.felixalacampagne.account.persistence.entities;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 
 import jakarta.persistence.Column;
@@ -23,14 +22,12 @@ import jakarta.persistence.Table;
  */
 @Entity
 @Table(name="phonetransaction")
-//@NamedQuery(name="PhoneTrans.findAll", query="SELECT p FROM PhoneTrans p")
 public class PhoneTrans implements Serializable {
    private static final long serialVersionUID = 1L;
 
    @Id
-   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "phonetransaction_seq_gen")
-   @SequenceGenerator(initialValue = 1, name = "phonetransaction_seq_gen", sequenceName = "phonetransaction_seq", allocationSize = 1)
-   @Column(name="id")                          // PTid
+   @GeneratedValue(strategy=GenerationType.IDENTITY)
+   @Column(name="id", nullable=false)          // PTid
    private Long PTid;
 
    @Column(name="comment")                     // PTaccom

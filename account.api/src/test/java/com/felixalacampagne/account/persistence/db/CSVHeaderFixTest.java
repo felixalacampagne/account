@@ -1,4 +1,4 @@
-package com.felixalacampagne.account.persistence.h2;
+package com.felixalacampagne.account.persistence.db;
 
 import java.io.File;
 import java.io.PrintWriter;

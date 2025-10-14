@@ -1,4 +1,4 @@
-package com.felixalacampagne.account.persistence.h2;
+package com.felixalacampagne.account.persistence.db;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -80,8 +80,8 @@ public class DatabaseConfigurationTest {
 
 		// This should work. If the console has loads of weird JPA/JDBC errors then there is probably
 		// already a console running - eclipse doesn't always stop the tests when the stop button is clicked.
-	   log.info("Now is the time to connect to the H2 console: http://localhost:8080/h2-console  jdbc:h2:file:./db/accountH2create");
-	   Thread.sleep(60000 * 15);
+	   //log.info("Now is the time to connect to the H2 console: http://localhost:8080/h2-console  jdbc:h2:file:./db/accountH2create");
+	   // Thread.sleep(60000 * 15);
 
 	}
 }

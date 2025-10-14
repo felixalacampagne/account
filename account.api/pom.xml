@@ -4,7 +4,7 @@
    <modelVersion>4.0.0</modelVersion>
 
    <artifactId>accountapi</artifactId> <!-- NB this is part of the war file name -->
-  <version>0.5.1-RELEASE</version>
+   <version>0.6.0-RELEASE</version>
 
    <packaging>war</packaging>
    <name>Account API</name>
@@ -40,12 +40,10 @@
    </profiles>
    <dependencies>
       <dependency>
-         <groupId>com.h2database</groupId>
-         <artifactId>h2</artifactId>
-         <!-- version>${h2database.version}</version -->
-         <scope>runtime</scope>
+          <groupId>com.mysql</groupId>
+          <artifactId>mysql-connector-j</artifactId>
+          <version>8.4.0</version>
       </dependency>
-   
       <dependency>
          <groupId>io.nayuki</groupId>
          <artifactId>qrcodegen</artifactId>
