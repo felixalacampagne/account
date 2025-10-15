@@ -13,19 +13,33 @@ Const QUITNOW = "QUIT"
 Const ALLOK = "OK"
 Const COL_DBDESC = 15
 
-Const DBCOL_ID = "sequence"   ' id
-Const DBCOL_DATE = "Date"     ' transactiondate
-Const DBCOL_TYPE = "Type"     ' transactiontype
-Const DBCOL_STMNTREF = "Stid" ' statementref
-Const DB_FALSE = "false"      ' 0 for mysql
-Const DB_TRUE = "true"        ' 1 for mysql
-Const DB_NUMQUOTE = ""        ' single quote for mysql
-Const DB_DATEQUOTE = "#"      ' single quote for mysql
-Const DB_COLQUOTEO = "["      ' empty for mysql
-Const DB_COLQUOTEC = "]"      ' empty for mysql
-Const DBCOL_ACCID = "acc_id"
-Const DBCOL_ACCCODE = "acc_code"
-Const DBCOL_ACCCURR = "acc_curr"
+'Const DBCOL_ID = "sequence"   ' id
+'Const DBCOL_DATE = "Date"     ' transactiondate
+'Const DBCOL_TYPE = "Type"     ' transactiontype
+'Const DBCOL_STMNTREF = "Stid" ' statementref
+'Const DB_FALSE = "false"      ' 0 for mysql
+'Const DB_TRUE = "true"        ' 1 for mysql
+'Const DB_NUMQUOTE = ""        ' single quote for mysql
+'Const DB_DATEQUOTE = "#"      ' single quote for mysql
+'Const DB_COLQUOTEO = "["      ' empty for mysql
+'Const DB_COLQUOTEC = "]"      ' empty for mysql
+'Const DBCOL_ACCID = "acc_id"
+'Const DBCOL_ACCCODE = "acc_code"
+'Const DBCOL_ACCCURR = "acc_curr"
+
+Const DBCOL_ID = "id"
+Const DBCOL_DATE = "transactiondate"
+Const DBCOL_TYPE = "transactiontype"
+Const DBCOL_STMNTREF = "statementref"
+Const DB_FALSE = "0"
+Const DB_TRUE = "1"
+Const DB_NUMQUOTE = "'"
+Const DB_DATEQUOTE = "'"
+Const DB_COLQUOTEO = ""
+Const DB_COLQUOTEC = ""
+Const DBCOL_ACCID = "id"
+Const DBCOL_ACCCODE = "code"
+Const DBCOL_ACCCURR = "currency"
  
 
 Sub reconcileStatement()
@@ -36,7 +50,7 @@ Dim failreason As String
 
    ' Don't really need the worksheet name!!!
    dblocn = Range("Settings!dblocation")
-
+   db.CursorLocation = adUseClient
    db.Open "DSN=" & dblocn
     
    acc_id = getAccountID(db, failreason)
@@ -131,7 +145,7 @@ Dim rowstyle As Integer
    'sql = "select * from transaction where accountid='" & accid & "' and checked=0 order by transactiondate asc, id asc"
    
    Set rs = New ADODB.Recordset
-   rs.Open sql, db, adOpenStatic, adLockPessimistic
+   rs.Open sql, db, adOpenStatic
 
    If rs.EOF Then
       MsgBox "No transactions found for query: " & sql
@@ -263,12 +277,13 @@ Dim rowstyle As Integer
       i = MsgBox(msg, vbYesNo, "Commit changes")
       If i <> vbYes Then
          db.RollbackTrans
+      Else
+         db.CommitTrans
       End If
    End If
 
     
 End Sub
-
 
 Function addTransaction(accid As Long, rs As ADODB.Recordset, db As ADODB.Connection, arow As Range) As String
 Dim msg As String
@@ -388,6 +403,7 @@ Dim i As Integer
 
 End Function
 
+
 Sub newTextSheet()
     Sheets(3).Select
     Sheets.Add
@@ -499,6 +515,27 @@ Dim lrepl As Long
 
    StrRepl = Body
 End Function
+
+Sub setRowStyle(arow As Range, mode As Integer)
+    With arow.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        Select Case mode
+        Case 0
+            .ThemeColor = xlThemeColorAccent2
+            .TintAndShade = 0.399975585192419
+        Case 1
+            .ThemeColor = xlThemeColorAccent3
+            .TintAndShade = 0.399975585192419
+        Case 2
+            .ThemeColor = xlThemeColorAccent6
+            .TintAndShade = 0.399975585192419
+        End Select
+         
+        .PatternTintAndShade = 0
+    End With
+End Sub
+
 Sub btnIncMonth2_Click()
 Dim rowsdate As Integer
 Dim rowedate As Integer
@@ -519,26 +556,6 @@ Dim incby As Integer
          sdate = DateValue(str)
          sdate = DateAdd("m", incby, sdate)
          .Cells(rowsdate, coldate) = sdate
-    End With
-End Sub
-
-Sub setRowStyle(arow As Range, mode As Integer)
-    With arow.Interior
-        .Pattern = xlSolid
-        .PatternColorIndex = xlAutomatic
-        Select Case mode
-        Case 0
-            .ThemeColor = xlThemeColorAccent2
-            .TintAndShade = 0.399975585192419
-        Case 1
-            .ThemeColor = xlThemeColorAccent3
-            .TintAndShade = 0.399975585192419
-        Case 2
-            .ThemeColor = xlThemeColorAccent6
-            .TintAndShade = 0.399975585192419
-        End Select
-         
-        .PatternTintAndShade = 0
     End With
 End Sub
 
@@ -575,127 +592,7 @@ Dim incby As Integer
     End With
 End Sub
 
-Sub btnCBCSetReportPDF_Click()
-getCBCReportDates "Request PDF report"
-End Sub
 
-Sub btnCBCSetReportCSV_Click()
-getCBCReportDates "Request CSV file"
-End Sub
-Sub getCBCReportDates(report As String)
-Dim objIE As Object
-Dim rowsdate As Integer
-Dim rowedate As Integer
-Dim coldate As Integer
-Dim strsdate As String
-Dim stredate As String
-Dim dt As Date
-Dim incby As Integer
-
-   rowsdate = 4
-   rowedate = 5
-   coldate = 2
-    With ActiveSheet
-         dt = DateValue(.Cells(rowsdate, coldate).Text)
-         strsdate = Format(dt, "dd-mm-yyyy")
-         
-         dt = DateValue(.Cells(rowedate, coldate).Text)
-         stredate = Format(dt, "dd-mm-yyyy")
-    End With
-
-
-Dim objParent As Object
-Dim objForms As Object, objForm As Object
-Dim objInputElement As Object
-Dim objOption As Object
-Dim objDocument As Object
-Dim objEvent As Object
-Dim lngRow As Integer
-Dim strComment As String
-Dim appname As String
-Dim i As Integer
-
-'transactionSelectiongroup.transactionDateSelectioncategory
-'transactionSelectiongroup.transactiondategroup.fromdatePick
-'transactionSelectiongroup.transactiondategroup.uptodatePick
-
-
-Set objIE = GetIEApp
-'Make sure an IE object was hooked
-If TypeName(objIE) = "Nothing" Then
-  MsgBox "Could not hook Internet Explorer object", vbCritical, "GetFields() Error"
-  GoTo Clean_Up
-End If
-
-   appname = objIE.LocationName
-   
-   ' This is less than ideal but using Sendkeys is the only way I have found which
-   ' successfully gets the page to recognize that something has been typed. None of the
-   ' methods which are supposed to trigger user input events work
-   On Error Resume Next
-   AppActivate appname
-   
-   
-   Set objDocument = objIE.Document
-    Set objParent = objIE.Document.All
-    With objParent
-
-      Set objInputElement = objParent.Tags("INPUT").Item("transactionSelectiongroup.transactionDateSelectioncategory")
-      'objInputElement.Item("id_120").Checked = True
-      i = 0
-      
-      ' Must be an easier way than this to set the value but everything I tried so far gives object doesn't support ...
-      ' For what it's worth the inputelement is a HTMLInputElement
-      Do
-         Set objOption = objInputElement.Item(i)
-         If Not objOption Is Nothing Then
-            If objOption.Value = "date" Then
-               objOption.Checked = True
-               Exit Do
-            End If
-            i = i + 1
-         End If
-      Loop While Not objOption Is Nothing
-      
-      'objInputElement.Item("date").Checked = True
-      'objParent.Item("transactionSelectiongroup.transactionDateSelectioncategory").Checked = True
-      Set objInputElement = objParent.Item("transactionSelectiongroup.transactiondategroup.fromdatePick")
-      objInputElement.Focus
-      objInputElement.Value = strsdate
-      SendKeys "{TAB}"
-      Set objEvent = objDocument.createEventObject
-      objInputElement.fireevent "onkeyup", objEvent
-      
-      Set objInputElement = objParent.Item("transactionSelectiongroup.transactiondategroup.uptodatePick")
-      objInputElement.Click
-      objInputElement.Focus
-      objInputElement.Value = stredate
-      objInputElement.Blur
-      Set objEvent = objDocument.createEventObject
-      objInputElement.fireevent "onkeyup", objEvent
-      SendKeys "{TAB}"
-    'agf:validate'
-      ' have to somehow find the a containing '<span>Request PDF report</span>' and
-      ' <span>Request CSV file</span>
-    
-      ' This seems to work although need to find a way to get the code to recognise that
-      ' data has been entered into the date fields....
-      For Each objInputElement In objParent.Tags("A")
-         Debug.Print "'" & Trim$(objInputElement.Text) & "'"
-         If objInputElement.Text Like "*" & report & "*" Then
-            objInputElement.Focus
-            objInputElement.Click
-            Exit For
-         End If
-      Next
-    End With
-
-Clean_Up:
-Set objInputElement = Nothing
-Set objForm = Nothing
-Set objForms = Nothing
-Set objIE = Nothing
-End Sub
 
 
 
