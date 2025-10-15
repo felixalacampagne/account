@@ -112,7 +112,7 @@ Dim cntchange As Long
 Dim bookmark As Variant
 Dim actionstr As String
 Dim accidint As Integer
-
+Dim msg As String
 Dim dbnullcol As String
 Dim dbamtcol As String
 Dim dbamtval As Double
@@ -179,7 +179,6 @@ Dim rowstyle As Integer
          Do While Not rs.EOF
             If IsNull(rs(dbnullcol)) And Not IsNull(rs(dbamtcol)) Then
                If dbamtval = CDbl(rs(dbamtcol)) Then
-                  'If Abs(DateDiff("d", rs("transactiondate"), amtdate)) < 3 Then
                   If Abs(DateDiff("d", rs(DBCOL_DATE), amtdate)) < 3 Then
                      datematch = True
                      first = False
@@ -236,7 +235,9 @@ Dim rowstyle As Integer
             setRowStyle .Rows(rownum), rowstyle
          Else
             notrcncld = reconoraddTransaction(accid, rs, db, .Rows(rownum), notrcncld, actionstr)
+            
             ' There was a matching amount but the date was too different...
+            ' change count is not incremented if the change is accepted
             setRowStyle .Rows(rownum), 2
          End If
          
@@ -257,40 +258,17 @@ Dim rowstyle As Integer
    
    If cntchange > 0 Then
       ' Do the commit/rollback in async form to allow the changes in the sheet to be examined
-      UserForm1.Label1 = "Changes made: " & cntchange & vbCrLf & vbCrLf & "Commit changes?"
-      UserForm1.Show False
+      msg = "Changes made: " & cntchange & vbCrLf & vbCrLf & "Commit changes?"
+      
+      i = MsgBox(msg, vbYesNo, "Commit changes")
+      If i <> vbYes Then
+         db.RollbackTrans
+      End If
    End If
 
     
 End Sub
 
-
-Function reconoraddTransaction(accid As Long, rs As Recordset, arow As Range, notrcncld As String, actionstr As String) As String
-Dim msg As String
-Dim amt As String
-Dim amtv As Double
-Dim i As Integer
-
-   msg = notrcncld & ":" & vbCrLf
-   msg = msg & "Date:    " & arow.Columns(COL_DATE) & "(Statement) " & rs("transactiondate") & "(Database)" & vbCrLf
-   msg = msg & "Amount:  " & arow.Columns(COL_VALUE) & vbCrLf
-   msg = msg & "Statement description:  " & arow.Columns(COL_DESC) & vbCrLf
-   msg = msg & "Database description: " & rs("comment") & vbCrLf & vbCrLf
-   msg = msg & "Yes=Match, No=Add transaction, Cancel=Do Nothing"
-
-   i = MsgBox(msg, vbYesNoCancel, "Match or Add Transaction")
-   Select Case i
-   Case vbYes
-        reconoraddTransaction = reconcileTransaction(rs, arow)
-   Case vbNo
-        actionstr = "Transaction added to db"
-        reconoraddTransaction = addtodb(accid, rs, arow)
-   Case Else
-        actionstr = "NO MATCH for transaction"
-        reconoraddTransaction = notrcncld
-   End Select
-
-End Function
 
 Function addTransaction(accid As Long, rs As ADODB.Recordset, db As ADODB.Connection, arow As Range) As String
 Dim msg As String
@@ -381,6 +359,33 @@ Dim updsql As String
    Else
       reconcileTransaction = "Statement id '" & rs(DBCOL_STMNTREF) & "' already present"
    End If
+End Function
+
+Function reconoraddTransaction(accid As Long, rs As ADODB.Recordset, db As ADODB.Connection, arow As Range, notrcncld As String, actionstr As String) As String
+Dim msg As String
+Dim amt As String
+Dim amtv As Double
+Dim i As Integer
+
+   msg = notrcncld & ":" & vbCrLf
+   msg = msg & "Date:    " & arow.Columns(COL_DATE) & "(Statement) " & rs(DBCOL_DATE) & "(Database)" & vbCrLf
+   msg = msg & "Amount:  " & arow.Columns(COL_VALUE) & vbCrLf
+   msg = msg & "Statement description:  " & arow.Columns(COL_DESC) & vbCrLf
+   msg = msg & "Database description: " & rs("comment") & vbCrLf & vbCrLf
+   msg = msg & "Yes=Match, No=Add transaction, Cancel=Do Nothing"
+
+   i = MsgBox(msg, vbYesNoCancel, "Match or Add Transaction")
+   Select Case i
+   Case vbYes
+        reconoraddTransaction = reconcileTransaction(rs, db, arow)
+   Case vbNo
+        actionstr = "Transaction added to db"
+        reconoraddTransaction = addtodb(accid, rs, db, arow)
+   Case Else
+        actionstr = "NO MATCH for transaction"
+        reconoraddTransaction = notrcncld
+   End Select
+
 End Function
 
 Sub newTextSheet()
@@ -514,6 +519,26 @@ Dim incby As Integer
          sdate = DateValue(str)
          sdate = DateAdd("m", incby, sdate)
          .Cells(rowsdate, coldate) = sdate
+    End With
+End Sub
+
+Sub setRowStyle(arow As Range, mode As Integer)
+    With arow.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        Select Case mode
+        Case 0
+            .ThemeColor = xlThemeColorAccent2
+            .TintAndShade = 0.399975585192419
+        Case 1
+            .ThemeColor = xlThemeColorAccent3
+            .TintAndShade = 0.399975585192419
+        Case 2
+            .ThemeColor = xlThemeColorAccent6
+            .TintAndShade = 0.399975585192419
+        End Select
+         
+        .PatternTintAndShade = 0
     End With
 End Sub
 
@@ -671,6 +696,7 @@ Set objForm = Nothing
 Set objForms = Nothing
 Set objIE = Nothing
 End Sub
+
 
 
 
