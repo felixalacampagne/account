@@ -28,6 +28,29 @@ Const DBCOL_ACCCODE = "acc_code"
 Const DBCOL_ACCCURR = "acc_curr"
  
 
+Sub reconcileStatement()
+Dim db As New ADODB.Connection
+Dim acc_id As Long
+Dim dblocn As String
+Dim failreason As String
+
+   ' Don't really need the worksheet name!!!
+   dblocn = Range("Settings!dblocation")
+
+   db.Open "DSN=" & dblocn
+    
+   acc_id = getAccountID(db, failreason)
+   
+   
+   If acc_id > -1 Then
+      checkStatement db, acc_id
+   Else
+      MsgBox "No matching account found in database." & vbCrLf & failreason
+   End If
+   
+   db.Close
+End Sub
+
 Function getAccountID(db As ADODB.Connection, ByRef reason As String) As Long
 Dim rs As ADODB.Recordset
 Dim sql As String
@@ -40,8 +63,8 @@ Dim accid As Long
    ' Get the IBAN account
    ibanacc = ActiveSheet.Cells(2, COL_ACCNUM)
    '07 Nov 2021 Account numbers now contain spaces
-   ibanacc = StrRepl(ibanacc, " ", "")
-   sheetacc = ibanacc ' Mid$(ibanacc, 5)
+   sheetacc = StrRepl(ibanacc, " ", "")
+   sheetacc = StrRepl(sheetacc, "-", "")
    sheetcur = ActiveSheet.Cells(2, COL_CURRENCY)
    reason = ""
    
@@ -72,8 +95,6 @@ Dim accid As Long
    End If
    getAccountID = accid
 End Function
-
-
 
 Sub checkStatement(db As ADODB.Connection, accid As Long)
 Dim rs As ADODB.Recordset
@@ -378,30 +399,6 @@ Sub newTextSheet()
 End Sub
 
 
-Sub reconcileStatement()
-Dim DaoDBEngine As New DBEngine '(All others are string declarations)
-'Dim CurrentDB As Database
-Dim acc_id As Long
-Dim dblocn As String
-Dim failreason As String
-
-   ' Don't really need the worksheet name!!!
-   dblocn = Range("Settings!dblocation")
-  
-   Set gDB = DaoDBEngine.OpenDatabase(dblocn, dbDriverCompleteRequired, False, "ODBC;DATABASE=accountmysql;DSN=" & dblocn)
-   
-   acc_id = getAccountID(gDB, failreason)
-   
-   
-   If acc_id > -1 Then
-      checkStatement gDB, acc_id
-   Else
-      MsgBox "No matching account found in database." & vbCrLf & failreason
-   End If
-   
-   gDB.Close
-End Sub
-
 Sub LoadStatement()
 '
 ' LoadStatement Macro
@@ -674,6 +671,7 @@ Set objForm = Nothing
 Set objForms = Nothing
 Set objIE = Nothing
 End Sub
+
 
 
 
