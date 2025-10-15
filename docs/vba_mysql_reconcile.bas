@@ -97,6 +97,7 @@ dim datematch as boolean
       Do While .Cells(rownum, 1).Text <> ""
          credit = 0#
          debit = 0#
+         amtdate = .Cells(rownum, COL_DATE).Value
          amtstr = .Cells(rownum, COL_VALUE).Text
          amtstr = StrRepl(amtstr, ",", ".")
          stmntamount = Val(amtstr)
@@ -662,5 +663,6 @@ Set objForm = Nothing
 Set objForms = Nothing
 Set objIE = Nothing
 End Sub
+
 
 
