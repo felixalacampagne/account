@@ -12,43 +12,62 @@ Const COL_FAILREASON = 14
 Const QUITNOW = "QUIT"
 Const ALLOK = "OK"
 Const COL_DBDESC = 15
-
-'Const DBCOL_ID = "sequence"   ' id
-'Const DBCOL_DATE = "Date"     ' transactiondate
-'Const DBCOL_TYPE = "Type"     ' transactiontype
-'Const DBCOL_STMNTREF = "Stid" ' statementref
-'Const DB_FALSE = "false"      ' 0 for mysql
-'Const DB_TRUE = "true"        ' 1 for mysql
-'Const DB_NUMQUOTE = ""        ' single quote for mysql
-'Const DB_DATEQUOTE = "#"      ' single quote for mysql
-'Const DB_COLQUOTEO = "["      ' empty for mysql
-'Const DB_COLQUOTEC = "]"      ' empty for mysql
-'Const DBCOL_ACCID = "acc_id"
-'Const DBCOL_ACCCODE = "acc_code"
-'Const DBCOL_ACCCURR = "acc_curr"
-
-Const DBCOL_ID = "id"
-Const DBCOL_DATE = "transactiondate"
-Const DBCOL_TYPE = "transactiontype"
-Const DBCOL_STMNTREF = "statementref"
-Const DB_FALSE = "0"
-Const DB_TRUE = "1"
-Const DB_NUMQUOTE = "'"
-Const DB_DATEQUOTE = "'"
-Const DB_COLQUOTEO = ""
-Const DB_COLQUOTEC = ""
-Const DBCOL_ACCID = "id"
-Const DBCOL_ACCCODE = "code"
-Const DBCOL_ACCCURR = "currency"
+'                               Access        MySQL
+Dim DBCOL_ID As String        ' "sequence"    id
+Dim DBCOL_DATE As String      ' "Date"        transactiondate
+Dim DBCOL_TYPE As String      ' "Type"        transactiontype
+Dim DBCOL_STMNTREF As String  ' "Stid"        statementref
+Dim DB_FALSE As String        ' "false"       0
+Dim DB_TRUE As String         ' "true"        1
+Dim DB_NUMQUOTE As String     ' ""            single quote
+Dim DB_DATEQUOTE As String    ' "#"           single quote
+Dim DB_COLQUOTEO As String    ' "["           empty
+Dim DB_COLQUOTEC As String    ' "]"           empty
+Dim DBCOL_ACCID As String     ' "acc_id"      id
+Dim DBCOL_ACCCODE As String   ' "acc_code"    code
+Dim DBCOL_ACCCURR As String   ' "acc_curr"    currency
  
+Dim gLastNewID As Long ' ID of the last added record (-1 if none)
 
 Sub reconcileStatement()
-Dim db As New ADODB.Connection
+Dim db As New adodb.Connection
 Dim acc_id As Long
 Dim dblocn As String
 Dim failreason As String
+Dim dbnature As String
 
-   ' Don't really need the worksheet name!!!
+   ' This is pretty ugly but means I don't have to keep commenting/uncommenting when switching between DBs
+   dbnature = Range("Settings!dbnature")
+   If dbnature = "access" Then
+      DBCOL_ID = "sequence"
+      DBCOL_DATE = "Date"
+      DBCOL_TYPE = "Type"
+      DBCOL_STMNTREF = "Stid"
+      DB_FALSE = "false"
+      DB_TRUE = "true"
+      DB_NUMQUOTE = ""
+      DB_DATEQUOTE = "#"
+      DB_COLQUOTEO = "["
+      DB_COLQUOTEC = "]"
+      DBCOL_ACCID = "acc_id"
+      DBCOL_ACCCODE = "acc_code"
+      DBCOL_ACCCURR = "acc_curr"
+   Else
+      DBCOL_ID = "id"
+      DBCOL_DATE = "transactiondate"
+      DBCOL_TYPE = "transactiontype"
+      DBCOL_STMNTREF = "statementref"
+      DB_FALSE = "0"
+      DB_TRUE = "1"
+      DB_NUMQUOTE = "'"
+      DB_DATEQUOTE = "'"
+      DB_COLQUOTEO = ""
+      DB_COLQUOTEC = ""
+      DBCOL_ACCID = "id"
+      DBCOL_ACCCODE = "code"
+      DBCOL_ACCCURR = "currency"
+   End If
+   
    dblocn = Range("Settings!dblocation")
    db.CursorLocation = adUseClient
    db.Open "DSN=" & dblocn
@@ -65,8 +84,8 @@ Dim failreason As String
    db.Close
 End Sub
 
-Function getAccountID(db As ADODB.Connection, ByRef reason As String) As Long
-Dim rs As ADODB.Recordset
+Function getAccountID(db As adodb.Connection, ByRef reason As String) As Long
+Dim rs As adodb.Recordset
 Dim sql As String
 Dim ibanacc As String
 Dim sheetacc As String
@@ -84,7 +103,7 @@ Dim accid As Long
    
    sql = "select " & DBCOL_ACCID & ", " & DBCOL_ACCCODE & ", " & DBCOL_ACCCURR & " from account"
    sql = sql & " where " & DBCOL_ACCCURR & " = '" & sheetcur & "'"
-   Set rs = New ADODB.Recordset
+   Set rs = New adodb.Recordset
    rs.Open sql, db, adOpenStatic, adLockPessimistic
    
    rs.MoveFirst
@@ -110,8 +129,8 @@ Dim accid As Long
    getAccountID = accid
 End Function
 
-Sub checkStatement(db As ADODB.Connection, accid As Long)
-Dim rs As ADODB.Recordset
+Sub checkStatement(db As adodb.Connection, accid As Long)
+Dim rs As adodb.Recordset
 Dim sql As String
 Dim rownum As Long
 Dim amtstr As String
@@ -144,7 +163,7 @@ Dim rowstyle As Integer
    'mysql gives data type mismatch if id is not in quotes!
    'sql = "select * from transaction where accountid='" & accid & "' and checked=0 order by transactiondate asc, id asc"
    
-   Set rs = New ADODB.Recordset
+   Set rs = New adodb.Recordset
    rs.Open sql, db, adOpenStatic
 
    If rs.EOF Then
@@ -224,6 +243,7 @@ Dim rowstyle As Integer
             notrcncld = addTransaction(accid, rs, db, .Rows(rownum))
             If notrcncld = ALLOK Then
                rowstyle = 2
+               seqid = gLastNewID
             ElseIf notrcncld = QUITNOW Then
                ' Emergency bailout button pressed!
                rs.Close
@@ -241,18 +261,14 @@ Dim rowstyle As Integer
             rs.bookmark = bookmark
             actionstr = rs("comment")
             notrcncld = "Amount matched with too great date difference"
+            notrcncld = reconoraddTransaction(accid, rs, db, .Rows(rownum), notrcncld, actionstr)
+            rowstyle = 2
          End If
             
          
          If notrcncld = ALLOK Then
             cntchange = cntchange + 1
             setRowStyle .Rows(rownum), rowstyle
-         Else
-            notrcncld = reconoraddTransaction(accid, rs, db, .Rows(rownum), notrcncld, actionstr)
-            
-            ' There was a matching amount but the date was too different...
-            ' change count is not incremented if the change is accepted
-            setRowStyle .Rows(rownum), 2
          End If
          
          .Cells(rownum, COL_DBSEQ) = seqid
@@ -285,7 +301,7 @@ Dim rowstyle As Integer
     
 End Sub
 
-Function addTransaction(accid As Long, rs As ADODB.Recordset, db As ADODB.Connection, arow As Range) As String
+Function addTransaction(accid As Long, rs As adodb.Recordset, db As adodb.Connection, arow As Range) As String
 Dim msg As String
 Dim i As Integer
 
@@ -309,7 +325,7 @@ Dim i As Integer
    
 End Function
 
-Function addtodb(accid As Long, rs As ADODB.Recordset, db As ADODB.Connection, arow As Range) As String
+Function addtodb(accid As Long, rs As adodb.Recordset, db As adodb.Connection, arow As Range) As String
 Dim amt As String
 Dim amtv As Double
 Dim inssql As String
@@ -342,12 +358,21 @@ Dim inssql As String
    inssql = inssql & ")"
    
    Debug.Print "addtodb: " & inssql
+   gLastNewID = -1
    db.Execute inssql
+   
+   ' This is supposed to return the ID of the added record. It works for Access DB and the command does not give error on mysql
+   ' Would require re-write of entire code to get the new id returned so use a global value
+   Dim rsid As New adodb.Recordset
+   rsid.Open "select @@Identity", db
+   gLastNewID = rsid.Fields(0)
+   Debug.Print "addtodb: added record id: " & gLastNewID
+   rsid.Close
    
    addtodb = ALLOK
 End Function
 
-Function reconcileTransaction(rs As ADODB.Recordset, db As ADODB.Connection, arow As Range) As String
+Function reconcileTransaction(rs As adodb.Recordset, db As adodb.Connection, arow As Range) As String
 Dim stmntid As String
 Dim updsql As String
 
@@ -376,7 +401,7 @@ Dim updsql As String
    End If
 End Function
 
-Function reconoraddTransaction(accid As Long, rs As ADODB.Recordset, db As ADODB.Connection, arow As Range, notrcncld As String, actionstr As String) As String
+Function reconoraddTransaction(accid As Long, rs As adodb.Recordset, db As adodb.Connection, arow As Range, notrcncld As String, actionstr As String) As String
 Dim msg As String
 Dim amt As String
 Dim amtv As Double
@@ -591,11 +616,3 @@ Dim incby As Integer
          
     End With
 End Sub
-
-
-
-
-
-
-
-
