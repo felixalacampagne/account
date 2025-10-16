@@ -21,12 +21,15 @@ Dim DB_FALSE As String        ' "false"       0
 Dim DB_TRUE As String         ' "true"        1
 Dim DB_NUMQUOTE As String     ' ""            single quote
 Dim DB_DATEQUOTE As String    ' "#"           single quote
+Dim DB_DATEQUOTEL As String
+Dim DB_DATEQUOTER As String
+
 Dim DB_COLQUOTEO As String    ' "["           empty
 Dim DB_COLQUOTEC As String    ' "]"           empty
 Dim DBCOL_ACCID As String     ' "acc_id"      id
 Dim DBCOL_ACCCODE As String   ' "acc_code"    code
 Dim DBCOL_ACCCURR As String   ' "acc_curr"    currency
- 
+
 Dim gLastNewID As Long ' ID of the last added record (-1 if none)
 
 Sub reconcileStatement()
@@ -46,7 +49,8 @@ Dim dbnature As String
       DB_FALSE = "false"
       DB_TRUE = "true"
       DB_NUMQUOTE = ""
-      DB_DATEQUOTE = "#"
+      DB_DATEQUOTEL = "#"
+      DB_DATEQUOTER = "#"
       DB_COLQUOTEO = "["
       DB_COLQUOTEC = "]"
       DBCOL_ACCID = "acc_id"
@@ -60,7 +64,8 @@ Dim dbnature As String
       DB_FALSE = "0"
       DB_TRUE = "1"
       DB_NUMQUOTE = "'"
-      DB_DATEQUOTE = "'"
+      DB_DATEQUOTEL = "STR_TO_DATE('"
+      DB_DATEQUOTER = "','%m/%d/%Y')"
       DB_COLQUOTEO = ""
       DB_COLQUOTEC = ""
       DBCOL_ACCID = "id"
@@ -329,6 +334,7 @@ Function addtodb(accid As Long, rs As adodb.Recordset, db As adodb.Connection, a
 Dim amt As String
 Dim amtv As Double
 Dim inssql As String
+Dim sqldate As String
    amt = Trim$(arow.Columns(COL_VALUE))
    amt = StrRepl(amt, ",", ".")
    amtv = Val(amt)
@@ -344,6 +350,12 @@ Dim inssql As String
       amtval = amtv
    End If
 
+   ' #DD/MM/YYYY# works for access
+   ' 'DD/MM/YYYY' does NOT work for mysql
+   ' 'YYYY-MM-DD' is OK for MySQL.
+   ' Would be simpler to use a date format for mysql and access instead of DATEQUOTEL/R
+   sqldate = arow.Columns(COL_DATE)
+
    ' Monumentally more complex than it needs to be since columns have changed for mysql and different
    ' types of quoting are required for different fields
    inssql = "insert into transaction (accountid, " & DBCOL_STMNTREF & ", checked, " & DB_COLQUOTEO & DBCOL_DATE & DB_COLQUOTEC & ", comment, " & DBCOL_TYPE & ", " & amtcol
@@ -351,7 +363,7 @@ Dim inssql As String
    inssql = inssql & DB_NUMQUOTE & accid & DB_NUMQUOTE & ", "
    inssql = inssql & "'" & arow.Columns(COL_STATNUM) & "'" & ", "
    inssql = inssql & DB_TRUE & ", "
-   inssql = inssql & DB_DATEQUOTE & arow.Columns(COL_DATE) & DB_DATEQUOTE & ", "
+   inssql = inssql & DB_DATEQUOTEL & sqldate & DB_DATEQUOTER & ", "
    inssql = inssql & "'" & Left$(arow.Columns(COL_DESC), rs("comment").DefinedSize) & "', "
    inssql = inssql & "'STMNT', "
    inssql = inssql & DB_NUMQUOTE & amtval & DB_NUMQUOTE
