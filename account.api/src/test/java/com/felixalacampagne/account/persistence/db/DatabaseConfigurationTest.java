@@ -1,5 +1,5 @@
 package com.felixalacampagne.account.persistence.db;
- 
+
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Disabled;
