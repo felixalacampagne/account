@@ -195,6 +195,13 @@ Empty numeric fields, ie. ';;', are interpreted as 0.00 instead of NULL.
 For the transaction credit and debit columns this results in incorrect display although the balance appears to be
 OK. Special processing will be required for this, I guess similar to that required for ACCOUNTID.
 
+For backup to work need to update live DB with
+
+update phonetransaction set paydate=null where paydate = 0;
+update phonetransaction set sentdate=null where sentdate = 0;
+update phonetransaction set transactiondate=null where transactiondate = 0;
+
+
 ## Accessing MySQL from Excel
 
 Confirmed that it is possible to read from the mysql database in Excel. Requires use of
