@@ -6,4 +6,4 @@ csv/
 *.rej
 *.zip
 account.api/db
-
+/db
