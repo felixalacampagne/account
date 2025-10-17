@@ -2,6 +2,8 @@
 *.log
 *.orig
 *.diff
-db/
 csv/
 *.rej
+*.zip
+account.api/db
+

@@ -18,6 +18,7 @@ import com.felixalacampagne.account.persistence.repository.PhoneAccountJpaReposi
 import com.felixalacampagne.account.persistence.repository.RepositoryConfig;
 import com.felixalacampagne.account.persistence.repository.StandingOrdersJpaRepository;
 import com.felixalacampagne.account.persistence.repository.TransactionJpaRepository;
+import com.felixalacampagne.account.service.HouseKeepingService;
 //AAAAAAAAAAAAAAAaaaaaaaaaaaaaaaaaaaaaggggggggggggggggggggggghhhhhhhhhhhhhhhhhhhhh!
 //WARNING: eclipse does not run @Disabled test even when
 //the method name is used to runas->Junit test.
@@ -66,6 +67,9 @@ public class DatabaseConfigurationTest {
 	@Autowired
 	StandingOrdersJpaRepository standingOrdersJpaRepository;
 
+	@Autowired
+	HouseKeepingService houseKeepingService;
+
 	@Test
 	void databaseIsCreated() throws Exception
 	{
@@ -83,5 +87,13 @@ public class DatabaseConfigurationTest {
 	   //log.info("Now is the time to connect to the H2 console: http://localhost:8080/h2-console  jdbc:h2:file:./db/accountH2create");
 	   // Thread.sleep(60000 * 15);
 
+	}
+
+	@Test
+	void databaseBackup()
+	{
+
+	   // Needs mysqldump on the PATH, eg. in C:\Program Files\MySQL\MySQL Workbench 8.0 CE
+	   houseKeepingService.doHouseKeeping();
 	}
 }
