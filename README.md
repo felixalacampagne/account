@@ -12,11 +12,14 @@ Account features implemented:
    - transfer account details update and delete
    - account creation and details update
    - permanent pay date sorted balance display
-   - converted from MS Access database to file based H2 database
+   - converted from MS Access database to MySQL database
 
 Still to come:
   - transaction search
-  - reconcile using CSV statement file (currently done via Excel for CBC - would be a challenge to make it generic) with some way to record exceptions encountered during the reconciliation (as happens in the Excel sheet). Would need new tables so probably will only happen after migration away from Access (can the Excel scripts work with a different DB?)
+  - reconcile using CSV statement files (currently done via Excel for CBC) with some way to record exceptions encountered during the reconciliation as happens in the Excel sheet. The Excel script works well and provides useful options for handling the exceptions with the final option to abort the entire reconciliation. The script works with ODBC so can support different databases (with some modifications) providing there is a viable ODBC driver. It seem only the CBC statements are available as CSV files so it is unlikely that the Excel sheet will be replaced unless the ancient 32bit version of Excel that I have ceases to function (luckily I don't use an Mac so there should be no problem there).  
+
+0.6.0 converted to MySQL database since H2 does not have a viable ODBC driver. MySQL is more complex to administer than H2 
+but on the plus side it runs in a Docker on the NAS and the Workbench is somewhat better than the h2console for admin tasks.
 
 0.5.1 converted to H2 database as this seemed a reasonable choice given the requirements for Account. The choice
 was also based on the H2 documentation that claims support for ODBC which would allow Excel to continue to be used for reconciliation. 
