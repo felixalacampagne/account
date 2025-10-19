@@ -1,17 +1,18 @@
 Attribute VB_Name = "MySQLReconcile"
 Option Explicit
 
-Const COL_ACCNUM = 1
-Const COL_CURRENCY = 4
-Const COL_STATNUM = 5
-Const COL_DATE = 6
-Const COL_DESC = 7
-Const COL_VALUE = 9
+Dim COL_ACCNUM As Integer
+'Dim COL_CURRENCY As Integer
+Dim COL_STATNUM As Integer
+Dim COL_DATE As Integer
+Dim COL_DESC As Integer
+Dim COL_VALUE As Integer
+
 Const COL_DBSEQ = 13
 Const COL_FAILREASON = 14
+Const COL_DBDESC = 15
 Const QUITNOW = "QUIT"
 Const ALLOK = "OK"
-Const COL_DBDESC = 15
 '                               Access        MySQL
 Dim DBCOL_ID As String        ' "sequence"    id
 Dim DBCOL_DATE As String      ' "Date"        transactiondate
@@ -31,7 +32,7 @@ Dim DBCOL_ACCCURR As String   ' "acc_curr"    currency
 Dim gLastNewID As Long ' ID of the last added record (-1 if none)
 
 Sub reconcileStatement()
-Dim db As New adodb.Connection
+Dim db As New ADODB.Connection
 Dim acc_id As Long
 Dim dblocn As String
 Dim failreason As String
@@ -85,12 +86,12 @@ Dim dbnature As String
    db.Close
 End Sub
 
-Function getAccountID(db As adodb.Connection, ByRef reason As String) As Long
-Dim rs As adodb.Recordset
+Function getAccountID(db As ADODB.Connection, ByRef reason As String) As Long
+Dim rs As ADODB.Recordset
 Dim sql As String
 Dim ibanacc As String
 Dim sheetacc As String
-Dim sheetcur As String
+'Dim sheetcur As String
 Dim normacc As String
 Dim accid As Long
   
@@ -99,12 +100,14 @@ Dim accid As Long
    '07 Nov 2021 Account numbers now contain spaces
    sheetacc = StrRepl(ibanacc, " ", "")
    sheetacc = StrRepl(sheetacc, "-", "")
-   sheetcur = ActiveSheet.Cells(2, COL_CURRENCY)
+   'sheetcur = ActiveSheet.Cells(2, COL_CURRENCY)
    reason = ""
    
    sql = "select " & DBCOL_ACCID & ", " & DBCOL_ACCCODE & ", " & DBCOL_ACCCURR & " from account"
-   sql = sql & " where " & DBCOL_ACCCURR & " = '" & sheetcur & "'"
-   Set rs = New adodb.Recordset
+   
+   ' Currency not required (and not present in all statements
+   'sql = sql & " where " & DBCOL_ACCCURR & " = '" & sheetcur & "'"
+   Set rs = New ADODB.Recordset
    rs.Open sql, db, adOpenStatic, adLockPessimistic
    
    rs.MoveFirst
@@ -116,22 +119,22 @@ Dim accid As Long
       Debug.Print rs(DBCOL_ACCID), normacc, rs(DBCOL_ACCCODE), rs(DBCOL_ACCCURR)
       ' Duplicate account codes exist from the pre-EURO days
       If normacc = sheetacc Then
-         If sheetcur = rs(DBCOL_ACCCURR) Then
+         'If sheetcur = rs(DBCOL_ACCCURR) Then
             accid = rs(DBCOL_ACCID)
             Exit Do
-         End If
+         'End If
       End If
       rs.MoveNext
    Loop
    rs.Close
    If accid = -1 Then
-      reason = "Account: " & ibanacc & " Currency: " & sheetcur
+      reason = "Account: " & ibanacc ' & " Currency: " & sheetcur
    End If
    getAccountID = accid
 End Function
 
-Sub checkStatement(db As adodb.Connection, accid As Long)
-Dim rs As adodb.Recordset
+Sub checkStatement(db As ADODB.Connection, accid As Long)
+Dim rs As ADODB.Recordset
 Dim sql As String
 Dim rownum As Long
 Dim amtstr As String
@@ -164,7 +167,7 @@ Dim rowstyle As Integer
    'mysql gives data type mismatch if id is not in quotes!
    'sql = "select * from transaction where accountid='" & accid & "' and checked=0 order by transactiondate asc, id asc"
    
-   Set rs = New adodb.Recordset
+   Set rs = New ADODB.Recordset
    rs.Open sql, db, adOpenStatic
 
    If rs.EOF Then
@@ -185,7 +188,9 @@ Dim rowstyle As Integer
    
    With ActiveSheet
       rownum = 2
-      Do While .Cells(rownum, 1).Text <> ""
+      ' Barclays as a tab line after the last line and 'Trim' does not remove it so
+      ' must check the second column for empty
+      Do While Trim(.Cells(rownum, 2).Text) <> ""
          credit = 0#
          debit = 0#
          amtstr = .Cells(rownum, COL_VALUE).Text
@@ -281,6 +286,11 @@ Dim rowstyle As Integer
          .Cells(rownum, COL_DBDESC) = actionstr
 
          rownum = rownum + 1
+         
+         ' Need to remove the item that has just been checked so that multiple items
+         ' with the same amount don't always result in the first one being repeatedly checked
+         rs.Close
+         rs.Open sql, db, adOpenStatic
 
       Loop
    End With
@@ -302,7 +312,7 @@ Dim rowstyle As Integer
     
 End Sub
 
-Function addTransaction(accid As Long, rs As adodb.Recordset, db As adodb.Connection, arow As Range) As String
+Function addTransaction(accid As Long, rs As ADODB.Recordset, db As ADODB.Connection, arow As Range) As String
 Dim msg As String
 Dim i As Integer
 
@@ -326,7 +336,7 @@ Dim i As Integer
    
 End Function
 
-Function addtodb(accid As Long, rs As adodb.Recordset, db As adodb.Connection, arow As Range) As String
+Function addtodb(accid As Long, rs As ADODB.Recordset, db As ADODB.Connection, arow As Range) As String
 Dim amt As String
 Dim amtv As Double
 Dim inssql As String
@@ -371,7 +381,7 @@ Dim sqldate As String
    
    ' This is supposed to return the ID of the added record. It works for Access DB and the command does not give error on mysql
    ' Would require re-write of entire code to get the new id returned so use a global value
-   Dim rsid As New adodb.Recordset
+   Dim rsid As New ADODB.Recordset
    rsid.Open "select @@Identity", db
    gLastNewID = rsid.Fields(0)
    Debug.Print "addtodb: added record id: " & gLastNewID
@@ -380,7 +390,7 @@ Dim sqldate As String
    addtodb = ALLOK
 End Function
 
-Function reconcileTransaction(rs As adodb.Recordset, db As adodb.Connection, arow As Range) As String
+Function reconcileTransaction(rs As ADODB.Recordset, db As ADODB.Connection, arow As Range) As String
 Dim stmntid As String
 Dim updsql As String
 
@@ -409,7 +419,7 @@ Dim updsql As String
    End If
 End Function
 
-Function reconoraddTransaction(accid As Long, rs As adodb.Recordset, db As adodb.Connection, arow As Range, notrcncld As String, actionstr As String) As String
+Function reconoraddTransaction(accid As Long, rs As ADODB.Recordset, db As ADODB.Connection, arow As Range, notrcncld As String, actionstr As String) As String
 Dim msg As String
 Dim amt As String
 Dim amtv As Double
@@ -451,82 +461,6 @@ Sub newTextSheet()
     Range("A1").Select
 
 End Sub
-
-
-Sub LoadStatement()
-'
-' LoadStatement Macro
-'
-Dim statement As String
-
-Dim fd As FileDialog
-Dim i As Integer
-Dim d As Integer
-Dim stmtname As String
-
-   Set fd = Application.FileDialog(msoFileDialogFilePicker)
-   fd.title = "CBC Statement Selection"
-   fd.Filters.Add "Statement files", "*.csv"
-   fd.FilterIndex = 1
-   If fd.Show <> -1 Then
-      Exit Sub
-   End If
-   
-   statement = fd.SelectedItems.Item(1)
-   d = Len(statement)
-   stmtname = statement
-   For i = d To 1 Step -1
-      If Mid$(statement, i, 1) = "." Then
-         d = i
-      ElseIf Mid$(statement, i, 1) = "\" Or Mid$(statement, i, 1) = "/" Then
-         stmtname = Mid$(statement, i + 1, d - i - 1)
-         Exit For
-      End If
-   Next
-   
-    With ActiveSheet.QueryTables.Add(Connection:="TEXT;" & statement, Destination:=Range("$A$1"))
-        .Name = stmtname
-        .FieldNames = True
-        .RowNumbers = False
-        .FillAdjacentFormulas = False
-        .PreserveFormatting = True
-        .RefreshOnFileOpen = False
-        .RefreshStyle = xlInsertDeleteCells
-        .SavePassword = False
-        .SaveData = True
-        .AdjustColumnWidth = True
-        .RefreshPeriod = 0
-        .TextFilePromptOnRefresh = False
-        .TextFilePlatform = 437
-        .TextFileStartRow = 1
-        .TextFileParseType = xlDelimited
-        .TextFileTextQualifier = xlTextQualifierDoubleQuote
-        .TextFileConsecutiveDelimiter = False
-        .TextFileTabDelimiter = False
-        .TextFileSemicolonDelimiter = True
-        .TextFileCommaDelimiter = False
-        .TextFileSpaceDelimiter = False
-        .TextFileColumnDataTypes = Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1)
-        .TextFileTrailingMinusNumbers = True
-        .Refresh BackgroundQuery:=False
-    End With
-    stmtname = StrRepl(stmtname, "_statement", "")
-    
-    ActiveSheet.Name = Right$(stmtname, 31)
-    
-    '07 Nov 2021 Crude column insertion for status and description as statements
-    '  now contain more columns and I'd rather have the decription first but not
-    '  dont want the extra details to be overwritten... and I've no clue how to do any
-    '  of this anymore so had to rely on recording a macro, which always results in
-    '  very strange code
-    Columns(COL_DBSEQ).Select
-    Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
-    Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
-    Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
-    Cells(1, 1).Select
-End Sub
-
-
 
 
 Function StrRepl(ByVal Body As String, orig As String, repl As String, Optional cmp As VbCompareMethod = vbBinaryCompare) As String
@@ -624,3 +558,6 @@ Dim incby As Integer
          
     End With
 End Sub
+
+
+

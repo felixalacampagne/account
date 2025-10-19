@@ -81,6 +81,7 @@ private final PrefsAndHouseKeepingRepository prefsAndHouseKeepingRepository;
 
       // clear the temp files
       mysqlExportService.clearTempFiles();
+      log.info("doHouseKeeping: Backup database done: {}", backup00.getAbsolutePath());
    }
 
 }
