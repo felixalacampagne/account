@@ -188,7 +188,7 @@ Dim i As Integer
       rownum = 2
       ' Barclays as a tab line after the last line and 'Trim' does not remove it so
       ' must check the second column for empty
-      Do While Trim(.Cells(rownum, 2).Text) <> ""
+      Do While Trim(.Cells(rownum, COL_VALUE).Text) <> ""
          credit = 0#
          debit = 0#
          amtstr = .Cells(rownum, COL_VALUE).Text
@@ -371,7 +371,7 @@ Dim sqldate As String
    inssql = inssql & "'" & arow.Columns(COL_STATNUM) & "'" & ", "
    inssql = inssql & DB_TRUE & ", "
    inssql = inssql & sqldate & ", "
-   inssql = inssql & "'" & Left$(arow.Columns(COL_DESC), rs("comment").DefinedSize) & "', "
+   inssql = inssql & "'" & Left$(StrRepl(arow.Columns(COL_DESC), "'", ""), rs("comment").DefinedSize) & "', "
    inssql = inssql & "'STMNT', "
    inssql = inssql & DB_NUMQUOTE & amtval & DB_NUMQUOTE
    inssql = inssql & ")"
