@@ -1,2 +1,5 @@
+# Might be interesting to configure this use an H2 memory db
+# so tests could be run 'anywhere', even on github codespaces
+
 spring.datasource.url=jdbc:ucanaccess://<full path to test db with forward slashed>
 # eg. spring.datasource.url=jdbc:ucanaccess://E:/Development/workspace/accountrest/acc2003_TEST.mdb
