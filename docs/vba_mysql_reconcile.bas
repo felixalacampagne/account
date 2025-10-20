@@ -1,6 +1,6 @@
 Attribute VB_Name = "MySQLReconcile"
 Option Explicit
-
+' 2025-10-20 14:32
 Public COL_ACCNUM As Integer
 'Dim COL_CURRENCY As Integer
 Public COL_STATNUM As Integer
@@ -37,6 +37,8 @@ Dim acc_id As Long
 Dim dblocn As String
 Dim failreason As String
 Dim dbnature As String
+
+   initCSVColumns
 
    ' This is pretty ugly but means I don't have to keep commenting/uncommenting when switching between DBs
    dbnature = Range("Settings!dbnature")
@@ -76,7 +78,6 @@ Dim dbnature As String
     
    acc_id = getAccountID(db, failreason)
    
-   
    If acc_id > -1 Then
       checkStatement db, acc_id
    Else
@@ -85,7 +86,6 @@ Dim dbnature As String
    
    db.Close
 End Sub
-
 Function getAccountID(db As ADODB.Connection, ByRef reason As String) As Long
 Dim rs As ADODB.Recordset
 Dim sql As String
@@ -157,6 +157,7 @@ Dim first As Boolean
 Dim datematch As Boolean
 Dim accidsql As String
 Dim rowstyle As Integer
+Dim i As Integer
 
    accidsql = DB_NUMQUOTE & accid & DB_NUMQUOTE
 
@@ -170,21 +171,18 @@ Dim rowstyle As Integer
    Set rs = New ADODB.Recordset
    rs.Open sql, db, adOpenStatic
 
+   ' This is not valid. All items can be checked from previous reconciliation
+   ' and new statement can contain new items to be added, eg. interest payments
+   ' on savings account.
    If rs.EOF Then
-      MsgBox "No transactions found for query: " & sql
-      rs.Close
-      db.RollbackTrans
-      Exit Sub
+      msg = "No unchecked transaction found for account." & vbCrLf & "All statement items must be added." & vbCrLf & "Continue?"
+      i = MsgBox(msg, vbYesNo, "No unchecked transactions")
+      If i <> vbYes Then
+         rs.Close
+         db.RollbackTrans
+         Exit Sub
+      End If
    End If
-   
-   Dim i As Integer
-   For i = 0 To rs.Fields.Count - 1
-      Debug.Print rs.Fields(i).Name, rs.Fields(i).Value
-   Next
-   'Do While Not rs.EOF
-   '   Debug.Print rs(DBCOL_ID), rs(DBCOL_DATE), rs("debit"), rs("credit"), rs("comment")
-   '   rs.MoveNext
-   'Loop
    
    With ActiveSheet
       rownum = 2
@@ -214,7 +212,9 @@ Dim rowstyle As Integer
          first = False
          seqid = 0
          actionstr = ""
-         rs.MoveFirst
+         If Not rs.BOF Then ' BOF only true when there are zero records in recordset
+            rs.MoveFirst
+         End If
          Do While Not rs.EOF
             If IsNull(rs(dbnullcol)) And Not IsNull(rs(dbamtcol)) Then
                If dbamtval = CDbl(rs(dbamtcol)) Then
@@ -298,7 +298,6 @@ Dim rowstyle As Integer
    
    
    If cntchange > 0 Then
-      ' Do the commit/rollback in async form to allow the changes in the sheet to be examined
       msg = "Changes made: " & cntchange & vbCrLf & vbCrLf & "Commit changes?"
       
       i = MsgBox(msg, vbYesNo, "Commit changes")
@@ -307,6 +306,8 @@ Dim rowstyle As Integer
       Else
          db.CommitTrans
       End If
+   Else
+      db.RollbackTrans
    End If
 
     

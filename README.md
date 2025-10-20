@@ -1,6 +1,9 @@
 Handy commands:
 
+```
+git diff --ignore-cr-at-eol --ignore-space-at-eol >patch.diff
 git apply --whitespace=fix --ignore-whitespace --reject patch.diff
+```
 
 Account features implemented: 
    - transaction display with paging, goto page, last page, device dependent pagesize (no custom page size yet),
@@ -16,7 +19,7 @@ Account features implemented:
 
 Still to come:
   - transaction search
-  - reconcile using CSV statement files (currently done via Excel for CBC) with some way to record exceptions encountered during the reconciliation as happens in the Excel sheet. The Excel script works well and provides useful options for handling the exceptions with the final option to abort the entire reconciliation. The script works with ODBC so can support different databases (with some modifications) providing there is a viable ODBC driver. It seems only the CBC statements are available as CSV files so it is unlikely that the Excel sheet will be replaced unless the ancient 32bit version of Excel that I have ceases to function (luckily I don't use a Mac so there should be no problem there).  
+  - reconcile using CSV statement files (currently done via Excel for CBC and a couple of others) with some way to record exceptions encountered during the reconciliation as happens in the Excel sheet. The Excel script works well and provides useful options for handling the exceptions with the final option to abort the entire reconciliation. The script works with ODBC so can support different databases (with some modifications) providing there is a viable ODBC driver. Since the Excel sheets are working well it is unlikely that they will be replaced unless the ancient 32bit version of Excel that I have ceases to function (luckily I don't use a Mac so there should be no problem there).
 
 0.6.0 converted to MySQL database since H2 does not have a viable ODBC driver. MySQL is more complex to administer than H2 
 but on the plus side it runs in a Docker on the NAS and the Workbench is somewhat better than the h2console for admin tasks.

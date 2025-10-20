@@ -1,15 +1,15 @@
 Attribute VB_Name = "StatementLoader"
-Sub LoadStatement()
-'
-' LoadStatement Macro
-'
-Dim statement As String
+Option Explicit
+' 2025-10-20 14:35
 
+Sub LoadStatement()
+Dim statement As String
 Dim fd As FileDialog
 Dim i As Integer
 Dim d As Integer
 Dim stmtname As String
 Dim acctype As String
+
    Set fd = Application.FileDialog(msoFileDialogFilePicker)
    fd.title = "Statement Selection"
    fd.Filters.Add "Statement files", "*.csv"
@@ -17,7 +17,7 @@ Dim acctype As String
    If fd.Show <> -1 Then
       Exit Sub
    End If
-   
+
    statement = fd.SelectedItems.Item(1)
    d = Len(statement)
    stmtname = statement
@@ -29,6 +29,9 @@ Dim acctype As String
          Exit For
       End If
    Next
+   
+   initCSVColumns
+   
    acctype = Range("Settings!accounttype")
    If acctype = "barclays" Then
       loadBarclays statement, stmtname
@@ -37,23 +40,39 @@ Dim acctype As String
    Else
       loadCBC statement, stmtname
    End If
-    
-    '07 Nov 2021 Crude column insertion for status and description as statements
-    '  now contain more columns and I'd rather have the decription first but not
-    '  dont want the extra details to be overwritten... and I've no clue how to do any
-    '  of this anymore so had to rely on recording a macro, which always results in
-    '  very strange code
+
+    '07 Nov 2021 insert columns for status and description as statements
+    '  may contain more columns and I'd rather have the decription first but not
+    '  dont want to overwrite the extra details to be overwritten.
     Cells(1, COL_DBSEQ).EntireColumn.Insert
     Cells(1, COL_DBSEQ).EntireColumn.Insert
     Cells(1, COL_DBSEQ).EntireColumn.Insert
-    'Columns(COL_DBSEQ).Select
-    'Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
-    'Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
-    'Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
     Cells(1, 1).Select
 End Sub
 
-
+Sub initCSVColumns()
+Dim acctype As String
+   acctype = Range("Settings!accounttype")
+   If acctype = "barclays" Then
+      COL_ACCNUM = 3
+      COL_DATE = 2
+      COL_DESC = 6
+      COL_VALUE = 4
+      COL_STATNUM = 1
+   ElseIf acctype = "keytrade" Then
+      COL_ACCNUM = 8 ' H
+      COL_DATE = 2 ' B
+      COL_DESC = 5 ' E
+      COL_VALUE = 6 ' F
+      COL_STATNUM = 1
+   Else
+      COL_ACCNUM = 1
+      COL_STATNUM = 5
+      COL_DATE = 6
+      COL_DESC = 7
+      COL_VALUE = 9
+   End If
+End Sub
 
 Sub loadCBC(statement As String, stmtname As String)
     With ActiveSheet.QueryTables.Add(Connection:="TEXT;" & statement, Destination:=Range("$A$1"))
@@ -83,14 +102,9 @@ Sub loadCBC(statement As String, stmtname As String)
         .Refresh BackgroundQuery:=False
     End With
     stmtname = StrRepl(stmtname, "_statement", "")
-    
+
     ActiveSheet.Name = Right$(stmtname, 31)
-   COL_ACCNUM = 1
-   'COL_CURRENCY = 4
-   COL_STATNUM = 5
-   COL_DATE = 6
-   COL_DESC = 7
-   COL_VALUE = 9
+
 
 
 End Sub
@@ -126,15 +140,10 @@ Dim stmtref As String
       .TextFileTrailingMinusNumbers = True
       .Refresh BackgroundQuery:=False
    End With
-    
+
    ActiveSheet.Name = Right$(stmtname, 31)
-    
-   COL_ACCNUM = 3
-   COL_DATE = 2
-   COL_DESC = 6
-   COL_VALUE = 4
-   COL_STATNUM = 1
-   'COL_CURRENCY = 4
+
+
    ' No statement references in the barclays CSV - should use the statement name.
    ' For compatibility need to fill the statement column with the value
    stmtref = Right$(stmtname, 10) ' assumes the name ends with YYYY-MM-DD
@@ -155,21 +164,13 @@ Dim stmtref As String
    ' a problem with repeating payments of the same amount, eg. Hello magazine
     Range("B1").Select
     With ActiveSheet
-    .Sort.SortFields.Clear
-    .Sort.SortFields.Add2 Key:=Range("B2:B" & rownum), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-    '.Sort.SortFields.Add2 Key:=Range("B2:B" & rownum), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-    .Sort.Header = xlYes
-    .Sort.MatchCase = False
-    .Sort.Orientation = xlTopToBottom
-    .Sort.SetRange Range("A1:F" & rownum)
-    .Sort.Apply
-    '.Sort
-    '    '.SetRange = Range("A1:F22")
-    '    .Header = xlYes
-    '    '.MatchCase = False
-    '    .Orientation = xlTopToBottom
-    '    '.SortMethod = xlPinYin
-    '    '.Apply
+      .Sort.SortFields.Clear
+      .Sort.SortFields.Add2 Key:=Range("B2:B" & rownum), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+      .Sort.Header = xlYes
+      .Sort.MatchCase = False
+      .Sort.Orientation = xlTopToBottom
+      .Sort.SetRange Range("A1:F" & rownum)
+      .Sort.Apply
     End With
 End Sub
 
@@ -205,17 +206,11 @@ Dim acccode As String
         .TextFileTrailingMinusNumbers = True
         .Refresh BackgroundQuery:=False
    End With
-    
+
    ActiveSheet.Name = Right$(stmtname, 31)
-    
-   COL_ACCNUM = 8 ' H
-   COL_DATE = 2 ' B
-   COL_DESC = 5 ' E
-   COL_VALUE = 6 ' F
-   COL_STATNUM = 1
-   'COL_CURRENCY = 4
-   
-   
+
+
+
    ' No account number in keytrade statements.
    ' For compatibility need to fill the account column with a value from the settings page
    acccode = Range("Settings!accountcode")
@@ -246,4 +241,3 @@ Dim acccode As String
 
     End With
 End Sub
-
