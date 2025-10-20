@@ -32,6 +32,8 @@ Dim acctype As String
    acctype = Range("Settings!accounttype")
    If acctype = "barclays" Then
       loadBarclays statement, stmtname
+   ElseIf acctype = "keytrade" Then
+      loadKeytrade statement, stmtname
    Else
       loadCBC statement, stmtname
    End If
@@ -41,10 +43,13 @@ Dim acctype As String
     '  dont want the extra details to be overwritten... and I've no clue how to do any
     '  of this anymore so had to rely on recording a macro, which always results in
     '  very strange code
-    Columns(COL_DBSEQ).Select
-    Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
-    Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
-    Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+    Cells(1, COL_DBSEQ).EntireColumn.Insert
+    Cells(1, COL_DBSEQ).EntireColumn.Insert
+    Cells(1, COL_DBSEQ).EntireColumn.Insert
+    'Columns(COL_DBSEQ).Select
+    'Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+    'Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+    'Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
     Cells(1, 1).Select
 End Sub
 
@@ -169,4 +174,76 @@ Dim stmtref As String
 End Sub
 
 
+Sub loadKeytrade(statement As String, stmtname As String)
+Dim rownum As Integer
+Dim acccode As String
+
+   Application.CutCopyMode = False
+   With ActiveSheet.QueryTables.Add(Connection:="TEXT;" & statement, Destination:=Range("$A$1"))
+      .Name = stmtname
+        .FieldNames = True
+        .RowNumbers = False
+        .FillAdjacentFormulas = False
+        .PreserveFormatting = True
+        .RefreshOnFileOpen = False
+        .RefreshStyle = xlInsertDeleteCells
+        .SavePassword = False
+        .SaveData = True
+        .AdjustColumnWidth = True
+        .RefreshPeriod = 0
+        .TextFilePromptOnRefresh = False
+        .TextFilePlatform = 65001
+        .TextFileStartRow = 1
+        .TextFileParseType = xlDelimited
+        .TextFileTextQualifier = xlTextQualifierDoubleQuote
+        .TextFileConsecutiveDelimiter = False
+        .TextFileTabDelimiter = False
+        .TextFileSemicolonDelimiter = True
+        .TextFileCommaDelimiter = False
+        .TextFileSpaceDelimiter = False
+        .TextFileColumnDataTypes = Array(2, 4, 4, 1, 1, 1, 1)
+        .TextFileTrailingMinusNumbers = True
+        .Refresh BackgroundQuery:=False
+   End With
+    
+   ActiveSheet.Name = Right$(stmtname, 31)
+    
+   COL_ACCNUM = 8 ' H
+   COL_DATE = 2 ' B
+   COL_DESC = 5 ' E
+   COL_VALUE = 6 ' F
+   COL_STATNUM = 1
+   'COL_CURRENCY = 4
+   
+   
+   ' No account number in keytrade statements.
+   ' For compatibility need to fill the account column with a value from the settings page
+   acccode = Range("Settings!accountcode")
+   With ActiveSheet
+      rownum = 2
+      Do While Trim(.Cells(rownum, 2).Text) <> ""
+         .Cells(rownum, COL_ACCNUM) = acccode
+         If Trim(.Cells(rownum + 1, 2).Text) = "" Then
+            ' Ugly way to ensure rownum points to last filled line which is needed for the sort
+            Exit Do
+         End If
+         rownum = rownum + 1
+      Loop
+
+   End With
+
+   ' Keytrade extracts are sorted the wrong way round which causes
+   ' a problem with repeating payments of the same amount, eg. Hello magazine
+    Range("B1").Select
+    With ActiveSheet
+    .Sort.SortFields.Clear
+    .Sort.SortFields.Add2 Key:=Range("B2:B" & rownum), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+    .Sort.Header = xlYes
+    .Sort.MatchCase = False
+    .Sort.Orientation = xlTopToBottom
+    .Sort.SetRange Range("A1:F" & rownum)
+    .Sort.Apply
+
+    End With
+End Sub
 

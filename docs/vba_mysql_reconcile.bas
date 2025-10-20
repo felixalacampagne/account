@@ -1,18 +1,18 @@
 Attribute VB_Name = "MySQLReconcile"
 Option Explicit
 
-Dim COL_ACCNUM As Integer
+Public COL_ACCNUM As Integer
 'Dim COL_CURRENCY As Integer
-Dim COL_STATNUM As Integer
-Dim COL_DATE As Integer
-Dim COL_DESC As Integer
-Dim COL_VALUE As Integer
+Public COL_STATNUM As Integer
+Public COL_DATE As Integer
+Public COL_DESC As Integer
+Public COL_VALUE As Integer
 
-Const COL_DBSEQ = 13
-Const COL_FAILREASON = 14
-Const COL_DBDESC = 15
-Const QUITNOW = "QUIT"
-Const ALLOK = "OK"
+Public Const COL_DBSEQ = 13
+Public Const COL_FAILREASON = 14
+Public Const COL_DBDESC = 15
+Public Const QUITNOW = "QUIT"
+Public Const ALLOK = "OK"
 '                               Access        MySQL
 Dim DBCOL_ID As String        ' "sequence"    id
 Dim DBCOL_DATE As String      ' "Date"        transactiondate
