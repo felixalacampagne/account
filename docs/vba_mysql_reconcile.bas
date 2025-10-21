@@ -1,6 +1,14 @@
 Attribute VB_Name = "MySQLReconcile"
 Option Explicit
-' 2025-10-20 14:32
+' 2025-10-21 11:10
+
+' Settings field names:
+'    deletepatterns - marks the column containing strings to delete from the statement description
+'    dbnature       - indicates database type for special processing, eg. access
+'    dblocation     - text used for the DSN connection
+'    accounttype    - format of csv, eg. barclays, keytrade, cbc
+'    accountcode    - required when the code is not part of the original statement csv
+
 Public COL_ACCNUM As Integer
 'Dim COL_CURRENCY As Integer
 Public COL_STATNUM As Integer
@@ -186,8 +194,7 @@ Dim i As Integer
    
    With ActiveSheet
       rownum = 2
-      ' Barclays as a tab line after the last line and 'Trim' does not remove it so
-      ' must check the second column for empty
+      ' Stop when an empty value cell is reached as value is a required value
       Do While Trim(.Cells(rownum, COL_VALUE).Text) <> ""
          credit = 0#
          debit = 0#
@@ -371,7 +378,7 @@ Dim sqldate As String
    inssql = inssql & "'" & arow.Columns(COL_STATNUM) & "'" & ", "
    inssql = inssql & DB_TRUE & ", "
    inssql = inssql & sqldate & ", "
-   inssql = inssql & "'" & Left$(StrRepl(arow.Columns(COL_DESC), "'", ""), rs("comment").DefinedSize) & "', "
+   inssql = inssql & "'" & Left$(StrSanitize(arow.Columns(COL_DESC)), rs("comment").DefinedSize) & "', "
    inssql = inssql & "'STMNT', "
    inssql = inssql & DB_NUMQUOTE & amtval & DB_NUMQUOTE
    inssql = inssql & ")"
@@ -463,6 +470,30 @@ Sub newTextSheet()
 
 End Sub
 
+Function StrSanitize(strtoclean As String) As String
+Dim rownum As Integer
+Dim column As Integer
+Dim sanistr As String
+Dim delstr As String
+'Range("Settings!deletepatterns").Row
+sanistr = Trim(strtoclean)
+On Error GoTo funcend ' in case 'deletepatterns' has not been configured
+rownum = Range("Settings!deletepatterns").Row + 1 ' Selection.Row + 1
+column = Range("Settings!deletepatterns").column
+
+With Worksheets("Settings")
+   Do While .Cells(rownum, column).Text <> ""
+      delstr = .Cells(rownum, column).Text
+      sanistr = StrRepl(sanistr, delstr, "")
+      rownum = rownum + 1
+   Loop
+End With
+sanistr = StrRepl(sanistr, "'", "") ' Make it safe to include in SQL string
+
+funcend:
+StrSanitize = sanistr
+
+End Function
 
 Function StrRepl(ByVal Body As String, orig As String, repl As String, Optional cmp As VbCompareMethod = vbBinaryCompare) As String
 '04 Aug 98  Skips the whole of the replacment string

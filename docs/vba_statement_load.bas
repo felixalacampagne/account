@@ -1,6 +1,6 @@
 Attribute VB_Name = "StatementLoader"
 Option Explicit
-' 2025-10-20 14:35
+' 2025-10-21 11:10
 
 Sub LoadStatement()
 Dim statement As String
@@ -105,7 +105,9 @@ Sub loadCBC(statement As String, stmtname As String)
 
     ActiveSheet.Name = Right$(stmtname, 31)
 
-
+   ' Looks like CBC also needs to be sorted - real statement CSVs are already sorted by date ascending
+   ' but the reports generated 'manually' are sorted date descending.
+   sortsheet COL_DATE
 
 End Sub
 
@@ -149,12 +151,12 @@ Dim stmtref As String
    stmtref = Right$(stmtname, 10) ' assumes the name ends with YYYY-MM-DD
    With ActiveSheet
       rownum = 2
-      Do While Trim(.Cells(rownum, 2).Text) <> ""
+      Do While Trim(.Cells(rownum, COL_VALUE).Text) <> ""
          .Cells(rownum, 1) = stmtref
-         If Trim(.Cells(rownum + 1, 2).Text) = "" Then
-            ' Ugly way to ensure rownum points to last filled line which is needed for the sort
-            Exit Do
-         End If
+         'If Trim(.Cells(rownum + 1, COL_VALUE).Text) = "" Then
+         '   ' Ugly way to ensure rownum points to last filled line which is needed for the sort
+         '   Exit Do
+         'End If
          rownum = rownum + 1
       Loop
 
@@ -162,16 +164,17 @@ Dim stmtref As String
 
    ' Barclays extracts are sorted the wrong way round which causes
    ' a problem with repeating payments of the same amount, eg. Hello magazine
-    Range("B1").Select
-    With ActiveSheet
-      .Sort.SortFields.Clear
-      .Sort.SortFields.Add2 Key:=Range("B2:B" & rownum), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-      .Sort.Header = xlYes
-      .Sort.MatchCase = False
-      .Sort.Orientation = xlTopToBottom
-      .Sort.SetRange Range("A1:F" & rownum)
-      .Sort.Apply
-    End With
+   sortsheet COL_DATE
+   ' Range("B1").Select
+   ' With ActiveSheet
+   '   .Sort.SortFields.Clear
+   '   .Sort.SortFields.Add2 Key:=Range("B2:B" & rownum), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+   '   .Sort.Header = xlYes
+   '   .Sort.MatchCase = False
+   '   .Sort.Orientation = xlTopToBottom
+   '   .Sort.SetRange Range("A1:F" & rownum)
+   '   .Sort.Apply
+   ' End With
 End Sub
 
 
@@ -216,12 +219,12 @@ Dim acccode As String
    acccode = Range("Settings!accountcode")
    With ActiveSheet
       rownum = 2
-      Do While Trim(.Cells(rownum, 2).Text) <> ""
+      Do While Trim(.Cells(rownum, COL_VALUE).Text) <> ""
          .Cells(rownum, COL_ACCNUM) = acccode
-         If Trim(.Cells(rownum + 1, 2).Text) = "" Then
-            ' Ugly way to ensure rownum points to last filled line which is needed for the sort
-            Exit Do
-         End If
+         'If Trim(.Cells(rownum + 1, COL_VALUE).Text) = "" Then
+         '   ' Ugly way to ensure rownum points to last filled line which is needed for the sort
+         '   Exit Do
+         'End If
          rownum = rownum + 1
       Loop
 
@@ -229,15 +232,33 @@ Dim acccode As String
 
    ' Keytrade extracts are sorted the wrong way round which causes
    ' a problem with repeating payments of the same amount, eg. Hello magazine
-    Range("B1").Select
-    With ActiveSheet
-    .Sort.SortFields.Clear
-    .Sort.SortFields.Add2 Key:=Range("B2:B" & rownum), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-    .Sort.Header = xlYes
-    .Sort.MatchCase = False
-    .Sort.Orientation = xlTopToBottom
-    .Sort.SetRange Range("A1:F" & rownum)
-    .Sort.Apply
+   sortsheet COL_DATE
+   ' Range("B1").Select
+   ' With ActiveSheet
+   ' .Sort.SortFields.Clear
+   ' .Sort.SortFields.Add2 Key:=Range("B2:B" & rownum), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+   ' .Sort.Header = xlYes
+   ' .Sort.MatchCase = False
+   ' .Sort.Orientation = xlTopToBottom
+   ' .Sort.SetRange Range("A1:F" & rownum)
+   ' .Sort.Apply
+   ' End With
+End Sub
 
+Sub sortsheet(sortcol As Integer)
+Dim lastrow As Integer
+Dim lastcol As Integer
+
+    Cells(1, sortcol).Select
+    lastrow = Cells(Rows.Count, sortcol).End(xlUp).Row      ' This magic finds the last row
+    lastcol = Cells(1, Columns.Count).End(xlToLeft).column  ' This magic finds the last column
+    With ActiveSheet
+      .Sort.SortFields.Clear
+      .Sort.SortFields.Add2 Key:=Range(Cells(2, sortcol), Cells(lastrow, sortcol)), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+      .Sort.Header = xlYes
+      .Sort.MatchCase = False
+      .Sort.Orientation = xlTopToBottom
+      .Sort.SetRange Range(Cells(1, 1), Cells(lastrow, lastcol))
+      .Sort.Apply
     End With
 End Sub
