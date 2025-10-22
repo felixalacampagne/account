@@ -1,6 +1,6 @@
 Attribute VB_Name = "module_reload"
 Option Explicit
-' 2025-10-22 11:11
+' 2025-10-22 15:56
 Const ModuleStatement As String = "statement_load"
 Const ModuleReconcile As String = "mysql_reconcile"
 
@@ -33,38 +33,55 @@ Sub MultiFileReplaceVBAModule()
 Dim mods As Variant
 Dim workbookPath As String
 Dim srcpath As String
-Dim wbTarget As Workbook
 Dim fname As String
 Dim fpath As String
 Dim curwbid As String
+Dim wbTarget As Workbook
 Dim actwb As Workbook
+Dim rownum As Integer
+Dim column As Integer
 
    Set actwb = ActiveWorkbook
 
    srcpath = Range("Settings!modulepath")
-   workbookPath = Range("Settings!workbookpath") & "\"
    curwbid = UCase(actwb.FullName)  ' this is the full pathname of the current workbook file
    
    mods = getModulesArray()
    
-   ' Search for excel files that we want to update the modules in
-   fname = Dir(workbookPath & "*.xlsm")
-   Do While fname <> ""
-      fpath = workbookPath & fname
-      If UCase(fpath) <> curwbid Then
-         Set wbTarget = Workbooks.Open(workbookPath & fname)
-         UpdModulesInWorkbook mods, srcpath, wbTarget
-         wbTarget.Close savechanges:=True
-      Else
-         UpdModulesInWorkbook mods, srcpath, actwb
-      End If
-      fname = Dir
-   Loop
+   workbookPath = Range("Settings!workbookpath") & "\"
+
+   rownum = Range("Settings!workbookpath").Row + 1 ' Selection.Row + 1
+   column = Range("Settings!workbookpath").column
+
+   With actwb.Worksheets("Settings")
+      Do While .Cells(rownum, column).Text <> ""
+         workbookPath = .Cells(rownum, column).Text & "\"
+
+         ' Search for excel files that we want to update the modules in
+         fname = Dir(workbookPath & "*.xlsm")
+         Do While fname <> ""
+            fpath = workbookPath & fname
+            If UCase(fpath) <> curwbid Then
+               Debug.Print "Updating modules in " & fpath
+               Set wbTarget = Workbooks.Open(fpath)
+               UpdModulesInWorkbook mods, srcpath, wbTarget
+               wbTarget.Close savechanges:=True
+            Else
+               Debug.Print "Updating modules in this workbook"
+               UpdModulesInWorkbook mods, srcpath, actwb
+            End If
+            fname = Dir
+         Loop
+
+         rownum = rownum + 1
+      Loop
+   End With
+
 End Sub
 
 Function getModulesArray() As Variant
 Dim mods As Variant
-   mods = Array(ModuleStatement, srcpath, ModuleReconcile)
+   mods = Array(ModuleStatement, ModuleReconcile)
    getModulesArray = mods
 End Function
 
