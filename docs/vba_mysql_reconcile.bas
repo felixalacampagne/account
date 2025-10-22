@@ -1,6 +1,6 @@
 Attribute VB_Name = "mysql_reconcile"
 Option Explicit
-' 2025-10-22 16:01
+' 2025-10-22 17:31
 
 ' Settings field names:
 '    deletepatterns - marks the column containing strings to delete from the statement description
@@ -480,7 +480,7 @@ Dim delstr As String
 'Range("Settings!deletepatterns").Row
 sanistr = Trim(strtoclean)
 On Error GoTo funcend ' in case 'deletepatterns' has not been configured
-rownum = Range("Settings!deletepatterns").Row + 1 ' Selection.Row + 1
+rownum = Range("Settings!deletepatterns").row + 1 ' Selection.Row + 1
 column = Range("Settings!deletepatterns").column
 
 With Worksheets("Settings")
@@ -493,6 +493,10 @@ End With
 
 funcend:
 sanistr = StrRepl(sanistr, "'", "") ' Make it safe to include in SQL string
+
+' Hidden method on Application: removes leading/trailing space AND condenses multispaces into single space!!
+sanistr = Application.Trim(sanistr)
+
 StrSanitize = sanistr
 
 End Function

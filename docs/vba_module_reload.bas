@@ -1,6 +1,6 @@
 Attribute VB_Name = "module_reload"
 Option Explicit
-' 2025-10-22 15:56
+' 2025-10-22 17:31
 Const ModuleStatement As String = "statement_load"
 Const ModuleReconcile As String = "mysql_reconcile"
 
@@ -50,7 +50,7 @@ Dim column As Integer
    
    workbookPath = Range("Settings!workbookpath") & "\"
 
-   rownum = Range("Settings!workbookpath").Row + 1 ' Selection.Row + 1
+   rownum = Range("Settings!workbookpath").row + 1 ' Selection.Row + 1
    column = Range("Settings!workbookpath").column
 
    With actwb.Worksheets("Settings")

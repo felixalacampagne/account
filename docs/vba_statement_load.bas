@@ -1,6 +1,6 @@
 Attribute VB_Name = "statement_load"
 Option Explicit
-' 2025-10-22 11:31
+' 2025-10-22 17:31
 
 Sub LoadStatement()
 Dim statement As String
@@ -250,7 +250,7 @@ Dim lastrow As Integer
 Dim lastcol As Integer
 
     Cells(1, sortcol).Select
-    lastrow = Cells(Rows.Count, sortcol).End(xlUp).Row      ' This magic finds the last row
+    lastrow = Cells(Rows.Count, sortcol).End(xlUp).row      ' This magic finds the last row
     lastcol = Cells(1, Columns.Count).End(xlToLeft).column  ' This magic finds the last column
     With ActiveSheet
       .Sort.SortFields.Clear
