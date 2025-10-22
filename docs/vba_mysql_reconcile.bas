@@ -1,6 +1,6 @@
 Attribute VB_Name = "mysql_reconcile"
 Option Explicit
-' 2025-10-22 17:31
+' 2025-10-22 17:59
 
 ' Settings field names:
 '    deletepatterns - marks the column containing strings to delete from the statement description
@@ -329,7 +329,7 @@ Dim i As Integer
    msg = "Transaction not present in database:" & vbCrLf
    msg = msg & "Date:    " & arow.Columns(COL_DATE) & vbCrLf
    msg = msg & "Amount:  " & arow.Columns(COL_VALUE) & vbCrLf
-   msg = msg & "Description:  " & arow.Columns(COL_DESC) & vbCrLf
+   msg = msg & "Description:  " & StrSanitize(arow.Columns(COL_DESC)) & vbCrLf
    msg = msg & vbCrLf
    msg = msg & "Add to database?"
    i = MsgBox(msg, vbYesNoCancel, "Add missing transaction")
@@ -485,7 +485,7 @@ column = Range("Settings!deletepatterns").column
 
 With Worksheets("Settings")
    Do While .Cells(rownum, column).Text <> ""
-      delstr = .Cells(rownum, column).Text
+      delstr = .Cells(rownum, column)
       sanistr = StrRepl(sanistr, delstr, "")
       rownum = rownum + 1
    Loop
