@@ -1,6 +1,6 @@
-Attribute VB_Name = "StatementLoader"
+Attribute VB_Name = "statement_load"
 Option Explicit
-' 2025-10-21 11:10
+' 2025-10-22 11:31
 
 Sub LoadStatement()
 Dim statement As String

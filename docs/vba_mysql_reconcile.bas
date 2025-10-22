@@ -1,6 +1,6 @@
-Attribute VB_Name = "MySQLReconcile"
+Attribute VB_Name = "mysql_reconcile"
 Option Explicit
-' 2025-10-21 11:10
+' 2025-10-22 11:11
 
 ' Settings field names:
 '    deletepatterns - marks the column containing strings to delete from the statement description
