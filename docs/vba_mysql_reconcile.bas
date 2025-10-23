@@ -1,6 +1,6 @@
 Attribute VB_Name = "mysql_reconcile"
 Option Explicit
-' 2025-10-22 17:59
+' 2025-10-23 12:49
 
 ' Settings field names:
 '    deletepatterns - marks the column containing strings to delete from the statement description
@@ -8,6 +8,7 @@ Option Explicit
 '    dblocation     - text used for the DSN connection
 '    accounttype    - format of csv, eg. barclays, keytrade, cbc
 '    accountcode    - required when the code is not part of the original statement csv
+'    updatemodules  - column containing module names to be imported (create/update)
 '    modulepath     - directory containing macros to be updated
 '    workbookpath   - column containing directory paths with workbooks for macro updates. All workbooks
 '                     in each directory will be updated with macros from modulepath

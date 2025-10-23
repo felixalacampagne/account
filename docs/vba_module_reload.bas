@@ -1,6 +1,6 @@
 Attribute VB_Name = "module_reload"
 Option Explicit
-' 2025-10-22 15:56
+' 2025-10-23 12:47
 Const ModuleStatement As String = "statement_load"
 Const ModuleReconcile As String = "mysql_reconcile"
 
@@ -12,16 +12,18 @@ Dim i As Integer
 
    With wb
       For i = 0 To UBound(moduleArray)
-         modname = moduleArray(i)
-         modpath = modulepath & "\vba_" & modname & ".bas"
-         
-         'Must remove the module if it exists - ignore the error if it doesn't exist
-         On Error Resume Next
-         .VBProject.VBComponents.Remove .VBProject.VBComponents(modname)
-         On Error GoTo 0
-         'import the new module, save the workbook.
-         .VBProject.VBComponents.Import modpath
-         .Save
+         modname = Trim(moduleArray(i))
+         If modname <> "" Then  ' Avoids the lbound=0 or 1 issue
+            modpath = modulepath & "\vba_" & modname & ".bas"
+
+            'Must remove the module if it exists - ignore the error if it doesn't exist
+            On Error Resume Next
+            .VBProject.VBComponents.Remove .VBProject.VBComponents(modname)
+            On Error GoTo 0
+            'import the new module, save the workbook.
+            .VBProject.VBComponents.Import modpath
+            .Save
+         End If
       Next
    End With
 End Sub
@@ -45,9 +47,9 @@ Dim column As Integer
 
    srcpath = Range("Settings!modulepath")
    curwbid = UCase(actwb.FullName)  ' this is the full pathname of the current workbook file
-   
+
    mods = getModulesArray()
-   
+
    workbookPath = Range("Settings!workbookpath") & "\"
 
    rownum = Range("Settings!workbookpath").row + 1 ' Selection.Row + 1
@@ -79,16 +81,43 @@ Dim column As Integer
 
 End Sub
 
+Function getModulesArrayFromSettings() As Variant
+Dim rownum As Integer
+Dim colnum As Integer
+Dim modulename As String
+Dim mods() As String
+Dim vmods As Variant
+Dim rowoff As Integer
+   rownum = Range("Settings!updatemodules").row + 1 ' Selection.Row + 1
+   colnum = Range("Settings!updatemodules").column
+
+   ReDim mods(0)
+   rowoff = rownum
+   With ActiveWorkbook.Worksheets("Settings")
+      Do While .Cells(rownum, colnum).Text <> ""
+         ReDim Preserve mods(rownum - rowoff)
+         modulename = .Cells(rownum, colnum).Text
+         mods(UBound(mods)) = modulename
+         rownum = rownum + 1
+      Loop
+   End With
+   vmods = mods
+   getModulesArrayFromSettings = mods
+
+End Function
+
 Function getModulesArray() As Variant
 Dim mods As Variant
-   mods = Array(ModuleStatement, ModuleReconcile)
+
+   ' mods = Array(ModuleStatement, ModuleReconcile)
+   mods = getModulesArrayFromSettings()
    getModulesArray = mods
 End Function
 
 Sub UpdModsInActivebook()
 Dim srcpath As String
    srcpath = Range("Settings!modulepath")
-   UpdModulesInWorkbook getModulesArray(), ActiveWorkbook
+   UpdModulesInWorkbook getModulesArray(), srcpath, ActiveWorkbook
 End Sub
 
 Sub ExportModulesInActivebook()
@@ -99,11 +128,11 @@ Dim i As Integer
    srcpath = Range("Settings!modulepath")
 
    Set wb = ActiveWorkbook
-   
+
    With wb.VBProject.VBComponents
       For i = 1 To .Count
          modpath = srcpath & "\vba_" & .Item(i).Name & ".bas"
-         
+
          ' The type names require library 'Microsoft Visual Basic for Applications Extensibility'
          ' vbext_ct_StdModule   = 1
          ' vbext_ct_ClassModule = 2
