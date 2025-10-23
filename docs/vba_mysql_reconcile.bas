@@ -81,19 +81,19 @@ Dim dbnature As String
       DBCOL_ACCCODE = "code"
       DBCOL_ACCCURR = "currency"
    End If
-   
+
    dblocn = Range("Settings!dblocation")
    db.CursorLocation = adUseClient
    db.Open "DSN=" & dblocn
-    
+
    acc_id = getAccountID(db, failreason)
-   
+
    If acc_id > -1 Then
       checkStatement db, acc_id
    Else
       MsgBox "No matching account found in database." & vbCrLf & failreason
    End If
-   
+
    db.Close
 End Sub
 Function getAccountID(db As ADODB.Connection, ByRef reason As String) As Long
@@ -104,7 +104,7 @@ Dim sheetacc As String
 'Dim sheetcur As String
 Dim normacc As String
 Dim accid As Long
-  
+
    ' Get the IBAN account
    ibanacc = ActiveSheet.Cells(2, COL_ACCNUM)
    '07 Nov 2021 Account numbers now contain spaces
@@ -112,17 +112,17 @@ Dim accid As Long
    sheetacc = StrRepl(sheetacc, "-", "")
    'sheetcur = ActiveSheet.Cells(2, COL_CURRENCY)
    reason = ""
-   
+
    sql = "select " & DBCOL_ACCID & ", " & DBCOL_ACCCODE & ", " & DBCOL_ACCCURR & " from account"
-   
+
    ' Currency not required (and not present in all statements
    'sql = sql & " where " & DBCOL_ACCCURR & " = '" & sheetcur & "'"
    Set rs = New ADODB.Recordset
    rs.Open sql, db, adOpenStatic, adLockPessimistic
-   
+
    rs.MoveFirst
    accid = -1
-   
+
    Do While Not rs.EOF
       normacc = StrRepl(rs(DBCOL_ACCCODE), "-", "")
       normacc = StrRepl(normacc, " ", "")
@@ -177,7 +177,7 @@ Dim i As Integer
    sql = sql & " order by " & DBCOL_DATE & " asc, " & DBCOL_ID & " asc"
    'mysql gives data type mismatch if id is not in quotes!
    'sql = "select * from transaction where accountid='" & accid & "' and checked=0 order by transactiondate asc, id asc"
-   
+
    Set rs = New ADODB.Recordset
    rs.Open sql, db, adOpenStatic
 
@@ -193,7 +193,7 @@ Dim i As Integer
          Exit Sub
       End If
    End If
-   
+
    With ActiveSheet
       rownum = 2
       ' Stop when an empty value cell is reached as value is a required value
@@ -204,7 +204,7 @@ Dim i As Integer
          amtdate = .Cells(rownum, COL_DATE).Value
          amtstr = StrRepl(amtstr, ",", ".")
          stmntamount = Val(amtstr)
-         
+
          If stmntamount < 0 Then
             'debit = stmntamount * -1#
             dbamtval = stmntamount * -1#
@@ -216,7 +216,7 @@ Dim i As Integer
             dbamtcol = "credit"
             dbnullcol = "debit"
          End If
-         
+
          datematch = False
          first = False
          seqid = 0
@@ -267,7 +267,7 @@ Dim i As Integer
             Else
                rowstyle = 0
             End If
-            
+
             .Cells(rownum, COL_FAILREASON) = notrcncld
          ElseIf datematch Then   ' Clean match
             actionstr = rs("comment")
@@ -279,23 +279,23 @@ Dim i As Integer
             notrcncld = reconoraddTransaction(accid, rs, db, .Rows(rownum), notrcncld, actionstr)
             rowstyle = 2
          End If
-            
-         
+
+
          If notrcncld = ALLOK Then
             cntchange = cntchange + 1
             setRowStyle .Rows(rownum), rowstyle
          End If
-         
+
          .Cells(rownum, COL_DBSEQ) = seqid
          .Cells(rownum, COL_FAILREASON) = notrcncld
-         
+
          ' This is misleading if reconoraddTransaction resulted in a new row being added as
          ' the comment is that of the row with the large date difference. Need to refactor
          ' so that the comment indicates that a new row was added
          .Cells(rownum, COL_DBDESC) = actionstr
 
          rownum = rownum + 1
-         
+
          ' Need to remove the item that has just been checked so that multiple items
          ' with the same amount don't always result in the first one being repeatedly checked
          rs.Close
@@ -304,11 +304,11 @@ Dim i As Integer
       Loop
    End With
    rs.Close
-   
-   
+
+
    If cntchange > 0 Then
       msg = "Changes made: " & cntchange & vbCrLf & vbCrLf & "Commit changes?"
-      
+
       i = MsgBox(msg, vbYesNo, "Commit changes")
       If i <> vbYes Then
          db.RollbackTrans
@@ -319,7 +319,7 @@ Dim i As Integer
       db.RollbackTrans
    End If
 
-    
+
 End Sub
 
 Function addTransaction(accid As Long, rs As ADODB.Recordset, db As ADODB.Connection, arow As Range) As String
@@ -341,9 +341,9 @@ Dim i As Integer
       End If
       Exit Function
    End If
-   
+
    addTransaction = addtodb(accid, rs, db, arow)
-   
+
 End Function
 
 Function addtodb(accid As Long, rs As ADODB.Recordset, db As ADODB.Connection, arow As Range) As String
@@ -354,10 +354,10 @@ Dim sqldate As String
    amt = Trim$(arow.Columns(COL_VALUE))
    amt = StrRepl(amt, ",", ".")
    amtv = Val(amt)
-   
+
    Dim amtcol As String
    Dim amtval As Double
-   
+
    If amtv < 0 Then
       amtcol = "debit"
       amtval = amtv * -1
@@ -384,11 +384,11 @@ Dim sqldate As String
    inssql = inssql & "'STMNT', "
    inssql = inssql & DB_NUMQUOTE & amtval & DB_NUMQUOTE
    inssql = inssql & ")"
-   
+
    Debug.Print "addtodb: " & inssql
    gLastNewID = -1
    db.Execute inssql
-   
+
    ' This is supposed to return the ID of the added record. It works for Access DB and the command does not give error on mysql
    ' Would require re-write of entire code to get the new id returned so use a global value
    Dim rsid As New ADODB.Recordset
@@ -396,7 +396,7 @@ Dim sqldate As String
    gLastNewID = rsid.Fields(0)
    Debug.Print "addtodb: added record id: " & gLastNewID
    rsid.Close
-   
+
    addtodb = ALLOK
 End Function
 
@@ -407,12 +407,12 @@ Dim updsql As String
    reconcileTransaction = ALLOK
    stmntid = arow.Columns(COL_STATNUM).Text
    If "" & rs(DBCOL_STMNTREF) = "" Then
-      
+
       updsql = "update transaction set " & DBCOL_STMNTREF & "='" & stmntid & "', checked=" & DB_TRUE
       updsql = updsql & " where " & DBCOL_ID & "=" & DB_NUMQUOTE & rs(DBCOL_ID) & DB_NUMQUOTE
       Debug.Print "reconcileTransaction: " & updsql
       db.Execute updsql
-      
+
       'rs.Edit
       'rs("statementref") = stmntid
       'rs("checked") = True
@@ -461,13 +461,13 @@ Sub newTextSheet()
     Sheets(3).Select
     Sheets.Add
     Cells.Select
-    
+
     ' F--king idiot Excel formats strings containing only numbers as exponents
     ' EVEN when told to format the cell as text. There is no way to format a cell as text
     ' there is only a format for numbers - and it's been like this for decades judging by the
     ' number of Google responses
     Selection.NumberFormat = "@"
-    
+
     Range("A1").Select
 
 End Sub
@@ -536,7 +536,7 @@ Sub setRowStyle(arow As Range, mode As Integer)
             .ThemeColor = xlThemeColorAccent6
             .TintAndShade = 0.399975585192419
         End Select
-         
+
         .PatternTintAndShade = 0
     End With
 End Sub
@@ -554,8 +554,8 @@ Dim incby As Integer
 
    coldate = 2
    incby = 1
-    
-    
+
+
     With ActiveSheet
          str = .Cells(rowsdate, coldate).Text
          sdate = DateValue(str)
@@ -577,23 +577,23 @@ Dim incby As Integer
    rowedate = 5
    coldate = 2
    incby = 0
-    
-    
+
+
     With ActiveSheet
          str = .Cells(rowedate, coldate).Text
          If str <> "" Then
             incby = 1
          End If
          str = .Cells(rowsdate, coldate).Text
-         
+
          sdate = DateValue(str)
          sdate = DateAdd("m", incby, sdate)
          edate = DateAdd("m", 1, sdate)
          edate = DateAdd("d", -1, edate)
-         
+
          .Cells(rowsdate, coldate) = sdate
          .Cells(rowedate, coldate) = edate
-         
+
     End With
 End Sub
 

@@ -29,9 +29,9 @@ Dim acctype As String
          Exit For
       End If
    Next
-   
+
    initCSVColumns
-   
+
    acctype = Range("Settings!accounttype")
    If acctype = "barclays" Then
       loadBarclays statement, stmtname

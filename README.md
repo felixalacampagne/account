@@ -3,7 +3,10 @@ Handy commands:
 ```
 git diff --ignore-cr-at-eol --ignore-space-at-eol >patch.diff
 git apply --whitespace=fix --ignore-whitespace --reject patch.diff
+patch --ignore-whitespace -p1 < patch.diff
 ```
+NB. The 'patch' command might actually ignore whitespace in the 'contexts' whereas 'git apply' does not even though it has 
+a command which claims it will.
 
 Account features implemented: 
    - transaction display with paging, goto page, last page, device dependent pagesize (no custom page size yet),
