@@ -1,6 +1,6 @@
 Attribute VB_Name = "mysql_reconcile"
 Option Explicit
-' 2025-10-23 12:49
+' 2025-10-24 10:53
 
 ' Settings field names:
 '    deletepatterns - marks the column containing strings to delete from the statement description
@@ -256,7 +256,7 @@ Dim i As Integer
          rowstyle = 1
          If rs.EOF And Not first Then
             Debug.Print "Amount not found: " & stmntamount
-            notrcncld = addTransaction(accid, rs, db, .Rows(rownum))
+            notrcncld = addTransaction(accid, rs, db, .Rows(rownum), actionstr)
             If notrcncld = ALLOK Then
                rowstyle = 2
                seqid = gLastNewID
@@ -323,14 +323,16 @@ Dim i As Integer
 
 End Sub
 
-Function addTransaction(accid As Long, rs As ADODB.Recordset, db As ADODB.Connection, arow As Range) As String
+Function addTransaction(accid As Long, rs As ADODB.Recordset, db As ADODB.Connection, arow As Range, actionstr As String) As String
 Dim msg As String
 Dim i As Integer
+Dim memo As String
 
+   memo = StrSanitize(arow.Columns(COL_DESC))
    msg = "Transaction not present in database:" & vbCrLf
    msg = msg & "Date:    " & arow.Columns(COL_DATE) & vbCrLf
    msg = msg & "Amount:  " & arow.Columns(COL_VALUE) & vbCrLf
-   msg = msg & "Description:  " & StrSanitize(arow.Columns(COL_DESC)) & vbCrLf
+   msg = msg & "Description:  " & memo & vbCrLf
    msg = msg & vbCrLf
    msg = msg & "Add to database?"
    i = MsgBox(msg, vbYesNoCancel, "Add missing transaction")
@@ -338,16 +340,17 @@ Dim i As Integer
       If i = vbCancel Then
          addTransaction = QUITNOW
       Else
-         addTransaction = "Transaction NOT added db at user request"
+         addTransaction = "Transaction NOT added to database at user request"
       End If
       Exit Function
    End If
 
-   addTransaction = addtodb(accid, rs, db, arow)
+   actionstr = memo ' default is "ByRef" so can return value in a parameter
+   addTransaction = addtodb(accid, memo, rs, db, arow)
 
 End Function
 
-Function addtodb(accid As Long, rs As ADODB.Recordset, db As ADODB.Connection, arow As Range) As String
+Function addtodb(accid As Long, memo As String, rs As ADODB.Recordset, db As ADODB.Connection, arow As Range) As String
 Dim amt As String
 Dim amtv As Double
 Dim inssql As String
@@ -381,7 +384,7 @@ Dim sqldate As String
    inssql = inssql & "'" & arow.Columns(COL_STATNUM) & "'" & ", "
    inssql = inssql & DB_TRUE & ", "
    inssql = inssql & sqldate & ", "
-   inssql = inssql & "'" & Left$(StrSanitize(arow.Columns(COL_DESC)), rs("comment").DefinedSize) & "', "
+   inssql = inssql & "'" & Left$(memo, rs("comment").DefinedSize) & "', "
    inssql = inssql & "'STMNT', "
    inssql = inssql & DB_NUMQUOTE & amtval & DB_NUMQUOTE
    inssql = inssql & ")"
@@ -435,11 +438,13 @@ Dim msg As String
 Dim amt As String
 Dim amtv As Double
 Dim i As Integer
+Dim memo As String
 
+   memo = StrSanitize(arow.Columns(COL_DESC))
    msg = notrcncld & ":" & vbCrLf
    msg = msg & "Date:    " & arow.Columns(COL_DATE) & "(Statement) " & rs(DBCOL_DATE) & "(Database)" & vbCrLf
    msg = msg & "Amount:  " & arow.Columns(COL_VALUE) & vbCrLf
-   msg = msg & "Statement description:  " & arow.Columns(COL_DESC) & vbCrLf
+   msg = msg & "Statement description:  " & memo & vbCrLf
    msg = msg & "Database description: " & rs("comment") & vbCrLf & vbCrLf
    msg = msg & "Yes=Match, No=Add transaction, Cancel=Do Nothing"
 
@@ -448,8 +453,8 @@ Dim i As Integer
    Case vbYes
         reconoraddTransaction = reconcileTransaction(rs, db, arow)
    Case vbNo
-        actionstr = "Transaction added to db"
-        reconoraddTransaction = addtodb(accid, rs, db, arow)
+        actionstr = "New transaction: " & memo
+        reconoraddTransaction = addtodb(accid, memo, rs, db, arow)
    Case Else
         actionstr = "NO MATCH for transaction"
         reconoraddTransaction = notrcncld

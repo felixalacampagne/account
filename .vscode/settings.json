@@ -2,5 +2,6 @@
    "java.compile.nullAnalysis.mode": "disabled",
    "java.configuration.updateBuildConfiguration": "automatic",
    "files.trimTrailingWhitespace": true,
+   "[diff]": {"files.trimTrailingWhitespace": false},
    "editor.renderWhitespace": "trailing"
 }
