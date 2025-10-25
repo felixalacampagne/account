@@ -1,13 +1,15 @@
 Attribute VB_Name = "mysql_reconcile"
 Option Explicit
-' 2025-10-24 10:53
+' 2025-10-25 16:46
 
 ' Settings field names:
-'    deletepatterns - marks the column containing strings to delete from the statement description
+'    deletepatterns - column containing strings to delete from the statement description
 '    dbnature       - indicates database type for special processing, eg. access
 '    dblocation     - text used for the DSN connection
 '    accounttype    - format of csv, eg. barclays, keytrade, cbc
 '    accountcode    - required when the code is not part of the original statement csv
+'    txntypecredit  - transaction type to use for added credit transactions (default: STMNT)
+'    txntypedebit   - transaction type to use for added debit transactions (default: STMNT)
 '    updatemodules  - column containing module names to be imported (create/update)
 '    modulepath     - directory containing macros to be updated
 '    workbookpath   - column containing directory paths with workbooks for macro updates. All workbooks
@@ -355,6 +357,7 @@ Dim amt As String
 Dim amtv As Double
 Dim inssql As String
 Dim sqldate As String
+Dim iscredit As Boolean
    amt = Trim$(arow.Columns(COL_VALUE))
    amt = StrRepl(amt, ",", ".")
    amtv = Val(amt)
@@ -365,9 +368,11 @@ Dim sqldate As String
    If amtv < 0 Then
       amtcol = "debit"
       amtval = amtv * -1
+      iscredit = False
    Else
       amtcol = "credit"
       amtval = amtv
+      iscredit = True
    End If
 
    ' #DD/MM/YYYY# works for access
@@ -385,7 +390,7 @@ Dim sqldate As String
    inssql = inssql & DB_TRUE & ", "
    inssql = inssql & sqldate & ", "
    inssql = inssql & "'" & Left$(memo, rs("comment").DefinedSize) & "', "
-   inssql = inssql & "'STMNT', "
+   inssql = inssql & "'" & getTransactionType(iscredit) & "', "
    inssql = inssql & DB_NUMQUOTE & amtval & DB_NUMQUOTE
    inssql = inssql & ")"
 
@@ -462,21 +467,24 @@ Dim memo As String
 
 End Function
 
+Function getTransactionType(credit As Boolean) As String
+Dim txntyp As String
+Dim cellval As String
+   txntyp = "STMNT"
+   
+   On Error GoTo GTTEXIT
+   If credit Then
+      cellval = Range("Settings!txntypecredit")
+   Else
+      cellval = Range("Settings!txntypedebit")
+   End If
+   If cellval <> "" Then
+      txntyp = cellval
+   End If
+GTTEXIT:
+   getTransactionType = txntyp
+End Function
 
-Sub newTextSheet()
-    Sheets(3).Select
-    Sheets.Add
-    Cells.Select
-
-    ' F--king idiot Excel formats strings containing only numbers as exponents
-    ' EVEN when told to format the cell as text. There is no way to format a cell as text
-    ' there is only a format for numbers - and it's been like this for decades judging by the
-    ' number of Google responses
-    Selection.NumberFormat = "@"
-
-    Range("A1").Select
-
-End Sub
 
 Function StrSanitize(strtoclean As String) As String
 Dim rownum As Integer
@@ -544,61 +552,5 @@ Sub setRowStyle(arow As Range, mode As Integer)
         End Select
 
         .PatternTintAndShade = 0
-    End With
-End Sub
-
-Sub btnIncMonth2_Click()
-Dim rowsdate As Integer
-Dim rowedate As Integer
-Dim coldate As Integer
-Dim sdate As Date
-Dim edate As Date
-Dim str As String
-Dim incby As Integer
-
-   rowsdate = 4
-
-   coldate = 2
-   incby = 1
-
-
-    With ActiveSheet
-         str = .Cells(rowsdate, coldate).Text
-         sdate = DateValue(str)
-         sdate = DateAdd("m", incby, sdate)
-         .Cells(rowsdate, coldate) = sdate
-    End With
-End Sub
-
-Sub btnIncMonth_Click()
-Dim rowsdate As Integer
-Dim rowedate As Integer
-Dim coldate As Integer
-Dim sdate As Date
-Dim edate As Date
-Dim str As String
-Dim incby As Integer
-
-   rowsdate = 4
-   rowedate = 5
-   coldate = 2
-   incby = 0
-
-
-    With ActiveSheet
-         str = .Cells(rowedate, coldate).Text
-         If str <> "" Then
-            incby = 1
-         End If
-         str = .Cells(rowsdate, coldate).Text
-
-         sdate = DateValue(str)
-         sdate = DateAdd("m", incby, sdate)
-         edate = DateAdd("m", 1, sdate)
-         edate = DateAdd("d", -1, edate)
-
-         .Cells(rowsdate, coldate) = sdate
-         .Cells(rowedate, coldate) = edate
-
     End With
 End Sub
