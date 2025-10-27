@@ -1,6 +1,6 @@
 Attribute VB_Name = "module_reload"
 Option Explicit
-' 2025-10-23 12:47
+' 2025-10-27 09:19
 Const ModuleStatement As String = "statement_load"
 Const ModuleReconcile As String = "mysql_reconcile"
 
@@ -9,6 +9,7 @@ Sub UpdModulesInWorkbook(moduleArray As Variant, modulepath As String, wb As Wor
 Dim modname As String
 Dim modpath As String
 Dim i As Integer
+Dim vbmod As VBComponent
 
    With wb
       For i = 0 To UBound(moduleArray)
@@ -16,12 +17,27 @@ Dim i As Integer
          If modname <> "" Then  ' Avoids the lbound=0 or 1 issue
             modpath = modulepath & "\vba_" & modname & ".bas"
 
-            'Must remove the module if it exists - ignore the error if it doesn't exist
+            ' When the module being updated is the one running the updated macro gets renamed during the
+            ' import. This is trying to preempt that by renaming the original/running module so the new
+            ' version can have the original name. There doesn't appear to be a way to determine the active
+            ' module so the same two phase update is applied to all modules. It also doesn't appear to matter
+            ' that the module containing the running procedure is deleted!
+
+            ' Rename existing module to make way for the new version - ignore the error if it doesn't exist
             On Error Resume Next
-            .VBProject.VBComponents.Remove .VBProject.VBComponents(modname)
+            Set vbmod = .VBProject.VBComponents(modname)
+            vbmod.Name = vbmod.Name & "_OLD"
             On Error GoTo 0
-            'import the new module, save the workbook.
+
+            'import the new version of the module.
             .VBProject.VBComponents.Import modpath
+
+            ' Delete the old renamed version
+            On Error Resume Next
+            .VBProject.VBComponents.Remove vbmod
+            On Error GoTo 0
+
+            ' Save entire workbook
             .Save
          End If
       Next

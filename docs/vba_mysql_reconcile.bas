@@ -1,6 +1,6 @@
 Attribute VB_Name = "mysql_reconcile"
 Option Explicit
-' 2025-10-25 16:46
+' 2025-10-27 16:23
 
 ' Settings field names:
 '    deletepatterns - column containing strings to delete from the statement description
@@ -229,6 +229,7 @@ Dim i As Integer
          End If
          Do While Not rs.EOF
             If IsNull(rs(dbnullcol)) And Not IsNull(rs(dbamtcol)) Then
+               'Debug.Print "stmt:" & dbamtval & "     db:" & rs(dbamtcol)
                If dbamtval = CDbl(rs(dbamtcol)) Then
                   If Abs(DateDiff("d", rs(DBCOL_DATE), amtdate)) < 3 Then
                      datematch = True
@@ -348,11 +349,114 @@ Dim memo As String
    End If
 
    actionstr = memo ' default is "ByRef" so can return value in a parameter
-   addTransaction = addtodb(accid, memo, rs, db, arow)
+   ' addTransaction = addtodb(accid, memo, rs, db, arow)
+   addTransaction = addtodbado(accid, memo, rs, db, arow)
 
 End Function
 
+Function reconcileTransaction(rs As ADODB.Recordset, db As ADODB.Connection, arow As Range) As String
+  reconcileTransaction = reconcileTransactionado(rs, db, arow)
+End Function
+
 Function addtodb(accid As Long, memo As String, rs As ADODB.Recordset, db As ADODB.Connection, arow As Range) As String
+   addtodb = addtodbado
+End Function
+
+Function addtodbado(accid As Long, memo As String, rs As ADODB.Recordset, db As ADODB.Connection, arow As Range) As String
+Dim amt As String
+Dim amtv As Double
+Dim inssql As String
+Dim txndate As Date
+Dim iscredit As Boolean
+Dim amtcol As String
+Dim amtval As Double
+
+   amt = Trim$(arow.Columns(COL_VALUE))
+   amt = StrRepl(amt, ",", ".")
+   amtv = Val(amt)
+
+
+   If amtv < 0 Then
+       amtcol = "debit"
+       amtval = amtv * -1
+       iscredit = False
+   Else
+       amtcol = "credit"
+       amtval = amtv
+       iscredit = True
+   End If
+
+   txndate = arow.Columns(COL_DATE)
+
+   Dim rsforadd As New ADODB.Recordset
+   rsforadd.Open "transaction", db, ADODB.CursorTypeEnum.adOpenKeyset, ADODB.LockTypeEnum.adLockPessimistic, ADODB.CommandTypeEnum.adCmdTable
+   'If rsforadd.Supports(ADODB.CursorOptionEnum.adAddNew) Then
+   '    Debug.Print ("addnew is supported")
+   'Else
+   '    ' what we gonna do here?
+   '    Debug.Print ("addnew is NOT supported")
+   'End If
+
+   rsforadd.AddNew
+   rsforadd("accountid").Value = accid
+   rsforadd(DBCOL_STMNTREF).Value = arow.Columns(COL_STATNUM)
+   rsforadd("checked").Value = True
+   rsforadd(DBCOL_DATE).Value = txndate
+   rsforadd("comment").Value = Left$(memo, rs("comment").DefinedSize)
+   rsforadd(DBCOL_TYPE).Value = getTransactionType(iscredit)
+   rsforadd(amtcol).Value = amtv
+   rsforadd.Update
+   rsforadd.Close
+
+   Dim rsid As New ADODB.Recordset
+   rsid.Open "select @@Identity", db
+   gLastNewID = rsid.Fields(0).Value
+   Debug.Print ("addtodb: added record id: " & gLastNewID)
+   rsid.Close
+
+   addtodbado = ALLOK
+End Function
+
+Function reconcileTransactionado(rs As ADODB.Recordset, db As ADODB.Connection, arow As Range) As String
+Dim stmntid As String
+Dim updsql As String
+
+   ' Unmodifiable query recordsets and conversion to ADO have made this quite ugly
+   Dim rsforupd As New ADODB.Recordset
+   rsforupd.Open "transaction", db, ADODB.CursorTypeEnum.adOpenKeyset, ADODB.LockTypeEnum.adLockPessimistic, ADODB.CommandTypeEnum.adCmdTable
+   rsforupd.Find (DBCOL_ID & " = " & rs(DBCOL_ID).Value)
+   If rsforupd.BOF Or rsforupd.EOF Then
+       MsgBox ("Could not find transaction with id: " & rs(DBCOL_ID).Value)
+       reconcileTransactionado = "Transaction id " & rs(DBCOL_ID).Value & " not found"
+       rsforupd.Close
+       Exit Function
+   End If
+   Debug.Print ("Found transaction id: " & rsforupd(DBCOL_ID).Value)
+
+   stmntid = arow.Columns(COL_STATNUM).Text
+   If "" & rs(DBCOL_STMNTREF) = "" Then
+      rsforupd(DBCOL_STMNTREF).Value = stmntid
+      rsforupd("checked").Value = True
+   ElseIf rs(DBCOL_STMNTREF) = stmntid Then
+      rsforupd("checked").Value = True
+   Else
+      reconcileTransactionado = "Statement id '" & rs(DBCOL_STMNTREF) & "' already present"
+      rsforupd.Close
+      Exit Function
+   End If
+
+   ' WARNING: if the data has not been changed Update gives
+   ' Row cannot be located for updating. Some values may have been changed since it was last read.
+   On Error Resume Next
+   rsforupd.Update
+   Debug.Print ("After:  EditMode: " & rsforupd.EditMode & "    Status:" & rsforupd.Status & "    State:" & rsforupd.State)
+   ' Status is 0 if update was successful and !0 (2048) if the update failed because nothing was changed.
+
+   rsforupd.Close
+   reconcileTransactionado = ALLOK
+End Function
+
+Function addtodbsql(accid As Long, memo As String, rs As ADODB.Recordset, db As ADODB.Connection, arow As Range) As String
 Dim amt As String
 Dim amtv As Double
 Dim inssql As String
@@ -406,20 +510,20 @@ Dim iscredit As Boolean
    Debug.Print "addtodb: added record id: " & gLastNewID
    rsid.Close
 
-   addtodb = ALLOK
+   addtodbsql = ALLOK
 End Function
 
-Function reconcileTransaction(rs As ADODB.Recordset, db As ADODB.Connection, arow As Range) As String
+Function reconcileTransactionsql(rs As ADODB.Recordset, db As ADODB.Connection, arow As Range) As String
 Dim stmntid As String
 Dim updsql As String
 
-   reconcileTransaction = ALLOK
+   reconcileTransactionsql = ALLOK
    stmntid = arow.Columns(COL_STATNUM).Text
    If "" & rs(DBCOL_STMNTREF) = "" Then
 
       updsql = "update transaction set " & DBCOL_STMNTREF & "='" & stmntid & "', checked=" & DB_TRUE
       updsql = updsql & " where " & DBCOL_ID & "=" & DB_NUMQUOTE & rs(DBCOL_ID) & DB_NUMQUOTE
-      Debug.Print "reconcileTransaction: " & updsql
+      Debug.Print "reconcileTransactionsql: " & updsql
       db.Execute updsql
 
       'rs.Edit
@@ -428,13 +532,13 @@ Dim updsql As String
       'rs.Update
    ElseIf rs(DBCOL_STMNTREF) = stmntid Then
       updsql = "update transaction set checked=" & DB_TRUE & " where " & DBCOL_ID & "=" & DB_NUMQUOTE & rs(DBCOL_ID) & DB_NUMQUOTE
-      Debug.Print "reconcileTransaction: " & updsql
+      Debug.Print "reconcileTransactionsql: " & updsql
       db.Execute updsql
       'rs.Edit
       'rs("checked") = True
       'rs.Update
    Else
-      reconcileTransaction = "Statement id '" & rs(DBCOL_STMNTREF) & "' already present"
+      reconcileTransactionsql = "Statement id '" & rs(DBCOL_STMNTREF) & "' already present"
    End If
 End Function
 
