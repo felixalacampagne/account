@@ -3,10 +3,11 @@ Handy commands:
 ```
 git diff --ignore-cr-at-eol --ignore-space-at-eol >patch.diff
 git apply --whitespace=fix --ignore-whitespace --reject patch.diff
-patch --ignore-whitespace -p1 < patch.diff
 ```
-NB. The 'patch' command might actually ignore whitespace in the 'contexts' whereas 'git apply' does not even though it has
-a command which claims it will.
+NB. The '.rej' files contain just the part that has failed. If the reason for the failure can be identified (it's usually space related) then modifying the '.rej' file and applying it should be easier than reverting all the changes
+made when the '.diff' file was applied. Of course it's not that simple because, in a typical Unix-think way where the obvious is unthinkable, the '.rej' file is not valid for input to 'git apply' - I mean, that would be far too obvious and easy. The problem is that the lines in the .diff file appearing after the 'diff' line and before the '@@' line which indicated the relationship between the +/- and the a/b files are missing, eg. --- a/file, +++ b/file. Thus the
+workaround is to insert the lines from the original .diff file into the .rej file and then, assuming the fixes are correct, the .rej file can be used as input to git apply. Why the fork didn't they do that when creating the .rej file
+in the first place?
 
 Removing trailing space, includes lines containing only spaces, might avoid some of these problems. VSCode can only remove
 trailing space on save (there is no command to remove the trailing spaces). This is OK except when the VSCode editor is the
