@@ -1,6 +1,6 @@
 Attribute VB_Name = "mysql_reconcile"
 Option Explicit
-' 2025-10-27 16:23
+' 2025-10-30 11:03
 
 ' Settings field names:
 '    deletepatterns - column containing strings to delete from the statement description
@@ -27,8 +27,8 @@ Public Const COL_DBDESC = 15
 Public Const QUITNOW = "QUIT"
 Public Const ALLOK = "OK"
 '                               Access        MySQL
-Dim DBCOL_ID As String        ' "sequence"    id
-Dim DBCOL_DATE As String      ' "Date"        transactiondate
+Public DBCOL_ID As String        ' "sequence"    id
+Public DBCOL_DATE As String      ' "Date"        transactiondate
 Dim DBCOL_TYPE As String      ' "Type"        transactiontype
 Dim DBCOL_STMNTREF As String  ' "Stid"        statementref
 Dim DB_FALSE As String        ' "false"       0
@@ -62,7 +62,7 @@ Dim dbnature As String
       DBCOL_STMNTREF = "Stid"
       DB_FALSE = "false"
       DB_TRUE = "true"
-      DB_NUMQUOTE = ""
+      'DB_NUMQUOTE = ""
       DB_DATEFMT = "\#dd\/mm\/yyyy\#"
       DB_COLQUOTEO = "["
       DB_COLQUOTEC = "]"
@@ -76,7 +76,7 @@ Dim dbnature As String
       DBCOL_STMNTREF = "statementref"
       DB_FALSE = "0"
       DB_TRUE = "1"
-      DB_NUMQUOTE = "'"
+      'DB_NUMQUOTE = "'"
       DB_DATEFMT = "'yyyy-mm-dd'"
       DB_COLQUOTEO = ""
       DB_COLQUOTEC = ""
@@ -99,6 +99,7 @@ Dim dbnature As String
 
    db.Close
 End Sub
+
 Function getAccountID(db As ADODB.Connection, ByRef reason As String) As Long
 Dim rs As ADODB.Recordset
 Dim sql As String
@@ -146,9 +147,45 @@ Dim accid As Long
    getAccountID = accid
 End Function
 
+Function getUnCheckedTransactionsNoParam(db As ADODB.Connection, accid As Long) As ADODB.Recordset
+Dim accidsql As String
+Dim sql As String
+Dim rs As ADODB.Recordset
+   accidsql = DB_NUMQUOTE & accid & DB_NUMQUOTE
+   sql = "select * from transaction where accountid=" & accidsql
+   sql = sql & " and checked=" & DB_FALSE
+   sql = sql & " order by " & DBCOL_DATE & " asc, " & DBCOL_ID & " asc"
+   Set rs = New ADODB.Recordset
+   rs.Open sql, db, adOpenStatic
+   Set getUnCheckedTransactionsNoParam = rs
+End Function
+
+Function getUnCheckedTransactions(db As ADODB.Connection, accid As Long) As ADODB.Recordset
+Dim sql As String
+Dim rs As ADODB.Recordset
+Dim comm As New ADODB.Command
+
+   ' named parameters don't work for access db
+   sql = "select * from transaction where accountid = ?"
+   sql = sql & " and checked = ?"
+   sql = sql & " order by " & DBCOL_DATE & " asc, " & DBCOL_ID & " asc"
+
+   Set comm.ActiveConnection = db
+   comm.CommandType = adCmdText
+   comm.Parameters.Append comm.CreateParameter(":accid", adInteger, adParamInput, 1)
+   comm.Parameters.Append comm.CreateParameter(":chk", adBoolean, adParamInput, 1)
+   comm.Parameters(":accid") = accid
+   comm.Parameters(":chk") = False
+   comm.CommandText = sql
+
+   Set rs = comm.Execute
+
+   Set getUnCheckedTransactions = rs
+End Function
+
 Sub checkStatement(db As ADODB.Connection, accid As Long)
 Dim rs As ADODB.Recordset
-Dim sql As String
+'Dim sql As String
 Dim rownum As Long
 Dim amtstr As String
 Dim stmntamount As Double
@@ -161,32 +198,23 @@ Dim notrcncld As String
 Dim cntchange As Long
 Dim bookmark As Variant
 Dim actionstr As String
-Dim accidint As Integer
+'Dim accidint As Integer
 Dim msg As String
 Dim dbnullcol As String
 Dim dbamtcol As String
 Dim dbamtval As Double
 Dim first As Boolean
 Dim datematch As Boolean
-Dim accidsql As String
+
 Dim rowstyle As Integer
 Dim i As Integer
 
-   accidsql = DB_NUMQUOTE & accid & DB_NUMQUOTE
+
 
    db.BeginTrans
-   sql = "select * from transaction where accountid=" & accidsql
-   sql = sql & " and checked=" & DB_FALSE
-   sql = sql & " order by " & DBCOL_DATE & " asc, " & DBCOL_ID & " asc"
-   'mysql gives data type mismatch if id is not in quotes!
-   'sql = "select * from transaction where accountid='" & accid & "' and checked=0 order by transactiondate asc, id asc"
+   'Set rs = getUnCheckedTransactionsNoParam(db, accid)
+   Set rs = getUnCheckedTransactions(db, accid)
 
-   Set rs = New ADODB.Recordset
-   rs.Open sql, db, adOpenStatic
-
-   ' This is not valid. All items can be checked from previous reconciliation
-   ' and new statement can contain new items to be added, eg. interest payments
-   ' on savings account.
    If rs.EOF Then
       msg = "No unchecked transaction found for account." & vbCrLf & "All statement items must be added." & vbCrLf & "Continue?"
       i = MsgBox(msg, vbYesNo, "No unchecked transactions")
@@ -199,7 +227,7 @@ Dim i As Integer
 
    With ActiveSheet
       rownum = 2
-      ' Stop when an empty value cell is reached as value is a required value
+      ' Use empty value cell to indicate end of data - value is a required value
       Do While Trim(.Cells(rownum, COL_VALUE).Text) <> ""
          credit = 0#
          debit = 0#
@@ -209,12 +237,10 @@ Dim i As Integer
          stmntamount = Val(amtstr)
 
          If stmntamount < 0 Then
-            'debit = stmntamount * -1#
             dbamtval = stmntamount * -1#
             dbamtcol = "debit"
             dbnullcol = "credit"
          Else
-            'credit = stmntamount
             dbamtval = stmntamount
             dbamtcol = "credit"
             dbnullcol = "debit"
@@ -238,7 +264,7 @@ Dim i As Integer
                      Exit Do
                   ElseIf Not first Then
                      ' mark the first matching value even if the date does not match
-                     ' as this will be the record suggested if not date match is found
+                     ' as this will be the record suggested if no date match is found
                      first = True
                      seqid = rs(DBCOL_ID)
                      bookmark = rs.bookmark
@@ -250,11 +276,6 @@ Dim i As Integer
 
          ' Items in the recordset are being updated - avoiding the already updated
          ' ones should help avoid problems with repetitive equal payments.
-         ' There is currently no way to remove the items which have already been checked as part of
-         ' the current reconciliation - recordset can't be refreshed during a transaction
-         ' and the recordset itself is not editable - guess I will need to make a
-         ' copy of the recordset which can be modified...
-         ' transsql = transsql & " and checked=0"
          notrcncld = ""
          rowstyle = 1
          If rs.EOF And Not first Then
@@ -302,8 +323,11 @@ Dim i As Integer
 
          ' Need to remove the item that has just been checked so that multiple items
          ' with the same amount don't always result in the first one being repeatedly checked
-         rs.Close
-         rs.Open sql, db, adOpenStatic
+         ' Requery seems to do the job!
+         rs.Requery
+
+         'rs.Close
+         'Set rs = getUnCheckedTransactionsNoParam(db, accid)
 
       Loop
    End With
