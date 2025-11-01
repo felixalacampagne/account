@@ -1,6 +1,6 @@
 Attribute VB_Name = "statement_load"
 Option Explicit
-' 2025-10-22 17:31
+' 2025-11-01 11:00
 
 Sub LoadStatement()
 Dim statement As String
@@ -146,9 +146,9 @@ Dim stmtref As String
    ActiveSheet.Name = Right$(stmtname, 31)
 
 
-   ' No statement references in the barclays CSV - should use the statement name.
+   ' No statement references in the barclays CSV use date part of statement name.
    ' For compatibility need to fill the statement column with the value
-   stmtref = Right$(stmtname, 10) ' assumes the name ends with YYYY-MM-DD
+   stmtref = extractDatepart(stmtname)
    With ActiveSheet
       rownum = 2
       Do While Trim(.Cells(rownum, COL_VALUE).Text) <> ""
@@ -262,3 +262,20 @@ Dim lastcol As Integer
       .Sort.Apply
     End With
 End Sub
+
+Function extractDatepart(origvalue As String) As String
+Dim datepart As String
+Dim i As Integer
+
+   i = Len(origvalue)
+   Do While i > 0
+      ' Can't put this in the while expression because all parts are evaluated even when
+      ' the first part of the AND is false so i=0 is used in the Mid$ which is invalid!
+      If Not (IsNumeric(Mid$(origvalue, i, 1)) Or Mid$(origvalue, i, 1) = "-") Then
+         Exit Do
+      End If
+      i = i - 1
+   Loop
+   datepart = Mid$(origvalue, i + 1)
+   extractDatepart = datepart
+End Function

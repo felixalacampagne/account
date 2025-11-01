@@ -1,6 +1,6 @@
 Attribute VB_Name = "mysql_reconcile"
 Option Explicit
-' 2025-10-30 11:03
+' 2025-11-01 08:32
 
 ' Settings field names:
 '    deletepatterns - column containing strings to delete from the statement description
@@ -53,8 +53,13 @@ Dim dbnature As String
 
    initCSVColumns
 
+   On Error Resume Next
+   dbnature = ""
+
    ' This is pretty ugly but means I don't have to keep commenting/uncommenting when switching between DBs
    dbnature = Range("Settings!dbnature")
+   On Error GoTo 0
+   
    If dbnature = "access" Then
       DBCOL_ID = "sequence"
       DBCOL_DATE = "Date"
@@ -400,14 +405,14 @@ Dim amtval As Double
    amtv = Val(amt)
 
 
-   If amtv < 0 Then
-       amtcol = "debit"
-       amtval = amtv * -1
-       iscredit = False
-   Else
+   If amtv > 0 Then     ' 0 is a debit
        amtcol = "credit"
        amtval = amtv
        iscredit = True
+   Else
+       amtcol = "debit"
+       amtval = amtv * -1
+       iscredit = False
    End If
 
    txndate = arow.Columns(COL_DATE)
@@ -428,7 +433,7 @@ Dim amtval As Double
    rsforadd(DBCOL_DATE).Value = txndate
    rsforadd("comment").Value = Left$(memo, rs("comment").DefinedSize)
    rsforadd(DBCOL_TYPE).Value = getTransactionType(iscredit)
-   rsforadd(amtcol).Value = amtv
+   rsforadd(amtcol).Value = amtval
    rsforadd.Update
    rsforadd.Close
 
