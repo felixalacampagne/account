@@ -1,6 +1,6 @@
 Attribute VB_Name = "mysql_reconcile"
 Option Explicit
-' 2025-11-01 08:32
+' 2025-11-01 11:21
 
 ' Settings field names:
 '    deletepatterns - column containing strings to delete from the statement description
@@ -31,13 +31,7 @@ Public DBCOL_ID As String        ' "sequence"    id
 Public DBCOL_DATE As String      ' "Date"        transactiondate
 Dim DBCOL_TYPE As String      ' "Type"        transactiontype
 Dim DBCOL_STMNTREF As String  ' "Stid"        statementref
-Dim DB_FALSE As String        ' "false"       0
-Dim DB_TRUE As String         ' "true"        1
-Dim DB_NUMQUOTE As String     ' ""            single quote
-Dim DB_DATEFMT As String
 
-Dim DB_COLQUOTEO As String    ' "["           empty
-Dim DB_COLQUOTEC As String    ' "]"           empty
 Dim DBCOL_ACCID As String     ' "acc_id"      id
 Dim DBCOL_ACCCODE As String   ' "acc_code"    code
 Dim DBCOL_ACCCURR As String   ' "acc_curr"    currency
@@ -55,8 +49,6 @@ Dim dbnature As String
 
    On Error Resume Next
    dbnature = ""
-
-   ' This is pretty ugly but means I don't have to keep commenting/uncommenting when switching between DBs
    dbnature = Range("Settings!dbnature")
    On Error GoTo 0
    
@@ -65,12 +57,6 @@ Dim dbnature As String
       DBCOL_DATE = "Date"
       DBCOL_TYPE = "Type"
       DBCOL_STMNTREF = "Stid"
-      DB_FALSE = "false"
-      DB_TRUE = "true"
-      'DB_NUMQUOTE = ""
-      DB_DATEFMT = "\#dd\/mm\/yyyy\#"
-      DB_COLQUOTEO = "["
-      DB_COLQUOTEC = "]"
       DBCOL_ACCID = "acc_id"
       DBCOL_ACCCODE = "acc_code"
       DBCOL_ACCCURR = "acc_curr"
@@ -79,12 +65,6 @@ Dim dbnature As String
       DBCOL_DATE = "transactiondate"
       DBCOL_TYPE = "transactiontype"
       DBCOL_STMNTREF = "statementref"
-      DB_FALSE = "0"
-      DB_TRUE = "1"
-      'DB_NUMQUOTE = "'"
-      DB_DATEFMT = "'yyyy-mm-dd'"
-      DB_COLQUOTEO = ""
-      DB_COLQUOTEC = ""
       DBCOL_ACCID = "id"
       DBCOL_ACCCODE = "code"
       DBCOL_ACCCURR = "currency"
@@ -110,22 +90,17 @@ Dim rs As ADODB.Recordset
 Dim sql As String
 Dim ibanacc As String
 Dim sheetacc As String
-'Dim sheetcur As String
 Dim normacc As String
 Dim accid As Long
 
    ' Get the IBAN account
    ibanacc = ActiveSheet.Cells(2, COL_ACCNUM)
-   '07 Nov 2021 Account numbers now contain spaces
    sheetacc = StrRepl(ibanacc, " ", "")
    sheetacc = StrRepl(sheetacc, "-", "")
-   'sheetcur = ActiveSheet.Cells(2, COL_CURRENCY)
    reason = ""
 
    sql = "select " & DBCOL_ACCID & ", " & DBCOL_ACCCODE & ", " & DBCOL_ACCCURR & " from account"
 
-   ' Currency not required (and not present in all statements
-   'sql = sql & " where " & DBCOL_ACCCURR & " = '" & sheetcur & "'"
    Set rs = New ADODB.Recordset
    rs.Open sql, db, adOpenStatic, adLockPessimistic
 
@@ -136,33 +111,17 @@ Dim accid As Long
       normacc = StrRepl(rs(DBCOL_ACCCODE), "-", "")
       normacc = StrRepl(normacc, " ", "")
       Debug.Print rs(DBCOL_ACCID), normacc, rs(DBCOL_ACCCODE), rs(DBCOL_ACCCURR)
-      ' Duplicate account codes exist from the pre-EURO days
       If normacc = sheetacc Then
-         'If sheetcur = rs(DBCOL_ACCCURR) Then
-            accid = rs(DBCOL_ACCID)
-            Exit Do
-         'End If
+         accid = rs(DBCOL_ACCID)
+         Exit Do
       End If
       rs.MoveNext
    Loop
    rs.Close
    If accid = -1 Then
-      reason = "Account: " & ibanacc ' & " Currency: " & sheetcur
+      reason = "Account: " & ibanacc
    End If
    getAccountID = accid
-End Function
-
-Function getUnCheckedTransactionsNoParam(db As ADODB.Connection, accid As Long) As ADODB.Recordset
-Dim accidsql As String
-Dim sql As String
-Dim rs As ADODB.Recordset
-   accidsql = DB_NUMQUOTE & accid & DB_NUMQUOTE
-   sql = "select * from transaction where accountid=" & accidsql
-   sql = sql & " and checked=" & DB_FALSE
-   sql = sql & " order by " & DBCOL_DATE & " asc, " & DBCOL_ID & " asc"
-   Set rs = New ADODB.Recordset
-   rs.Open sql, db, adOpenStatic
-   Set getUnCheckedTransactionsNoParam = rs
 End Function
 
 Function getUnCheckedTransactions(db As ADODB.Connection, accid As Long) As ADODB.Recordset
@@ -170,7 +129,7 @@ Dim sql As String
 Dim rs As ADODB.Recordset
 Dim comm As New ADODB.Command
 
-   ' named parameters don't work for access db
+   ' named parameters don't work
    sql = "select * from transaction where accountid = ?"
    sql = sql & " and checked = ?"
    sql = sql & " order by " & DBCOL_DATE & " asc, " & DBCOL_ID & " asc"
@@ -214,10 +173,7 @@ Dim datematch As Boolean
 Dim rowstyle As Integer
 Dim i As Integer
 
-
-
    db.BeginTrans
-   'Set rs = getUnCheckedTransactionsNoParam(db, accid)
    Set rs = getUnCheckedTransactions(db, accid)
 
    If rs.EOF Then
@@ -318,10 +274,6 @@ Dim i As Integer
 
          .Cells(rownum, COL_DBSEQ) = seqid
          .Cells(rownum, COL_FAILREASON) = notrcncld
-
-         ' This is misleading if reconoraddTransaction resulted in a new row being added as
-         ' the comment is that of the row with the large date difference. Need to refactor
-         ' so that the comment indicates that a new row was added
          .Cells(rownum, COL_DBDESC) = actionstr
 
          rownum = rownum + 1
@@ -330,10 +282,6 @@ Dim i As Integer
          ' with the same amount don't always result in the first one being repeatedly checked
          ' Requery seems to do the job!
          rs.Requery
-
-         'rs.Close
-         'Set rs = getUnCheckedTransactionsNoParam(db, accid)
-
       Loop
    End With
    rs.Close
@@ -378,7 +326,6 @@ Dim memo As String
    End If
 
    actionstr = memo ' default is "ByRef" so can return value in a parameter
-   ' addTransaction = addtodb(accid, memo, rs, db, arow)
    addTransaction = addtodbado(accid, memo, rs, db, arow)
 
 End Function
@@ -404,8 +351,7 @@ Dim amtval As Double
    amt = StrRepl(amt, ",", ".")
    amtv = Val(amt)
 
-
-   If amtv > 0 Then     ' 0 is a debit
+   If amtv > 0 Then     ' handle 0 a debit
        amtcol = "credit"
        amtval = amtv
        iscredit = True
@@ -478,97 +424,11 @@ Dim updsql As String
    ' Row cannot be located for updating. Some values may have been changed since it was last read.
    On Error Resume Next
    rsforupd.Update
-   Debug.Print ("After:  EditMode: " & rsforupd.EditMode & "    Status:" & rsforupd.Status & "    State:" & rsforupd.State)
+   'Debug.Print ("After:  EditMode: " & rsforupd.EditMode & "    Status:" & rsforupd.Status & "    State:" & rsforupd.State)
    ' Status is 0 if update was successful and !0 (2048) if the update failed because nothing was changed.
 
    rsforupd.Close
    reconcileTransactionado = ALLOK
-End Function
-
-Function addtodbsql(accid As Long, memo As String, rs As ADODB.Recordset, db As ADODB.Connection, arow As Range) As String
-Dim amt As String
-Dim amtv As Double
-Dim inssql As String
-Dim sqldate As String
-Dim iscredit As Boolean
-   amt = Trim$(arow.Columns(COL_VALUE))
-   amt = StrRepl(amt, ",", ".")
-   amtv = Val(amt)
-
-   Dim amtcol As String
-   Dim amtval As Double
-
-   If amtv < 0 Then
-      amtcol = "debit"
-      amtval = amtv * -1
-      iscredit = False
-   Else
-      amtcol = "credit"
-      amtval = amtv
-      iscredit = True
-   End If
-
-   ' #DD/MM/YYYY# works for access
-   ' 'DD/MM/YYYY' does NOT work for mysql
-   ' 'YYYY-MM-DD' is OK for MySQL.
-   ' Would be simpler to use a date format for mysql and access instead of DATEQUOTEL/R
-   sqldate = Format(arow.Columns(COL_DATE), DB_DATEFMT)
-
-   ' Monumentally more complex than it needs to be since columns have changed for mysql and different
-   ' types of quoting are required for different fields
-   inssql = "insert into transaction (accountid, " & DBCOL_STMNTREF & ", checked, " & DB_COLQUOTEO & DBCOL_DATE & DB_COLQUOTEC & ", comment, " & DBCOL_TYPE & ", " & amtcol
-   inssql = inssql & ") values ("
-   inssql = inssql & DB_NUMQUOTE & accid & DB_NUMQUOTE & ", "
-   inssql = inssql & "'" & arow.Columns(COL_STATNUM) & "'" & ", "
-   inssql = inssql & DB_TRUE & ", "
-   inssql = inssql & sqldate & ", "
-   inssql = inssql & "'" & Left$(memo, rs("comment").DefinedSize) & "', "
-   inssql = inssql & "'" & getTransactionType(iscredit) & "', "
-   inssql = inssql & DB_NUMQUOTE & amtval & DB_NUMQUOTE
-   inssql = inssql & ")"
-
-   Debug.Print "addtodb: " & inssql
-   gLastNewID = -1
-   db.Execute inssql
-
-   ' This is supposed to return the ID of the added record. It works for Access DB and the command does not give error on mysql
-   ' Would require re-write of entire code to get the new id returned so use a global value
-   Dim rsid As New ADODB.Recordset
-   rsid.Open "select @@Identity", db
-   gLastNewID = rsid.Fields(0)
-   Debug.Print "addtodb: added record id: " & gLastNewID
-   rsid.Close
-
-   addtodbsql = ALLOK
-End Function
-
-Function reconcileTransactionsql(rs As ADODB.Recordset, db As ADODB.Connection, arow As Range) As String
-Dim stmntid As String
-Dim updsql As String
-
-   reconcileTransactionsql = ALLOK
-   stmntid = arow.Columns(COL_STATNUM).Text
-   If "" & rs(DBCOL_STMNTREF) = "" Then
-
-      updsql = "update transaction set " & DBCOL_STMNTREF & "='" & stmntid & "', checked=" & DB_TRUE
-      updsql = updsql & " where " & DBCOL_ID & "=" & DB_NUMQUOTE & rs(DBCOL_ID) & DB_NUMQUOTE
-      Debug.Print "reconcileTransactionsql: " & updsql
-      db.Execute updsql
-
-      'rs.Edit
-      'rs("statementref") = stmntid
-      'rs("checked") = True
-      'rs.Update
-   ElseIf rs(DBCOL_STMNTREF) = stmntid Then
-      updsql = "update transaction set checked=" & DB_TRUE & " where " & DBCOL_ID & "=" & DB_NUMQUOTE & rs(DBCOL_ID) & DB_NUMQUOTE
-      Debug.Print "reconcileTransactionsql: " & updsql
-      db.Execute updsql
-      'rs.Edit
-      'rs("checked") = True
-      'rs.Update
-   Else
-      reconcileTransactionsql = "Statement id '" & rs(DBCOL_STMNTREF) & "' already present"
-   End If
 End Function
 
 Function reconoraddTransaction(accid As Long, rs As ADODB.Recordset, db As ADODB.Connection, arow As Range, notrcncld As String, actionstr As String) As String
@@ -624,10 +484,9 @@ Dim rownum As Integer
 Dim column As Integer
 Dim sanistr As String
 Dim delstr As String
-'Range("Settings!deletepatterns").Row
 sanistr = Trim(strtoclean)
 On Error GoTo funcend ' in case 'deletepatterns' has not been configured
-rownum = Range("Settings!deletepatterns").row + 1 ' Selection.Row + 1
+rownum = Range("Settings!deletepatterns").row + 1
 column = Range("Settings!deletepatterns").column
 
 With Worksheets("Settings")
@@ -687,3 +546,33 @@ Sub setRowStyle(arow As Range, mode As Integer)
         .PatternTintAndShade = 0
     End With
 End Sub
+
+
+' Demo of vb regex. There are a number of places where a regex might be handy, eg.
+' statementref from file name, added txn memo from statement description.
+' There is no regex builtin to VBA but there is (should be) an activeX
+' available that does the job.
+' This will required 'Microsoft VBScript Regular Expressions' to be added
+' to 'Tools->References'
+Function RegExMatch(MyRange As Range, MyPattern As String, Optional IsGlobal As Boolean = False) As String
+    ' Func: RegExMatch
+    ' Info: Use regular expression select matching text, throw an error if nothing found.
+    Dim regEx As New RegExp
+    Dim strInput As String
+    
+    strInput = MyRange.Value
+    
+    With regEx
+        .Global = IsGlobal      ' If true, apply everywhere. If false, apply at the first isntance
+        .Pattern = MyPattern    ' Put in quotes!
+    End With
+        
+    If regEx.test(strInput) Then
+        Set matches = regEx.Execute(strInput)
+        For Each Match In matches
+            RegExMatch = RegExMatch & Match
+        Next
+    Else
+        RegExMatch = ""    ' Return nothing if nothing matches
+    End If
+End Function
