@@ -14,6 +14,7 @@ Option Explicit
 '    modulepath     - directory containing macros to be updated
 '    workbookpath   - column containing directory paths with workbooks for macro updates. All workbooks
 '                     in each directory will be updated with macros from modulepath
+'    statementdir   - last location of statement: automatically created at A8 if not present
 
 Public COL_ACCNUM As Integer
 Public COL_STATNUM As Integer

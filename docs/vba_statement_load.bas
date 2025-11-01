@@ -1,6 +1,6 @@
 Attribute VB_Name = "statement_load"
 Option Explicit
-' 2025-11-01 11:00
+' 2025-11-01 18:23
 
 Sub LoadStatement()
 Dim statement As String
@@ -8,11 +8,20 @@ Dim fd As FileDialog
 Dim i As Integer
 Dim d As Integer
 Dim stmtname As String
+Dim stmtpath As String
 Dim acctype As String
+Dim lastlocn As String
 
+   On Error Resume Next
+   lastlocn = Range("Settings!statementdir")
+   On Error GoTo 0
+   
+   
    Set fd = Application.FileDialog(msoFileDialogFilePicker)
    fd.title = "Statement Selection"
    fd.Filters.Add "Statement files", "*.csv"
+   fd.InitialFileName = lastlocn & "\"
+   
    fd.FilterIndex = 1
    If fd.Show <> -1 Then
       Exit Sub
@@ -26,6 +35,7 @@ Dim acctype As String
          d = i
       ElseIf Mid$(statement, i, 1) = "\" Or Mid$(statement, i, 1) = "/" Then
          stmtname = Mid$(statement, i + 1, d - i - 1)
+         stmtpath = Left$(statement, i - 1)
          Exit For
       End If
    Next
@@ -48,6 +58,16 @@ Dim acctype As String
     Cells(1, COL_DBSEQ).EntireColumn.Insert
     Cells(1, COL_DBSEQ).EntireColumn.Insert
     Cells(1, 1).Select
+    
+    If stmtpath <> "" Then
+      On Error Resume Next
+      Range("Settings!statementdir") = stmtpath
+      If Err.Number <> 0 Then
+          Range("Settings!A8") = stmtpath
+          ActiveWorkbook.Names.Add Name:="statementdir", RefersToR1C1:="=Settings!R8C1"
+      End If
+      On Error GoTo 0
+    End If
 End Sub
 
 Sub initCSVColumns()
