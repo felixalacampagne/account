@@ -1,6 +1,6 @@
 Attribute VB_Name = "statement_load"
 Option Explicit
-' 2025-11-01 18:23
+' 2025-11-02 18:33
 
 Sub LoadStatement()
 Dim statement As String
@@ -14,39 +14,42 @@ Dim lastlocn As String
 
    On Error Resume Next
    lastlocn = Range("Settings!statementdir")
+   acctype = Range("Settings!accounttype")
    On Error GoTo 0
-   
-   
-   Set fd = Application.FileDialog(msoFileDialogFilePicker)
-   fd.title = "Statement Selection"
-   fd.Filters.Add "Statement files", "*.csv"
-   fd.InitialFileName = lastlocn & "\"
-   
-   fd.FilterIndex = 1
-   If fd.Show <> -1 Then
-      Exit Sub
-   End If
 
-   statement = fd.SelectedItems.Item(1)
-   d = Len(statement)
-   stmtname = statement
-   For i = d To 1 Step -1
-      If Mid$(statement, i, 1) = "." Then
-         d = i
-      ElseIf Mid$(statement, i, 1) = "\" Or Mid$(statement, i, 1) = "/" Then
-         stmtname = Mid$(statement, i + 1, d - i - 1)
-         stmtpath = Left$(statement, i - 1)
-         Exit For
+   If acctype <> "beomc" Then
+      Set fd = Application.FileDialog(msoFileDialogFilePicker)
+      fd.title = "Statement Selection"
+      fd.Filters.Add "Statement files", "*.csv"
+      fd.InitialFileName = lastlocn & "\"
+
+      fd.FilterIndex = 1
+      If fd.Show <> -1 Then
+         Exit Sub
       End If
-   Next
+
+      statement = fd.SelectedItems.Item(1)
+      d = Len(statement)
+      stmtname = statement
+      For i = d To 1 Step -1
+         If Mid$(statement, i, 1) = "." Then
+            d = i
+         ElseIf Mid$(statement, i, 1) = "\" Or Mid$(statement, i, 1) = "/" Then
+            stmtname = Mid$(statement, i + 1, d - i - 1)
+            stmtpath = Left$(statement, i - 1)
+            Exit For
+         End If
+      Next
+   End If
 
    initCSVColumns
 
-   acctype = Range("Settings!accounttype")
    If acctype = "barclays" Then
       loadBarclays statement, stmtname
    ElseIf acctype = "keytrade" Then
       loadKeytrade statement, stmtname
+   ElseIf acctype = "beomc" Then
+      loadBeoMC
    Else
       loadCBC statement, stmtname
    End If
@@ -58,7 +61,7 @@ Dim lastlocn As String
     Cells(1, COL_DBSEQ).EntireColumn.Insert
     Cells(1, COL_DBSEQ).EntireColumn.Insert
     Cells(1, 1).Select
-    
+
     If stmtpath <> "" Then
       On Error Resume Next
       Range("Settings!statementdir") = stmtpath
@@ -85,6 +88,12 @@ Dim acctype As String
       COL_DESC = 5 ' E
       COL_VALUE = 6 ' F
       COL_STATNUM = 1
+   ElseIf acctype = "beomc" Then
+      COL_ACCNUM = 6 ' F
+      COL_DATE = 1 ' A
+      COL_DESC = 2 ' B
+      COL_VALUE = 5 ' E
+      COL_STATNUM = 7 ' G
    Else
       COL_ACCNUM = 1
       COL_STATNUM = 5
@@ -173,10 +182,6 @@ Dim stmtref As String
       rownum = 2
       Do While Trim(.Cells(rownum, COL_VALUE).Text) <> ""
          .Cells(rownum, 1) = stmtref
-         'If Trim(.Cells(rownum + 1, COL_VALUE).Text) = "" Then
-         '   ' Ugly way to ensure rownum points to last filled line which is needed for the sort
-         '   Exit Do
-         'End If
          rownum = rownum + 1
       Loop
 
@@ -185,16 +190,6 @@ Dim stmtref As String
    ' Barclays extracts are sorted the wrong way round which causes
    ' a problem with repeating payments of the same amount, eg. Hello magazine
    sortsheet COL_DATE
-   ' Range("B1").Select
-   ' With ActiveSheet
-   '   .Sort.SortFields.Clear
-   '   .Sort.SortFields.Add2 Key:=Range("B2:B" & rownum), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-   '   .Sort.Header = xlYes
-   '   .Sort.MatchCase = False
-   '   .Sort.Orientation = xlTopToBottom
-   '   .Sort.SetRange Range("A1:F" & rownum)
-   '   .Sort.Apply
-   ' End With
 End Sub
 
 
@@ -253,16 +248,41 @@ Dim acccode As String
    ' Keytrade extracts are sorted the wrong way round which causes
    ' a problem with repeating payments of the same amount, eg. Hello magazine
    sortsheet COL_DATE
-   ' Range("B1").Select
-   ' With ActiveSheet
-   ' .Sort.SortFields.Clear
-   ' .Sort.SortFields.Add2 Key:=Range("B2:B" & rownum), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
-   ' .Sort.Header = xlYes
-   ' .Sort.MatchCase = False
-   ' .Sort.Orientation = xlTopToBottom
-   ' .Sort.SetRange Range("A1:F" & rownum)
-   ' .Sort.Apply
-   ' End With
+End Sub
+
+' Statement is a multi-sheet Excel file. Not sure where the 'active' statement
+' is located, it could be the 'Next statement' sheet which contains one set
+' of transactions, or it could be on the 'Previous statements' sheet which
+' contains multiple sets of transactions. When I want to do the reconcile, ie.
+' after I've received notifiction that the statement for the month is due,
+' the transactions for the statement to be paid could already be considered
+' as 'Previous statements'. Thus, even if I could extract the transactions
+' programmatically, I don't actually know where to get them from. Therefore
+' the first version requires that the transactions have been manually
+' copied to the clipboard and loading consists of pasting into the
+' the current sheet. The name of the current sheet must be already set to
+' the value to use as the statement reference.
+' Eventually it might be possible to load the transactions directly from
+' the downloaded spreadsheet... need to wait for a new statement to arrive...
+Sub loadBeoMC()
+Dim stmtref As String
+Dim acccode As String
+Dim rownum As Integer
+
+   ActiveSheet.Paste
+   Cells.Select
+   Cells.EntireColumn.AutoFit
+   stmtref = ActiveSheet.Name
+   acccode = Range("Settings!accountcode")
+   With ActiveSheet
+      rownum = 2
+      Do While Trim(.Cells(rownum, COL_VALUE).Text) <> ""
+         .Cells(rownum, COL_ACCNUM) = acccode
+         .Cells(rownum, COL_STATNUM) = stmtref
+         rownum = rownum + 1
+      Loop
+   End With
+   sortsheet COL_DATE
 End Sub
 
 Sub sortsheet(sortcol As Integer)
