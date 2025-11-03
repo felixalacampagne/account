@@ -1,6 +1,6 @@
 Attribute VB_Name = "statement_load"
 Option Explicit
-' 2025-11-02 18:33
+' 2025-11-03 14:38
 
 Sub LoadStatement()
 Dim statement As String
@@ -11,6 +11,7 @@ Dim stmtname As String
 Dim stmtpath As String
 Dim acctype As String
 Dim lastlocn As String
+Dim filefmt As String
 
    On Error Resume Next
    lastlocn = Range("Settings!statementdir")
@@ -18,38 +19,47 @@ Dim lastlocn As String
    On Error GoTo 0
 
    If acctype <> "beomc" Then
-      Set fd = Application.FileDialog(msoFileDialogFilePicker)
-      fd.title = "Statement Selection"
-      fd.Filters.Add "Statement files", "*.csv"
-      fd.InitialFileName = lastlocn & "\"
-
-      fd.FilterIndex = 1
-      If fd.Show <> -1 Then
-         Exit Sub
-      End If
-
-      statement = fd.SelectedItems.Item(1)
-      d = Len(statement)
-      stmtname = statement
-      For i = d To 1 Step -1
-         If Mid$(statement, i, 1) = "." Then
-            d = i
-         ElseIf Mid$(statement, i, 1) = "\" Or Mid$(statement, i, 1) = "/" Then
-            stmtname = Mid$(statement, i + 1, d - i - 1)
-            stmtpath = Left$(statement, i - 1)
-            Exit For
-         End If
-      Next
+      filefmt = "*.csv"
+   Else
+      filefmt = "*.xlsx"
    End If
 
+   Set fd = Application.FileDialog(msoFileDialogFilePicker)
+   fd.title = "Statement Selection"
+   fd.Filters.Add "Statement files", filefmt
+   fd.InitialFileName = lastlocn & "\"
+
+   fd.FilterIndex = 1
+   If fd.Show <> -1 Then
+      Exit Sub
+   End If
+
+   statement = fd.SelectedItems.Item(1)
+   d = Len(statement)
+   stmtname = statement
+   For i = d To 1 Step -1
+      If Mid$(statement, i, 1) = "." Then
+         d = i
+      ElseIf Mid$(statement, i, 1) = "\" Or Mid$(statement, i, 1) = "/" Then
+         stmtname = Mid$(statement, i + 1, d - i - 1)
+         stmtpath = Left$(statement, i - 1)
+         Exit For
+      End If
+   Next
+
+
    initCSVColumns
+
+   Sheets.Add After:=ActiveWorkbook.Sheets("Settings")
+   stmtname = StrRepl(stmtname, "_statement", "")  ' Really only for CBC - should find a better way
+   ActiveSheet.Name = Right$(stmtname, 31)
 
    If acctype = "barclays" Then
       loadBarclays statement, stmtname
    ElseIf acctype = "keytrade" Then
       loadKeytrade statement, stmtname
    ElseIf acctype = "beomc" Then
-      loadBeoMC
+      loadBeoMC statement, stmtname
    Else
       loadCBC statement, stmtname
    End If
@@ -130,9 +140,6 @@ Sub loadCBC(statement As String, stmtname As String)
         .TextFileTrailingMinusNumbers = True
         .Refresh BackgroundQuery:=False
     End With
-    stmtname = StrRepl(stmtname, "_statement", "")
-
-    ActiveSheet.Name = Right$(stmtname, 31)
 
    ' Looks like CBC also needs to be sorted - real statement CSVs are already sorted by date ascending
    ' but the reports generated 'manually' are sorted date descending.
@@ -172,10 +179,7 @@ Dim stmtref As String
       .Refresh BackgroundQuery:=False
    End With
 
-   ActiveSheet.Name = Right$(stmtname, 31)
-
-
-   ' No statement references in the barclays CSV use date part of statement name.
+   ' No statement references in the barclays CSV. Use date part of statement name.
    ' For compatibility need to fill the statement column with the value
    stmtref = extractDatepart(stmtname)
    With ActiveSheet
@@ -225,10 +229,6 @@ Dim acccode As String
         .Refresh BackgroundQuery:=False
    End With
 
-   ActiveSheet.Name = Right$(stmtname, 31)
-
-
-
    ' No account number in keytrade statements.
    ' For compatibility need to fill the account column with a value from the settings page
    acccode = Range("Settings!accountcode")
@@ -236,10 +236,6 @@ Dim acccode As String
       rownum = 2
       Do While Trim(.Cells(rownum, COL_VALUE).Text) <> ""
          .Cells(rownum, COL_ACCNUM) = acccode
-         'If Trim(.Cells(rownum + 1, COL_VALUE).Text) = "" Then
-         '   ' Ugly way to ensure rownum points to last filled line which is needed for the sort
-         '   Exit Do
-         'End If
          rownum = rownum + 1
       Loop
 
@@ -264,24 +260,57 @@ End Sub
 ' the value to use as the statement reference.
 ' Eventually it might be possible to load the transactions directly from
 ' the downloaded spreadsheet... need to wait for a new statement to arrive...
-Sub loadBeoMC()
+Sub loadBeoMC(statement As String, stmtname As String)
 Dim stmtref As String
 Dim acccode As String
 Dim rownum As Integer
 
-   ActiveSheet.Paste
-   Cells.Select
-   Cells.EntireColumn.AutoFit
-   stmtref = ActiveSheet.Name
+
+Dim wbTarget As Workbook
+Dim startrow As Integer
+Dim endrow As Integer
+Dim chkcol As Integer
+Dim actSheet As Worksheet
+Dim actBook As Workbook
+Dim actSheetName As String
+
+
+   stmtref = extractDatepart(stmtname)
    acccode = Range("Settings!accountcode")
-   With ActiveSheet
+   chkcol = COL_VALUE
+
+
+   Set actBook = ActiveWorkbook
+   actSheetName = ActiveWorkbook.ActiveSheet.Name
+
+
+   Set wbTarget = Workbooks.Open(statement)
+
+   startrow = 6
+
+   ' Still to be confirmed where the real latest 'to-be-paid' statement is located
+   With wbTarget.Sheets("Next Statement")
+      endrow = startrow
+      Do While Trim(.Cells(endrow, chkcol).Text) <> ""
+         endrow = endrow + 1
+      Loop
+      .Rows("" & startrow & ":" & endrow).Copy actBook.Sheets(actSheetName).Cells(1, 1)
+   End With
+   wbTarget.Close
+
+
+   With actBook.Sheets(actSheetName)
+      .Cells.Select
+      .Cells.EntireColumn.AutoFit
+
       rownum = 2
-      Do While Trim(.Cells(rownum, COL_VALUE).Text) <> ""
+      Do While Trim(.Cells(rownum, chkcol).Text) <> ""
          .Cells(rownum, COL_ACCNUM) = acccode
          .Cells(rownum, COL_STATNUM) = stmtref
          rownum = rownum + 1
       Loop
    End With
+   ActiveSheet.Name = Right$(stmtname, 31)
    sortsheet COL_DATE
 End Sub
 
@@ -319,3 +348,49 @@ Dim i As Integer
    datepart = Mid$(origvalue, i + 1)
    extractDatepart = datepart
 End Function
+
+
+Sub testLoadFromXLS()
+Dim wbTarget As Workbook
+Dim startrow As Integer
+Dim endrow As Integer
+Dim chkcol As Integer
+Dim stmtref As String
+Dim acccode As String
+Dim rownum As Integer
+Dim actSheet As Worksheet
+Dim actBook As Workbook
+Dim actSheetName As String
+
+   Set actBook = ActiveWorkbook
+
+   actSheetName = ActiveWorkbook.ActiveSheet.Name
+
+   Set wbTarget = Workbooks.Open("C:\development\zzdrive\stmntxls\statement 2025-11.xlsx")
+   startrow = 6
+   chkcol = 5 ' Should be the amount column which is always required
+   With wbTarget.Sheets("Next Statement")
+      endrow = startrow
+      Do While Trim(.Cells(endrow, chkcol).Text) <> ""
+         endrow = endrow + 1
+      Loop
+      .Rows("" & startrow & ":" & endrow).Copy actBook.Sheets(actSheetName).Cells(1, 1)
+   End With
+
+   wbTarget.Close
+
+   With actBook.Sheets(actSheetName)
+      .Cells.Select
+      .Cells.EntireColumn.AutoFit
+      stmtref = "2025-11"
+      acccode = Range("Settings!accountcode")
+
+      rownum = 2
+      Do While Trim(.Cells(rownum, chkcol).Text) <> ""
+         .Cells(rownum, 7) = acccode
+         .Cells(rownum, 6) = stmtref
+         rownum = rownum + 1
+      Loop
+   End With
+   sortsheet 1
+End Sub
