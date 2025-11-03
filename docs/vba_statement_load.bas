@@ -1,6 +1,6 @@
 Attribute VB_Name = "statement_load"
 Option Explicit
-' 2025-11-03 14:38
+' 2025-11-03 18:21
 
 Sub LoadStatement()
 Dim statement As String
@@ -286,10 +286,10 @@ Dim actSheetName As String
 
    Set wbTarget = Workbooks.Open(statement)
 
-   startrow = 6
+   startrow = 7
 
    ' Still to be confirmed where the real latest 'to-be-paid' statement is located
-   With wbTarget.Sheets("Next Statement")
+   With wbTarget.Sheets("Next statement")
       endrow = startrow
       Do While Trim(.Cells(endrow, chkcol).Text) <> ""
          endrow = endrow + 1
