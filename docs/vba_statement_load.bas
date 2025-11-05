@@ -1,6 +1,6 @@
 Attribute VB_Name = "statement_load"
 Option Explicit
-' 2025-11-03 18:21
+' 2025-11-05 10:07
 
 Sub LoadStatement()
 Dim statement As String
@@ -273,9 +273,9 @@ Dim chkcol As Integer
 Dim actSheet As Worksheet
 Dim actBook As Workbook
 Dim actSheetName As String
-
-
-   stmtref = extractDatepart(stmtname)
+Dim celval As String
+Const stmnthead As String = "Statement on : "
+   stmtref = extractDatepart(stmtname) ' Overridden below by date from statement
    acccode = Range("Settings!accountcode")
    chkcol = COL_VALUE
 
@@ -286,29 +286,45 @@ Dim actSheetName As String
 
    Set wbTarget = Workbooks.Open(statement)
 
-   startrow = 7
+   startrow = 5
 
    ' Still to be confirmed where the real latest 'to-be-paid' statement is located
-   With wbTarget.Sheets("Next statement")
-      endrow = startrow
-      Do While Trim(.Cells(endrow, chkcol).Text) <> ""
+   With wbTarget.Sheets("Previous statements")
+
+      celval = .Cells(startrow, 1).Text    ' Statement on....
+      If Left$(celval, Len(stmnthead)) <> stmnthead Then
+         Err.Raise vbObjectError + 513, "Unrecognised Beo MC statement:" & vbCrLf & "Statement does not start with '" & stmnthead & "'"
+         Exit Sub
+      End If
+      stmtref = extractDatepart(celval)
+
+      endrow = startrow + 1
+      Do While (Trim(.Cells(endrow, chkcol).Text) <> "") And (Left$(.Cells(endrow, 1).Text, Len(stmnthead)) <> stmnthead)
          endrow = endrow + 1
       Loop
+      If Left$(.Cells(endrow, 1).Text, Len(stmnthead)) = stmnthead Then
+         endrow = endrow - 1
+      End If
       .Rows("" & startrow & ":" & endrow).Copy actBook.Sheets(actSheetName).Cells(1, 1)
    End With
    wbTarget.Close
 
 
+   ' Statement ref is a date formatted using '/' as separator but I think I prefer to use '-'
+   stmtref = StrRepl(stmtref, "/", "-")
+
    With actBook.Sheets(actSheetName)
-      .Cells.Select
-      .Cells.EntireColumn.AutoFit
 
       rownum = 2
       Do While Trim(.Cells(rownum, chkcol).Text) <> ""
          .Cells(rownum, COL_ACCNUM) = acccode
-         .Cells(rownum, COL_STATNUM) = stmtref
+         .Cells(rownum, COL_STATNUM).NumberFormat = "@"  ' magic to force Excel display string without corrupting it
+         .Cells(rownum, COL_STATNUM).Value = stmtref
          rownum = rownum + 1
       Loop
+      .Cells.Select
+      .Cells.EntireColumn.AutoFit
+
    End With
    ActiveSheet.Name = Right$(stmtname, 31)
    sortsheet COL_DATE
@@ -340,7 +356,7 @@ Dim i As Integer
    Do While i > 0
       ' Can't put this in the while expression because all parts are evaluated even when
       ' the first part of the AND is false so i=0 is used in the Mid$ which is invalid!
-      If Not (IsNumeric(Mid$(origvalue, i, 1)) Or Mid$(origvalue, i, 1) = "-") Then
+      If Not (IsNumeric(Mid$(origvalue, i, 1)) Or Mid$(origvalue, i, 1) = "-" Or Mid$(origvalue, i, 1) = "/") Then
          Exit Do
       End If
       i = i - 1
@@ -349,48 +365,3 @@ Dim i As Integer
    extractDatepart = datepart
 End Function
 
-
-Sub testLoadFromXLS()
-Dim wbTarget As Workbook
-Dim startrow As Integer
-Dim endrow As Integer
-Dim chkcol As Integer
-Dim stmtref As String
-Dim acccode As String
-Dim rownum As Integer
-Dim actSheet As Worksheet
-Dim actBook As Workbook
-Dim actSheetName As String
-
-   Set actBook = ActiveWorkbook
-
-   actSheetName = ActiveWorkbook.ActiveSheet.Name
-
-   Set wbTarget = Workbooks.Open("C:\development\zzdrive\stmntxls\statement 2025-11.xlsx")
-   startrow = 6
-   chkcol = 5 ' Should be the amount column which is always required
-   With wbTarget.Sheets("Next Statement")
-      endrow = startrow
-      Do While Trim(.Cells(endrow, chkcol).Text) <> ""
-         endrow = endrow + 1
-      Loop
-      .Rows("" & startrow & ":" & endrow).Copy actBook.Sheets(actSheetName).Cells(1, 1)
-   End With
-
-   wbTarget.Close
-
-   With actBook.Sheets(actSheetName)
-      .Cells.Select
-      .Cells.EntireColumn.AutoFit
-      stmtref = "2025-11"
-      acccode = Range("Settings!accountcode")
-
-      rownum = 2
-      Do While Trim(.Cells(rownum, chkcol).Text) <> ""
-         .Cells(rownum, 7) = acccode
-         .Cells(rownum, 6) = stmtref
-         rownum = rownum + 1
-      Loop
-   End With
-   sortsheet 1
-End Sub
