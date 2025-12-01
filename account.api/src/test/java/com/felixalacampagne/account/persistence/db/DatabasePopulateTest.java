@@ -55,6 +55,9 @@ public class DatabasePopulateTest
    @Autowired
    HouseKeepingService houseKeepingService;
 
+   // Requires
+   // SET GLOBAL local_infile=1;
+   // on server
    @Test
    void databaseIsPopulated()
    {

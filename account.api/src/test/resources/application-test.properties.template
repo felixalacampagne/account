@@ -1,2 +1,18 @@
-spring.datasource.url=jdbc:ucanaccess://<full path to test db with forward slashed>
+# Tests use an H2 memory db they can be run 'anywhere', even on github codespaces
+
+falc.account.db.username=sa
+falc.account.db.password=password
+
+spring.jpa.hibernate.ddl-auto=create
+spring.jpa.defer-datasource-initialization=true
+
+spring.sql.init.platform=h2
+spring.sql.init.mode=always
+
+spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
+spring.datasource.name=testdb
+spring.datasource.driverClassName=org.h2.Driver
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+
+# spring.datasource.url=jdbc:ucanaccess://<full path to test db with forward slashed>
 # eg. spring.datasource.url=jdbc:ucanaccess://E:/Development/workspace/accountrest/acc2003_TEST.mdb
