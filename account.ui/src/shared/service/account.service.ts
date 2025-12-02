@@ -14,7 +14,7 @@ import { EPCtransaction } from '../model/epctransaction.model';
 import { TransferAccountItem } from '../model/transferaccountitem.model';
 
 @Injectable()
-export class AccountService 
+export class AccountService
 {
 
    private serverhost : string; // = "http://minnie"; //""; //"http://minnie"; //"http://localhost:8080";
@@ -45,16 +45,16 @@ export class AccountService
    private listtfraccs : string = "listtransferaccounts";
    private addtfracc  : string = "addtransferaccount";
    private updtfracc : string = "updatetransferaccount";
-   private deltfracc   : string = "deletetransferaccount"; 
+   private deltfracc   : string = "deletetransferaccount";
    private accinf : string = "accinf/";
-   
+
    public periodTypes = [
       {period: "D", desc: "Day"},
       {period: "W", desc: "Week"},
       {period: "M", desc: "Month"},
       {period: "Y", desc: "Year"}
      ];
-     
+
    public txnTypes: string[] = [
    "BC",
    "AWAL",
@@ -97,13 +97,13 @@ export class AccountService
          this.serverhost = environment.accountapi_host;
       }
       else
-      {    
+      {
          this.serverhost = window.location.origin;
       }
       this.accountapiapp = environment.folder + environment.accountapi_app;
       this.apiurl = this.serverhost + this.accountapiapp
       console.log("Account API server host: " + this.apiurl);
-   }    
+   }
 
    // This needs to be called after add/upd/delAccount is completed
    notifyAccountModified(id : number) : void
@@ -122,15 +122,15 @@ export class AccountService
      url = this.apiurl + this.listaccsvc;
      // The account items are returned wrapped in an array named accounts
      console.log("getAccount API URL: " + url);
-     return this.http.get(url).pipe( map((res:any) => res.accounts) );    
+     return this.http.get(url).pipe( map((res:any) => res.accounts) );
    }
-   
+
    getAccount(id : number) : Observable<AccountItem>
    {
      let url : string;
      url = this.apiurl + this.account + id;
      console.log("getAccount API URL: " + url);
-     return this.http.get(url).pipe( map((res:any) => res) );    
+     return this.http.get(url).pipe( map((res:any) => res) );
    }
 
    getAccountDetails(): Observable<AccountDetail[]>
@@ -139,8 +139,8 @@ export class AccountService
       url = this.apiurl + this.listaccinf;
       // The account items are returned wrapped in an array named accounts
       console.log("getAccountDetails API URL: " + url);
-      return this.http.get(url).pipe( map((res:any) => res) );    
-   } 
+      return this.http.get(url).pipe( map((res:any) => res) );
+   }
 
    addAccount(item : AccountDetail) : Observable<string>
    {
@@ -155,8 +155,8 @@ export class AccountService
       var headers = new HttpHeaders();
       headers = headers.set('Content-Type', 'application/json');
       headers = headers.set("Accept", "text/plain");
-        
-      return this.http.post(url, json, {headers: headers,  responseType: 'text'});        
+
+      return this.http.post(url, json, {headers: headers,  responseType: 'text'});
    }
 
    updateAccount(item : AccountDetail) : Observable<string>
@@ -171,8 +171,8 @@ export class AccountService
       var headers = new HttpHeaders();
       headers = headers.set('Content-Type', 'application/json');
       headers = headers.set("Accept", "text/plain");
-      
-      return this.http.post(url, json, {headers: headers,  responseType: 'text'});       
+
+      return this.http.post(url, json, {headers: headers,  responseType: 'text'});
    }
 
    deleteAccount(item : AccountDetail) : Observable<string>
@@ -187,8 +187,8 @@ export class AccountService
        var headers = new HttpHeaders();
        headers = headers.set('Content-Type', 'application/json');
        headers = headers.set("Accept", "text/plain");
-       
-       return this.http.post(url, json, {headers: headers,  responseType: 'text'}); 
+
+       return this.http.post(url, json, {headers: headers,  responseType: 'text'});
    }
 
    getAccountDetail(id : number) : Observable<AccountDetail>
@@ -196,8 +196,8 @@ export class AccountService
       let url : string;
       url = this.apiurl + this.account + id;
       console.log("getAccountDetail API URL: " + url);
-      return this.http.get(url).pipe( map((res:any) => res) );    
-   }    
+      return this.http.get(url).pipe( map((res:any) => res) );
+   }
 
    updateAccountStatementRef(id: number, statementref: string) : void
    {
@@ -209,7 +209,7 @@ export class AccountService
          console.log("updateAccountStatementRef: An error occured:" + JSON.stringify(err));
          } ,
       complete: ()=>{console.log("updateAccountStatementRef: completed");}
-      });      
+      });
    }
 
    postpdateAccountStatementRef(id: number, statementref: string) : Observable<string>
@@ -226,8 +226,8 @@ export class AccountService
       var headers = new HttpHeaders();
       headers = headers.set('Content-Type', 'application/json');
       headers = headers.set("Accept", "text/plain");
-      
-      return this.http.post(url, json, {headers: headers,  responseType: 'text'});       
+
+      return this.http.post(url, json, {headers: headers,  responseType: 'text'});
    }
 
    calcChecked(a : AccountItem) : Observable<TransactionItem>
@@ -235,7 +235,7 @@ export class AccountService
       let url : string;
       url = this.apiurl + this.calcchkbal + a.id;
       console.log("calcChecked API URL: " + url);
-      return this.http.get(url).pipe( map((res:any) => res) );      
+      return this.http.get(url).pipe( map((res:any) => res) );
    }
 
    // TODO: could combine this with getTransactions
@@ -243,7 +243,7 @@ export class AccountService
    {
       let url : string;
       url = this.apiurl + this.listchktxn + a.id + '/' + p;
-      return this.http.get(url).pipe( map((res:any) => res.transactions));      
+      return this.http.get(url).pipe( map((res:any) => res.transactions));
    }
 
    getCheckedBalance(a : AccountItem) : Observable<TransactionItem>
@@ -277,22 +277,22 @@ export class AccountService
       url = this.apiurl + this.addtxnsvc;
       console.log("addTransaction: POSTing to " + url + ": " + json);
 
-      // To prevent response being parsed as JSON must use responseType: 'text'. 
+      // To prevent response being parsed as JSON must use responseType: 'text'.
       // When responseType: 'text' is used the return value must not be a generic
       // type, ie. Observable<Response>, otherwise a incomprehensible compiler error
       // is generated.
       //
       // Now for the first time the clearing of the transaction entry screen is
       // actually working!!!
-        
+
       // Spring gives exception saying text/plain not supported so need to set content type to JSON
       var headers = new HttpHeaders();
       headers = headers.set('Content-Type', 'application/json');
       headers = headers.set("Accept", "text/plain");
-        
-      return this.http.post(url, json, {headers: headers,  responseType: 'text'}); 
+
+      return this.http.post(url, json, {headers: headers,  responseType: 'text'});
    }
-    
+
     updateTransaction(txn : TransactionItem) : Observable<string>
     {
         let json : string;
@@ -305,8 +305,8 @@ export class AccountService
         var headers = new HttpHeaders();
         headers = headers.set('Content-Type', 'application/json');
         headers = headers.set("Accept", "text/plain");
-        
-        return this.http.post(url, json, {headers: headers,  responseType: 'text'}); 
+
+        return this.http.post(url, json, {headers: headers,  responseType: 'text'});
     }
 
     deleteTransaction(txn : TransactionItem) : Observable<string>
@@ -321,8 +321,8 @@ export class AccountService
         var headers = new HttpHeaders();
         headers = headers.set('Content-Type', 'application/json');
         headers = headers.set("Accept", "text/plain");
-        
-        return this.http.post(url, json, {headers: headers,  responseType: 'text'}); 
+
+        return this.http.post(url, json, {headers: headers,  responseType: 'text'});
     }
 
     getVersion() : Observable<Version>
@@ -332,8 +332,8 @@ export class AccountService
         // A json object is returned containing the fields of Version - it is not returned as a named object in the response
         // thus 'res' is the Version object
         console.log("getVersion: API URL: " + url);
-        return this.http.get(url).pipe( map((res:any) => res) );    
-    }    
+        return this.http.get(url).pipe( map((res:any) => res) );
+    }
 
     getStandingOrders() : Observable<StandingOrderItem[]>
     {
@@ -341,7 +341,7 @@ export class AccountService
         url = this.apiurl + this.listsosvc;
         // The account items are returned wrapped in an array named accounts
         console.log("getAccount API URL: " + url);
-        return this.http.get(url).pipe( map((res:any) => res) );    
+        return this.http.get(url).pipe( map((res:any) => res) );
     }
 
     getStandingOrder(id : number) : Observable<StandingOrderItem>
@@ -350,7 +350,7 @@ export class AccountService
         url = this.apiurl + this.standingorder + id;
         // The account items are returned wrapped in an array named accounts
         console.log("getAccount API URL: " + url);
-        return this.http.get(url).pipe( map((res:any) => res) );    
+        return this.http.get(url).pipe( map((res:any) => res) );
     }
 
     addStandingOrder(soi : StandingOrderItem) : Observable<string>
@@ -366,10 +366,10 @@ export class AccountService
       var headers = new HttpHeaders();
       headers = headers.set('Content-Type', 'application/json');
       headers = headers.set("Accept", "text/plain");
-        
-      return this.http.post(url, json, {headers: headers,  responseType: 'text'});      
+
+      return this.http.post(url, json, {headers: headers,  responseType: 'text'});
     }
-    
+
    updateStandingOrder(soi : StandingOrderItem) : Observable<string>
    {
       let json : string;
@@ -382,10 +382,10 @@ export class AccountService
       var headers = new HttpHeaders();
       headers = headers.set('Content-Type', 'application/json');
       headers = headers.set("Accept", "text/plain");
-      
-      return this.http.post(url, json, {headers: headers,  responseType: 'text'}); 
+
+      return this.http.post(url, json, {headers: headers,  responseType: 'text'});
    }
- 
+
    deleteStandingOrder(item : StandingOrderItem) : Observable<string>
    {
        let json : string;
@@ -398,8 +398,8 @@ export class AccountService
        var headers = new HttpHeaders();
        headers = headers.set('Content-Type', 'application/json');
        headers = headers.set("Accept", "text/plain");
-       
-       return this.http.post(url, json, {headers: headers,  responseType: 'text'}); 
+
+       return this.http.post(url, json, {headers: headers,  responseType: 'text'});
    }
 
    getQRCode(epc: EPCtransaction) : Observable<any>
@@ -412,8 +412,8 @@ export class AccountService
       console.log("getQRCode: POSTing to " + url + ": " + json);
 
       var headers = new HttpHeaders();
-      headers = headers.set('Content-Type', 'application/json');      
-      return this.http.post(url, json, {headers: headers,  responseType: 'blob'}); 
+      headers = headers.set('Content-Type', 'application/json');
+      return this.http.post(url, json, {headers: headers,  responseType: 'blob'});
    }
 
    getTransferAccounts() : Observable<TransferAccountItem[]>
@@ -421,7 +421,7 @@ export class AccountService
        let url : string;
        url = this.apiurl + this.listtfraccs ;
        console.log("getTransferAccounts API URL: " + url);
-       return this.http.get(url).pipe( map((res:any) => res) );    
+       return this.http.get(url).pipe( map((res:any) => res) );
    }
 
    addTransferAccount(item : TransferAccountItem) : Observable<string>
@@ -437,8 +437,8 @@ export class AccountService
       var headers = new HttpHeaders();
       headers = headers.set('Content-Type', 'application/json');
       headers = headers.set("Accept", "text/plain");
-        
-      return this.http.post(url, json, {headers: headers,  responseType: 'text'});        
+
+      return this.http.post(url, json, {headers: headers,  responseType: 'text'});
    }
 
    updateTransferAccount(item : TransferAccountItem) : Observable<string>
@@ -453,8 +453,8 @@ export class AccountService
       var headers = new HttpHeaders();
       headers = headers.set('Content-Type', 'application/json');
       headers = headers.set("Accept", "text/plain");
-      
-      return this.http.post(url, json, {headers: headers,  responseType: 'text'});       
+
+      return this.http.post(url, json, {headers: headers,  responseType: 'text'});
    }
 
    deleteTransferAccount(item : TransferAccountItem) : Observable<string>
@@ -469,8 +469,8 @@ export class AccountService
        var headers = new HttpHeaders();
        headers = headers.set('Content-Type', 'application/json');
        headers = headers.set("Accept", "text/plain");
-       
-       return this.http.post(url, json, {headers: headers,  responseType: 'text'}); 
+
+       return this.http.post(url, json, {headers: headers,  responseType: 'text'});
    }
 
 

@@ -7,7 +7,7 @@ const dateFormatList: string = 'dd/MM/yy';
 const dateFormatPicker: string = 'dd/MM/yyyy';
 
 @Injectable()
-export class DateformatService 
+export class DateformatService
 {
 datefmt : string [];
    constructor(private datePipe: DatePipe)
@@ -17,7 +17,7 @@ datefmt : string [];
 
    public listFormat(jsondate : string) : string
    {
-      return this.datePipe.transform(jsondate, dateFormatList) ?? '';   
+      return this.datePipe.transform(jsondate, dateFormatList) ?? '';
    }
 
    public jsonFormat(date : Date) : string
@@ -27,28 +27,28 @@ datefmt : string [];
 
    public pickerFormat(date : Date) : string
    {
-      return this.datePipe.transform(date, dateFormatPicker) ?? '';   
+      return this.datePipe.transform(date, dateFormatPicker) ?? '';
    }
 
    // Unbelievable, no inbuilt Javascript, Typescript or Angular date parsing functionality
    // Seems Date.parse will handle YYYY-MM-DD and something like 'DD Mmmmmmm YYYY' OK
    // completely forks up 'DD/MM/YYYY'.
-   // Apparently there are libraries which might help but it appears that using regex 
-   // is the generally accepted way.... 
+   // Apparently there are libraries which might help but it appears that using regex
+   // is the generally accepted way....
    public parseDateString(datestr : string) : Date
    {
       let date : Date = new Date();
       // Wanted to parse the aa/bb/yyyy format date according to local custom, ie. dd/mm/yyyy,
       // so needed to determine the local date format... yet another trivial, everyday thing, which
-      // Angular/Javascript manages to fork up. Angular has a method which seems to perfect... 
-      // except that it is deprecated! The advice is to use Intl.DateTimeFormat - but they provide 
-      // no link to documentation and when you find it it turns out it doesn't return anything 
-      // like the expected string representation of the date format. Eventually I discovered the 
-      // trick in getDateFormatString on StackOverflow which gets a Date as its component parts and 
+      // Angular/Javascript manages to fork up. Angular has a method which seems to perfect...
+      // except that it is deprecated! The advice is to use Intl.DateTimeFormat - but they provide
+      // no link to documentation and when you find it it turns out it doesn't return anything
+      // like the expected string representation of the date format. Eventually I discovered the
+      // trick in getDateFormatString on StackOverflow which gets a Date as its component parts and
       // uses the part name to derive a format. The format is then used to map the results of the
       // regex into the appropriate day/month values.
       //
-      // I thought it would better to only accept a date when the same separator is used. 
+      // I thought it would better to only accept a date when the same separator is used.
       // Tried using
       //    /^(\d{1,2})(?<sep>[-.\/])(\d{1,2}?)\k<sep>(\d{4})?$/
       // which works. Note that using the lookback '\k' forces a capturing group to
@@ -61,8 +61,8 @@ datefmt : string [];
       //
       // NB. The regex tester site I used said that the '/' in the separator character classs ('[-./]')
       // must be escaped however the Javascript reference states:
-      //    The lexical grammar does a very rough parse of regex literals, so that it does not end the regex 
-      //    literal at a / character which appears within a character class. This means /[/]/ is valid without 
+      //    The lexical grammar does a very rough parse of regex literals, so that it does not end the regex
+      //    literal at a / character which appears within a character class. This means /[/]/ is valid without
       //    needing to escape the /.
       // [https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Character_class]
       // Also, for Javascript, the name of the capture group MUST be surrounded by angle brakets, '<name>',
@@ -109,35 +109,35 @@ datefmt : string [];
                }
             }
          }
-      }   
+      }
       if(date)
       {
          date.setHours(0,0,0,0);
       }
-      return date;   
+      return date;
    }
 
    // Hacky method to map result of regex to Date using the
    // date format in datefmt.
    // NB. If the year value is less than 3 characters it is assumed to
-   // be a year value in 2000. This wont work if the input array 
+   // be a year value in 2000. This wont work if the input array
    // is changed to numbers - conversion will need to be done prior to calling mapArrayToDate.
    // WARNING: assumes index of datevals starts at 1 (ie. result of regex)
    mapArrayToDate(datevals : string []) : Date
    {
       const map = new Map();
-      map.set(this.datefmt[0], datevals[1]);     
-      map.set(this.datefmt[1], datevals[2]);     
-      map.set(this.datefmt[2], datevals[3]); 
+      map.set(this.datefmt[0], datevals[1]);
+      map.set(this.datefmt[1], datevals[2]);
+      map.set(this.datefmt[2], datevals[3]);
 
       let m : number = +map.get('month');
       let d : number = +map.get('day');
-      let y : number = +map.get('year');    
+      let y : number = +map.get('year');
       if(map.get('year').length < 3)
       {
          y = y + 2000;
       }
-      return new Date(y, m-1, d);   
+      return new Date(y, m-1, d);
    }
 
    getDateFormatString(lang = 'default') :string[] {
@@ -145,7 +145,7 @@ datefmt : string [];
       // console.log("getDateFormatString: formatObj:" + JSON.stringify(formatObj, null, 2));
       return formatObj
         .filter(o => {
-            switch (o.type) 
+            switch (o.type)
             {
                case "day":
                case "month":
@@ -157,9 +157,9 @@ datefmt : string [];
          })
         .map(obj => obj.type)
         ;
-    }   
-   
-   getNowDay() : Date 
+    }
+
+   getNowDay() : Date
    {
       let date : Date = new Date(new Date().setHours(0,0,0,0));
       return date;
