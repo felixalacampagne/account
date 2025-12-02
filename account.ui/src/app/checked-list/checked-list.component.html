@@ -1,93 +1,93 @@
 <!-- account.ui/src/app/checked-list/checked-list.component.html -->
 <mat-card appearance="outlined">
-   <mat-card-header>
-      <mat-card-title>
-         <div class="title-card-left">Checked Transactions for {{activeaccount.name}}</div>
-         <div class="title-card-right">
-            <button *ngIf="isTransactions()" class="btn btn-outline-success btn-sm" (disabled)="checkLoading" (click)="calcCheckedBalance()" title="Recalculate checked balances">
-               <div *ngIf="!checkLoading">
-               <i class="bi bi-arrow-clockwise"></i>
-               </div>
-               <div *ngIf="checkLoading">
-                  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-               </div>
-            </button>
-            &nbsp;            
-            <button class="btn btn-outline-success btn-sm" [routerLink]="['/transactions', activeaccount.id]" title="transaction list">
-               <i class="bi bi-list"></i>
-            </button>
-         </div>
-      </mat-card-title>
-   </mat-card-header>
-   <mat-card-content>
-      <div class="transactions" *ngIf="isTransactions()">
-         <table mat-table [dataSource]="transactions" class="mat-elevation-z8">
-            <ng-container matColumnDef="date">
-               <th mat-header-cell *matHeaderCellDef>Date</th>
-               <td mat-cell *matCellDef="let txn">{{formatDateColumn(txn.date)}}</td>
-            </ng-container>
-            <ng-container matColumnDef="memo">
-               <th mat-header-cell *matHeaderCellDef>Memo</th>
-               <td mat-cell *matCellDef="let txn">{{txn.comment}}</td>
-            </ng-container>
-            <ng-container matColumnDef="ref">
-               <th mat-header-cell *matHeaderCellDef>Ref</th>
-               <td mat-cell *matCellDef="let txn">{{txn.statementref}}</td>
-            </ng-container>
-            <ng-container matColumnDef="amount">
-               <th mat-header-cell *matHeaderCellDef>Amount</th>
-               <td mat-cell [ngClass]="{'account-negamount': txn.amount.startsWith('-')}" *matCellDef="let txn">{{txn.amountfmtd}}</td>
-            </ng-container>
-            <ng-container matColumnDef="chkbal">
-               <th mat-header-cell *matHeaderCellDef>Chkd Bal</th>
-               <td mat-cell [ngClass]="{'account-negbalance': txn.balance.startsWith('-')}" *matCellDef="let txn">{{txn.balance}}</td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
-            <tr mat-row *matRowDef="let row; columns: columnsToDisplay;"></tr>
-         </table>
-         
-      <!-- should find a way to use Material instead of Bootstrap for this page but once again
-           the lack of comprehensible documentation for how to do this blocks me.
-
-           Google has not provided anything helpful for using bootstrap icons with mat-icon.
-           In fact there is virtually nothing useful at all for how to use it - the examples
-           at https://material.angular.io/components/icon/overview doesn't even work!
-           The examples don't refer to the requirement for something like
-             <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-           in index.html. Obviously that isn't going to work for an off-line page. So without some
-           help with using the icons that are already part of the package mat-icon is a non-starter.
-
-           I stumbled across this:
-           https://www.npmjs.com/package/material-symbols
-           where there is a reference to using it with mat-icon.
-           If it is available offline I'll give it a go...
-
-           npm install material-symbols@latest
-           or, for reduced size
-           npm install @material-symbols/svg-400@latest
-
-           and, of course, this does not work....
-
-           Forking Hell! Adding "import 'material-symbols';" to the .ts files makes it work!
-           Why the FORK don't they say this is needed in the instructions for Angular mat-icon!!!
-           It seems that somewhere completely unrelated to mat-icon they mention that "@import 'material-symbols';"
-           should be added to "styles.css"
-        -->
-         <div class="text-center text-md-left pt-2">
-            <div role="group">
-               <button mat-icon-button (click)="nextPage()" title="prev">
-                  <mat-icon fontSet="material-symbols-rounded">chevron_backward</mat-icon>
-               </button>
-               <button mat-icon-button (click)="prevPage()" title="next">
-                  <mat-icon fontSet="material-symbols-rounded">chevron_forward</mat-icon>
-               </button>
-               <button mat-icon-button (click)="firstPage()" title="latest">
-                  <mat-icon fontSet="material-symbols-rounded">last_page</mat-icon>
-               </button>
-            </div> 
-
-         </div>  
+  <mat-card-header>
+    <mat-card-title>
+      <div class="title-card-left">Checked Transactions for {{activeaccount.name}}</div>
+      <div class="title-card-right">
+        @if (isTransactions()) {
+          <button class="btn btn-outline-success btn-sm" (disabled)="checkLoading" (click)="calcCheckedBalance()" title="Recalculate checked balances">
+            @if (!checkLoading) {
+              <div>
+                <i class="bi bi-arrow-clockwise"></i>
+              </div>
+            }
+            @if (checkLoading) {
+              <div>
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              </div>
+            }
+          </button>
+        }
+        &nbsp;
+        <button class="btn btn-outline-success btn-sm" [routerLink]="['/transactions', activeaccount.id]" title="transaction list">
+          <i class="bi bi-list"></i>
+        </button>
       </div>
-   </mat-card-content>
+    </mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    @if (isTransactions()) {
+      <div class="transactions">
+        <table mat-table [dataSource]="transactions" class="mat-elevation-z8">
+          <ng-container matColumnDef="date">
+            <th mat-header-cell *matHeaderCellDef>Date</th>
+            <td mat-cell *matCellDef="let txn">{{formatDateColumn(txn.date)}}</td>
+          </ng-container>
+          <ng-container matColumnDef="memo">
+            <th mat-header-cell *matHeaderCellDef>Memo</th>
+            <td mat-cell *matCellDef="let txn">{{txn.comment}}</td>
+          </ng-container>
+          <ng-container matColumnDef="ref">
+            <th mat-header-cell *matHeaderCellDef>Ref</th>
+            <td mat-cell *matCellDef="let txn">{{txn.statementref}}</td>
+          </ng-container>
+          <ng-container matColumnDef="amount">
+            <th mat-header-cell *matHeaderCellDef>Amount</th>
+            <td mat-cell [ngClass]="{'account-negamount': txn.amount.startsWith('-')}" *matCellDef="let txn">{{txn.amountfmtd}}</td>
+          </ng-container>
+          <ng-container matColumnDef="chkbal">
+            <th mat-header-cell *matHeaderCellDef>Chkd Bal</th>
+            <td mat-cell [ngClass]="{'account-negbalance': txn.balance.startsWith('-')}" *matCellDef="let txn">{{txn.balance}}</td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="columnsToDisplay"></tr>
+          <tr mat-row *matRowDef="let row; columns: columnsToDisplay;"></tr>
+        </table>
+        <!-- should find a way to use Material instead of Bootstrap for this page but once again
+        the lack of comprehensible documentation for how to do this blocks me.
+        Google has not provided anything helpful for using bootstrap icons with mat-icon.
+        In fact there is virtually nothing useful at all for how to use it - the examples
+        at https://material.angular.io/components/icon/overview doesn't even work!
+        The examples don't refer to the requirement for something like
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        in index.html. Obviously that isn't going to work for an off-line page. So without some
+        help with using the icons that are already part of the package mat-icon is a non-starter.
+        I stumbled across this:
+        https://www.npmjs.com/package/material-symbols
+        where there is a reference to using it with mat-icon.
+        If it is available offline I'll give it a go...
+        npm install material-symbols@latest
+        or, for reduced size
+        npm install @material-symbols/svg-400@latest
+        and, of course, this does not work....
+        Forking Hell! Adding "import 'material-symbols';" to the .ts files makes it work!
+        Why the FORK don't they say this is needed in the instructions for Angular mat-icon!!!
+        It seems that somewhere completely unrelated to mat-icon they mention that "@import 'material-symbols';"
+        should be added to "styles.css"
+        -->
+        <div class="text-center text-md-left pt-2">
+          <div role="group">
+            <button mat-icon-button (click)="nextPage()" title="prev">
+              <mat-icon fontSet="material-symbols-rounded">chevron_backward</mat-icon>
+            </button>
+            <button mat-icon-button (click)="prevPage()" title="next">
+              <mat-icon fontSet="material-symbols-rounded">chevron_forward</mat-icon>
+            </button>
+            <button mat-icon-button (click)="firstPage()" title="latest">
+              <mat-icon fontSet="material-symbols-rounded">last_page</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </mat-card-content>
 </mat-card>

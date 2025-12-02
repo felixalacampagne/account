@@ -48,6 +48,8 @@ export class AccountService
    private deltfracc   : string = "deletetransferaccount";
    private accinf : string = "accinf/";
 
+   private apiext: string = "";
+
    public periodTypes = [
       {period: "D", desc: "Day"},
       {period: "W", desc: "Week"},
@@ -92,13 +94,18 @@ export class AccountService
       // window.location
       //    .host     gives server and port (in theory)
       //    .origin   gives the protocol, hostname and port number of a URL
-      if((typeof environment.accountapi_host !== 'undefined') && (environment.accountapi_host))
+      if(environment.accountapi_host)
       {
          this.serverhost = environment.accountapi_host;
       }
       else
       {
          this.serverhost = window.location.origin;
+      }
+
+      if( environment.accountapi_ext)
+      {
+         this.apiext = environment.accountapi_ext;
       }
       this.accountapiapp = environment.folder + environment.accountapi_app;
       this.apiurl = this.serverhost + this.accountapiapp
@@ -119,7 +126,7 @@ export class AccountService
    getAccounts() : Observable<AccountItem[]>
    {
      let url : string;
-     url = this.apiurl + this.listaccsvc;
+     url = this.makeApiname(this.listaccsvc);
      // The account items are returned wrapped in an array named accounts
      console.log("getAccount API URL: " + url);
      return this.http.get(url).pipe( map((res:any) => res.accounts) );
@@ -128,7 +135,7 @@ export class AccountService
    getAccount(id : number) : Observable<AccountItem>
    {
      let url : string;
-     url = this.apiurl + this.account + id;
+     url = this.makeApiname(this.account + id);
      console.log("getAccount API URL: " + url);
      return this.http.get(url).pipe( map((res:any) => res) );
    }
@@ -136,7 +143,7 @@ export class AccountService
    getAccountDetails(): Observable<AccountDetail[]>
    {
       let url : string;
-      url = this.apiurl + this.listaccinf;
+      url = this.makeApiname(this.listaccinf);
       // The account items are returned wrapped in an array named accounts
       console.log("getAccountDetails API URL: " + url);
       return this.http.get(url).pipe( map((res:any) => res) );
@@ -194,7 +201,7 @@ export class AccountService
    getAccountDetail(id : number) : Observable<AccountDetail>
    {
       let url : string;
-      url = this.apiurl + this.account + id;
+      url = this.makeApiname(this.account + id);
       console.log("getAccountDetail API URL: " + url);
       return this.http.get(url).pipe( map((res:any) => res) );
    }
@@ -233,7 +240,7 @@ export class AccountService
    calcChecked(a : AccountItem) : Observable<TransactionItem>
    {
       let url : string;
-      url = this.apiurl + this.calcchkbal + a.id;
+      url = this.makeApiname(this.calcchkbal + a.id);
       console.log("calcChecked API URL: " + url);
       return this.http.get(url).pipe( map((res:any) => res) );
    }
@@ -242,28 +249,28 @@ export class AccountService
    getCheckedTransactions(a : AccountItem, p: number = 0) : Observable<TransactionItem[]>
    {
       let url : string;
-      url = this.apiurl + this.listchktxn + a.id + '/' + p;
+      url = this.makeApiname(this.listchktxn + a.id + '/' + p);
       return this.http.get(url).pipe( map((res:any) => res.transactions));
    }
 
    getCheckedBalance(a : AccountItem) : Observable<TransactionItem>
    {
       let url : string;
-      url = this.apiurl + this.getchktxn + a.id;
+      url = this.makeApiname(this.getchktxn + a.id);
       return this.http.get(url).pipe( map((res:any) => res));
    }
 
    getAccountsForTransfer(a : AccountItem) : Observable<TfrAccountItem[]>
    {
       let url : string;
-      url = this.apiurl + this.accsfortfr + a.id;
+      url = this.makeApiname(this.accsfortfr + a.id);
       return this.http.get(url).pipe( map((res:any) => res));
    }
 
    getTransactions(a : AccountItem, p: number = 0, r: number = 15) : Observable<Transactions>
    {
       let url : string;
-      url = this.apiurl + this.listtxnsvc + a.id + '/' + p + "?rows=" + r;
+      url = this.makeApiname(this.listtxnsvc + a.id + '/' + p) + "?rows=" + r;
       // The items are returned wrapped in an array named transactions
       return this.http.get(url).pipe( map((res:any) => res));
    }
@@ -328,17 +335,17 @@ export class AccountService
     getVersion() : Observable<Version>
     {
         let url : string;
-        url = this.apiurl + this.versionsvc;
+        url = this.makeApiname(this.versionsvc);
         // A json object is returned containing the fields of Version - it is not returned as a named object in the response
         // thus 'res' is the Version object
         console.log("getVersion: API URL: " + url);
-        return this.http.get(url).pipe( map((res:any) => res) );
+        return this.http.get<Version>(url).pipe( map((res:any) => res) );
     }
 
     getStandingOrders() : Observable<StandingOrderItem[]>
     {
         let url : string;
-        url = this.apiurl + this.listsosvc;
+        url = this.makeApiname(this.listsosvc);
         // The account items are returned wrapped in an array named accounts
         console.log("getAccount API URL: " + url);
         return this.http.get(url).pipe( map((res:any) => res) );
@@ -347,7 +354,7 @@ export class AccountService
     getStandingOrder(id : number) : Observable<StandingOrderItem>
     {
         let url : string;
-        url = this.apiurl + this.standingorder + id;
+        url = this.makeApiname(this.standingorder + id);
         // The account items are returned wrapped in an array named accounts
         console.log("getAccount API URL: " + url);
         return this.http.get(url).pipe( map((res:any) => res) );
@@ -419,7 +426,7 @@ export class AccountService
    getTransferAccounts() : Observable<TransferAccountItem[]>
    {
        let url : string;
-       url = this.apiurl + this.listtfraccs ;
+       url = this.makeApiname(this.listtfraccs) ;
        console.log("getTransferAccounts API URL: " + url);
        return this.http.get(url).pipe( map((res:any) => res) );
    }
@@ -473,5 +480,21 @@ export class AccountService
        return this.http.post(url, json, {headers: headers,  responseType: 'text'});
    }
 
-
+   makeApiname(api : string) : string
+   {
+      // Since Angular 20 files in the assets directory without an extension are served
+      // with garbage at the end of the file making them unparsable as JSON files.
+      // One workaround is to handle every response as a pure text, remove the garbage
+      // and then parse as JSON (used by sattimers). This is a very annoying thing to
+      // need to do for all the api of account and defeats the purpose of having the
+      // parsing handled automatically.
+      //
+      // It appears that giving the test data file and extension of .json prevents the
+      // garbage from being appended to the respone and thus allows the automatic
+      // to be performed. Obviously the actual apis should not be given an extension
+      // but using the environment file allows the extension to be added only when
+      // running in the backend less test environment. It still requires all api calls
+      // to be updated but not as annoying as converting everything to text.
+      return this.apiurl + api + this.apiext;
+   }
 }

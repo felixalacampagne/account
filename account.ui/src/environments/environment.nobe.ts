@@ -6,5 +6,6 @@ export const environment = {
   accountapi_app: "/accountapi/",
   envName: ' (NODB)',
   uiversion: ' dbal',
-  folder: '/assets'  
+  folder: '/assets',
+  accountapi_ext: ".json"
 };

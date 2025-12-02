@@ -9,5 +9,6 @@ export const environment = {
   accountapi_app: "/",
   envName: ' (home)',
   uiversion: ' ng18',
-  folder: ''
+  folder: '',
+  accountapi_ext: ''
 };

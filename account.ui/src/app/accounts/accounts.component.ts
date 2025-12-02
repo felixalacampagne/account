@@ -1,5 +1,5 @@
 // src/app/accounts/accounts.component.ts
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DeviceDetectorService } from 'ngx-device-detector';
@@ -10,7 +10,7 @@ import { AccountEditMatDialog } from '../account-edit-mat/account-edit-mat.dialo
 
 @Component({
     selector: 'accounts',
-    imports: [CommonModule],
+    imports: [],
     templateUrl: './accounts.component.html',
     styleUrls: [
       '../../sass/account-styles.scss',

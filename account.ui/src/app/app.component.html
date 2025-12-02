@@ -8,33 +8,35 @@ what I believe is called a 'directive' which makes it a little easier to read.
 
 Still don't understand whether the 'nav' tag is needed - some ng-bootstrap
 examples have it, some don't, instead they put the ngbNav on the 'ul'. Then
-the app title would be outside the ul so maybe the 'nav' actually defines the 
+the app title would be outside the ul so maybe the 'nav' actually defines the
 bar across the top of the page...
- -->
- <nav ngbNav class="navbar navbar-expand-sm navbar-dark bg-dark">
+-->
+<nav ngbNav class="navbar navbar-expand-sm navbar-dark bg-dark">
 
-    <li ngbDropdown>
-      <button ngbDropdownToggle class="btn btn-sm btn-dark remove-caret" id="btnMenu"><span class="navbar-toggler-icon"></span></button>
-      <div ngbDropdownMenu class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-         <button ngbDropdownItem routerLink="/standingorders">Standing Orders</button>
-         <button ngbDropdownItem routerLink="/transferaccounts">Transfer Accounts</button>
-         <button ngbDropdownItem routerLink="/accounts">Account details</button>
-         <button ngbDropdownItem routerLink="/">Extracts aka. Search (eventually)</button>
-      </div>
-    </li>  
-    <li ngbDropdown>
-        <button ngbDropdownToggle class="btn btn-sm btn-dark" id="btnAccounts">Accounts</button>
-        <div ngbDropdownMenu aria-labelledby="btnAccounts">
-          <button ngbDropdownItem *ngFor="let a of accounts" [routerLink]="['transactions', a.id]">{{a.name}}</button>
-        </div>
-    </li>
+  <li ngbDropdown>
+    <button ngbDropdownToggle class="btn btn-sm btn-dark remove-caret" id="btnMenu"><span class="navbar-toggler-icon"></span></button>
+    <div ngbDropdownMenu class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+      <button ngbDropdownItem routerLink="/standingorders">Standing Orders</button>
+      <button ngbDropdownItem routerLink="/transferaccounts">Transfer Accounts</button>
+      <button ngbDropdownItem routerLink="/accounts">Account details</button>
+      <button ngbDropdownItem routerLink="/">Extracts aka. Search (eventually)</button>
+    </div>
+  </li>
+  <li ngbDropdown>
+    <button ngbDropdownToggle class="btn btn-sm btn-dark" id="btnAccounts">Accounts</button>
+    <div ngbDropdownMenu aria-labelledby="btnAccounts">
+      @for (a of accounts; track a) {
+        <button ngbDropdownItem [routerLink]="['transactions', a.id]">{{a.name}}</button>
+      }
+    </div>
+  </li>
 
-  
+
   <div class="ms-auto order-last">
-      <a class="navbar-brand fs-7" href="#">{{title}}<small> {{versiontxt}}</small></a>
+    <a class="navbar-brand fs-7" href="#">{{title}}<small> {{versiontxt}}</small></a>
   </div>
 </nav>
 
 <div class="page">
-<router-outlet></router-outlet>
+  <router-outlet></router-outlet>
 </div>

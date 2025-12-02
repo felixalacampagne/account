@@ -1,5 +1,5 @@
 // standingorders/standingorders.component.ts
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, OnInit } from '@angular/core';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import { StandingOrderItem } from '../../shared/model/standingorderitem.model';
@@ -18,7 +18,7 @@ export interface DialogData {
 
 @Component({
     selector: 'standingorders',
-    imports: [CommonModule],
+    imports: [],
     templateUrl: './standingorders.component.html',
     styleUrls: ['../../sass/account-styles.scss',
         '../app.component.css',
