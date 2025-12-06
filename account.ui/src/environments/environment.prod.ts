@@ -5,7 +5,7 @@ export const environment = {
   accountapi_host: "", // http://minnie",
   accountapi_app: "/jaccountapi/",
   envName: ' (JLIVE)',
-  uiversion: '',
+  uiversion: ' ng21',
   folder: '',
   accountapi_ext: ''
 };
