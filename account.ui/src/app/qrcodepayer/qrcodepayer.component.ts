@@ -1,12 +1,12 @@
 import { Component, ElementRef, Input, OnInit, SimpleChanges, ViewChild } from '@angular/core';
-import { CommonModule, JsonPipe } from '@angular/common';
+import { JsonPipe } from '@angular/common';
 import { EPCtransaction } from 'src/shared/model/epctransaction.model';
 import { AccountService } from 'src/shared/service/account.service';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Component({
     selector: 'qrcodepayer',
-    imports: [CommonModule],
+    imports: [],
     templateUrl: './qrcodepayer.component.html',
     styleUrl: './qrcodepayer.component.css'
 })

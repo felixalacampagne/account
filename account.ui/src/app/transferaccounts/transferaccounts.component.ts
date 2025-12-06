@@ -1,5 +1,5 @@
 // src/app/transferaccounts/transferaccounts.component.ts
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { DeviceDetectorService } from 'ngx-device-detector';
@@ -12,7 +12,7 @@ import { TransferAccountDeleteConfirmDialog } from './transferaccountdel-confirm
 
 @Component({
     selector: 'transferaccounts',
-    imports: [CommonModule],
+    imports: [],
     templateUrl: './transferaccounts.component.html',
     styleUrls: ['../../sass/account-styles.scss',
         '../app.component.css',
