@@ -1,3 +1,107 @@
+## Recovery from corruption of MySQL docker container.
+
+- Change the volume mapping of /var/lib/mysql/ to a non-existing directory and start the mysql the container.
+This will initialize the data structures for the first time.
+- Connect a shell to the MySQL docker container.
+- From the docker shell:
+```
+$ mysql -u root -p
+Enter password: [Enter]
+
+mysql> ALTER USER 'root'@'%' IDENTIFIED BY '<password>';
+mysql> select host, user from mysql.user;
++-----------+------------------+
+| host      | user             |
++-----------+------------------+
+| %         | root             |
+| localhost | mysql.infoschema |
+| localhost | mysql.session    |
+| localhost | mysql.sys        |
++-----------+------------------+
+```
+- Connect to the new DB with MySQL workbench. If <password> is the same as before any old settings should work OK.
+- Locate the account backup directory (\\<tomcathost>\Development\accountDB\mysqlbackup).
+  Unzip the most recent zip file. The content should be a single .sql file.
+- Restore the account database from the backup file 
+  - Server > Data Import > Import from Disk > Import from self-contained file
+    - Provide the path to the single SQL file from the zip
+    - Create new default target schema: accountmysql
+    - Switch to Import Progress tab and click Start/Import
+- Create the account user, it is not part of the backup:
+  - Administration (left side, next to Schemas)
+  - Users and Privileges > Add Account (button)
+    - User: account
+    - Hosts: %
+    - Password: (from \\<tomcathost>\<tomcathome>\conf\accountmysql-local.properties)
+    - Account Limits (tab)
+        - Max.Queries: 0
+        - Max.Updates: 0
+        - Max.Connections: 0
+        - Concurrent Connections: 0
+    - Schema Privileges (tab)
+        - Add Entry...: % 
+        - Apply (button)
+
+DB should now be ready to restart the tomcat - cross fingers, pray if you think it will help...
+
+# History
+## 06 Jan 2026 NAS upgrade killed MySQL docker
+
+Account was running fine using the dockered MySQL db.
+The MySQL docker container had been restarted multiple times without a problem.
+Then the NAS said it needed to update and I unwisely allowed it to do so since
+it wasn't the first time and previous updates went OK.
+
+Not this time. The MySQL container keeps re-starting/crashing.
+
+The log contains the following:
+
+```
+2026-01-06 16:48:12+00:00 [Note] [Entrypoint]: Switching to dedicated user 'mysql'
+2026-01-06 16:48:12+00:00 [Note] [Entrypoint]: Entrypoint script for MySQL Server 8.4.6-1.el9 started.
+2026-01-06 16:48:12+00:00 [Note] [Entrypoint]: Initializing database files
+mysqld: Can't create directory '/var/lib/mysql/' (OS errno 17 - File exists)
+2026-01-06T16:48:12.310901Z 0 [System] [MY-015017] [Server] MySQL Server Initialization - start.
+2026-01-06T16:48:12.312601Z 0 [System] [MY-013169] [Server] /usr/sbin/mysqld (mysqld 8.4.7) initializing of server in progress as process 80
+2026-01-06T16:48:12.314275Z 0 [ERROR] [MY-013236] [Server] The designated data directory /var/lib/mysql/ is unusable. You can remove all files that the server added to it.
+2026-01-06T16:48:12.314299Z 0 [ERROR] [MY-010119] [Server] Aborting
+2026-01-06T16:48:12.314723Z 0 [System] [MY-015018] [Server] MySQL Server Initialization - end.
+```
+
+I have no clue what to do about this. Of course the forking /var/lib/mysql/ directory exists - it's where
+the database is!
+
+Google suggests it's a permission thing. Tried SSHing to the NAS and making the mapped directory and
+contents RW for everyone. No change.
+
+Can't create a shell in the container to checkout the permissions as it stops immediately. Anyway, there is
+no reason for the stuff in the container to be any different than it was before.
+
+Tried updating the MySQL docker image. No change.
+
+Tried changing the mapping of /var/lib/mysql/ to a new directory. The container starts up and creates
+a bunch of files but obviously without the account db. The container can then be restarted without a problem.
+
+So it looks like I'm going to have to start from scratch again... and hope the backup has been working correctly or that I can somehow import the original db files...
+
+
+Obviously would be nice to know what went wrong with the original DB but I doubt I will ever know.
+Some more googling suggests it is a permission issue related to the mapped drive being shared which 
+makes no sense since the original directory was working across many container restarts and the newly
+created directory also works across container restarts. From an SSH shell into the NAS the external 
+permissions for both old and new directories appear to be the same. Of course with Unix nothing is ever
+what it seems and there could be some hidden permission that it is impossible to see which is affecting the
+behaviour. Google also suggests that using MariaDB might solve this kind of issue but if it really is a 
+permission problem then it is hard to see how it could avoid the same problem. Maybe need to move the
+data directory to an non-shared directory, which is going to be hard as everything is shared! There is also
+the question of what the MYSQL_USER/PASSWORD values are referring to - do I need to create a NAS user and
+provide that, and maybe put the data dir in the users home, which I don't want since the homes are on the
+wrong volumne. Aaaaghhhh! Maybe it would be better to change DB again to one less likely to suffer from 
+this nonesense...
+
+
+### 17 Oct 2025 Initial MySQL setup
+
 Ended up having to use a mysql docker image as that was the only recent version available.
 Since MySQL requires a server, unlike Access or H2, then having it in docker on the NAS to start with makes sense.
 
@@ -20,7 +124,7 @@ and it appeared to work ok.
 
 Tried to connect from windows using 
 
-mysql -u root -h berv8362 -p
+mysql -u root -h <nashost> -p
 
 and it cannot connect.
 
@@ -89,12 +193,12 @@ So
 ```
 
  - set root password like    
-   mysql> ALTER USER 'root'@'%' IDENTIFIED BY 'Abcd1234';  
+   mysql> ALTER USER 'root'@'%' IDENTIFIED BY '<password>';  
    
    Workbench should then be able to access the server from a remote machine
    
    Might also be required to change the 'other' root entry. Probably better to keep the passwords the same.
-   mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY 'Abcd1234';
+   mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY '<password>';
 
 Using the workbench create a user for the account DB
    I chose 'account'
@@ -124,7 +228,7 @@ First attempt gives: Loading local data is disabled;
 Can be fixed with
 
 mysql> SET GLOBAL local_infile=1;
-SHOW GLOBAaccountL VARIABLES LIKE 'local_infile';
+SHOW GLOBAL VARIABLES LIKE 'local_infile';
 
 After much Googling and cursing I finally got the client side to allow the local infiles; allowLoadLocalInfile=true
 https://dev.mysql.com/doc/connector-j/en/connector-j-connp-props-security.html
