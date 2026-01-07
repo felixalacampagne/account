@@ -8,7 +8,7 @@ This will initialize the data structures for the first time.
 $ mysql -u root -p
 Enter password: [Enter]
 
-mysql> ALTER USER 'root'@'%' IDENTIFIED BY '<password>';
+mysql> ALTER USER 'root'@'%' IDENTIFIED BY '[password]';
 mysql> select host, user from mysql.user;
 +-----------+------------------+
 | host      | user             |
@@ -20,7 +20,7 @@ mysql> select host, user from mysql.user;
 +-----------+------------------+
 ```
 - Connect to the new DB with MySQL workbench. If <password> is the same as before any old settings should work OK.
-- Locate the account backup directory (\\<tomcathost>\Development\accountDB\mysqlbackup).
+- Locate the account backup directory (\\\\[tomcathost]\\Development\\accountDB\\mysqlbackup).
   Unzip the most recent zip file. The content should be a single .sql file.
 - Restore the account database from the backup file 
   - Server > Data Import > Import from Disk > Import from self-contained file
@@ -32,7 +32,7 @@ mysql> select host, user from mysql.user;
   - Users and Privileges > Add Account (button)
     - User: account
     - Hosts: %
-    - Password: (from \\<tomcathost>\<tomcathome>\conf\accountmysql-local.properties)
+    - Password: (from \\\\[tomcathost]\\[tomcathome]\\conf\\accountmysql-local.properties)
     - Account Limits (tab)
         - Max.Queries: 0
         - Max.Updates: 0
