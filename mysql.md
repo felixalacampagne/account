@@ -1,9 +1,47 @@
-## Recovery from corruption of MySQL docker container.
+## Create dump file before any sort of system or image update
 
-- Change the volume mapping of /var/lib/mysql/ to a non-existing directory and start the mysql the container.
-This will initialize the data structures for the first time.
-- Connect a shell to the MySQL docker container.
-- From the docker shell:
+It seems that the MySQL container/database is extremely fragile and ridiculously sensitive to any
+sort of change in the environment - typical Oracle ballshirt. Therefore it is required that a
+database dump is created before any update of the NAS software or the docker image, preferably
+any update whatsoever of the system.
+
+Database dumps can be created via the Workbench Export command. It is reasonably self-explanatory:
+- only dump the 'user' databases, not the sys ones
+- choose single file, single transaction
+- create schema
+- save it somewhere on the NAS, not in the default Windows user directory
+
+Database dumps can also be created via the container console command line using something like
+```
+mysqldump --all-databases -uroot -p"$MYSQL_ROOT_PASSWORD" > /some/path/on/your/host/all-databases.sql
+```
+Note that this dumps all databases, including sys. Haven't figured out yet how to replicate the
+criteria used for the Workbench export.
+
+## Recovery from corruption of MySQL docker container.
+There is no way to diagnose why the MySQL container fails to start, eg. due to 'File exists' error.
+The only solution is to create a new container and initialize a new data followed by an import of
+the last backup file. Hopefully I wont need to do this often so having a set of instructions to follow
+will make it easier.
+
+Note that I have not figured out how to use Portainer to create a new container from a downloaded image so
+use the NAS docker interface if this is required. Normally it is not necessary.
+
+These instructions assume that Portainer is being used.
+- Create a to a new, empty data directory in the docker/mysql shared directory. Since the Jan 2026 NAS update it
+  appears that the data directory must be in the 'docker' shared directory otherwise the 'File exists' error occurs.
+- Edit/duplicate the corrupt container definition
+- Optionally change the name of the container to indicate it is different to the corrupted version.
+- Change the volume mapping of /var/lib/mysql/ to new data directory.
+- Set the value of environment variable MYSQL_ROOT_PASSWORD if desired. This avoids needing to use the docker shell
+  to run mysql and set a new root password but is a security vulnerability if the password is not changed or the
+  env.var. not removed after the database is initialized.
+- Start the container. This should initialize the database structures for the first time. Check the log for issues.
+- If MYSQL_ROOT_PASSWORD was set then stop the container, remove/change the value, restart the container. Check
+  the log.
+- If MYSQL_ROOT_PASSWORD was NOT set then a root password must be configured by the mysql command line:
+  - Connect a console shell to the MySQL docker container.
+  - From the docker shell:
 ```
 $ mysql -u root -p
 Enter password: [Enter]
@@ -22,7 +60,7 @@ mysql> select host, user from mysql.user;
 - Connect to the new DB with MySQL workbench. If <password> is the same as before any old settings should work OK.
 - Locate the account backup directory (\\\\[tomcathost]\\Development\\accountDB\\mysqlbackup).
   Unzip the most recent zip file. The content should be a single .sql file.
-- Restore the account database from the backup file
+- Restore the account database from the backup file or from a dump file
   - Server > Data Import > Import from Disk > Import from self-contained file
     - Provide the path to the single SQL file from the zip
     - Create new default target schema: accountmysql
@@ -44,6 +82,7 @@ mysql> select host, user from mysql.user;
         - Apply (button)
 
 DB should now be ready to restart the tomcat - cross fingers, pray if you think it will help...
+
 
 # History
 
