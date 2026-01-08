@@ -11,12 +11,17 @@ Database dumps can be created via the Workbench Export command. It is reasonably
 - create schema
 - save it somewhere on the NAS, not in the default Windows user directory
 
-Database dumps can also be created via the container console command line using something like
+Database dumps can also be created via the container console 'mysqldump' command (see https://dev.mysql.com/doc/refman/8.4/en/mysqldump.html).
+The command is something like:
 ```
-mysqldump --all-databases -uroot -p"$MYSQL_ROOT_PASSWORD" > /some/path/on/your/host/all-databases.sql
+mysqldump --databases accountmysql --result-file=/var/lib/mysql/accountmysql.sql -uroot -p"$MYSQL_ROOT_PASSWORD"
 ```
-Note that this dumps all databases, including sys. Haven't figured out yet how to replicate the
-criteria used for the Workbench export.
+Warning: output file path needs to be visible outside of the container so must use a mapped volume of which 
+there is only one by default, ie. the data directory. If this is the option used normally then a dedicated mapped
+volume should be added to the container.
+
+Haven't figured out yet how to replicate the criteria used for the Workbench export so probably better to use
+the Workbench to ensure compatibility with the Workbench import.
 
 ## Recovery from corruption of MySQL docker container.
 There is no way to diagnose why the MySQL container fails to start, eg. due to 'File exists' error.
