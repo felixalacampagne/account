@@ -46,6 +46,7 @@ export class AccountService
    private addtfracc  : string = "addtransferaccount";
    private updtfracc : string = "updatetransferaccount";
    private deltfracc   : string = "deletetransferaccount";
+   private listtxntypes : string = "listtxntypes";
    private accinf : string = "accinf/";
 
    private apiext: string = "";
@@ -121,6 +122,15 @@ export class AccountService
    listenAccountModified(callback: (value: number) => void) : OutputRefSubscription
    {
       return this.accountChanged.subscribe(callback);
+   }
+
+   listTransactionTypes() : Observable<string[]>
+   {
+     let url : string;
+     url = this.makeApiname(this.listtxntypes);
+     // The account items are returned wrapped in an array named accounts
+     console.log("listTransactionTypes API URL: " + url);
+     return this.http.get(url).pipe( map((res:any) => res.accounts) );
    }
 
    getAccounts() : Observable<AccountItem[]>
