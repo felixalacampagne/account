@@ -43,6 +43,8 @@ import com.felixalacampagne.account.service.TransactionService.BalanceType;
 public class AccountController {
    public final static String URL_GREETING = "/greeting";
    public final static String URL_VERSION = "/version";
+   public final static String URL_TXNTYPES = "/listtxntypes";
+
    public final static String URL_GETACCOUNTSSHORT = "/listaccount";
    public final static String URL_GETONEACCOUNT = "/account";
    public final static String URL_GETACCOUNTSFORTFR = "/accsfortfr";
@@ -118,6 +120,12 @@ public class AccountController {
     public Accounts getAccounts()
     {
        return this.accountService.getAccounts();
+    }
+
+    @GetMapping(URL_GETACCOUNTSFORTFR)
+    public List<String> getTransactionTypes()
+    {
+       return this.accountService.getTransactionTypes();
     }
 
     @GetMapping(URL_GETONEACCOUNT + "/{id}")

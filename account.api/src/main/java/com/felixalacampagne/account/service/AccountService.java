@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,9 @@ public class AccountService
    private final PhoneAccountJpaRepository phoneAccountJpaRepository;
    private final TransactionJpaRepository transactionJpaRepository;
    private final ConnectionResurrector<AccountJpaRepository> connectionResurrector;
+
+   @Value("#{'${falc.account.txntypes}'.split(',')}")
+   private List<String> txnTypes;
 
    @Autowired
    public AccountService(AccountJpaRepository accountJpaRepository,
@@ -174,6 +178,13 @@ public class AccountService
 
       this.accountJpaRepository.delete(account);
       log.info("deleteAccount: account id:{} desc:{} deleted", account.getAccId(), account.getAccDesc());
+   }
+
+   public List<String> getTransactionTypes()
+   {
+      // TODO: find a way to reload the properties files. Maybe need to put the
+      // types in a separate file
+      return this.txnTypes;
    }
 
    private AccountDetail mapToDetail(Account acc)

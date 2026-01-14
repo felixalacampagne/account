@@ -46,4 +46,12 @@ class AccountServiceTest
       assertFalse(tfraccs.stream().anyMatch(a -> (a.getId() == 22L)) , "Source account should not be in the list");
    }
 
+   @Test
+   void transactionTypes()
+   {
+      List<String> types = this.accountService.getTransactionTypes();
+      log.info("transactionTypes: no. types: {}", types.size());
+      assertFalse(types.isEmpty(), "There must be some types in the list");
+   }
+
 }
