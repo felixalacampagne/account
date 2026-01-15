@@ -19,6 +19,6 @@ export class TransferaccountEditMatDialog {
      closeDialog(event: any)
      {
         console.log("closeDialog: request to close received: " + JSON.stringify(event, null, 2));
-        this.dialogRef.close(event);      
-     }  
+        this.dialogRef.close(event);
+     }
 }

@@ -1,6 +1,6 @@
 // src/sass/custom-theme.scss
 // Been going around in circles trying to figure out to apply the standard 'color variants'
-// to a specific button using material 19 (aka M3). There is not a single example of real 
+// to a specific button using material 19 (aka M3). There is not a single example of real
 // HTML code displaying a warning button using anything other than the old, deprecated and no
 // longer usable 'color' attribute.
 // I can't even find anything that describes what is required to use a pre-built theme - everything
@@ -32,9 +32,9 @@ html {
  {
    font-family: 'Roboto Flex Variable', Roboto, 'Open Sans', sans-serif;
    background: var(--mat-sys-surface);
-   color: var(--mat-sys-on-surface);   
+   color: var(--mat-sys-on-surface);
    // Apparently there are no standard classes for the standard color variants anymore.
    .mat-error {
       background-color: var(--mat-sys-error) !important;
-     }   
+     }
 }

@@ -18,7 +18,7 @@ import { DateformatService } from 'src/shared/service/dateformat.service';
 import { MatIconModule } from '@angular/material/icon';
 
 @Injectable()
-export class FormatingDateAdapter extends NativeDateAdapter 
+export class FormatingDateAdapter extends NativeDateAdapter
 {
    // The POS angular18 documentation says that providing a MatDateFormats is the
    // way to get the correct format displayed by the MatDatepickerModule.
@@ -33,17 +33,17 @@ export class FormatingDateAdapter extends NativeDateAdapter
    // first place - yet another fours wasted away for angular and it's shirty inability
    // to provide the very basic of basic functionality such as a correctly formatted date.
 
-   constructor(private dateFmt: DateformatService) 
+   constructor(private dateFmt: DateformatService)
    {
-      super();   
+      super();
    }
 
    override parse(value: any, parseFormat: any): Date {
       //console.log("FormatingDateAdapter.format: value=" + value + " parseFormat=" + parseFormat);
-      
+
       return this.dateFmt.parseDateString(value);
    }
-   override format(date: Date, displayFormat: Object): string 
+   override format(date: Date, displayFormat: Object): string
    {
       let ret : string;
       ret = this.dateFmt.pickerFormat(date) ?? '';
@@ -88,7 +88,7 @@ export const ISO_DATE_FORMAT : MatDateFormats = {
     ]
 })
 
-export class SoEditMatComponent 
+export class SoEditMatComponent
 {
    @Input() origSOitem: StandingOrderItem | undefined;
    @Output() public submittedEvent = new EventEmitter();
@@ -106,19 +106,19 @@ export class SoEditMatComponent
       this.soForm = new FormGroup({
          soentrydate: new FormControl('', Validators.required),       // a date picker
          sonextpaydate: new FormControl('', Validators.required),     // a date picker
-         soamount: new FormControl(null as unknown as number, 
+         soamount: new FormControl(null as unknown as number,
             [
                Validators.required,
                Validators.pattern(/^-?\d+(\.\d{1,2}){0,1}$/) // decimal with max 2 places only
-            ] ),        
-         sodesc: new FormControl('', Validators.required), 
+            ] ),
+         sodesc: new FormControl('', Validators.required),
          account: new FormControl(null as unknown as AccountItem, Validators.required), // select from dropdown of accounts
          soperiod: new FormControl('', Validators.required), // select from dropdown of period string
-         socount: new FormControl(1, 
+         socount: new FormControl(1,
             [
                Validators.required,
                Validators.pattern(/^\d+$/)  // integer only
-            ] ),         
+            ] ),
          sotfrtype: new FormControl(this.txnTypes[0], Validators.required)  // dowpdown list of types as shown in transaction
        });
    }
@@ -127,7 +127,7 @@ export class SoEditMatComponent
    {
       this.accountService.getAccounts().subscribe({
          next: (res) => {
-            
+
             // debugger;
             if(!res)
             {
@@ -149,13 +149,13 @@ export class SoEditMatComponent
          complete: ()=>{console.log("SoEditMatComponent.ngOnInit: getAccounts loading completed");}
       });
 
-      
+
       console.log("SoEditMatComponent.ngOnInit:Finished");
    }
 
    ngOnChanges(changes : SimpleChanges)
    {
-      for (const propName in changes) 
+      for (const propName in changes)
       {
          const chng = changes[propName];
          const cur  = JSON.stringify(chng.currentValue);
@@ -168,7 +168,7 @@ export class SoEditMatComponent
             if(this.accounts.length > 0 )
             {
                // Angular/typescript sucks when it comes to getting values initialized.
-               // This form needs a list of accounts which it can only get asynchronously. 
+               // This form needs a list of accounts which it can only get asynchronously.
                // ngOnChanges usually starts before the list is filled so the method which
                // loads the list must call populateFormFromSO when the list is loaded, but it might
                // happen that the list has already been filled so must call populateFormFromSO from
@@ -177,12 +177,12 @@ export class SoEditMatComponent
                this.populateFormFromSO(so);
             }
          }
-      } 
+      }
    }
 
    onCancel(): void {
       // Only cancels/avoids the form submission if the button type=reset - this is not documented anywhere
-      // in the material or react docs - just have to waste hours googling until you stumble on something 
+      // in the material or react docs - just have to waste hours googling until you stumble on something
       // which looks like what you are doing and see if it works for you!
       console.log("SoEditMatComponent.onCancel:");
       this.submittedEvent.emit('CANCELLED');
@@ -193,7 +193,7 @@ export class SoEditMatComponent
    console.log("SoEditMatComponent.onSubmit: form values: " + JSON.stringify(this.soForm.value, null, 2));
    let fmt = 'yyyy-MM-dd';
    let ed : Date = new Date(this.soForm.value.soentrydate); // ISO date format, ie. YYYY-MM-DD
-   let pd : Date = new Date(this.soForm.value.sonextpaydate);    
+   let pd : Date = new Date(this.soForm.value.sonextpaydate);
    let so : StandingOrderItem = new StandingOrderItem();
    so.soid = this.origSOitem?.soid ?? -1;
    so.token = this.origSOitem?.token ?? '';
@@ -232,7 +232,7 @@ export class SoEditMatComponent
          this.submittedEvent.emit('SUBMIT_COMPLETED');
       }
    });
-   
+
   }
 
    canDelete() : boolean
@@ -244,7 +244,7 @@ export class SoEditMatComponent
    {
       console.log("onDelete: start");
       this.submittedEvent.emit('SUBMIT_DELETE');
-      console.log("onDelete: finish");      
+      console.log("onDelete: finish");
    }
 
    populateFormFromSO(so : StandingOrderItem)
@@ -252,10 +252,10 @@ export class SoEditMatComponent
       let ed : Date = so.soentrydate ? new Date(so.soentrydate) : new Date();
       let pd : Date = so.sonextpaydate ? new Date(so.sonextpaydate) : new Date();
       let acc = this.accounts.find(a => (a.id == so.accountid));
-      // console.log("SoEditMatComponent.populateFormFromSO: accountid:" + so.accountid + " account:" + JSON.stringify(acc, null, 2)) 
+      // console.log("SoEditMatComponent.populateFormFromSO: accountid:" + so.accountid + " account:" + JSON.stringify(acc, null, 2))
       let amt = so.soamount ? parseFloat(so.soamount) : null;
       this.soForm.setValue({
-        sodesc : so.sodesc, 
+        sodesc : so.sodesc,
         soentrydate : this.datePipe.transform(ed, 'yyyy-MM-dd') ?? '',
         sonextpaydate : this.datePipe.transform(pd, 'yyyy-MM-dd') ?? '',
         soamount : amt, // TODO: use number for StandingOrderItem amount
@@ -264,5 +264,5 @@ export class SoEditMatComponent
         socount :  so.socount,
         sotfrtype : so.sotfrtype
       });
-  }  
+  }
 }

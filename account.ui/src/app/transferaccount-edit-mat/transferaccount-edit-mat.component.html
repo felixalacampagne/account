@@ -30,24 +30,24 @@
                <mat-form-field  appearance="outline" class="full-width">
                   <mat-label>Related Account</mat-label>
                   <mat-select (selectionChange)="relatedAccountChange($event.value)" formControlName="relatedAccount">
-                     @for (acc of accounts; track acc) 
+                     @for (acc of accounts; track acc)
                      {
                         <mat-option [value]="acc">{{ acc.name }}</mat-option>
                      }
-                  </mat-select>             
+                  </mat-select>
                </mat-form-field>
             </div>
             <div class="col">
                <mat-form-field  appearance="outline" class="full-width">
                   <mat-label>Order</mat-label>
                   <input type="number" matInput placeholder="" formControlName="order">
-               </mat-form-field>                
+               </mat-form-field>
             </div>
          </div>
       </mat-card-content>
       <mat-card-actions>
          <div class="actions-card-left">
-         <!-- 
+         <!--
             More wasted hours trying to get the delete button to show red.
             Nothing works, it's always blue.
             No clue from any of the POS Material docs as to how you are supposed to set anything other
@@ -58,18 +58,18 @@
             why put it in a generated file and NEVER EVER EVER mention it in any of the forking
             shirty documentation. And what the fork has it been replaced with? Nothing, is the
             answer it appears. So I'm using the 'deprecated' method and hope by the time it
-            goes away they will have provided something usable to replace it! Or I'll have gone 
+            goes away they will have provided something usable to replace it! Or I'll have gone
             back to bootstrap.
 
             Again the true shirtty nature of Material reveals itself in the ridiculous steps
-            needed to get an icon to display as a button. There is simply no logic behind it. The 
+            needed to get an icon to display as a button. There is simply no logic behind it. The
             code for the delete icon was arrived at after hours of trial and error. Yes the empty
             'span' is required in order for the mat-icon class to be recognised. It's conceivable
             that a different button type is required but any other type simply does not match
             the other buttons and/or does not change to the required colour. Everything I try
             to do with Material is just so time consuming due to the absence of useful examples/documentation,
             seriously thinking of giving up on Material and sticking to bootstrap.
-            
+
           -->
             @if(canDelete())
             {

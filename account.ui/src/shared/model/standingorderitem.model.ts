@@ -10,12 +10,12 @@ export class StandingOrderItem
    public soperiod : string = '';
    public sotfrtype : string = '';
    public accountid : number = -1;
-   public accountname : string = '';  
+   public accountname : string = '';
    public token : string = '';
-    
+
    constructor()
    {
-       
+
    }
-       
+
 }

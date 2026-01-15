@@ -10,7 +10,7 @@ import { AccountEditMatComponent } from './account-edit-mat.component';
 <mat-dialog-content>
    <account-edit-mat (submittedEvent)="closeDialog($event)" [origItem]="data"></account-edit-mat>
 </mat-dialog-content>
-`,   
+`,
     styleUrls: ['./account-edit-mat.component.css'
         //    , '../../sass/account-styles.scss'
         // , '../app.component.css'
@@ -24,6 +24,6 @@ export class AccountEditMatDialog {
      closeDialog(event: any)
      {
         console.log("closeDialog: request to close received: " + JSON.stringify(event, null, 2));
-        this.dialogRef.close(event);      
-     }  
+        this.dialogRef.close(event);
+     }
 }

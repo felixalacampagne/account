@@ -17,10 +17,10 @@
 }
 .mat-mdc-row
 {
-    height: 0px; 
+    height: 0px;
 }
 
-.mat-mdc-cell, .mat-mdc-header-cell 
+.mat-mdc-cell, .mat-mdc-header-cell
 {
     border: none !important;
 }
@@ -35,10 +35,10 @@
    text-align: right;
 }
 
-/* Unbelievably the icon inside an 'icon button' is forking displayed in the center by default! 
+/* Unbelievably the icon inside an 'icon button' is forking displayed in the center by default!
    This should go in the main styles.css since it is so fundamentally forking basic.
  */
-.mat-icon 
+.mat-icon
 {
    display: flex;
    align-items: center;

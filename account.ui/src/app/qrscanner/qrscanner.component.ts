@@ -25,7 +25,7 @@ export class QrscannerComponent implements OnInit {
       console.log('onScanSuccess: stopping scanner');
       this.html5QrcodeScanner.clear();
       this.html5QrcodeScanner = undefined;
-    }  
+    }
     console.log('onScanSuccess: Parsing result ' + decodedText);
     // TODO return the QR text to the 'listener'
     // const txn : TransactionItem = this.parseEPC(decodedText);
@@ -35,15 +35,15 @@ export class QrscannerComponent implements OnInit {
     // this.txType = txn.type;
     console.log('onScanSuccess: exit');
   }
-  
+
   onScanFailure(error: any) {
     // handle scan failure, usually better to ignore and keep scanning.
     // for example:
     //console.warn(`Code scan error = ${error}`);
   }
-  
+
   doScan() {
-  
+
     // Second parameter should be { fps: 10, qrbox: {width: 250, height: 250} }, but it doesn't compile
     // and there doesn't appear to be anyway to create an object of the type required
     // let conf: Html5QrcodeScannerConfig = { fps: 10, qrbox: {width: 250, height: 250} supportedScanTypes:[] };
@@ -51,7 +51,7 @@ export class QrscannerComponent implements OnInit {
       "reader",
       { fps: 10, qrbox: {width: 250, height: 250}, supportedScanTypes: [], rememberLastUsedCamera: true },
       /* verbose= */ false);
-  
+
     // Could not get it to work. It appeared to execute the fist console.log of onScanSuccess and then vanish
     // literally without trace. Luckily I remembered something about 'this' getting lost especially in callbacks.
     // Eventually tracked the 'bind' thing down and whoopee it works now! It's a bit tricky to use with a PC camera

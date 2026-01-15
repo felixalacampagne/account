@@ -36,18 +36,18 @@ export class HammerConfigForNormalScroll extends HammerGestureConfig {
    };
    // override options = { 'touchAction' : 'auto' }
 
-   // This appears to restore the selection behviour for the swipe column   
-   override options = {cssProps:{userSelect:'auto'}}  
+   // This appears to restore the selection behviour for the swipe column
+   override options = {cssProps:{userSelect:'auto'}}
 }
 
 
 // Originally the fix for reload/refresh not working was to add
 // this.router.routeReuseStrategy.shouldReuseRoute = () => { return false; };
 // to app.module which seemed to solve the problem but compiler complained that
-// it was deprecated and, of course, provided no useful indication what to replace it with. 
+// it was deprecated and, of course, provided no useful indication what to replace it with.
 // Once again countless hours were wasted thanks to the grasshole continuous improvers
 // whose sole purpose in life is to fork over the folks who are unfortunate enough to
-// have been suckered into using this shirt. 
+// have been suckered into using this shirt.
 // Eventually I managed to put the thing below which,
 // together with the 'provide: RouteReuseStrategy' and
 // 'withRouterConfig({onSameUrlNavigation: 'reload'})' statements in 'providers' below,
@@ -75,7 +75,7 @@ export class HammerConfigForNormalScroll extends HammerGestureConfig {
         QrscannerComponent
       //   SoEditMatComponent
     ],
-    bootstrap: [AppComponent], 
+    bootstrap: [AppComponent],
     imports: [
       BrowserModule,
       FormsModule,
@@ -87,15 +87,15 @@ export class HammerConfigForNormalScroll extends HammerGestureConfig {
       RouterOutlet,
       RouterLink,
       RouterLinkActive
-   ], 
+   ],
     providers: [
-      AccountService, 
+      AccountService,
       DateformatService,
       //{ provide: APP_INITIALIZER, useFactory: () => appConfigFactory,
       //           deps: [AccountService],
       //           multi: true
-      //},      
-      DatePipe, 
+      //},
+      DatePipe,
       provideHttpClient(withInterceptorsFromDi()),
       { provide: HAMMER_GESTURE_CONFIG, useClass: HammerConfigForNormalScroll },
       //{ provide: RouteReuseStrategy, useClass: FixRefreshRouteReuseStrategy}, // supposed to replace this.router.routeReuseStrategy.shouldReuseRoute = () => { return false; }; in app.module
@@ -103,7 +103,7 @@ export class HammerConfigForNormalScroll extends HammerGestureConfig {
       , withHashLocation()  // try to workaround 403 for main.ts in deployed version and keep refresh button working
       //, withRouterConfig({onSameUrlNavigation: 'reload'}) // onSameUrlNavigation must be reload for refresh button to work
       ),
-      provideAnimationsAsync() 
+      provideAnimationsAsync()
    ]
 })
 export class AppModule { }

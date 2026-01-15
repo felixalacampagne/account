@@ -13,7 +13,7 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
     ],
     template: `
    <mat-card appearance="outlined">
-      <mat-card-header> 
+      <mat-card-header>
          <mat-card-title>
          <div class="title-card-left">
          Transfer Account Delete
@@ -27,7 +27,7 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
             (click)="dialogRef.close('CANCEL')"
          ></button>
          </div>
-         </mat-card-title>      
+         </mat-card-title>
       </mat-card-header>
 
       <mat-card-content>
@@ -42,7 +42,7 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
          </p>
          <p>
             Are you sure you want to delete this transfer account?
-         </p>         
+         </p>
       </mat-card-content>
       <mat-card-actions align='end'>
          <button mat-stroked-button type="reset" (click)="dialogRef.close('CANCEL')">Cancel</button>
@@ -58,6 +58,6 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 export class TransferAccountDeleteConfirmDialog {
      data = inject(MAT_DIALOG_DATA);
      constructor(public dialogRef: MatDialogRef<TransferAccountDeleteConfirmDialog>
-        
+
      ) { }
 }

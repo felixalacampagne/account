@@ -19,13 +19,13 @@ import { DateformatService } from 'src/shared/service/dateformat.service';
     selector: 'checked-list',
     imports: [MatTableModule, MatCardModule, MatIconModule, MatButtonModule, CommonModule, RouterModule],
     templateUrl: './checked-list.component.html',
-    styleUrls: ['../app.component.css', 
+    styleUrls: ['../app.component.css',
       './checked-list.component.css',
       '../app-material.css'
    ]
 })
 export class CheckedListComponent implements OnInit {
-   @Input() accid!: number;  
+   @Input() accid!: number;
    activeaccount: AccountItem = new AccountItem();
    checkLoading: boolean = false;
    transactions: TransactionItem[] = [];
@@ -42,10 +42,10 @@ export class CheckedListComponent implements OnInit {
                private datfmt : DateformatService,
                private modalService: NgbModal)
    {
-    
+
    }
 
-   ngOnInit() 
+   ngOnInit()
    {
      // console.log('TransactionsComponent.ngOnInit: start');
       // console.log("TransactionsComponent.ngOnInit: finish");
@@ -53,10 +53,10 @@ export class CheckedListComponent implements OnInit {
 
 
    // Based on transactions.component: TODO find a way to share it (NB transaction are checked transactions
-   ngOnChanges(changes: SimpleChanges ) 
+   ngOnChanges(changes: SimpleChanges )
    {
       console.log("CheckedListComponent.ngOnChanges: enter: " + JSON.stringify(changes, null, 2));
-      for (const propName in changes) 
+      for (const propName in changes)
       {
          console.log("CheckedListComponent.ngOnChanges: propName:" + propName);
          const chng = changes[propName];
@@ -66,16 +66,16 @@ export class CheckedListComponent implements OnInit {
          }
       }
    }
-   
+
    formatDateColumn(jsondate: string) : string
    {
-      return this.datfmt.listFormat(jsondate) ;   
+      return this.datfmt.listFormat(jsondate) ;
    }
-   
+
    loadAccount(id : number)
    {
      console.log("CheckedListComponent.loadAccount: Starting: id " + id);
-         
+
      this.accountService.getAccount(id).subscribe({
          next: (res)=>{
             if(!res)
@@ -92,16 +92,16 @@ export class CheckedListComponent implements OnInit {
              } ,
          complete: ()=>{console.log("CheckedListComponent.loadAccount: completed");}
       });
-   
+
      console.log("CheckedListComponent.loadAccount:Finished");
    }
-   
+
    loadTransactions(acc : AccountItem, page: number = 0)
    {
       console.log("CheckedListComponent.loadTransactions: Starting: " + JSON.stringify(acc, null, 2));
       if(acc.id < 0)
          return;
-         
+
       this.accountService.getCheckedTransactions(acc, page).subscribe({
          next: (res)=>{
             if(!res)
@@ -127,12 +127,12 @@ export class CheckedListComponent implements OnInit {
       console.log("CheckedListComponent.loadTransactions:Finished");
    }
 
-   nextPage() 
+   nextPage()
    {
       this.loadTransactions(this.activeaccount, this.pageNumber + 1);
    }
 
-   prevPage() 
+   prevPage()
    {
       let p = this.pageNumber;
       if(p < 1)
@@ -148,11 +148,11 @@ export class CheckedListComponent implements OnInit {
       this.loadTransactions(this.activeaccount);
    }
 
-   isTransactions() : boolean 
+   isTransactions() : boolean
    {
       return this.transactions.length > 0;
    }
-    
+
 
    calcCheckedBalance()
    {
@@ -176,7 +176,7 @@ export class CheckedListComponent implements OnInit {
 }
 
 
-// // Based on example at 
+// // Based on example at
 // export class TransactionDataSource extends DataSource<TransactionItem> {
 // /** Stream of data that is provided to the table. */
 // data = new BehaviorSubject<TransactionItem[]>([]);

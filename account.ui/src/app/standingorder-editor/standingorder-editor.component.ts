@@ -33,7 +33,7 @@ import { isoNgbDateParserFormatter } from 'src/shared/datepickformatter';
 })
 export class StandingorderEditorComponent {
   editso : StandingOrderItem = new StandingOrderItem();
-  
+
   // see https://angular.dev/guide/forms/reactive-forms
   // So this is the 'reactive' forms way of doing it. Naturally enough the Angular
   // examples give no clue how to use this in a real life scenario where a data model
@@ -62,17 +62,17 @@ export class StandingorderEditorComponent {
 
    constructor(private accountService: AccountService)
    {
-   
+
    }
 
    populateFormFromSO(so : StandingOrderItem)
    {
       let d : Date = new Date(so.soentrydate); // ISO date format, ie. YYYY-MM-DD
-      let entryDate = {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()}; 
-      d = new Date(so.sonextpaydate); 
-      let payDate = {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()};             
+      let entryDate = {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()};
+      d = new Date(so.sonextpaydate);
+      let payDate = {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()};
       this.soForm.setValue({
-         sodesc : so.sodesc, 
+         sodesc : so.sodesc,
          soentrydate : entryDate,
          sonextpaydate : payDate,
          soamount : so.soamount,
@@ -85,7 +85,7 @@ export class StandingorderEditorComponent {
    }
 
   onSubmit() {
-    console.warn(this.soForm.value.sodesc); 
+    console.warn(this.soForm.value.sodesc);
 
     let so : StandingOrderItem = new StandingOrderItem();
     so.sodesc = "descriptive text";
@@ -99,5 +99,5 @@ export class StandingorderEditorComponent {
 
     this.populateFormFromSO(so);
 
-  }  
+  }
 }

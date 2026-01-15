@@ -34,14 +34,14 @@ export class AccountEditMatComponent implements OnInit {
    constructor(private accountService: AccountService)
    {
       this.taForm = new FormGroup({
-      name: new FormControl('', Validators.required), 
-      address: new FormControl('', Validators.required), 
-      code: new FormControl('', Validators.required), 
-      currency: new FormControl('', Validators.required), 
-      format: new FormControl('', Validators.nullValidator), 
-      telephone: new FormControl('', Validators.nullValidator), 
+      name: new FormControl('', Validators.required),
+      address: new FormControl('', Validators.required),
+      code: new FormControl('', Validators.required),
+      currency: new FormControl('', Validators.required),
+      format: new FormControl('', Validators.nullValidator),
+      telephone: new FormControl('', Validators.nullValidator),
       statementref: new FormControl('', Validators.nullValidator),
-      order: new FormControl(1, 
+      order: new FormControl(1,
       [
          Validators.required,
          Validators.pattern(/^\d+$/)  // integer only
@@ -55,7 +55,7 @@ export class AccountEditMatComponent implements OnInit {
 
    ngOnChanges(changes : SimpleChanges)
    {
-      for (const propName in changes) 
+      for (const propName in changes)
       {
          const chng = changes[propName];
          const cur  = JSON.stringify(chng.currentValue);
@@ -68,21 +68,21 @@ export class AccountEditMatComponent implements OnInit {
             let item : AccountDetail = chng.currentValue;
             this.populateForm(item);
          }
-      } 
+      }
    }
 
    onCancel(): void {
       // Only cancels/avoids the form submission if the button type=reset - this is not documented anywhere
-      // in the material or react docs - just have to waste hours googling until you stumble on something 
+      // in the material or react docs - just have to waste hours googling until you stumble on something
       // which looks like what you are doing and see if it works for you!
       console.log("onCancel:");
       this.submittedEvent.emit('CANCELLED');
    }
 
-   onSubmit(): void 
+   onSubmit(): void
    {
       console.log("onSubmit: form values: " + JSON.stringify(this.taForm.value));
-      
+
       let ta : AccountDetail = new AccountDetail();
       ta.id = this.origItem?.id ?? -1;
       ta.token = this.origItem?.token ?? '';
@@ -122,7 +122,7 @@ export class AccountEditMatComponent implements OnInit {
             this.accountService.notifyAccountModified(ta.id);
          }
       });
-   
+
    }
 
    canDelete() : boolean
@@ -158,5 +158,5 @@ export class AccountEditMatComponent implements OnInit {
          statementref : ta.statementref ?? "",
          order : ta.order,
       });
-  }     
+  }
 }

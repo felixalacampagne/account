@@ -5,15 +5,15 @@
    height:100%;
    max-height: 100%;
    padding: 0px 0px 0px 0px !important;
-   overflow: auto !important;   
+   overflow: auto !important;
    background-color:  rgba(0, 0, 0, 0.32);
 }
-   
+
 .mdc-button ~ .mdc-button {
    margin-left: 10px;
 }
 
-.mat-mdc-button-base 
+.mat-mdc-button-base
 {
    margin-left: 8px;
 }
@@ -28,7 +28,7 @@
 /*
     More hours spent trying to get the title text on the left and an icon on the left.
     For some reason it suddenly started to work - fingers crossed it carries on working!!
-    These bits of magic coupled with some in the html seem to be responsible. 
+    These bits of magic coupled with some in the html seem to be responsible.
 
     Unfortunately the title overflows the size of the card content hence padding is
     required which requires hard-coded values.
@@ -52,14 +52,14 @@
 .title-card-left
 {
    display: inline;
-  
+
 }
 
 .mat-mdc-card-actions
 {
    display:inline;
-   margin-top: 0px; 
-      
+   margin-top: 0px;
+
 }
 
 .actions-card-right
@@ -94,35 +94,34 @@
 
 .so-card {
    width: 100%;
- 
+
    box-shadow:inset 0px 0px 0px 1px rgb(179, 176, 176);
    border: 3px solid  white !important;
    border-radius: 30px !important;
  }
- 
- .so-card-head 
+
+ .so-card-head
  {
-    margin-top: 0px; 
+    margin-top: 0px;
     margin-bottom: 10px;
  }
- 
- .row 
+
+ .row
  {
    display: flex;
    flex-direction: row;
-   margin-top: 0px; 
+   margin-top: 0px;
    margin-bottom: 0px;
  }
- 
+
  .col {
    flex: 1;
  }
- 
+
  .col:last-child {
    margin-right: 0;
  }
- 
+
 .full-width {
    width: 100%;
  }
- 
