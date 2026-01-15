@@ -26,15 +26,34 @@ export class AppComponent implements  OnDestroy, OnInit {
   {
 
   }
-  
-   ngOnInit() 
+
+   ngOnInit()
    {
       console.log('AppComponent.ngOnInit: Starting');
-      
-      // Change syntax sugar to avoid deprecated warning 
+
+      this.accountService.listTransactionTypes().subscribe( {
+         next: (res) => {
+              if(!res)
+              {
+                console.log('AppComponent.ngOnInit: transaction types is not initialised');
+              }
+              else
+              {
+               let types : string [] = res;
+
+                console.log("AppComponent.ngOnInit: Transaction types contains " + res.length + " items.");
+                this.accountService.setTransactionTypes(types);
+              }
+            },
+         error: (err)=>{
+            console.log("AppComponent.ngOnInit: An error occured during listTransactionTypes subscribe: " + JSON.stringify(err, null, 2));
+            } ,
+         complete: ()=>{console.log("AppComponent.ngOnInit: listTransactionTypes loading completed");}
+      });
+
       this.accountService.getVersion().subscribe({
          next:(res) => {
-              
+
               if(!res)
               {
                 console.log('AppComponent.ngOnInit: Version is not initialized');
@@ -50,13 +69,15 @@ export class AppComponent implements  OnDestroy, OnInit {
          error: (err)=>{
             console.log("AppComponent.ngOnInit: An error occured during getVersion subscribe: " + JSON.stringify(err, null, 2));
             } ,
-         complete: ()=>{console.log("AppComponent.ngOnInit: getVersion loading completed");}
+         complete: ()=>{
+            console.log("AppComponent.ngOnInit: getVersion loading completed");
+         }
       });
-   
-   
+
+
       this.accountService.getAccounts().subscribe({
          next: (res) => {
-              
+
               // debugger;
               if(!res)
               {
@@ -76,19 +97,19 @@ export class AppComponent implements  OnDestroy, OnInit {
 
       this.accountRefresh = this.accountService.listenAccountModified(id => {
          console.log("ngOnInit:accountRefresh: account id:" + id + " updated: refreshing account list");
-         this.loadAccounts(); 
+         this.loadAccounts();
       })
 
       console.log("AppComponent.ngOnInit:Finished");
    }
-   
+
    ngOnDestroy() {
       if (this.accountRefresh) {
          this.accountRefresh.unsubscribe()
        }
    }
 
-   loadAccounts() 
+   loadAccounts()
    {
       this.accountService.getAccounts().subscribe({
          next: (res) => {
@@ -106,7 +127,7 @@ export class AppComponent implements  OnDestroy, OnInit {
             console.log("loadAccounts: An error occured during getAccounts subscribe: " + JSON.stringify(err, null, 2));
             } ,
          complete: ()=>{console.log("loadAccounts: getAccounts loading completed");}
-      });   
-   }   
+      });
+   }
 }
 

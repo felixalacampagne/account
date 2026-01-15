@@ -182,8 +182,7 @@ public class AccountService
 
    public List<String> getTransactionTypes()
    {
-      // TODO: find a way to reload the properties files. Maybe need to put the
-      // types in a separate file
+      log.info("getTransactionTypes: types: '{}'", this.txnTypes);
       return this.txnTypes;
    }
 

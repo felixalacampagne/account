@@ -23,13 +23,13 @@ import { EPCtransaction } from 'src/shared/model/epctransaction.model';
 import { QrcodepayerComponent } from '../qrcodepayer/qrcodepayer.component';
 
 // Tried to add a 'fromEvent' with debouncing to the input field in the pageination template with no success - the @ViewChild
-// variable which was supposed to be the thing to reference in the fromEvent was always undefined 
+// variable which was supposed to be the thing to reference in the fromEvent was always undefined
 // (except after the second loadtransactions, ie. after the pageination had been used).
 // Eventually I stumbled across a version of DebounceDirective on SO. Obviously for a different Angular version
-// so it needed a bit of fiddling with to get it to compile and it was for clicks so again more searching 
+// so it needed a bit of fiddling with to get it to compile and it was for clicks so again more searching
 // to determine how to see changes (no, not using the change event but using 'input') but the perseverance
 // paid off as pageination now happens without needing a return, tab or click elsewhere, all of which are
-// difficult on the phone. 
+// difficult on the phone.
 // TODO: put it in a seperate file.
 
 @Directive({
@@ -53,7 +53,7 @@ export class DebounceInputDirective implements OnInit, OnDestroy {
        this.subscription = this.changes
          .pipe(debounceTime(this.debounceInputTime))
          .subscribe(
-             (e) => { 
+             (e) => {
                this.debounceInput.emit(e);
             }
          );
@@ -78,9 +78,9 @@ export class DebounceInputDirective implements OnInit, OnDestroy {
 // NG8002: Can't bind to 'ngModel' since it isn't a known property of 'select'
 @Component({
     selector: 'transactions',
-    imports: [FormsModule, CommonModule, NgbModule, RouterModule, 
+    imports: [FormsModule, CommonModule, NgbModule, RouterModule,
       LayoutModule,
-      DebounceInputDirective, 
+      DebounceInputDirective,
       QrcodepayerComponent],
     templateUrl: './transactions.component.html',
     styleUrls: ['../../sass/account-styles.scss', '../app.component.css', './transactions.component.css'],
@@ -98,10 +98,10 @@ export class TransactionsComponent implements OnInit  {
    // the only way to know when the accountitem has been loaded. Its mind blowingly clumsy but at least
    // it appears to work including when the refresh button is used.
    @Input() accid!: number;
-   
+
    modalReference: NgbModalRef | undefined;
- 
-   activeaccount!: AccountItem; 
+
+   activeaccount!: AccountItem;
    transferAccounts!: TfrAccountItem[] | undefined;
    typahtfraccs: TfrAccountItem[] = [];
    filterTransferAccounts: TfrAccountItem[] | undefined; // filtered based on input in Counterparty?
@@ -118,7 +118,7 @@ export class TransactionsComponent implements OnInit  {
    jsonTomorrow: string = "";
    txDate: Date = new Date('1970-12-25'); // NgbDateStruct = {year: 1970, month: 12, day: 25};
    txUpdDate: Date = new Date('1970-12-25'); // NgbDateStruct = {year: 1970, month: 12, day: 25};
-   txType: string;
+   txType: string = '';
    txComment: string = '';
    txAmount: string = '';
    txCommunication : string = '';
@@ -137,7 +137,7 @@ export class TransactionsComponent implements OnInit  {
    public txnTypes: string[] = [];
    pageNumber: number = 1;
    maxPage: number = -1;
-   
+
    public epctxn : EPCtransaction = new EPCtransaction(); // value read by qrcode component
 
    constructor(private accountService: AccountService,
@@ -149,18 +149,16 @@ export class TransactionsComponent implements OnInit  {
     )
    {
       this.envName = environment.envName;
-      this.txnTypes = this.accountService.txnTypes;
-      // This is only necessary because the ngModel attribute breaks the selected behaviour of the option tag
-      this.txType = this.txnTypes[0];
+
       this.resetDatepicker();
-      this.landscapeDisplay = this.bpObservable.isMatched('(orientation: landscape)'); 
+      this.landscapeDisplay = this.bpObservable.isMatched('(orientation: landscape)');
       this.desktopDisplay = this.deviceService.isDesktop();
    }
 
-   ngOnInit() 
+   ngOnInit()
    {
       console.log('ngOnInit: start');
-      const d: Date = new Date();  
+      const d: Date = new Date();
       this.txDate = d; //{year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
 
       this.bpObservable.observe(['(orientation: portrait)'])
@@ -169,20 +167,21 @@ export class TransactionsComponent implements OnInit  {
                               this.landscapeDisplay = false;
                            }
                         });
-      
+
       this.bpObservable.observe(['(orientation: landscape)'])
                         .subscribe(result => {
                         if(result.matches){
                            this.landscapeDisplay = true;
                         }
                         });
+      this.initTxnTypes();
       console.log("ngOnInit: finish");
    }
-      
-   ngOnChanges(changes: SimpleChanges ) 
+
+   ngOnChanges(changes: SimpleChanges )
    {
       console.log("ngOnChanges: enter: " + JSON.stringify(changes, null, 2));
-      for (const propName in changes) 
+      for (const propName in changes)
       {
          console.log("ngOnChanges: propName:" + propName);
          const chng = changes[propName];
@@ -203,42 +202,42 @@ export class TransactionsComponent implements OnInit  {
       if(typeof(this.txCptyName) != 'string')
       {
          cptyname = this.txCptyName.cptyAccountName;
-      }      
+      }
       else
       {
-         cptyname = this.txCptyName;  
+         cptyname = this.txCptyName;
       }
       this.epctxn = new EPCtransaction(this.txCptyNumber, cptyname, this.txAmount, this.txCommunication);
       this.modalReference = this.modalService.open(qrpayermodal);
       this.modalReference.result.then(
          (result) => {
             console.log("showQR:modalReference:result");
-         }, 
+         },
          (reason) => {
             console.log("showQR:modalReference:reason");
          }
-      );      
+      );
    }
 
    resetDatepicker()
    {
-      const d: Date = new Date();  
-      this.txUpdDate = d; // {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()}; 
+      const d: Date = new Date();
+      this.txUpdDate = d; // {year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate()};
    }
 
    // Call this to display the modal. 'content' is the name of the 'template' containing the elements to be displayed in the modal, I think
-   open(content: any, txn: TransactionItem) 
+   open(content: any, txn: TransactionItem)
    {
       this.origupdTxn = txn;
       this.updateTxn = new TransactionItem();
       this.updateTxn.copy(this.origupdTxn);
       console.log("open: txn:" + JSON.stringify(this.updateTxn, null, 2));
       // Date picker field is somehow tied to content of this.txDate which is some sort of date object
-      // so must the txn date into the date object... Date seems able to handle the date string in TransactionItem 
+      // so must the txn date into the date object... Date seems able to handle the date string in TransactionItem
       let d : Date = new Date(this.updateTxn.date); // ISO date format, ie. YYYY-MM-DD
       console.log("open: txn orig date:" + d);
-      this.txUpdDate = d; // {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()}; 
-      
+      this.txUpdDate = d; // {day: d.getDate(), month: d.getMonth()+1, year: d.getFullYear()};
+
       this.modalReference = this.modalService.open(content);
 
       this.modalReference.result.then(
@@ -246,7 +245,7 @@ export class TransactionsComponent implements OnInit  {
             console.log("open:modalReference:result");
             // One maybe the updated transaction will come from the modal
             this.updmodalCloseAction(`${result}`, this.updateTxn);
-         }, 
+         },
          (reason) => {
             console.log("open:modalReference:reason");
             this.updmodalCloseAction( `${this.getDismissReason(reason)}`, this.updateTxn);
@@ -255,21 +254,21 @@ export class TransactionsComponent implements OnInit  {
   }
 
    private getDismissReason(reason: any): string {
-      if (reason === ModalDismissReasons.ESC) 
+      if (reason === ModalDismissReasons.ESC)
       {
          return 'CANCEL';
-      } 
-      else if (reason === ModalDismissReasons.BACKDROP_CLICK) 
+      }
+      else if (reason === ModalDismissReasons.BACKDROP_CLICK)
       {
          return 'CANCEL';
-      } 
-      else 
+      }
+      else
       {
          return `${reason}`;
       }
    }
 
-   private updmodalCloseAction(reason : string, updtxn : TransactionItem) 
+   private updmodalCloseAction(reason : string, updtxn : TransactionItem)
    {
       console.log("updmodalCloseAction: reason: " + reason);
       if(reason == "UPDATE")
@@ -278,7 +277,7 @@ export class TransactionsComponent implements OnInit  {
          // since the datepicker sets a value in txDate which needs to be mapped
          // back into the TransactionItem format
          let updDate : Date = this.txUpdDate; //new Date(this.txUpdDate.year, this.txUpdDate.month-1, this.txUpdDate.day);
-         updtxn.date = this.datfmt.jsonFormat(updDate); // this.datePipe.transform(updDate, dateFormatJson) ?? '';         
+         updtxn.date = this.datfmt.jsonFormat(updDate); // this.datePipe.transform(updDate, dateFormatJson) ?? '';
 
          console.log("updmodalCloseAction: updating transaction:  " + JSON.stringify(updtxn, null, 2));
          this.updatetransaction(updtxn);
@@ -291,7 +290,7 @@ export class TransactionsComponent implements OnInit  {
       this.resetDatepicker();
    }
 
-   delTxnConfirm(updtxn : TransactionItem) 
+   delTxnConfirm(updtxn : TransactionItem)
    {
       // Need a way to pass a message to be displayed to the confirmation dialog
       let modalReference: NgbModalRef = this.modalService.open(TxnDelConfirmDialog);
@@ -303,8 +302,8 @@ export class TransactionsComponent implements OnInit  {
          this.delTxnConfirmCloseAction( `${this.getDismissReason(reason)}`, this.updateTxn);
        });
    }
-   
-   private delTxnConfirmCloseAction(reason : string, updtxn : TransactionItem) 
+
+   private delTxnConfirmCloseAction(reason : string, updtxn : TransactionItem)
    {
       console.log("delTxnConfirmCloseAction: reason: " + reason);
       if(reason == "OK")
@@ -317,7 +316,7 @@ export class TransactionsComponent implements OnInit  {
    loadAccount(id : number)
    {
      console.log("loadAccount: Starting: id " + id);
-         
+
      this.accountService.getAccount(id).subscribe({
          next: (res)=>{
             if(!res)
@@ -335,7 +334,7 @@ export class TransactionsComponent implements OnInit  {
              } ,
          complete: ()=>{console.log("loadAccount[complete]: completed");}
       });
-   
+
      console.log("loadAccount:Finished");
    }
 
@@ -343,7 +342,7 @@ export class TransactionsComponent implements OnInit  {
    setTransfer(trans : boolean)
    {
       this.isTransfer = trans;
-      console.log("setTransfer: isTransfer=" + this.isTransfer); 
+      console.log("setTransfer: isTransfer=" + this.isTransfer);
       if(this.isTransfer)
       {
          if(!this.transferAccounts) {
@@ -376,7 +375,7 @@ export class TransactionsComponent implements OnInit  {
    loadTransferAccounts() {
       const id : number = this.activeaccount.id;
       // console.log("loadTransferAccounts: Starting: id " + id);
-      this.inprogress = true;   
+      this.inprogress = true;
       this.accountService.getAccountsForTransfer(this.activeaccount).subscribe({
          next: (res) => {
             if(!res)
@@ -386,7 +385,7 @@ export class TransactionsComponent implements OnInit  {
             else
             {
                this.transferAccounts = res;
-               this.typahtfraccs = this.transferAccounts; 
+               this.typahtfraccs = this.transferAccounts;
             }
          },
          error: (err) => {
@@ -398,10 +397,10 @@ export class TransactionsComponent implements OnInit  {
             this.inprogress = false;
          }
        });
-    
-      // console.log("loadTransferAccounts:Finished");      
+
+      // console.log("loadTransferAccounts:Finished");
    }
-   
+
    getCheckedBalance(acc : AccountItem)
    {
       console.log("getCheckedBalance: Starting: " + JSON.stringify(acc, null, 2));
@@ -427,7 +426,7 @@ export class TransactionsComponent implements OnInit  {
             console.log("getCheckedBalance[error]: getCheckedBalance loading completed");
          }
       });
-   
+
       console.log("getCheckedBalance: Finished");
    }
 
@@ -451,6 +450,7 @@ loadTransactions(acc : AccountItem, page: number = 1)
             }
             else
             {
+               this.initTxnTypes(); // sometimes the list is still empty so try loading here
                this.activeaccount = acc;
                this.transactions = res.transactions;
                this.pageNumber = res.currentpage;
@@ -460,6 +460,9 @@ loadTransactions(acc : AccountItem, page: number = 1)
                this.jsonToday = this.datfmt.jsonFormat( date);
                date.setDate( date.getDate()+1);
                this.jsonTomorrow = this.datfmt.jsonFormat( date );
+
+
+
                // console.log("loadTransactions[next]: transactions contains " + this.transactions.length + " items.");
             }
           },
@@ -474,12 +477,24 @@ loadTransactions(acc : AccountItem, page: number = 1)
    // console.log("loadTransactions:Finished");
 }
 
-nextPage() 
+initTxnTypes()
+{
+   if(this.txnTypes.length < 1)
+   {
+      this.txnTypes = this.accountService.getTransactionTypes();
+      if(this.txnTypes.length > 0)
+      {
+         this.txType = this.txnTypes[0];
+      }
+   }
+}
+
+nextPage()
 {
    this.loadTransactions(this.activeaccount, this.pageNumber + 1);
 }
 
-prevPage() 
+prevPage()
 {
    let p = this.pageNumber;
    if(p < 2)
@@ -544,7 +559,7 @@ addTransactionToDB(txn :AddTransactionItem)
 
           // If a transfer was done then the last communication might have been updated.
          // Only way to refresh the list at the moment is to reset it...
-         this.resetTransfer();           
+         this.resetTransfer();
       },
       error: (err)=>{
           console.log("addTransactionToDB[error]: An error occured during addTransactionToDB subscribe:" + JSON.stringify(err));
@@ -562,8 +577,8 @@ addTransactionToDB(txn :AddTransactionItem)
 resetTransfer()
 {
    this.isTransfer = false;
-   this.transferAccounts = undefined; 
-   this.typahtfraccs = [];  
+   this.transferAccounts = undefined;
+   this.typahtfraccs = [];
    this.txCommunication = '';
    this.txCptyName = '';
    this.txCptyNumber = '';
@@ -605,11 +620,11 @@ addtransaction()
    // Apparently the '??' means use the result unless it's undefined or null and then use the value after the ??
    newent.date = this.datfmt.jsonFormat(d); // this.datePipe.transform(d, dateFormatJson) ?? '';
    newent.type = this.txType;
- 
+
    if(this.canShowTransferAccounts()) // Only add these if 'Transfer' mode is enabled
    {
-      // WARNING: with 'typeahead' the 'model' value completly ignores the 'type' assigned to the 
-      // model variable (txCptyName) and sets it to the string entered into the input field 
+      // WARNING: with 'typeahead' the 'model' value completly ignores the 'type' assigned to the
+      // model variable (txCptyName) and sets it to the string entered into the input field
       // or the object selected from the list.
       // Of course there is no straightforward to check if txCptyName is an instance of TfrAccountItem
       // so must simply hope that it is only set to a TfrAccountItem or a string.
@@ -623,7 +638,7 @@ addtransaction()
             newent.cptyAccount = tfracc.cptyAccountName;
 
             // Only use the transferaccount if the account number entered in the field matches the tfraccount number
-            // otherwise ignore the transfer account 
+            // otherwise ignore the transfer account
             if(this.isMatchAccNumber(tfracc, this.txCptyNumber))
             {
                newent.transferAccount = tfracc.id;
@@ -637,8 +652,8 @@ addtransaction()
       newent.communication = this.txCommunication;
       newent.cptyAccountNumber = this.txCptyNumber;
    }
-   // console.log("Date: " + newent.date + "Type: " + newent.type + "Comment: " + newent.comment + "Amount: " + newent.amount);  
-   this.addTransactionToDB(newent); 
+   // console.log("Date: " + newent.date + "Type: " + newent.type + "Comment: " + newent.comment + "Amount: " + newent.amount);
+   this.addTransactionToDB(newent);
 }
 
 lockedChange()
@@ -647,7 +662,7 @@ lockedChange()
   if(this.updateTxn.locked && !this.updateTxn.statementref)
   {
     //console.log("TransactionsComponent.lockedChange: set ref:" + this.activeaccount.statementref);
-    this.updateTxn.statementref = this.activeaccount.statementref;  
+    this.updateTxn.statementref = this.activeaccount.statementref;
   }
 }
 
@@ -658,7 +673,7 @@ rowClasses(txn : TransactionItem) : string []
    //    'table-primary': isFuture(txn)
    // }"
    let classes : string [] = [];
-   if(txn.locked) 
+   if(txn.locked)
    {
       classes.push('table-success');
    }
@@ -677,7 +692,7 @@ rowClasses(txn : TransactionItem) : string []
    return classes;
 }
 
-delTransactionToDB(txn : TransactionItem) 
+delTransactionToDB(txn : TransactionItem)
 {
    console.log("TransactionsComponent.delTransactionToDB: Starting");
    this.inprogress = true;
@@ -698,8 +713,8 @@ delTransactionToDB(txn : TransactionItem)
          this.inprogress = false;
          }
     });
- 
-   console.log("TransactionsComponent.delTransactionToDB:Finished");   
+
+   console.log("TransactionsComponent.delTransactionToDB:Finished");
 }
 
 updTransactionToDB(txn : TransactionItem, showcheckedbal: boolean)
@@ -739,11 +754,11 @@ updatetransaction(updtxn : TransactionItem)
    {
       console.log("No transaction is being updated");
       return;
-   }   
+   }
    if(!(updtxn.token === this.origupdTxn.token) )
    {
       console.log("Invalid update request: Tokens do not match");
-      return;     
+      return;
    }
 
    // Problem comparing the dates - the old date has a time value of +1hr but the new one
@@ -769,28 +784,28 @@ updatetransaction(updtxn : TransactionItem)
    console.log("Date:    new:" + updtxn.date + " old:" + oldDatestr);
    console.log("Type:    new:" + updtxn.type + " old:" + this.origupdTxn.type);
    console.log("Comment: new:" + updtxn.comment + " old:" + this.origupdTxn.comment);
-   console.log("Amount:  new:" + updtxn.amount + " old:" + this.origupdTxn.amount);  
-   console.log("Locked:  new:" + updtxn.locked + " old:" + this.origupdTxn.locked);   
-   console.log("StRef:   new:" + updtxn.statementref + " accref:" + this.activeaccount.statementref); 
-   
+   console.log("Amount:  new:" + updtxn.amount + " old:" + this.origupdTxn.amount);
+   console.log("Locked:  new:" + updtxn.locked + " old:" + this.origupdTxn.locked);
+   console.log("StRef:   new:" + updtxn.statementref + " accref:" + this.activeaccount.statementref);
+
    // Only update the checked balance when it is changed to locked
    // this is not really correct but it is consistent with what the backend is doing at the moment.
    // It assumes that an unlock is temporary for adjustment, eg. of the comment, and the txn
    // will be re-locked immediately.
    let newlylocked: boolean = (!this.origupdTxn.locked && updtxn.locked);
    let statementref : string = (updtxn.statementref ?? "").trim();
-   let origstatementref : string = (this.origupdTxn.statementref ?? "").trim(); 
+   let origstatementref : string = (this.origupdTxn.statementref ?? "").trim();
    let acclastref  : string = (this.activeaccount.statementref ?? "").trim();
 
    this.updTransactionToDB(updtxn, newlylocked);
 
    // If the locked state was changed to locked and the txn statementref is present
    // and different to the account statementref then the account statementref should be updated.
-   // This will require an update on the server as the accountitem is loaded each time the 
+   // This will require an update on the server as the accountitem is loaded each time the
    // update dialog is displayed.
    if((newlylocked)
         && (origstatementref.length == 0)
-        && (statementref.length != 0) 
+        && (statementref.length != 0)
         && (statementref != acclastref))
    {
       this.activeaccount.statementref = statementref;
@@ -804,7 +819,7 @@ updatetransaction(updtxn : TransactionItem)
 
 formatDateColumn(jsondate: string) : string
 {
-   return this.datfmt.listFormat(jsondate) ;   
+   return this.datfmt.listFormat(jsondate) ;
 }
 
 // An EPC looks like this
@@ -881,12 +896,12 @@ onPasteUpd(event: ClipboardEvent) {
      const scomm : string | undefined = this.cleanSComm(clptxt);
      if(scomm)
      {
-      console.log("onPasteUpd: replace clipboard content with cleaned scomm: " + scomm); 
+      console.log("onPasteUpd: replace clipboard content with cleaned scomm: " + scomm);
 
       // Can't update the clipboard and do the paste with the new text.
       // Instead need to cancel the paste and then try to emulate what should
       // be happening. Forking crazy.
-      // This BS seems to work except for some things don't work properly after, eg. it is not 
+      // This BS seems to work except for some things don't work properly after, eg. it is not
       // possible to revert the change, ie. Ctrl-Z. Still it is better than trying to edit
       // the structure communications by hand on the phone!!
       //clipboardData.setData('text', scomm);
@@ -910,8 +925,8 @@ onPasteUpd(event: ClipboardEvent) {
       // doing it for me. Naturally Google is full of the same sort of question dating from Angular2
       // with no working answers and no still no fix in Angular19.
       // +++462/7468/14516+++
-      // this.cd.markForCheck(); doesn't work, even with detectChanges 
- 
+      // this.cd.markForCheck(); doesn't work, even with detectChanges
+
       // Maybe something like... change:nope input:YIPEEE! Input actually seem to work!
       var evt = new CustomEvent('input');
       element.dispatchEvent(evt);
@@ -919,22 +934,22 @@ onPasteUpd(event: ClipboardEvent) {
       // // This is really really ugly but is the only thing that actually works.
       // if(element.id == "txCommentUpd")
       // {
-      //    this.updateTxn.comment = element.value; 
+      //    this.updateTxn.comment = element.value;
       // }
       // else if(element.id == 'txCommunication')
       // {
-      //    this.txCommunication = element.value; 
+      //    this.txCommunication = element.value;
       // }
 
-      // NB selecting pasted text is not default behaviour - the cleaned number is usually meeded for 
+      // NB selecting pasted text is not default behaviour - the cleaned number is usually meeded for
       // the filename of the invoice document so auto selecting it makes it easier to copy.
       element.selectionStart = start;
-      element.selectionEnd = start + scomm.length;        
+      element.selectionEnd = start + scomm.length;
      }
    }
    console.log("onPasteUpd: exit");
  }
- 
+
 // Adapted this so I can paste an EPC code into the memo field and have it parsed
 // This relies on the EPC parser returning undefined if it fails to parse the
 // clipboard content, in which case the normal paste action should take place
@@ -1017,7 +1032,7 @@ onScanFailure(error: any) {
   //console.warn(`Code scan error = ${error}`);
 }
 
-isScanning() : boolean 
+isScanning() : boolean
 {
    return (this.html5QrcodeScanner != undefined);
 }
@@ -1027,23 +1042,23 @@ stopScan() {
       console.log('stopScan: stopping scanner');
       this.html5QrcodeScanner.clear();
       this.html5QrcodeScanner = undefined;
-    }   
+    }
 }
 
 doScan() {
    this.html5QrcodeScanner = new Html5QrcodeScanner("reader",
-      { 
-         fps: 10, 
-         qrbox: {width: 250, height: 250}, 
+      {
+         fps: 10,
+         qrbox: {width: 250, height: 250},
          supportedScanTypes: [],
          showTorchButtonIfSupported: true,
          rememberLastUsedCamera: true,
-         experimentalFeatures: 
+         experimentalFeatures:
          {
-            // This requires the 'Shape Detection API' flag to be true. This is located buried in 
+            // This requires the 'Shape Detection API' flag to be true. This is located buried in
             // Settings>Apps>Safari>Advanced>Feature Flags>Shape Detection API. No clue if it makes any difference
             useBarCodeDetectorIfSupported: true
-         } 
+         }
       },
       /* verbose= */ false);
 
@@ -1060,7 +1075,7 @@ doScan() {
    // // Obviously it doesn't actually compile because 'zoom' is not a valid property,
    // // and autofocus already appears to be enabled by default.
    // // wait 2 seconds to guarantee the camera has already started to apply the focus mode and zoom...
-   // setTimeout(() => 
+   // setTimeout(() =>
    // {
    //    if(this.html5QrcodeScanner)
    //    {
@@ -1075,10 +1090,10 @@ doScan() {
 }
 isAccount() : boolean
 {
-   // !! is a trick to get a boolean value the equivalent of if( value ). 
-   // The the first ! gives boolean true if value is null,undefined,falsey and the second 
+   // !! is a trick to get a boolean value the equivalent of if( value ).
+   // The the first ! gives boolean true if value is null,undefined,falsey and the second
    // results in false if the value is null,undefined,falsey
-   return !!this.activeaccount; // 
+   return !!this.activeaccount; //
 }
 
 isTransactions() : boolean {
@@ -1130,6 +1145,6 @@ formatter = (x: TfrAccountItem) => // appears to be triggered when item in list 
    {
       this.onSearchCptySelect(x);
       return x.cptyAccountName;
-   };    
+   };
 } // End class
 

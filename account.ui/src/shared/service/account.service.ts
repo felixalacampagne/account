@@ -58,31 +58,31 @@ export class AccountService
       {period: "Y", desc: "Year"}
      ];
 
-   public txnTypes: string[] = [
-   "BC",
-   "AWAL",
-   "ITFR",
-   "INET",
-   "PPAL",
-   "CARD",
-   "MED",
-   "P2PM",
-   "QRMP",
-   "DDBT",
-   "INT",
-   "TFR",
-   "ZOOM",
-   "PAY",
-   "SAVE",
-   "GROC",
-   "PRIC",
-   "FEE",
-   "BANK",
-   "DOMI",
-   "INV",
-   "INSR",
-   "CAR"
-   ];
+   private txnTypes: string[] = [];
+   // "BC",
+   // "AWAL",
+   // "ITFR",
+   // "INET",
+   // "PPAL",
+   // "CARD",
+   // "MED",
+   // "P2PM",
+   // "QRMP",
+   // "DDBT",
+   // "INT",
+   // "TFR",
+   // "ZOOM",
+   // "PAY",
+   // "SAVE",
+   // "GROC",
+   // "PRIC",
+   // "FEE",
+   // "BANK",
+   // "DOMI",
+   // "INV",
+   // "INSR",
+   // "CAR"
+   // ];
 
    accountChanged : BehaviorSubject<number> = new BehaviorSubject(-1);
 
@@ -130,7 +130,18 @@ export class AccountService
      url = this.makeApiname(this.listtxntypes);
      // The account items are returned wrapped in an array named accounts
      console.log("listTransactionTypes API URL: " + url);
-     return this.http.get(url).pipe( map((res:any) => res.accounts) );
+     return this.http.get(url).pipe( map((res:any) => res) );
+   }
+
+   setTransactionTypes(types: string[]) {
+      console.log("setTransactionTypes: no. txns: " + types.length);
+      this.txnTypes = types;
+   }
+
+   getTransactionTypes() : string[]
+   {
+      console.log("getTransactionTypes: no. txns: " + this.txnTypes.length);
+      return this.txnTypes;
    }
 
    getAccounts() : Observable<AccountItem[]>

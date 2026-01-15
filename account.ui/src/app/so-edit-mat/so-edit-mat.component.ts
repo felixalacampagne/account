@@ -102,7 +102,7 @@ export class SoEditMatComponent
    constructor(private accountService: AccountService, private datePipe: DatePipe)
    {
       this.periodTypes = this.accountService.periodTypes;
-      this.txnTypes = this.accountService.txnTypes;
+      this.txnTypes = this.accountService.getTransactionTypes();
       this.soForm = new FormGroup({
          soentrydate: new FormControl('', Validators.required),       // a date picker
          sonextpaydate: new FormControl('', Validators.required),     // a date picker

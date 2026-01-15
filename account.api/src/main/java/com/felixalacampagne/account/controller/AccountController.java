@@ -122,7 +122,7 @@ public class AccountController {
        return this.accountService.getAccounts();
     }
 
-    @GetMapping(URL_GETACCOUNTSFORTFR)
+    @GetMapping(URL_TXNTYPES)
     public List<String> getTransactionTypes()
     {
        return this.accountService.getTransactionTypes();
