@@ -1,6 +1,6 @@
 Attribute VB_Name = "statement_load"
 Option Explicit
-' 2025-11-05 17:20
+' 2025-11-05 10:07
 
 Sub LoadStatement()
 Dim statement As String
@@ -326,6 +326,13 @@ Const stmnthead As String = "Statement on : "
       .Cells.EntireColumn.AutoFit
       .Columns("A:A").ClearFormats
       .Columns("A:A").NumberFormat = "dd/mm/yyyy;@"
+      
+      ' Must force text amounta to be interrpreted as numeric values so the thousands separator and currency symbol are removed
+      .Columns("E:E").ClearFormats
+      .Columns("E:E").NumberFormat = "###0.00;-###0.00"
+      With .Columns("E:E")
+      .Value = .Value
+      End With
    End With
    ActiveSheet.Name = Right$(stmtname, 31)
    sortsheet COL_DATE
@@ -337,17 +344,10 @@ Dim lastcol As Integer
 
     Cells(1, sortcol).Select
     lastrow = Cells(Rows.Count, sortcol).End(xlUp).row      ' This magic finds the last row
-
-    ' Some statments do not have headers for all rows.
-    ' Assume all statements have a header row.
-    ' Thus row 2 is a full row (or empty for an empty statement)
-    lastcol = Cells(2, Columns.Count).End(xlToLeft).column  ' This magic finds the last column
-
-    ' WARNING: Beomc date column inexplicably requires 'xlSortTextAsNumbers'
-    ' whereas xlSortNormal is OK for other statement types
+    lastcol = Cells(1, Columns.Count).End(xlToLeft).column  ' This magic finds the last column
     With ActiveSheet
       .Sort.SortFields.Clear
-      .Sort.SortFields.Add2 Key:=Range(Cells(2, sortcol), Cells(lastrow, sortcol)), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortTextAsNumbers
+      .Sort.SortFields.Add2 Key:=Range(Cells(2, sortcol), Cells(lastrow, sortcol)), SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
       .Sort.Header = xlYes
       .Sort.MatchCase = False
       .Sort.Orientation = xlTopToBottom
