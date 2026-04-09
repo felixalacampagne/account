@@ -1,4 +1,4 @@
-Attribute VB_Name = "Module1"
+Attribute VB_Name = "modTimeTracker"
 Const TASKSHEET = "Task_input"
 Const NORMALTESTCOLOR = 16777215 'Normal balck/white cell - can be changed
 Const GOODTESTCOLOR = 13561798 ' Good colour (Green)
@@ -26,6 +26,60 @@ Type DaySummary
    isset As Boolean
 End Type
 
+
+Sub setDataValidation()
+'
+' setDataValidation Macro
+' sets the data validation restriction for a date/time cell
+'
+
+'
+Dim c As Long
+Dim r As Long
+Dim formula As String
+Dim addr As String
+c = ActiveCell.Column
+r = ActiveCell.row
+
+addr = "ADDRESS(" & r & ", " & c & ")"
+
+formula = "=NOT(ISERROR(TIMEVALUE(TEXT(" & addr & ", ""hh:mm""))))"
+    With Selection.Validation
+        .Delete
+        .Add Type:=xlValidateCustom, AlertStyle:=xlValidAlertStop, Operator:=xlBetween, Formula1:=formula
+        .IgnoreBlank = True
+        .InCellDropdown = True
+        .InputTitle = ""
+        .ErrorTitle = "Anti-random typing"
+        .InputMessage = ""
+        .ErrorMessage = _
+        "Either use do Delete and Now " & Chr(10) & "or" & Chr(10) & "enter a valid date/time: dd/mm/yyyy hh:mm:ss"
+        .ShowInput = False
+        .ShowError = True
+    End With
+End Sub
+
+' No clean/simple way to validate that a valid date/time entry is present in the cell
+' when called from 'formula' or 'data validation'. The value passed is the display value not
+' the real content of the cell.
+Function isValidDateTime(val As String) As Boolean
+Debug.Print val, IsDate(val)
+If val = "" Then
+   isValidDateTime = True
+   Exit Function
+End If
+
+On Error GoTo isValidDateTimeErr
+Dim d As Date
+   d = val
+   Debug.Print "Valid date", val
+   isValidDateTime = True
+   Exit Function
+   
+isValidDateTimeErr:
+   Debug.Print "INvalid date", val
+   isValidDateTime = False
+End Function
 
 Sub DailyTaskActuals()
 Dim i As Integer
@@ -66,7 +120,7 @@ Dim msg As String
             compdate = DateValue(Cells(rowno, 11).Value)
             If compdate = curdaysum.date Then
       
-                  curdaysum.sumactual = curdaysum.sumactual + Val(Cells(rowno, 10))
+                  curdaysum.sumactual = curdaysum.sumactual + val(Cells(rowno, 10))
             End If
          End If
       End If
@@ -74,7 +128,7 @@ Dim msg As String
          If IsDate(Cells(rowno, 9).Value) Then
             compdate = DateValue(Cells(rowno, 9).Value)
             If compdate = curdaysum.date Then
-               curdaysum.sumestimate = curdaysum.sumestimate + Val(Cells(rowno, 8))
+               curdaysum.sumestimate = curdaysum.sumestimate + val(Cells(rowno, 8))
             End If
          End If
       End If
@@ -120,6 +174,29 @@ getCurrentDayRow = row
 End Function
 
 
+Function getDateWeekRow(dt As Date) As Integer
+Dim week As Integer
+Dim rowoffset As Integer
+
+week = DatePart("ww", Now)  ' week number
+
+rowoffset = ((week) * 7)
+getDateWeekRow = rowoffset - 1
+End Function
+
+Function getDateDayRow(dt As Date) As Integer
+Dim row As Integer
+Dim week As Integer
+Dim rowoffset As Integer
+
+row = DatePart("w", dt)    ' day of week
+
+rowoffset = getDateWeekRow(dt)
+row = row + rowoffset - 2 ' Mon is day 2, rowoffset is Mon
+
+getDateDayRow = row
+End Function
+
 Sub setcellbkg(row As Integer, col As Integer, green As Integer)
 ' This is a hack to change the colour of the cell from a 'user defined function', ie. one called
 ' as a formula
@@ -128,6 +205,74 @@ If green = 1 Then
 Else
     Cells(row, col).Interior.Color = rgb(242, 220, 219) ' #F2DCDB 80% red, use .ColorIndex = xlNone for no fill
 End If
+End Sub
+
+Sub InsertLastLocked()
+Dim FileNum As Integer
+Dim DataLine As String
+Dim eventsfile As String
+Dim lockline As String
+Dim idx As Integer
+Dim locktime As String
+Dim lockdatestr As String
+Dim locktimestr As String
+Dim lockdate As Date
+
+eventsfile = "C:\development\utils\monitor\logevents.log"
+
+' Could use FileSystemObject if something more sophisticated is required but
+' for now open/close seems to work just fine.
+' requires a reference to Microsoft Scripting Runtime.
+'Dim fso As FileSystemObject: Set fso = New FileSystemObject
+'Set txtStream = fso.OpenTextFile(filePath, ForReading, False)
+'Do While Not txtStream.AtEndOfStream
+'   line = txtStream.ReadLine
+'Loop
+'txtStream.Close
+
+FileNum = FreeFile()
+Open eventsfile For Input As #FileNum
+
+While Not EOF(FileNum)
+   Line Input #FileNum, DataLine ' read in data 1 line at a time
+    
+   idx = InStr(DataLine, " Workstation: LOCKED")
+   If idx > 0 Then
+      lockline = DataLine
+      'Debug.Print "Lock line:" & lockline
+   End If
+Wend
+
+Close #FileNum
+
+If Len(lockline) > 0 Then
+   locktime = Left$(lockline, 19)
+   'Debug.Print "Time to insert: [" & locktime & "]"
+   
+   ' Need to convert the string to datetime but VBA can only handle a date string ro a time string, not
+   ' a combined datetime string.
+   'lockdatestr = Left$(locktime, 10)
+   'locktimestr = Right$(locktime, 8)
+   'lockdate = DateValue(lockdatestr) + TimeValue(locktimestr)
+   
+   lockdate = CDate(locktime) 'CDate seems to handle a datetime
+   row = getDateDayRow(lockdate)
+      
+   ' Need to allow for entry of last value of previous day.
+   If ActiveCell.row = row Then
+      If ActiveCell.Text = "" Then
+         ActiveCell.Value = lockdate
+         ActiveCell.NumberFormat = "hh:mm"
+      Else
+         Debug.Print "ActiveCell is not empty"
+      End If
+   Else
+      Debug.Print "Active cell row (" & ActiveCell.row & ") is not the lock date row (" & row & ")"
+   End If
+Else
+   Debug.Print "No lock line found"
+End If
+
 End Sub
 
 
@@ -351,7 +496,7 @@ Dim hour As Integer
 Dim min As Integer
     
     Application.Volatile
-    ' WARNING: Excel cannot handle a -ve remaining time so I a workaround would be to change the cell
+    ' WARNING: Excel cannot handle a -ve remaining time so a workaround would be to change the cell
     ' color. This can't be done with a native formula function so I figured I'd use a VBA so-called
     ' user-defined-function. Some hours later I now find that changing the color is blocked for some
     ' reason unknown reason. So this was a waste of time
@@ -527,13 +672,20 @@ Dim stopt As Date
 Dim startt As Date
 Dim mins As Date
 Dim totmins As Date
+Dim xdate As Date
 
    row = ActiveCell.row
    ReDim xranges(0)
    ReDim xrange(0)
    ' Add to the extra time column
-   Cells(row, CXSUM).Value = Cells(row, CXEND).Value - Cells(row, CXSTART).Value
    Cells(row, CXSUM).NumberFormat = "hh:mm"
+   If Cells(row, CXEND).Value = "" Then
+      'Cells(row, CXSUM).Value = Now - Cells(row, CXSTART).Value
+      xdate = Now - Cells(row, CXSTART).Value
+   Else
+      'Cells(row, CXSUM).Value = Cells(row, CXEND).Value - Cells(row, CXSTART).Value
+      xdate = Cells(row, CXEND).Value - Cells(row, CXSTART).Value
+   End If
    
    If Cells(row, CXMULTI).Text <> "" Then
       ' Format of this cell is;
@@ -549,11 +701,15 @@ Dim totmins As Date
          totmins = totmins + mins
       Next
       
-      mins = TimeValue(Cells(row, CXSUM).Text)
+      ' mins = TimeValue(Cells(row, CXSUM).Text)
+      mins = TimeValue(xdate)
       totmins = totmins + mins
       Cells(row, CXSUM).Value = totmins
-      Cells(row, CXSUM).NumberFormat = "hh:mm"
+      ' Cells(row, CXSUM).NumberFormat = "hh:mm"
    End If
+   
+   Cells(row, CXSUM).NumberFormat = "hh:mm"
+
 End Sub
 
 Function Tokens2Array(ByVal pstring As String, pdelims As String, pTokens() As String) As Long
