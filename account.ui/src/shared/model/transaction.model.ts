@@ -14,9 +14,9 @@ export class TransactionItem
     public statementref : string = "";
     constructor()
     {
-        
+
     }
-    
+
     copy(item: TransactionItem)
     {
       this.accid = item.accid;

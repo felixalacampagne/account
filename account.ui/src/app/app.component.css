@@ -8,7 +8,7 @@
   trying to get that to work I somehow succeeded in getting the overlay so do what I wanted,
   more or less. No real idea why it works now but didn't hours and hours ago when I started
   doing it. The missing thing now is the height of the scanner 'permission' panel - it should
-  be higher but setting a height for qrreadercontainer causes the transaction list to be 
+  be higher but setting a height for qrreadercontainer causes the transaction list to be
   permanently obscured.
 */
 #txncontainer {
@@ -24,14 +24,14 @@
 }
 
 #txnform {
-  margin-top: 0px; 
+  margin-top: 0px;
   top: 0px
 }
 
 /*
- Tried to get the version to display just below the title in a tiny font. 
+ Tried to get the version to display just below the title in a tiny font.
  This appears to be the way to change the meaning of the 'small' when displayed
- in the 'navbar-brand' class. 
+ in the 'navbar-brand' class.
  Nothing I tried prevented huge expanses of empty space from appearing between the title and the version
  which causes the top bar to become ridiculously high so in the end I'm forced to putting the version
  on the same line as the title.
@@ -55,7 +55,7 @@
 #qrreadercontainer {
   z-index: 1000000000;
   opacity: 1;
-  margin-top: -350px; 
+  margin-top: -350px;
   background: white;
 }
 
@@ -70,7 +70,7 @@
    The real magic is that the rows are still striped, ie. locked rows have the color given below but
    odd rows are a bit darker than even rows!
 
-   Turns out there is a bootstrap way to do what I wanted without needing to 
+   Turns out there is a bootstrap way to do what I wanted without needing to
    create my own style class. The stripes are actually intended 'semi-transparent',
    see: https://getbootstrap.com/docs/5.2/content/tables/#striped-rows
  */
@@ -115,7 +115,7 @@ td.account-edit, th.account-edit
    The only thing that has made any difference is the padding/margin settings, and they only work if
    !important is used. Why on earth don't they realise that not everyone wants to waste very valuable screen
    space by filling it with useless whitespace??
-   
+
    The 'btn' class is modified in the .scss file to remove the excessive line-height, padding and margin.
    I couldn't figure out how to do the same for the 'table' class which is using. The bootstrap docs
    refer to variables being used to set properties but I failed to find anything which made an sense

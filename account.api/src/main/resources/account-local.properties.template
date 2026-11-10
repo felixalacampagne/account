@@ -11,6 +11,9 @@ local.falc.account.db.password=secret
 #   day of week
 # "0 10 08 * * ?"  08:10 every day
 # "*/10 * * * * *" every 10 seconds
-#                               s m  h  d m 
+#                               s m  h  d m
 local.falc.account.standingorder.cron=0 5 */4 * * ?
 local.falc.account.db.cron=0 45 23 * * ?
+
+# Must include the trailing comma
+local.falc.account.txntypes=UTP1,UTYP2,UTYP3,

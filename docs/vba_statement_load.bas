@@ -326,6 +326,13 @@ Const stmnthead As String = "Statement on : "
       .Cells.EntireColumn.AutoFit
       .Columns("A:A").ClearFormats
       .Columns("A:A").NumberFormat = "dd/mm/yyyy;@"
+      
+      ' Must force text to be interrpreted as numeric values so the thousands separator and currency symbol are removed
+      .Columns("E:E").ClearFormats
+      .Columns("E:E").NumberFormat = "###0.00;-###0.00"
+      With .Columns("E:E")
+      .Value = .Value
+      End With
    End With
    ActiveSheet.Name = Right$(stmtname, 31)
    sortsheet COL_DATE
@@ -337,12 +344,12 @@ Dim lastcol As Integer
 
     Cells(1, sortcol).Select
     lastrow = Cells(Rows.Count, sortcol).End(xlUp).row      ' This magic finds the last row
-
+    
     ' Some statments do not have headers for all rows.
     ' Assume all statements have a header row.
-    ' Thus row 2 is a full row (or empty for an empty statement)
+    ' Thus row 2 is a full row (or emtpy for an empty statement)
     lastcol = Cells(2, Columns.Count).End(xlToLeft).column  ' This magic finds the last column
-
+    
     ' WARNING: Beomc date column inexplicably requires 'xlSortTextAsNumbers'
     ' whereas xlSortNormal is OK for other statement types
     With ActiveSheet

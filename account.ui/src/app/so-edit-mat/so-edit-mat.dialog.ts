@@ -22,23 +22,23 @@ import { SoEditMatComponent } from './so-edit-mat.component';
     ]
 })
 
-export class SoEditMatDialog 
+export class SoEditMatDialog
 {
    data = inject(MAT_DIALOG_DATA);
    constructor(public dialogRef: MatDialogRef<SoEditMatDialog>
-      
+
    ) { }
 
    // WARNING: To get the SoEditMatComponent content to fill the dialog box the
    // .mat-mdc-dialog-content max-height style had to be overriden.
-   ngOnInit() 
+   ngOnInit()
    {
 
-   } 
-   
+   }
+
    closeDialog(event: any)
    {
       console.log("SoEditMatDialog: request to close received: " + JSON.stringify(event, null, 2));
-      this.dialogRef.close(event);      
+      this.dialogRef.close(event);
    }
 }

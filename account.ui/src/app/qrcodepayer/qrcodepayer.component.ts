@@ -15,7 +15,7 @@ export class QrcodepayerComponent {
 @Input() epctrans: EPCtransaction = new EPCtransaction();
 @ViewChild('qrcodeimg') qrcodeimg: ElementRef<any> | undefined;
 
-public qrcodeimage: SafeUrl | undefined; 
+public qrcodeimage: SafeUrl | undefined;
    constructor(private accountService: AccountService,
       private readonly sanitizer: DomSanitizer
    )
@@ -23,7 +23,7 @@ public qrcodeimage: SafeUrl | undefined;
    }
    ngOnChanges(changes : SimpleChanges)
    {
-      for (const propName in changes) 
+      for (const propName in changes)
       {
          const chng = changes[propName];
          const cur  = JSON.stringify(chng.currentValue);
@@ -35,7 +35,7 @@ public qrcodeimage: SafeUrl | undefined;
             console.log("ngOnChanges: propName: epctrans: " + JSON.stringify(this.epctrans));
 
                // Angular/typescript sucks when it comes to getting values initialized.
-               // This form needs a list of accounts which it can only get asynchronously. 
+               // This form needs a list of accounts which it can only get asynchronously.
                // ngOnChanges usually starts before the list is filled so the method which
                // loads the list must call populateFormFromSO when the list is loaded, but it might
                // happen that the list has already been filled so must call populateFormFromSO from
@@ -43,10 +43,10 @@ public qrcodeimage: SafeUrl | undefined;
                let epc : EPCtransaction = chng.currentValue;
                this.loadqrcode(epc);
          }
-      } 
+      }
    }
 
-   public loadqrcode(epc: EPCtransaction) 
+   public loadqrcode(epc: EPCtransaction)
    {
       this.accountService.getQRCode(epc).subscribe({
          next: (res)=>{
@@ -66,14 +66,14 @@ public qrcodeimage: SafeUrl | undefined;
          complete: ()=>{console.log("loadqrcode[complete]: completed");}
       });
    }
-   
-   public displayImage(image : any) 
+
+   public displayImage(image : any)
    {
       // No forking clue...
       if(this.qrcodeimg)
       {
          const objectURL = URL.createObjectURL(image);
-         this.qrcodeimg.nativeElement.src = objectURL;      
+         this.qrcodeimg.nativeElement.src = objectURL;
       }
    }
 

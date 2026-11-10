@@ -26,15 +26,15 @@ export interface DialogData {
 })
 export class StandingordersComponent implements OnInit {
 
-  standorders : StandingOrderItem[] = []; 
-    
+  standorders : StandingOrderItem[] = [];
+
    constructor(private accountService: AccountService,
       private deviceService: DeviceDetectorService,
       private dateFmt: DateformatService)
    {
-    
-   }   
-   
+
+   }
+
     ngOnInit(): void {
         this.getStandingorders();
     }
@@ -44,7 +44,7 @@ export class StandingordersComponent implements OnInit {
    getStandingorders()
    {
      console.log("StandingordersComponent.getStandingorders: Starting");
-         
+
      this.accountService.getStandingOrders().subscribe({
          next: (res)=>{
                let  ressos : StandingOrderItem[] | undefined;
@@ -56,7 +56,7 @@ export class StandingordersComponent implements OnInit {
                }
                else
                {
-                 this.standorders = ressos; 
+                 this.standorders = ressos;
                  console.log("StandingordersComponent.getStandingorder: standorders contains " + this.standorders.length + " items.");
                }
              },
@@ -65,10 +65,10 @@ export class StandingordersComponent implements OnInit {
              } ,
          complete: ()=>{console.log("StandingordersComponent.getStandingorders: getStandingorders loading completed");}
       });
-   
+
      console.log("StandingordersComponent.getStandingorders :Finished");
    }
-   
+
    editso(so :StandingOrderItem) // maybe needs the modal content
    {
       // This is a kludge for the dialog displaying half off-screen on the phone.
@@ -78,10 +78,10 @@ export class StandingordersComponent implements OnInit {
       // these have no effect on the height of the dialog
       //   ,height: '1000px',
       //   minHeight: '1000px'
-      this.dialog.open(SoEditMatDialog, { 
+      this.dialog.open(SoEditMatDialog, {
          data: so,
          position: position
-      } ) //;     // returns MatDialogRef  
+      } ) //;     // returns MatDialogRef
       .afterClosed().subscribe(result => {
          console.log("StandingordersComponent.editso: dialog closed: " + JSON.stringify(result, null, 2));
          if(result == 'SUBMIT_COMPLETED')
@@ -91,15 +91,15 @@ export class StandingordersComponent implements OnInit {
          else if(result == 'SUBMIT_DELETE')
          {
             this.delStandingordersConfirm(so);
-         }         
+         }
        });
    }
 
    addso() {
       let newso = new StandingOrderItem();
       this.editso(newso);
-   }   
-   
+   }
+
    isStandorders()
    {
       return this.standorders.length > 0;
@@ -107,23 +107,23 @@ export class StandingordersComponent implements OnInit {
 
    formatDateColumn(jsondate: string) : string
    {
-      return this.dateFmt.listFormat(jsondate) ;   
+      return this.dateFmt.listFormat(jsondate) ;
    }
 
-   delStandingordersConfirm(so : StandingOrderItem) 
+   delStandingordersConfirm(so : StandingOrderItem)
    {
       this.dialog.open(StandingorderDeleteConfirmDialog, {data :so} )
-         .afterClosed().subscribe(result => 
+         .afterClosed().subscribe(result =>
          {
             console.log("delStandingordersConfirm: dialog closed: " + JSON.stringify(result, null, 2));
             if(result == 'DELETE_OK')
             {
-               this.delStandingorder(so);      
+               this.delStandingorder(so);
             }
          });
    }
-   
-   delStandingorder(so : StandingOrderItem) 
+
+   delStandingorder(so : StandingOrderItem)
    {
       console.log("delStandingorder: start: transfer account:" + JSON.stringify(so));
       this.accountService.deleteStandingOrder(so).subscribe(
@@ -139,6 +139,6 @@ export class StandingordersComponent implements OnInit {
          complete: ()=>{
             console.log("delStandingorder: complete");
          }
-       });      
-   } 
+       });
+   }
 }

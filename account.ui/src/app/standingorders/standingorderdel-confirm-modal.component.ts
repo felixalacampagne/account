@@ -12,7 +12,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
     ],
     template: `
    <mat-card appearance="outlined">
-      <mat-card-header> 
+      <mat-card-header>
          <mat-card-title>
          <div class="title-card-left">
           Standing Order Delete
@@ -26,7 +26,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
             (click)="dialogRef.close('CANCEL')"
          ></button>
          </div>
-         </mat-card-title>      
+         </mat-card-title>
       </mat-card-header>
 
       <mat-card-content>
@@ -43,7 +43,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
          </p>
          <p>
             Are you sure you want to delete this Standing Order?
-         </p>         
+         </p>
       </mat-card-content>
       <mat-card-actions align='end'>
          <button mat-stroked-button type="reset" (click)="dialogRef.close('CANCEL')">Cancel</button>
@@ -59,6 +59,6 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 export class StandingorderDeleteConfirmDialog {
      data = inject(MAT_DIALOG_DATA);
      constructor(public dialogRef: MatDialogRef<StandingorderDeleteConfirmDialog>
-        
+
      ) { }
 }

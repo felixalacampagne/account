@@ -27,7 +27,7 @@ export class AccountsComponent  implements OnInit {
    {
    }
 
-   ngOnInit(): void 
+   ngOnInit(): void
    {
       this.getAccounts();
    }
@@ -35,7 +35,7 @@ export class AccountsComponent  implements OnInit {
    getAccounts()
    {
       console.log("getAccounts: Starting");
-          
+
       this.accountService.getAccountDetails().subscribe({
          next: (res)=>{
             let  ressos : AccountDetail[] | undefined;
@@ -47,7 +47,7 @@ export class AccountsComponent  implements OnInit {
             }
             else
             {
-            this.accounts = ressos; 
+            this.accounts = ressos;
             console.log("getTransferAccounts: accounts contains " + this.accounts.length + " items.");
             }
          },
@@ -56,7 +56,7 @@ export class AccountsComponent  implements OnInit {
          } ,
          complete: ()=>{console.log("getAccounts: loading completed");}
       });
-    
+
       console.log("getAccounts: Finished");
    }
 
@@ -65,7 +65,7 @@ export class AccountsComponent  implements OnInit {
       return this.accounts.length > 0;
    }
 
-   addAccount() 
+   addAccount()
    {
       let newItem = new AccountDetail();
       this.editAccount(newItem);
@@ -75,8 +75,8 @@ export class AccountsComponent  implements OnInit {
    {
       const position = this.deviceService.isMobile()? { top:'60px', left: '15px'} : {} ;
 
-      this.dialog.open(AccountEditMatDialog, { data: acc, position: position} )  
-         .afterClosed().subscribe(result => 
+      this.dialog.open(AccountEditMatDialog, { data: acc, position: position} )
+         .afterClosed().subscribe(result =>
          {
             console.log("editAccount: dialog closed: " + JSON.stringify(result));
             if(result == 'SUBMIT_COMPLETED')
@@ -90,20 +90,20 @@ export class AccountsComponent  implements OnInit {
          });
    }
 
-   delAccountConfirm(acc : AccountDetail) 
+   delAccountConfirm(acc : AccountDetail)
    {
       this.dialog.open(AccountDeleteConfirmDialog, {data :acc} )
-         .afterClosed().subscribe(result => 
+         .afterClosed().subscribe(result =>
          {
             console.log("delAccountConfirm: dialog closed: " + JSON.stringify(result, null, 2));
             if(result == 'DELETE_OK')
             {
-               this.delAccount(acc);      
+               this.delAccount(acc);
             }
          });
    }
-   
-   delAccount(acc : AccountDetail) 
+
+   delAccount(acc : AccountDetail)
    {
       console.log("delAccount: start: transfer account:" + JSON.stringify(acc));
       this.accountService.deleteAccount(acc).subscribe(
@@ -120,6 +120,6 @@ export class AccountsComponent  implements OnInit {
             this.accountService.notifyAccountModified(acc.id);
             console.log("delAccount: complete");
          }
-       });      
-   }   
+       });
+   }
 }

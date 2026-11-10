@@ -2,7 +2,7 @@
 
 /* On the phone the dialog is displayed with the buttons hidden by the address bar at the bottom of the screen
    and it is impossible to scroll the page up to reveal them - typical forked up angular material UI design.
-   This is supposed to make it possible to scroll the dialog up to see the buttons so they can be used. 
+   This is supposed to make it possible to scroll the dialog up to see the buttons so they can be used.
    It appears to work in the MS Edge emulator... it doesn't work for the actual phone though
    Alas there appears to no solution for the dialog not displaying in the center of the phone screen even though
    the width of the dialog is set appropriately - instead it displays half on/half off and must be scrolled
@@ -19,7 +19,7 @@
 .row {
   display: flex;
   flex-direction: row;
-  margin-top: 0px; 
+  margin-top: 0px;
   margin-bottom: 0px;
 }
 
@@ -36,6 +36,6 @@
    height:100%;
    max-height: 100%;
    padding: 0px 0px 0px 0px !important;
-   overflow: auto !important;   
+   overflow: auto !important;
    background-color:  rgba(0, 0, 0, 0.32);
 }

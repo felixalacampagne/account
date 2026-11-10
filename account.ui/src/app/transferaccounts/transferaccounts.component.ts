@@ -27,7 +27,7 @@ export class TransferaccountsComponent implements OnInit {
    {
    }
 
-   ngOnInit(): void 
+   ngOnInit(): void
    {
       this.getTransferAccounts();
    }
@@ -35,7 +35,7 @@ export class TransferaccountsComponent implements OnInit {
    getTransferAccounts()
    {
       console.log("getTransferAccounts: Starting");
-          
+
       this.accountService.getTransferAccounts().subscribe({
           next: (res)=>{
                 let  ressos : TransferAccountItem[] | undefined;
@@ -47,7 +47,7 @@ export class TransferaccountsComponent implements OnInit {
                 }
                 else
                 {
-                  this.transferAccounts = ressos; 
+                  this.transferAccounts = ressos;
                   console.log("getTransferAccounts: transferAccounts contains " + this.transferAccounts.length + " items.");
                 }
               },
@@ -56,7 +56,7 @@ export class TransferaccountsComponent implements OnInit {
               } ,
           complete: ()=>{console.log("getTransferAccounts: loading completed");}
         });
-    
+
       console.log("getTransferAccounts: Finished");
 
    }
@@ -66,7 +66,7 @@ export class TransferaccountsComponent implements OnInit {
       return this.transferAccounts.length > 0;
    }
 
-   addTransferAccount() 
+   addTransferAccount()
    {
       let newItem = new TransferAccountItem();
       this.editTransferAccount(newItem);
@@ -79,8 +79,8 @@ export class TransferaccountsComponent implements OnInit {
       // these have no effect on the height of the dialog
       //   ,height: '1000px',
       //   minHeight: '1000px'
-      this.dialog.open(TransferaccountEditMatDialog, { data: ta, position: position} )  
-         .afterClosed().subscribe(result => 
+      this.dialog.open(TransferaccountEditMatDialog, { data: ta, position: position} )
+         .afterClosed().subscribe(result =>
          {
             console.log("editTransferAccount: dialog closed: " + JSON.stringify(result));
             if(result == 'SUBMIT_COMPLETED')
@@ -94,21 +94,21 @@ export class TransferaccountsComponent implements OnInit {
          });
    }
 
-   delTxnConfirm(ta : TransferAccountItem) 
+   delTxnConfirm(ta : TransferAccountItem)
    {
       this.dialog.open(TransferAccountDeleteConfirmDialog, {data :ta} )
-         .afterClosed().subscribe(result => 
+         .afterClosed().subscribe(result =>
          {
             console.log("delTxnConfirm: dialog closed: " + JSON.stringify(result, null, 2));
             if(result == 'DELETE_OK')
             {
-               this.delTransferAccount(ta);      
+               this.delTransferAccount(ta);
             }
          });
 
    }
-   
-   delTransferAccount(ta : TransferAccountItem) 
+
+   delTransferAccount(ta : TransferAccountItem)
    {
       console.log("delTransferAccount: start: transfer account:" + JSON.stringify(ta));
       this.accountService.deleteTransferAccount(ta).subscribe(
@@ -122,6 +122,6 @@ export class TransferaccountsComponent implements OnInit {
              console.log("delTransferAccount: An error occured during subscribe" + JSON.stringify(err));
              } ,
          complete: ()=>{console.log("delTransferAccount: complete");}
-       });      
+       });
    }
 }

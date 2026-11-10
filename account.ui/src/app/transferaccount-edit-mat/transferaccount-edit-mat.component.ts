@@ -50,19 +50,19 @@ export class TransferAccountEditMatComponent implements OnInit
    {
 
        this.taForm = new FormGroup({
-         cptyAccountName: new FormControl('', Validators.required), 
-         cptyAccountNumber: new FormControl('', Validators.required), 
-         lastCommunication: new FormControl('', Validators.nullValidator), 
+         cptyAccountName: new FormControl('', Validators.required),
+         cptyAccountNumber: new FormControl('', Validators.required),
+         lastCommunication: new FormControl('', Validators.nullValidator),
          relatedAccount: new FormControl(null as unknown as AccountItem, Validators.nullValidator), // select from dropdown of accounts
-         order: new FormControl(1, 
+         order: new FormControl(1,
             [
                Validators.required,
                Validators.pattern(/^\d+$/)  // integer only
-            ] ),  
+            ] ),
         });
    }
 
-   relatedAccountChange(value : AccountItem) 
+   relatedAccountChange(value : AccountItem)
    {
       console.log("relatedAccountChange: value:" + JSON.stringify(value));
       if(this.origItem)
@@ -72,7 +72,7 @@ export class TransferAccountEditMatComponent implements OnInit
             console.log("relatedAccountChange: set cptyAccountName:" + value.name);
             this.taForm.patchValue({
                cptyAccountName : value.name
-            });            
+            });
          }
       }
    }
@@ -82,7 +82,7 @@ export class TransferAccountEditMatComponent implements OnInit
    {
       this.accountService.getAccounts().subscribe({
          next: (res) => {
-            
+
             // debugger;
             if(!res)
             {
@@ -106,13 +106,13 @@ export class TransferAccountEditMatComponent implements OnInit
          complete: ()=>{console.log("ngOnInit: getAccounts loading completed");}
       });
 
-      
+
       console.log("ngOnInit:Finished");
    }
 
    ngOnChanges(changes : SimpleChanges)
    {
-      for (const propName in changes) 
+      for (const propName in changes)
       {
          const chng = changes[propName];
          const cur  = JSON.stringify(chng.currentValue);
@@ -125,7 +125,7 @@ export class TransferAccountEditMatComponent implements OnInit
             if(this.accounts.length > 0 )
             {
                // Angular/typescript sucks when it comes to getting values initialized.
-               // This form needs a list of accounts which it can only get asynchronously. 
+               // This form needs a list of accounts which it can only get asynchronously.
                // ngOnChanges usually starts before the list is filled so the method which
                // loads the list must call populateFormFromSO when the list is loaded, but it might
                // happen that the list has already been filled so must call populateFormFromSO from
@@ -134,21 +134,21 @@ export class TransferAccountEditMatComponent implements OnInit
                this.populateForm(item);
             }
          }
-      } 
+      }
    }
 
    onCancel(): void {
       // Only cancels/avoids the form submission if the button type=reset - this is not documented anywhere
-      // in the material or react docs - just have to waste hours googling until you stumble on something 
+      // in the material or react docs - just have to waste hours googling until you stumble on something
       // which looks like what you are doing and see if it works for you!
       console.log("onCancel:");
       this.submittedEvent.emit('CANCELLED');
    }
 
-   onSubmit(): void 
+   onSubmit(): void
    {
       console.log("onSubmit: form values: " + JSON.stringify(this.taForm.value));
-      
+
       let ta : TransferAccountItem = new TransferAccountItem();
       ta.id = this.origItem?.id ?? -1;
       ta.token = this.origItem?.token ?? '';
@@ -183,7 +183,7 @@ export class TransferAccountEditMatComponent implements OnInit
             this.submittedEvent.emit('SUBMIT_COMPLETED');
          }
       });
-   
+
    }
 
    canDelete() : boolean
@@ -217,5 +217,5 @@ export class TransferAccountEditMatComponent implements OnInit
          order : ta.order,
          relatedAccount : acc
       });
-  }  
+  }
 }

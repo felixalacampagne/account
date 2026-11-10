@@ -12,7 +12,7 @@ export const routes = [
    {path: 'transferaccounts', title: "Transfer Accounts", component: TransferaccountsComponent},
    {path: 'standingorders', title: "Standing Orders", component: StandingordersComponent},
    {path: 'accounts', title: "Accounts", component: AccountsComponent}
-   
+
    //, {path: '**', redirectTo: '/'}
 ];
 
@@ -25,7 +25,7 @@ export const routes = [
 // and there is fork all indication how or where to change the value from the default...
 
 // Was finally ready to deploy a version using routing for access to StandingOrders and transactions and
-// which supported use of the browser refresh button - in fact better than the current version since 
+// which supported use of the browser refresh button - in fact better than the current version since
 // it actually reloaded the currently displayed page rather than going back to the empty start view.
 // Of course I was deluding myself to think that this basic of the the basic functionality was going to
 // actually work in the 'production' version.... and it didn't - all that was displayed was the
@@ -43,7 +43,7 @@ export const routes = [
 // but I guess it's the only way forward - difficult to test also.
 // One article mentioned that for angular18 the href can be set per environment with something like:
 // production:
-// projects.PROJECT_NAME.architect.build.configurations.production.baseHref property for production 
+// projects.PROJECT_NAME.architect.build.configurations.production.baseHref property for production
 // development
 // projects.PROJECT_NAME.architect.build.configurations.development.baseHref for development.
 //
@@ -51,7 +51,7 @@ export const routes = [
 // this maybe:
 //   ng build --prod --base-href=/test/
 // maybe (see https://angular.dev/cli/build)
-//   ng build --prod --deploy-url=   
+//   ng build --prod --deploy-url=
 // Maybe using 'HashLocationStrategy' instead of the default 'PathLocationStrategy' would be better - this makes
 // sense since the default settings seem to be ALWAYS the LEAST appropriate ones to use in real life.
 // I've set app.module to do this but cannot test it at present
