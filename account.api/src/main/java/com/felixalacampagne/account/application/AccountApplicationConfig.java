@@ -10,7 +10,7 @@ import com.felixalacampagne.account.service.ServiceConfig;
 import com.felixalacampagne.account.standingorder.StandingOrderConfig;
 
 @Configuration
-@Import({RepositoryConfig.class, ServiceConfig.class, StandingOrderConfig.class})
+@Import({RepositoryConfig.class, ServiceConfig.class, StandingOrderConfig.class, ForwardedHeaderConfig.class})
 
 public class AccountApplicationConfig
 {

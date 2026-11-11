@@ -1,3 +1,73 @@
+The changes for CORS for use with docker will probably screw up development using a local angular server.
+This is googles solution for this:
+
+To allow your Angular frontend at http://localhost:4200 during local development without opening CORS in production, use either an Angular dev proxy (recommended, zero Java changes required) or a Spring @Profile("dev") CORS configuration.
+
+Option 1: Angular Dev Server Proxy (Recommended)
+
+Using Angular's built-in proxy makes the Angular dev server (localhost:4200) forward API calls to your local Spring Boot backend (localhost:8080) behind the scenes. Because the browser only talks to http://localhost:4200, it treats every call as same-origin and never triggers CORS.
+• Create proxy.conf.json in your Angular root folder. Point /app (or your API path) to your local Spring Boot port.
+json
+{
+  "/app": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "changeOrigin": true
+  }
+}
+Use code with caution.
+• Register the proxy in angular.json. Add "proxyConfig": "proxy.conf.json" under architect.serve.options (or pass --proxy-config proxy.conf.json when running ng serve).
+json
+"serve": {
+  "builder": "@angular-devkit/build-angular:dev-server",
+  "options": {
+    "proxyConfig": "proxy.conf.json"
+  }
+}
+Use code with caution.
+• Use relative API URLs in Angular. Ensure your Angular service calls /app/restapi rather than hardcoding http://localhost:8080/app/restapi. This works identically in both local development and your Docker production setup.
+
+Option 2: Spring Boot @Profile("dev") CORS Bean
+
+If your Angular dev app calls http://localhost:8080 directly instead of using a proxy, enable CORS exclusively when the dev profile is active so production remains locked down.
+• Create a dev-only CORS configuration class. Add @Profile("dev") so Spring ignores this class in production.
+java
+package com.example.yourapp.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
+
+@Configuration
+@Profile("dev")
+public class DevCorsConfig {
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:4200"));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
+}
+Use code with caution.
+• Activate the dev profile locally. Start your embedded Spring Boot server with -Dspring.profiles.active=dev (or set SPRING_PROFILES_ACTIVE=dev in your IDE run configuration).
+• Note if not using Spring Security. If your project uses plain Spring MVC without spring-boot-starter-security, implement WebMvcConfigurer instead of CorsConfigurationSource and override addCorsMappings with .allowedOrigins("http://localhost:4200").
+Let me know whether your project includes spring-boot-starter-security in your pom.xml or build.gradle, and I can confirm whether CorsConfigurationSource or WebMvcConfigurer applies to your build.
+
+
+
+
 Handy commands:
 
 ```

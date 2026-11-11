@@ -10,17 +10,34 @@
       <pattern>%d %-5level:%logger{40}: %msg%n</pattern>
     </encoder>
   </appender>
+  
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
     <file>${catalina.home}/logs/jaccountapi.log</file>
     <param name="Append" value="false" />
     <encoder>
         <pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</pattern>
     </encoder>
-</appender>
+  </appender>
+  
+  
+  <appender name="ROLLFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <!-- File>${catalina.home}/logs/jaccountapi.log</File -->
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <FileNamePattern>${catalina.home}/logs/jaccountapi.%d{yyyy-MM-dd}.log.gz</FileNamePattern>
+      <maxHistory>30</maxHistory>
+    </rollingPolicy>
+    <layout class="ch.qos.logback.classic.PatternLayout">
+      <Pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n</Pattern>
+    </layout>
+  </appender>  
+  
   <logger name="com.felixalacampagne" level="debug"/>
   
-  <!-- STDOUT when tomcat is a service, FILE if tomcat started from console - naturally there is no way to know! -->
+  <!-- STDOUT when tomcat is a service, FILE if tomcat started from console - naturally there is no way to know! 
+       For a docker container STDOUT appears in the docker logs output, not in any of the tomcat logs.
+  -->
   <root level="info">
     <appender-ref ref="STDOUT"/>
+    <appender-ref ref="ROLLFILE"/>
   </root>
 </configuration>
