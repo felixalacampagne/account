@@ -28,11 +28,15 @@ import org.springframework.context.annotation.PropertySource;
 // Therefore the values in application.properties must be derived from properties with a different name
 // which ONLY appear in the propertysource file or a default value so absence of the
 // propertysource value results in the desired default value being used. I use the 'local' prefix for all
-// properties in the porpertysource file. Obviously the absence of the propertysource file MUST NOT
+// properties in the propertysource file. Obviously the absence of the propertysource file MUST NOT
 // cause the application to crash (which is the default behaviour!!).
 // Note that 'catalina.home', the JVM property used in the tomcat startup command line, is used as this
 // is unlikely to be available unless the application is running in the tomcat container
-@PropertySource(value = "file:${catalina.home}/conf/accountmysql-local.properties", ignoreResourceNotFound = true)
+//@PropertySource(value = "file:${catalina.home}/externalconf/accountmysql-local.properties", ignoreResourceNotFound = true)
+// classpath: searches in directories listed in catalina.properties common.loader. common.loader needs 
+// to be updated with the directory used for application properties.
+// Alternatively 'shared.loader' can be used to indicate the location of application properties folder
+@PropertySource(value = "classpath:accountmysql-local.properties", ignoreResourceNotFound = true)
 @SpringBootApplication(scanBasePackages = {
 		"com.felixalacampagne.account.controller"
 		})
